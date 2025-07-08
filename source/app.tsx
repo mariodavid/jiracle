@@ -1,8 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {Text, Box, useInput} from 'ink';
-import SelectInput from 'ink-select-input';
-import TextInput from 'ink-text-input';
-import {Alert, Spinner} from '@inkjs/ui';
+import {Alert, Spinner, Select, TextInput} from '@inkjs/ui';
 import Gradient from 'ink-gradient';
 import BigText from 'ink-big-text';
 import {
@@ -74,6 +72,25 @@ export default function App({}: Props) {
 		}
 	});
 
+	// Handle auto-reset after success
+	useEffect(() => {
+		if (step === 'success') {
+			const timer = setTimeout(() => {
+				setSelectedIssue(null);
+				setSelectedTime('');
+				setComment('');
+				setSelectedDate('');
+				setIssueSelectionMode(null);
+				setManualIssueKey('');
+				setInputError('');
+				setStep('main-menu');
+			}, 2000);
+
+			return () => clearTimeout(timer);
+		}
+		return undefined;
+	}, [step]);
+
 	useEffect(() => {
 		async function loadConfigAndIssues() {
 			try {
@@ -91,7 +108,7 @@ export default function App({}: Props) {
 				// Preload both favorites and assigned issues
 				const [favorites, assigned] = await Promise.all([
 					jiraClient.fetchFavoriteIssues(parsedConfig.favorites || []),
-					jiraClient.fetchAssignedIssues()
+					jiraClient.fetchAssignedIssues(),
 				]);
 
 				setFavoriteIssues(favorites);
@@ -106,20 +123,20 @@ export default function App({}: Props) {
 		loadConfigAndIssues();
 	}, []);
 
-	const handleIssueSelect = (item: {label: string; value: string}) => {
+	const handleIssueSelect = (value: string) => {
 		const allIssues = [...favoriteIssues, ...assignedIssues];
-		const issue = allIssues.find(i => i.key === item.value);
+		const issue = allIssues.find(i => i.key === value);
 		if (issue) {
 			setSelectedIssue(issue);
 			setStep('time-selection');
 		}
 	};
 
-	const handleTimeSelect = (item: {label: string; value: string}) => {
-		if (item.value === 'custom') {
+	const handleTimeSelect = (value: string) => {
+		if (value === 'custom') {
 			setStep('custom-time-input');
 		} else {
-			setSelectedTime(item.value);
+			setSelectedTime(value);
 			setStep('comment-input');
 		}
 	};
@@ -160,41 +177,37 @@ export default function App({}: Props) {
 		setStep('issue-selection-mode');
 	};
 
-	const handleMainMenuSelect = (item: {label: string; value: string}) => {
-		if (item.value === 'log-work') {
+	const handleMainMenuSelect = (value: string) => {
+		if (value === 'log-work') {
 			setStep('issue-selection-mode');
-		} else if (item.value === 'week-overview') {
+		} else if (value === 'week-overview') {
 			// TODO: Implement week overview
 			setError('Week overview not implemented yet');
 			setStep('error');
-		} else if (item.value === 'settings') {
+		} else if (value === 'settings') {
 			// TODO: Implement settings
 			setError('Settings not implemented yet');
 			setStep('error');
 		}
 	};
 
-	const handleIssueSelectionModeSelect = (item: {
-		label: string;
-		value: string;
-	}) => {
-		if (item.value === 'favorites') {
+	const handleIssueSelectionModeSelect = (value: string) => {
+		if (value === 'favorites') {
 			setIssueSelectionMode('favorites');
 			setStep('issue-selection');
-		} else if (item.value === 'assigned') {
+		} else if (value === 'assigned') {
 			setIssueSelectionMode('assigned');
 			setStep('issue-selection');
-		} else if (item.value === 'other') {
+		} else if (value === 'other') {
 			setIssueSelectionMode('other');
 			setInputError('');
 			setStep('manual-issue-input');
 		}
 	};
 
-
 	const handleManualIssueSubmit = async () => {
 		setInputError(''); // Clear any previous errors
-		
+
 		if (!client || !manualIssueKey.trim()) {
 			return;
 		}
@@ -232,22 +245,28 @@ export default function App({}: Props) {
 	const handleCustomTimeSubmit = () => {
 		// Normalize time format for Jira API
 		const normalizedTime = normalizeTimeFormat(selectedTime);
-		setSelectedTime(normalizedTime);
-		setStep('comment-input');
+		if (normalizedTime) {
+			setSelectedTime(normalizedTime);
+			setStep('comment-input');
+		} else {
+			// Show error for invalid time format
+			setError('Invalid time format. Examples: 2h, 30m, 1.5h, 2h 30m');
+			setStep('error');
+		}
 	};
 
 	const handleCommentSubmit = () => {
 		setStep('date-selection');
 	};
 
-	const handleDateSelect = async (item: {label: string; value: string}) => {
-		setSelectedDate(item.value);
+	const handleDateSelect = async (value: string) => {
+		setSelectedDate(value);
 		setStep('submitting');
 
 		try {
 			if (client && selectedIssue) {
 				// Convert to proper Jira format: yyyy-MM-dd'T'HH:mm:ss.SSSZ
-				const selectedDateTime = new Date(item.value);
+				const selectedDateTime = new Date(value);
 				const formattedStarted = selectedDateTime
 					.toISOString()
 					.replace('Z', '+0000');
@@ -268,7 +287,8 @@ export default function App({}: Props) {
 	};
 
 	// Create issue items based on selected mode
-	const currentIssues = issueSelectionMode === 'favorites' ? favoriteIssues : assignedIssues;
+	const currentIssues =
+		issueSelectionMode === 'favorites' ? favoriteIssues : assignedIssues;
 	const issueItems = currentIssues.map(issue => ({
 		label: `${issue.key} - ${issue.fields.summary}`,
 		value: issue.key,
@@ -324,7 +344,6 @@ export default function App({}: Props) {
 		);
 	}
 
-
 	if (step === 'error') {
 		return <Alert variant="error">Error: {error}</Alert>;
 	}
@@ -334,7 +353,7 @@ export default function App({}: Props) {
 			<Box flexDirection="column">
 				<Text color="cyan">What would you like to do?</Text>
 				<Text> </Text>
-				<SelectInput items={mainMenuItems} onSelect={handleMainMenuSelect} />
+				<Select options={mainMenuItems} onChange={handleMainMenuSelect} />
 				<Text> </Text>
 				<Text color="redBright" wrap="wrap">
 					{' '}
@@ -348,9 +367,9 @@ export default function App({}: Props) {
 			<Box flexDirection="column">
 				<Text color="cyan">How would you like to select an issue?</Text>
 				<Text> </Text>
-				<SelectInput
-					items={issueSelectionModeItems}
-					onSelect={handleIssueSelectionModeSelect}
+				<Select
+					options={issueSelectionModeItems}
+					onChange={handleIssueSelectionModeSelect}
 				/>
 				<Text> </Text>
 				<Text color="redBright" wrap="wrap">
@@ -370,14 +389,17 @@ export default function App({}: Props) {
 				</Text>
 				<Text> </Text>
 				<TextInput
-					value={manualIssueKey}
-					onChange={(value) => {
+					defaultValue={manualIssueKey}
+					onChange={value => {
 						setManualIssueKey(value);
 						if (inputError) {
 							setInputError(''); // Clear error when user starts typing
 						}
 					}}
-					onSubmit={handleManualIssueSubmit}
+					onSubmit={value => {
+						setManualIssueKey(value);
+						handleManualIssueSubmit();
+					}}
 					placeholder="JTS-1234 or https://jira.example.com/browse/JTS-1234"
 				/>
 				<Text> </Text>
@@ -399,11 +421,9 @@ export default function App({}: Props) {
 
 		return (
 			<Box flexDirection="column">
-				<Text color="cyan">
-					{modeTitle}
-				</Text>
+				<Text color="cyan">{modeTitle}</Text>
 				<Text> </Text>
-				<SelectInput items={issueItems} onSelect={handleIssueSelect} />
+				<Select options={issueItems} onChange={handleIssueSelect} />
 				<Text> </Text>
 				<Text color="redBright" wrap="wrap">
 					{' '}
@@ -422,7 +442,11 @@ export default function App({}: Props) {
 				<Text> </Text>
 				<Text color="cyan">Select time to log:</Text>
 				<Text> </Text>
-				<SelectInput items={timeItems} onSelect={handleTimeSelect} />
+				<Select
+					options={timeItems}
+					onChange={handleTimeSelect}
+					visibleOptionCount={10}
+				/>
 				<Text> </Text>
 				<Text color="redBright" wrap="wrap">
 					{' '}
@@ -444,9 +468,12 @@ export default function App({}: Props) {
 				</Text>
 				<Text> </Text>
 				<TextInput
-					value={selectedTime}
+					defaultValue={selectedTime}
 					onChange={setSelectedTime}
-					onSubmit={handleCustomTimeSubmit}
+					onSubmit={value => {
+						setSelectedTime(value);
+						handleCustomTimeSubmit();
+					}}
 					placeholder="1h"
 				/>
 				<Text> </Text>
@@ -471,9 +498,12 @@ export default function App({}: Props) {
 				</Text>
 				<Text> </Text>
 				<TextInput
-					value={comment}
+					defaultValue={comment}
 					onChange={setComment}
-					onSubmit={handleCommentSubmit}
+					onSubmit={value => {
+						setComment(value);
+						handleCommentSubmit();
+					}}
 					placeholder="Worked on this issue"
 				/>
 				<Text> </Text>
@@ -496,7 +526,7 @@ export default function App({}: Props) {
 				<Text> </Text>
 				<Text color="cyan">Select date:</Text>
 				<Text> </Text>
-				<SelectInput items={dateItems} onSelect={handleDateSelect} />
+				<Select options={dateItems} onChange={handleDateSelect} />
 				<Text> </Text>
 				<Text color="redBright" wrap="wrap">
 					{' '}
@@ -513,12 +543,14 @@ export default function App({}: Props) {
 	if (step === 'success') {
 		return (
 			<Box flexDirection="column">
-				<Text color="green">✓ Worklog successfully added!</Text>
+				<Alert variant="success">✓ Worklog successfully added!</Alert>
 				<Text> </Text>
 				<Text>Issue: {selectedIssue?.key}</Text>
 				<Text>Time: {selectedTime}</Text>
 				<Text>Comment: {comment || 'Worked on this issue'}</Text>
 				<Text>Date: {selectedDate.split('T')[0]}</Text>
+				<Text> </Text>
+				<Text color="gray">Returning to main menu...</Text>
 			</Box>
 		);
 	}

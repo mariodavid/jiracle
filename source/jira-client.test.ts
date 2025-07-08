@@ -150,24 +150,28 @@ test('addWorklog accepts custom time formats', async t => {
 });
 
 test('normalizeTimeFormat converts time formats correctly', t => {
+	// Test ms library parsing (natural language)
+	t.is(normalizeTimeFormat('2h'), '2h');
+	t.is(normalizeTimeFormat('30m'), '30m');
+	t.is(normalizeTimeFormat('1.5h'), '1h 30m');
+	t.is(normalizeTimeFormat('90m'), '1h 30m');
+	t.is(normalizeTimeFormat('2 hours'), '2h');
+	t.is(normalizeTimeFormat('45 minutes'), '45m');
+
+	// Test legacy formats
 	t.is(normalizeTimeFormat('2h30m'), '2h 30m');
 	t.is(normalizeTimeFormat('1h15m'), '1h 15m');
-	t.is(normalizeTimeFormat('45m'), '45m');
 	t.is(normalizeTimeFormat('8h'), '8h');
 	t.is(normalizeTimeFormat('2h 30m'), '2h 30m'); // Already normalized
-	t.is(normalizeTimeFormat('1h'), '1h');
-	t.is(normalizeTimeFormat('30m'), '30m');
 
 	// Test German decimal separator conversion
 	t.is(normalizeTimeFormat('2,5h'), '2.5h');
 	t.is(normalizeTimeFormat('1,25h'), '1.25h');
-	t.is(normalizeTimeFormat('0,5h'), '0.5h');
-	t.is(normalizeTimeFormat('45,5m'), '45.5m');
-	t.is(normalizeTimeFormat('2,5h 30m'), '2.5h 30m');
 
-	// Test that English format is preserved
-	t.is(normalizeTimeFormat('2.5h'), '2.5h');
-	t.is(normalizeTimeFormat('1.25h'), '1.25h');
+	// Test invalid inputs
+	t.is(normalizeTimeFormat('invalid'), '');
+	t.is(normalizeTimeFormat('abc'), '');
+	t.is(normalizeTimeFormat(''), '');
 });
 
 test('extractIssueKeyFromInput extracts issue keys from URLs correctly', t => {

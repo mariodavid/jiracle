@@ -44,6 +44,7 @@ export interface JiraSearchResponse {
 
 import winston from 'winston';
 import {join} from 'path';
+import ms from 'ms';
 
 export interface WorklogRequest {
 	timeSpent: string;
@@ -52,13 +53,44 @@ export interface WorklogRequest {
 }
 
 export function normalizeTimeFormat(timeString: string): string {
-	// Convert "2h30m" to "2h 30m" format that Jira expects
-	// Also normalize German decimal separator "," to "."
-	return timeString
+	// Trim and convert to lowercase for consistent parsing
+	const input = timeString.trim().toLowerCase();
+
+	// First try to parse with ms library (supports formats like "2h", "30m", "1.5h", etc.)
+	try {
+		const milliseconds = (ms as any)(input);
+		if (typeof milliseconds === 'number' && milliseconds > 0) {
+			// Convert milliseconds back to Jira format
+			const totalMinutes = Math.round(milliseconds / (1000 * 60));
+			const hours = Math.floor(totalMinutes / 60);
+			const minutes = totalMinutes % 60;
+
+			if (hours > 0 && minutes > 0) {
+				return `${hours}h ${minutes}m`;
+			} else if (hours > 0) {
+				return `${hours}h`;
+			} else if (minutes > 0) {
+				return `${minutes}m`;
+			}
+		}
+	} catch {
+		// Fall through to legacy parsing if ms fails
+	}
+
+	// Legacy parsing for formats like "2h30m", "2,5h" (German decimal)
+	const normalized = input
 		.replace(/,/g, '.') // Convert German comma to English dot
 		.replace(/(\d+)([hm])/g, '$1$2 ') // Add space after h/m
 		.replace(/\s+/g, ' ') // Normalize multiple spaces
 		.trim();
+
+	// Validate the result - should match Jira format
+	if (/^\d+(\.\d+)?[hm](\s+\d+(\.\d+)?[hm])?$/.test(normalized)) {
+		return normalized;
+	}
+
+	// If all parsing fails, return empty string to indicate invalid input
+	return '';
 }
 
 export function extractIssueKeyFromInput(input: string): string | null {
