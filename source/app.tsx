@@ -2,6 +2,9 @@ import React, {useEffect, useState} from 'react';
 import {Text, Box, useInput} from 'ink';
 import SelectInput from 'ink-select-input';
 import TextInput from 'ink-text-input';
+import {Alert, Spinner} from '@inkjs/ui';
+import Gradient from 'ink-gradient';
+import BigText from 'ink-big-text';
 import {
 	JiraClient,
 	normalizeTimeFormat,
@@ -29,9 +32,9 @@ type Step =
 	| 'error';
 
 export default function App({}: Props) {
-	const [issues, setIssues] = useState<JiraIssue[]>([]);
+	const [favoriteIssues, setFavoriteIssues] = useState<JiraIssue[]>([]);
+	const [assignedIssues, setAssignedIssues] = useState<JiraIssue[]>([]);
 	const [client, setClient] = useState<JiraClient | null>(null);
-	const [config, setConfig] = useState<JiraConfig | null>(null);
 	const [step, setStep] = useState<Step>('loading');
 	const [error, setError] = useState<string | null>(null);
 
@@ -72,16 +75,27 @@ export default function App({}: Props) {
 	});
 
 	useEffect(() => {
-		async function loadConfig() {
+		async function loadConfigAndIssues() {
 			try {
+				// Add a minimum delay for the banner/loading effect
+				await new Promise(resolve => setTimeout(resolve, 2000));
+
 				// Load config from ~/.config/jiracle.json
 				const configPath = join(homedir(), '.config', 'jiracle.json');
 				const configData = readFileSync(configPath, 'utf8');
 				const parsedConfig: JiraConfig = JSON.parse(configData);
-				setConfig(parsedConfig);
 
 				const jiraClient = new JiraClient(parsedConfig);
 				setClient(jiraClient);
+
+				// Preload both favorites and assigned issues
+				const [favorites, assigned] = await Promise.all([
+					jiraClient.fetchFavoriteIssues(parsedConfig.favorites || []),
+					jiraClient.fetchAssignedIssues()
+				]);
+
+				setFavoriteIssues(favorites);
+				setAssignedIssues(assigned);
 				setStep('main-menu');
 			} catch (err) {
 				setError(err instanceof Error ? err.message : 'Unknown error');
@@ -89,11 +103,12 @@ export default function App({}: Props) {
 			}
 		}
 
-		loadConfig();
+		loadConfigAndIssues();
 	}, []);
 
 	const handleIssueSelect = (item: {label: string; value: string}) => {
-		const issue = issues.find(i => i.key === item.value);
+		const allIssues = [...favoriteIssues, ...assignedIssues];
+		const issue = allIssues.find(i => i.key === item.value);
 		if (issue) {
 			setSelectedIssue(issue);
 			setStep('time-selection');
@@ -165,10 +180,10 @@ export default function App({}: Props) {
 	}) => {
 		if (item.value === 'favorites') {
 			setIssueSelectionMode('favorites');
-			loadFavoriteIssues();
+			setStep('issue-selection');
 		} else if (item.value === 'assigned') {
 			setIssueSelectionMode('assigned');
-			loadAssignedIssues();
+			setStep('issue-selection');
 		} else if (item.value === 'other') {
 			setIssueSelectionMode('other');
 			setInputError('');
@@ -176,33 +191,6 @@ export default function App({}: Props) {
 		}
 	};
 
-	const loadFavoriteIssues = async () => {
-		try {
-			if (client && config) {
-				const favoriteIssues = await client.fetchFavoriteIssues(
-					config.favorites || [],
-				);
-				setIssues(favoriteIssues);
-				setStep('issue-selection');
-			}
-		} catch (err) {
-			setError(err instanceof Error ? err.message : 'Unknown error');
-			setStep('error');
-		}
-	};
-
-	const loadAssignedIssues = async () => {
-		try {
-			if (client) {
-				const assignedIssues = await client.fetchAssignedIssues();
-				setIssues(assignedIssues);
-				setStep('issue-selection');
-			}
-		} catch (err) {
-			setError(err instanceof Error ? err.message : 'Unknown error');
-			setStep('error');
-		}
-	};
 
 	const handleManualIssueSubmit = async () => {
 		setInputError(''); // Clear any previous errors
@@ -214,9 +202,7 @@ export default function App({}: Props) {
 		const issueKey = extractIssueKeyFromInput(manualIssueKey.trim());
 
 		if (!issueKey) {
-			setInputError(
-				'Invalid issue key or URL format. Please enter a valid issue key (e.g., JTS-1234) or Jira URL (e.g., https://jira.example.com/browse/JTS-1234)',
-			);
+			setInputError('Invalid format. Use: JTS-1234 or Jira URL');
 			return;
 		}
 
@@ -281,8 +267,9 @@ export default function App({}: Props) {
 		}
 	};
 
-	// Create issue items
-	const issueItems = issues.map(issue => ({
+	// Create issue items based on selected mode
+	const currentIssues = issueSelectionMode === 'favorites' ? favoriteIssues : assignedIssues;
+	const issueItems = currentIssues.map(issue => ({
 		label: `${issue.key} - ${issue.fields.summary}`,
 		value: issue.key,
 	}));
@@ -324,11 +311,22 @@ export default function App({}: Props) {
 	];
 
 	if (step === 'loading') {
-		return <Text>Loading configuration...</Text>;
+		return (
+			<Box flexDirection="column" alignItems="center" justifyContent="center">
+				<Text> </Text>
+				<Gradient name="rainbow">
+					<BigText text="JIRACLE" />
+				</Gradient>
+				<Text> </Text>
+				<Spinner label="Loading configuration and issues..." />
+				<Text> </Text>
+			</Box>
+		);
 	}
 
+
 	if (step === 'error') {
-		return <Text color="redBright">Error: {error}</Text>;
+		return <Alert variant="error">Error: {error}</Alert>;
 	}
 
 	if (step === 'main-menu') {
@@ -383,9 +381,11 @@ export default function App({}: Props) {
 					placeholder="JTS-1234 or https://jira.example.com/browse/JTS-1234"
 				/>
 				<Text> </Text>
-				<Text color="redBright" wrap="wrap">
-					{inputError || ' '}
-				</Text>
+				{inputError ? (
+					<Alert variant="error">{inputError}</Alert>
+				) : (
+					<Text> </Text>
+				)}
 				<Text color="gray">Press ESC to go back to issue selection mode</Text>
 			</Box>
 		);
