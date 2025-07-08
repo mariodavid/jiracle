@@ -1,5 +1,9 @@
 import test from 'ava';
-import {JiraClient} from './jira-client.js';
+import {
+	JiraClient,
+	normalizeTimeFormat,
+	extractIssueKeyFromInput,
+} from './jira-client.js';
 import type {JiraConfig} from './jira-client.js';
 
 const mockConfig: JiraConfig = {
@@ -112,4 +116,102 @@ test('fetchIssue builds correct request', async t => {
 	} finally {
 		global.fetch = originalFetch;
 	}
+});
+
+test('addWorklog accepts custom time formats', async t => {
+	const client = new JiraClient(mockConfig);
+	const issueKey = 'TEST-123';
+
+	const originalFetch = global.fetch;
+	let capturedRequest: {url: string; options: RequestInit} | undefined;
+
+	global.fetch = async (url, options) => {
+		capturedRequest = {url: url as string, options: options!};
+		return {
+			ok: true,
+			json: async () => ({}),
+		} as Response;
+	};
+
+	try {
+		await client.addWorklog(issueKey, {
+			timeSpent: '2h 30m',
+			comment: 'Custom time test',
+			started: '2025-01-08T12:00:00.000+0000',
+		});
+
+		t.truthy(capturedRequest);
+		const body = JSON.parse(capturedRequest!.options.body as string);
+		t.is(body.timeSpent, '2h 30m');
+		t.is(body.comment, 'Custom time test');
+	} finally {
+		global.fetch = originalFetch;
+	}
+});
+
+test('normalizeTimeFormat converts time formats correctly', t => {
+	t.is(normalizeTimeFormat('2h30m'), '2h 30m');
+	t.is(normalizeTimeFormat('1h15m'), '1h 15m');
+	t.is(normalizeTimeFormat('45m'), '45m');
+	t.is(normalizeTimeFormat('8h'), '8h');
+	t.is(normalizeTimeFormat('2h 30m'), '2h 30m'); // Already normalized
+	t.is(normalizeTimeFormat('1h'), '1h');
+	t.is(normalizeTimeFormat('30m'), '30m');
+
+	// Test German decimal separator conversion
+	t.is(normalizeTimeFormat('2,5h'), '2.5h');
+	t.is(normalizeTimeFormat('1,25h'), '1.25h');
+	t.is(normalizeTimeFormat('0,5h'), '0.5h');
+	t.is(normalizeTimeFormat('45,5m'), '45.5m');
+	t.is(normalizeTimeFormat('2,5h 30m'), '2.5h 30m');
+
+	// Test that English format is preserved
+	t.is(normalizeTimeFormat('2.5h'), '2.5h');
+	t.is(normalizeTimeFormat('1.25h'), '1.25h');
+});
+
+test('extractIssueKeyFromInput extracts issue keys from URLs correctly', t => {
+	// Test direct issue key input
+	t.is(extractIssueKeyFromInput('JTS-1234'), 'JTS-1234');
+	t.is(extractIssueKeyFromInput('ABC-999'), 'ABC-999');
+	t.is(extractIssueKeyFromInput('TEST-42'), 'TEST-42');
+
+	// Test URL extraction
+	t.is(
+		extractIssueKeyFromInput('https://jira.convista.com/browse/JTS-2457'),
+		'JTS-2457',
+	);
+	t.is(
+		extractIssueKeyFromInput('https://jira.example.com/browse/ABC-999'),
+		'ABC-999',
+	);
+	t.is(
+		extractIssueKeyFromInput('http://jira.company.com/browse/PROJ-123'),
+		'PROJ-123',
+	);
+
+	// Test with different path structures
+	t.is(
+		extractIssueKeyFromInput('https://company.atlassian.net/browse/TEAM-456'),
+		'TEAM-456',
+	);
+	t.is(extractIssueKeyFromInput('/browse/LOCAL-789'), 'LOCAL-789');
+
+	// Test whitespace trimming
+	t.is(extractIssueKeyFromInput('  JTS-1234  '), 'JTS-1234');
+	t.is(
+		extractIssueKeyFromInput('  https://jira.convista.com/browse/JTS-2457  '),
+		'JTS-2457',
+	);
+
+	// Test invalid inputs (should return null)
+	t.is(extractIssueKeyFromInput('invalid-input'), null);
+	t.is(extractIssueKeyFromInput('123-ABC'), null);
+	t.is(extractIssueKeyFromInput('https://example.com/other/path'), null);
+	t.is(extractIssueKeyFromInput(''), null);
+
+	// Test edge cases
+	t.is(extractIssueKeyFromInput('https://jira.convista.com/browse/'), null);
+	t.is(extractIssueKeyFromInput('browse/JTS-1234'), null); // Missing slash
+	t.is(extractIssueKeyFromInput('https://google.com/'), null); // Invalid URL
 });
