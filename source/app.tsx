@@ -7,13 +7,16 @@ import {
 	JiraClient,
 	normalizeTimeFormat,
 	extractIssueKeyFromInput,
+	getFavoriteDefaultComment,
 } from './jira-client.js';
 import type {JiraIssue, JiraConfig, WorklogRequest} from './jira-client.js';
 import {readFileSync} from 'fs';
 import {homedir} from 'os';
 import {join} from 'path';
 
-type Props = {};
+type Props = {
+	config?: JiraConfig;
+};
 
 type Step =
 	| 'loading'
@@ -29,10 +32,11 @@ type Step =
 	| 'success'
 	| 'error';
 
-export default function App({}: Props) {
+export default function App({config}: Props) {
 	const [favoriteIssues, setFavoriteIssues] = useState<JiraIssue[]>([]);
 	const [assignedIssues, setAssignedIssues] = useState<JiraIssue[]>([]);
 	const [client, setClient] = useState<JiraClient | null>(null);
+	const [currentConfig, setCurrentConfig] = useState<JiraConfig | null>(null);
 	const [step, setStep] = useState<Step>('loading');
 	const [error, setError] = useState<string | null>(null);
 
@@ -97,13 +101,21 @@ export default function App({}: Props) {
 				// Add a minimum delay for the banner/loading effect
 				await new Promise(resolve => setTimeout(resolve, 2000));
 
-				// Load config from ~/.config/jiracle.json
-				const configPath = join(homedir(), '.config', 'jiracle.json');
-				const configData = readFileSync(configPath, 'utf8');
-				const parsedConfig: JiraConfig = JSON.parse(configData);
+				let parsedConfig: JiraConfig;
+
+				if (config) {
+					// Use provided config (for tests)
+					parsedConfig = config;
+				} else {
+					// Load config from ~/.config/jiracle.json
+					const configPath = join(homedir(), '.config', 'jiracle.json');
+					const configData = readFileSync(configPath, 'utf8');
+					parsedConfig = JSON.parse(configData);
+				}
 
 				const jiraClient = new JiraClient(parsedConfig);
 				setClient(jiraClient);
+				setCurrentConfig(parsedConfig);
 
 				// Preload both favorites and assigned issues
 				const [favorites, assigned] = await Promise.all([
@@ -121,13 +133,25 @@ export default function App({}: Props) {
 		}
 
 		loadConfigAndIssues();
-	}, []);
+	}, [config]);
 
 	const handleIssueSelect = (value: string) => {
 		const allIssues = [...favoriteIssues, ...assignedIssues];
 		const issue = allIssues.find(i => i.key === value);
 		if (issue) {
 			setSelectedIssue(issue);
+
+			// Set default comment if this is a favorite issue and has a configured comment
+			if (issueSelectionMode === 'favorites' && currentConfig) {
+				const defaultComment = getFavoriteDefaultComment(
+					currentConfig.favorites || [],
+					value,
+				);
+				if (defaultComment) {
+					setComment(defaultComment);
+				}
+			}
+
 			setStep('time-selection');
 		}
 	};
@@ -137,6 +161,23 @@ export default function App({}: Props) {
 			setStep('custom-time-input');
 		} else {
 			setSelectedTime(value);
+
+			// Set default comment if this is a favorite issue and comment is empty
+			if (
+				issueSelectionMode === 'favorites' &&
+				currentConfig &&
+				selectedIssue &&
+				!comment
+			) {
+				const defaultComment = getFavoriteDefaultComment(
+					currentConfig.favorites || [],
+					selectedIssue.key,
+				);
+				if (defaultComment) {
+					setComment(defaultComment);
+				}
+			}
+
 			setStep('comment-input');
 		}
 	};
@@ -155,8 +196,19 @@ export default function App({}: Props) {
 
 	const handleBackToTimeSelection = () => {
 		setSelectedTime('');
-		setComment('');
 		setSelectedDate('');
+
+		// Reset comment to default if this is a favorite issue with a configured comment
+		if (issueSelectionMode === 'favorites' && currentConfig && selectedIssue) {
+			const defaultComment = getFavoriteDefaultComment(
+				currentConfig.favorites || [],
+				selectedIssue.key,
+			);
+			setComment(defaultComment || '');
+		} else {
+			setComment('');
+		}
+
 		setStep('time-selection');
 	};
 

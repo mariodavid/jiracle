@@ -1,8 +1,13 @@
+export interface FavoriteIssue {
+	key: string;
+	defaultComment?: string;
+}
+
 export interface JiraConfig {
 	jiraUrl: string;
 	username: string;
 	apiToken: string;
-	favorites?: string[];
+	favorites?: FavoriteIssue[];
 }
 
 export interface JiraIssueField {
@@ -91,6 +96,18 @@ export function normalizeTimeFormat(timeString: string): string {
 
 	// If all parsing fails, return empty string to indicate invalid input
 	return '';
+}
+
+export function getFavoriteKeys(favorites: FavoriteIssue[]): string[] {
+	return favorites.map(fav => fav.key);
+}
+
+export function getFavoriteDefaultComment(
+	favorites: FavoriteIssue[],
+	issueKey: string,
+): string | undefined {
+	const favorite = favorites.find(fav => fav.key === issueKey);
+	return favorite?.defaultComment;
 }
 
 export function extractIssueKeyFromInput(input: string): string | null {
@@ -224,11 +241,12 @@ export class JiraClient {
 		}
 	}
 
-	async fetchFavoriteIssues(favoriteKeys: string[]): Promise<JiraIssue[]> {
-		if (favoriteKeys.length === 0) {
+	async fetchFavoriteIssues(favorites: FavoriteIssue[]): Promise<JiraIssue[]> {
+		if (favorites.length === 0) {
 			return [];
 		}
 
+		const favoriteKeys = getFavoriteKeys(favorites);
 		const jql = `key in (${favoriteKeys
 			.map(key => `"${key}"`)
 			.join(', ')}) AND resolution = Unresolved`;

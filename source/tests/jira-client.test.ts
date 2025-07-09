@@ -3,8 +3,8 @@ import {
 	JiraClient,
 	normalizeTimeFormat,
 	extractIssueKeyFromInput,
-} from './jira-client.js';
-import type {JiraConfig} from './jira-client.js';
+} from '../jira-client.js';
+import type {JiraConfig} from '../jira-client.js';
 
 const mockConfig: JiraConfig = {
 	jiraUrl: 'https://jira.example.com/',

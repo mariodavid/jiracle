@@ -25,6 +25,62 @@ Depending on implementation:
 - Node.js with [Ink](https://github.com/vadimdemedes/ink) – React-style terminal UIs
 - or Python with [Textual](https://github.com/Textualize/textual) – modern TUI framework with layout, widgets, etc.
 
+## Development
+
+### Setup
+
+```bash
+npm install
+npm run build
+```
+
+### Running the app
+
+```bash
+npm start
+```
+
+### Testing
+
+Run all tests:
+
+```bash
+npm test
+```
+
+Run specific test categories:
+
+```bash
+# Only worklog tests
+npm test -- --match="*worklog*"
+
+# Only integration tests
+npm test -- --match="*integration*"
+
+# Only unit tests (jira-client)
+npm test -- --match="*jira-client*"
+```
+
+Run specific test:
+
+```bash
+npm test -- --match="*should complete successful worklog submission*"
+```
+
+Additional test options:
+
+```bash
+# Verbose output
+npm test -- --verbose
+
+# Watch mode (runs tests on file changes)
+npm run dev  # In first terminal
+npx ava --watch  # In second terminal
+
+# Fail fast (stop on first failure)
+npm test -- --fail-fast
+```
+
 ## Installation (coming soon)
 
 ```bash
