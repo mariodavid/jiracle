@@ -4,7 +4,7 @@ import {render} from 'ink-testing-library';
 import MainMenu from '../../components/MainMenu.js';
 import {delays} from '../utils/testUtils.js';
 
-test('should render main menu question', async t => {
+test('should render main menu header', async t => {
 	const onSelect = (_value: string) => {
 		// Test callback
 	};
@@ -17,7 +17,7 @@ test('should render main menu question', async t => {
 	await new Promise(resolve => setTimeout(resolve, delays.SHORT));
 
 	const output = lastFrame();
-	t.true(output?.includes('What would you like to do?') ?? false);
+	t.true(output?.includes('JIRACLE') ?? false);
 
 	unmount();
 });
@@ -35,9 +35,9 @@ test('should render all menu options', async t => {
 	await new Promise(resolve => setTimeout(resolve, delays.SHORT));
 
 	const output = lastFrame();
-	t.true(output?.includes('Log Work') ?? false);
-	t.true(output?.includes('Week Overview') ?? false);
-	t.true(output?.includes('Settings') ?? false);
+	t.true(output?.includes('LOG WORK') ?? false);
+	t.true(output?.includes('WEEKLY TIMETABLE') ?? false);
+	t.true(output?.includes('SETTINGS') ?? false);
 
 	unmount();
 });
@@ -74,7 +74,7 @@ test('should call onSelect when second option is selected', async t => {
 	await new Promise(resolve => setTimeout(resolve, delays.SHORT));
 
 	// Navigate to second option (Week Overview)
-	stdin.write('\u001B\u005B\u0042'); // Arrow down
+	stdin.write('\u001B\u005B\u0043'); // Arrow right
 	await new Promise(resolve => setTimeout(resolve, delays.SHORT));
 	stdin.write('\r'); // Enter
 	await new Promise(resolve => setTimeout(resolve, delays.SHORT));
@@ -96,9 +96,9 @@ test('should call onSelect when third option is selected', async t => {
 	await new Promise(resolve => setTimeout(resolve, delays.SHORT));
 
 	// Navigate to third option (Settings)
-	stdin.write('\u001B\u005B\u0042'); // Arrow down
+	stdin.write('\u001B\u005B\u0043'); // Arrow right
 	await new Promise(resolve => setTimeout(resolve, delays.SHORT));
-	stdin.write('\u001B\u005B\u0042'); // Arrow down
+	stdin.write('\u001B\u005B\u0043'); // Arrow right
 	await new Promise(resolve => setTimeout(resolve, delays.SHORT));
 	stdin.write('\r'); // Enter
 	await new Promise(resolve => setTimeout(resolve, delays.SHORT));
@@ -119,12 +119,12 @@ test('should handle navigation with arrow keys', async t => {
 	// Wait for component to render
 	await new Promise(resolve => setTimeout(resolve, delays.SHORT));
 
-	// Navigate down then up then down then select
-	stdin.write('\u001B\u005B\u0042'); // Arrow down
+	// Navigate right then left then right then select
+	stdin.write('\u001B\u005B\u0043'); // Arrow right
 	await new Promise(resolve => setTimeout(resolve, delays.SHORT));
-	stdin.write('\u001B\u005B\u0041'); // Arrow up
+	stdin.write('\u001B\u005B\u0044'); // Arrow left
 	await new Promise(resolve => setTimeout(resolve, delays.SHORT));
-	stdin.write('\u001B\u005B\u0042'); // Arrow down
+	stdin.write('\u001B\u005B\u0043'); // Arrow right
 	await new Promise(resolve => setTimeout(resolve, delays.SHORT));
 	stdin.write('\r'); // Enter
 	await new Promise(resolve => setTimeout(resolve, delays.SHORT));

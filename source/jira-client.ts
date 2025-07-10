@@ -57,6 +57,25 @@ export interface WorklogRequest {
 	started: string;
 }
 
+export interface WorklogResponse {
+	startAt: number;
+	maxResults: number;
+	total: number;
+	worklogs: WorklogEntry[];
+}
+
+export interface WorklogEntry {
+	id: string;
+	issueId: string;
+	author: {
+		displayName: string;
+		emailAddress: string;
+	};
+	comment: string;
+	started: string;
+	timeSpentSeconds: number;
+}
+
 export function normalizeTimeFormat(timeString: string): string {
 	// Trim and convert to lowercase for consistent parsing
 	const input = timeString.trim().toLowerCase();
@@ -417,6 +436,161 @@ export class JiraClient {
 				url: worklogUrl,
 				issueKey,
 				worklogData,
+				error: error instanceof Error ? error.message : 'Unknown error',
+			});
+			throw error;
+		}
+	}
+
+	async getIssueWorklogs(issueKey: string): Promise<WorklogResponse> {
+		const worklogUrl = `${this.baseUrl}/issue/${issueKey}/worklog`;
+
+		this.logger.info('Fetching issue worklogs', {
+			method: 'GET',
+			url: worklogUrl,
+			issueKey,
+		});
+
+		try {
+			const response = await fetch(worklogUrl, {
+				headers: {
+					Authorization: `Bearer ${this.apiToken}`,
+					Accept: 'application/json',
+				},
+			});
+
+			if (!response.ok) {
+				const errorText = await response.text();
+				this.logger.error('Failed to fetch issue worklogs', {
+					method: 'GET',
+					url: worklogUrl,
+					issueKey,
+					status: response.status,
+					error: errorText,
+				});
+				throw new Error(`Jira API error: ${response.status} - ${errorText}`);
+			}
+
+			const data = (await response.json()) as WorklogResponse;
+			this.logger.info('Successfully fetched issue worklogs', {
+				method: 'GET',
+				url: worklogUrl,
+				issueKey,
+				status: response.status,
+				worklogCount: data.worklogs.length,
+			});
+
+			return data;
+		} catch (error) {
+			this.logger.error('Error fetching issue worklogs', {
+				method: 'GET',
+				url: worklogUrl,
+				issueKey,
+				error: error instanceof Error ? error.message : 'Unknown error',
+			});
+			throw error;
+		}
+	}
+
+	async searchIssuesWithWorklogs(jql: string): Promise<JiraSearchResponse> {
+		const searchUrl = `${this.baseUrl}/search`;
+		const requestData = {
+			jql,
+			maxResults: 100,
+			fields: ['id', 'key', 'summary'],
+		};
+
+		this.logger.info('Searching issues with worklogs', {
+			method: 'POST',
+			url: searchUrl,
+			requestData,
+		});
+
+		try {
+			const response = await fetch(searchUrl, {
+				method: 'POST',
+				headers: {
+					Authorization: `Bearer ${this.apiToken}`,
+					Accept: 'application/json',
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify(requestData),
+			});
+
+			if (!response.ok) {
+				const errorText = await response.text();
+				this.logger.error('Failed to search issues with worklogs', {
+					method: 'POST',
+					url: searchUrl,
+					requestData,
+					status: response.status,
+					error: errorText,
+				});
+				throw new Error(`Jira API error: ${response.status} - ${errorText}`);
+			}
+
+			const data = (await response.json()) as JiraSearchResponse;
+			this.logger.info('Successfully searched issues with worklogs', {
+				method: 'POST',
+				url: searchUrl,
+				requestData,
+				status: response.status,
+				issueCount: data.issues.length,
+				total: data.total,
+			});
+
+			return data;
+		} catch (error) {
+			this.logger.error('Error searching issues with worklogs', {
+				method: 'POST',
+				url: searchUrl,
+				requestData,
+				error: error instanceof Error ? error.message : 'Unknown error',
+			});
+			throw error;
+		}
+	}
+
+	async getCurrentUser(): Promise<{emailAddress: string}> {
+		const myselfUrl = `${this.baseUrl}/myself`;
+
+		this.logger.info('Fetching current user', {
+			method: 'GET',
+			url: myselfUrl,
+		});
+
+		try {
+			const response = await fetch(myselfUrl, {
+				headers: {
+					Authorization: `Bearer ${this.apiToken}`,
+					Accept: 'application/json',
+				},
+			});
+
+			if (!response.ok) {
+				const errorText = await response.text();
+				this.logger.error('Failed to fetch current user', {
+					method: 'GET',
+					url: myselfUrl,
+					status: response.status,
+					error: errorText,
+				});
+				throw new Error(`Jira API error: ${response.status} - ${errorText}`);
+			}
+
+			const data = (await response.json()) as {emailAddress: string};
+			this.logger.info('Successfully fetched current user', {
+				method: 'GET',
+				url: myselfUrl,
+				status: response.status,
+				emailAddress: data.emailAddress,
+			});
+
+			return data;
+		} catch (error) {
+			this.logger.error('Error fetching current user', {
+				method: 'GET',
+				url: myselfUrl,
 				error: error instanceof Error ? error.message : 'Unknown error',
 			});
 			throw error;

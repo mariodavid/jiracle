@@ -173,7 +173,7 @@ test.serial(
 
 		// Verify we're back at main menu
 		output = lastFrame();
-		t.true(output?.includes('What would you like to do?') ?? false);
+		t.true(output?.includes('JIRACLE') ?? false);
 
 		unmount();
 	},

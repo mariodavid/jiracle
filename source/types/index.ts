@@ -16,7 +16,8 @@ export type Step =
 	| 'date-selection'
 	| 'submitting'
 	| 'success'
-	| 'error';
+	| 'error'
+	| 'weekly-timetable';
 
 export type IssueSelectionMode = 'favorites' | 'assigned' | 'other' | null;
 

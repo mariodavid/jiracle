@@ -13,6 +13,7 @@ import CustomTimeInput from './components/WorklogForm/CustomTimeInput.js';
 import CommentInput from './components/WorklogForm/CommentInput.js';
 import DateSelection from './components/WorklogForm/DateSelection.js';
 import WorklogSummary from './components/WorklogSummary.js';
+import {WeeklyTimetableView} from './components/WeeklyTimetableView.js';
 
 export default function App({config}: Props) {
 	const {
@@ -28,6 +29,9 @@ export default function App({config}: Props) {
 		issueSelectionMode,
 		manualIssueKey,
 		inputError,
+		currentConfig,
+		currentWeekWorklog,
+		currentUser,
 
 		// State setters
 		setSelectedTime,
@@ -42,6 +46,7 @@ export default function App({config}: Props) {
 		handleBackToTimeSelection,
 		handleBackToCommentInput,
 		handleBackToMainMenu,
+		handleBackFromTimetable,
 		handleBackToIssueSelectionMode,
 		handleMainMenuSelect,
 		handleIssueSelectionModeSelect,
@@ -72,6 +77,8 @@ export default function App({config}: Props) {
 				handleBackToTimeSelection();
 			} else if (step === 'date-selection') {
 				handleBackToCommentInput();
+			} else if (step === 'weekly-timetable') {
+				handleBackFromTimetable();
 			}
 		}
 	});
@@ -191,6 +198,17 @@ export default function App({config}: Props) {
 				selectedTime={selectedTime}
 				comment={comment}
 				selectedDate={selectedDate}
+			/>
+		);
+	}
+
+	if (step === 'weekly-timetable' && currentConfig) {
+		return (
+			<WeeklyTimetableView
+				onBack={handleBackFromTimetable}
+				config={currentConfig}
+				preloadedData={currentWeekWorklog}
+				userEmail={currentUser}
 			/>
 		);
 	}

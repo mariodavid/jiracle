@@ -97,10 +97,10 @@ test('should show main menu after loading', async t => {
 	}
 
 	// Check if we got to the main menu
-	t.true(output?.includes('What would you like to do?') ?? false);
-	t.true(output?.includes('Log Work') ?? false);
-	t.true(output?.includes('Week Overview') ?? false);
-	t.true(output?.includes('Settings') ?? false);
+	t.true(output?.includes('JIRACLE') ?? false);
+	t.true(output?.includes('LOG WORK') ?? false);
+	t.true(output?.includes('WEEKLY TIMETABLE') ?? false);
+	t.true(output?.includes('SETTINGS') ?? false);
 
 	unmount();
 });

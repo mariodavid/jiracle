@@ -10,10 +10,15 @@ import {readFileSync} from 'fs';
 import {homedir} from 'os';
 import {join} from 'path';
 import type {Step, IssueSelectionMode} from '../types/index.js';
+import {WeeklyWorklogSummaryUseCase} from '../use-cases/WeeklyWorklogSummaryUseCase.js';
+import type {WeeklyWorklogSummary} from '../domain/WeeklyWorklogSummary.js';
 
 export function useWorklogFlow(config?: JiraConfig) {
 	const [favoriteIssues, setFavoriteIssues] = useState<JiraIssue[]>([]);
 	const [assignedIssues, setAssignedIssues] = useState<JiraIssue[]>([]);
+	const [currentWeekWorklog, setCurrentWeekWorklog] =
+		useState<WeeklyWorklogSummary | null>(null);
+	const [currentUser, setCurrentUser] = useState<string | null>(null);
 	const [client, setClient] = useState<JiraClient | null>(null);
 	const [currentConfig, setCurrentConfig] = useState<JiraConfig | null>(null);
 	const [step, setStep] = useState<Step>('loading');
@@ -70,14 +75,32 @@ export function useWorklogFlow(config?: JiraConfig) {
 				setClient(jiraClient);
 				setCurrentConfig(parsedConfig);
 
-				// Preload both favorites and assigned issues
-				const [favorites, assigned] = await Promise.all([
+				// Preload favorites, assigned issues, and current week worklog
+				const currentWeekStart = getStartOfWeek(new Date());
+				const currentWeekEnd = getEndOfWeek(new Date());
+
+				// Get current user email first
+				const userResponse = await jiraClient
+					.getCurrentUser()
+					.catch(() => null);
+				const userEmail = userResponse?.emailAddress || null;
+
+				const worklogUseCase = new WeeklyWorklogSummaryUseCase(jiraClient);
+
+				const [favorites, assigned, currentWeekData] = await Promise.all([
 					jiraClient.fetchFavoriteIssues(parsedConfig.favorites || []),
 					jiraClient.fetchAssignedIssues(),
+					userEmail
+						? worklogUseCase
+								.execute(currentWeekStart, currentWeekEnd, userEmail)
+								.catch(() => null)
+						: Promise.resolve(null), // Don't try worklog if user fetch failed
 				]);
 
 				setFavoriteIssues(favorites);
 				setAssignedIssues(assigned);
+				setCurrentWeekWorklog(currentWeekData);
+				setCurrentUser(userEmail);
 				setStep('main-menu');
 			} catch (err) {
 				setError(err instanceof Error ? err.message : 'Unknown error');
@@ -175,6 +198,10 @@ export function useWorklogFlow(config?: JiraConfig) {
 		setStep('main-menu');
 	};
 
+	const handleBackFromTimetable = () => {
+		setStep('main-menu');
+	};
+
 	const handleBackToIssueSelectionMode = () => {
 		setSelectedIssue(null);
 		setManualIssueKey('');
@@ -186,9 +213,7 @@ export function useWorklogFlow(config?: JiraConfig) {
 		if (value === 'log-work') {
 			setStep('issue-selection-mode');
 		} else if (value === 'week-overview') {
-			// TODO: Implement week overview
-			setError('Week overview not implemented yet');
-			setStep('error');
+			setStep('weekly-timetable');
 		} else if (value === 'settings') {
 			// TODO: Implement settings
 			setError('Settings not implemented yet');
@@ -304,6 +329,9 @@ export function useWorklogFlow(config?: JiraConfig) {
 		issueSelectionMode,
 		manualIssueKey,
 		inputError,
+		currentConfig,
+		currentWeekWorklog,
+		currentUser,
 
 		// State setters (for controlled components)
 		setSelectedTime,
@@ -318,6 +346,7 @@ export function useWorklogFlow(config?: JiraConfig) {
 		handleBackToTimeSelection,
 		handleBackToCommentInput,
 		handleBackToMainMenu,
+		handleBackFromTimetable,
 		handleBackToIssueSelectionMode,
 		handleMainMenuSelect,
 		handleIssueSelectionModeSelect,
@@ -326,4 +355,21 @@ export function useWorklogFlow(config?: JiraConfig) {
 		handleCommentSubmit,
 		handleDateSelect,
 	};
+}
+
+function getStartOfWeek(date: Date): Date {
+	const d = new Date(date);
+	const day = d.getDay();
+	const diff = d.getDate() - day + (day === 0 ? -6 : 1); // Monday as start of week
+	d.setDate(diff);
+	d.setHours(0, 0, 0, 0);
+	return d;
+}
+
+function getEndOfWeek(date: Date): Date {
+	const start = getStartOfWeek(date);
+	const end = new Date(start);
+	end.setDate(start.getDate() + 6);
+	end.setHours(23, 59, 59, 999);
+	return end;
 }
