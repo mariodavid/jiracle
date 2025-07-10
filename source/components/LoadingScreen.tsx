@@ -12,7 +12,12 @@ export default function LoadingScreen({
 	message = 'Loading...',
 }: LoadingScreenProps) {
 	return (
-		<Box flexDirection="column" alignItems="center" justifyContent="center">
+		<Box
+			flexDirection="column"
+			alignItems="center"
+			justifyContent="center"
+			height={40}
+		>
 			<Text> </Text>
 			<Gradient name="rainbow">
 				<BigText text="JIRACLE" />

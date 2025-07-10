@@ -17,7 +17,7 @@ export default function CustomTimeInput({
 	onSubmit,
 }: CustomTimeInputProps) {
 	return (
-		<Box flexDirection="column">
+		<Box flexDirection="column" height={40}>
 			<Text color="green">
 				Selected: {selectedIssue.key} - {selectedIssue.fields.summary}
 			</Text>

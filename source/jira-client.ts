@@ -493,6 +493,9 @@ export class JiraClient {
 	}
 
 	async searchIssuesWithWorklogs(jql: string): Promise<JiraSearchResponse> {
+		// Artificial delay to see the loading spinner
+		await new Promise(resolve => setTimeout(resolve, 1000));
+		
 		const searchUrl = `${this.baseUrl}/search`;
 		const requestData = {
 			jql,

@@ -1,24 +1,25 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {Box, Text, useInput} from 'ink';
+import Gradient from 'ink-gradient';
+import BigText from 'ink-big-text';
 import {WeekNavigator} from './WeekNavigator.js';
 import {TimetableGrid} from './TimetableGrid.js';
 import {useWeeklyWorklogSummary} from '../hooks/useWeeklyWorklogSummary.js';
 import type {JiraConfig} from '../jira-client.js';
-import type {WeeklyWorklogSummary} from '../domain/WeeklyWorklogSummary.js';
 
 export interface WeeklyTimetableViewProps {
 	onBack: () => void;
 	onLogWork?: () => void;
+	onCellWorklog?: (data: {issueKey: string; date: Date}) => void;
 	config: JiraConfig;
-	preloadedData?: WeeklyWorklogSummary | null;
 	userEmail?: string | null;
 }
 
 export function WeeklyTimetableView({
 	onBack,
 	onLogWork,
+	onCellWorklog,
 	config,
-	preloadedData,
 	userEmail,
 }: WeeklyTimetableViewProps) {
 	const [currentWeek, setCurrentWeek] = useState(new Date());
@@ -26,22 +27,27 @@ export function WeeklyTimetableView({
 	const weekStart = getStartOfWeek(currentWeek);
 	const weekEnd = getEndOfWeek(currentWeek);
 
-	// Check if current week matches preloaded data
-	const isCurrentWeek =
-		preloadedData &&
-		new Date(preloadedData.weekStart).getTime() === weekStart.getTime();
-
 	const {data, isLoading, error, refresh} = useWeeklyWorklogSummary(
 		weekStart,
 		weekEnd,
 		config,
-		!!isCurrentWeek, // Skip auto-load if we have preloaded data for current week
+		false, // Always load fresh data when component mounts
 		userEmail || undefined,
 	);
 
-	// Use preloaded data for current week, otherwise use hook data
-	const displayData = isCurrentWeek ? preloadedData : data;
-	const displayLoading = isCurrentWeek ? false : isLoading;
+	// Always use fresh data from the hook
+	const displayData = data;
+	const displayLoading = isLoading;
+
+	// Refresh data when component mounts
+	useEffect(() => {
+		// Small delay to ensure component is fully mounted
+		const timer = setTimeout(() => {
+			refresh();
+		}, 100);
+		
+		return () => clearTimeout(timer);
+	}, []); // Empty dependency array means this runs only on mount
 
 	const navigateToPreviousWeek = () => {
 		const newWeek = new Date(currentWeek);
@@ -59,8 +65,8 @@ export function WeeklyTimetableView({
 		setCurrentWeek(new Date());
 	};
 
-	useInput((input, key) => {
-		if (input === 'q' || key.escape) {
+	useInput((input, _key) => {
+		if (input === 'q') {
 			onBack();
 		} else if (input === 't') {
 			handleCurrentWeek();
@@ -69,17 +75,18 @@ export function WeeklyTimetableView({
 		} else if (input === 'l' && onLogWork) {
 			onLogWork();
 		}
+		// Note: ESC key is handled by App.tsx to avoid conflicts
 		// Note: Arrow keys are now handled by TimetableGrid for cell navigation
 		// Shift+Arrow keys are handled by TimetableGrid for week navigation
 	});
 
 	return (
-		<Box flexDirection="column">
-			{/* Header */}
+		<Box flexDirection="column" height={40}>
+			{/* JIRACLE Rainbow Banner */}
 			<Box justifyContent="center" paddingY={1}>
-				<Text bold color="white">
-					JIRACLE - Weekly Worklog Overview
-				</Text>
+				<Gradient name="rainbow">
+					<BigText text="JIRACLE" font="tiny" />
+				</Gradient>
 			</Box>
 
 			{/* Week Navigator */}
@@ -108,13 +115,21 @@ export function WeeklyTimetableView({
 						navigateToNextWeek();
 					}
 				}}
+				onCellWorklog={onCellWorklog}
 			/>
 
 			{/* Footer with keyboard shortcuts */}
-			<Box justifyContent="center" paddingY={1}>
+			<Box justifyContent="center" paddingY={2}>
 				<Text color="gray">
-					[↑↓←→] Navigate Cells [Shift+←→] Week Navigation [L] Log Work [T]
-					Today [R] Refresh [Q] Quit
+					[↑↓←→] Navigate Cells [Enter] Log Work [Shift+←→] Week Navigation [L]
+					Log Work [T] Today [R] Refresh [Q] Quit
+				</Text>
+			</Box>
+
+			{/* Extra spacing to make app taller */}
+			<Box paddingY={3}>
+				<Text color="gray" dimColor>
+					{/* Empty space for better visual layout */}
 				</Text>
 			</Box>
 		</Box>

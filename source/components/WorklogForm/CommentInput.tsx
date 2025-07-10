@@ -19,7 +19,7 @@ export default function CommentInput({
 	onSubmit,
 }: CommentInputProps) {
 	return (
-		<Box flexDirection="column">
+		<Box flexDirection="column" height={40}>
 			<Text color="green">
 				Selected: {selectedIssue.key} - {selectedIssue.fields.summary}
 			</Text>

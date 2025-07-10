@@ -171,9 +171,9 @@ test.serial(
 		// Wait for auto-return to main menu
 		await new Promise(resolve => setTimeout(resolve, 2500));
 
-		// Verify we're back at main menu
+		// Verify we're back at weekly timetable (BigText renders as ASCII art)
 		output = lastFrame();
-		t.true(output?.includes('JIRACLE') ?? false);
+		t.true(output?.includes('Week') ?? false);
 
 		unmount();
 	},

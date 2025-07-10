@@ -17,7 +17,6 @@ test('WeeklyTimetableView renders basic structure', t => {
 	const props = {
 		onBack: () => {},
 		config: mockConfig,
-		preloadedData: null,
 		userEmail: null,
 	};
 
@@ -25,8 +24,8 @@ test('WeeklyTimetableView renders basic structure', t => {
 
 	const output = lastFrame()!;
 
-	// Should render header
-	t.true(output.includes('JIRACLE - Weekly Worklog Overview'));
+	// Should render header (BigText renders as ASCII art, so we check for basic structure)
+	t.true(output.includes('Week'));
 
 	// Should render week navigation elements
 	t.true(output.includes('← Previous Week'));
@@ -52,7 +51,6 @@ test('WeeklyTimetableView shows loading state initially', t => {
 	const props = {
 		onBack: () => {},
 		config: mockConfig,
-		preloadedData: null,
 		userEmail: null,
 	};
 

@@ -15,15 +15,14 @@ test('Integration: WeeklyTimetableView renders complete UI structure', t => {
 	const props = {
 		onBack: () => {},
 		config: mockConfig,
-		preloadedData: null,
 		userEmail: null,
 	};
 
 	const {lastFrame} = render(React.createElement(WeeklyTimetableView, props));
 	const output = lastFrame()!;
 
-	// Verify main header
-	t.true(output.includes('JIRACLE - Weekly Worklog Overview'));
+	// Verify main header (BigText renders as ASCII art, so we check for basic structure)
+	t.true(output.includes('Week'));
 
 	// Verify week navigation elements are present
 	t.true(output.includes('← Previous Week'));
@@ -50,7 +49,6 @@ test('Integration: WeeklyTimetableView handles week navigation', t => {
 	const props = {
 		onBack: () => {},
 		config: mockConfig,
-		preloadedData: null,
 		userEmail: null,
 	};
 
@@ -61,7 +59,7 @@ test('Integration: WeeklyTimetableView handles week navigation', t => {
 	// So we just verify the structure remains intact
 
 	let output = lastFrame()!;
-	t.true(output.includes('JIRACLE - Weekly Worklog Overview'));
+	t.true(output.includes('Week'));
 	t.true(output.includes('[Shift+←→] Week Navigation'));
 
 	// Test still renders main structure after navigation
@@ -72,7 +70,6 @@ test('Integration: WeeklyTimetableView handles today navigation', t => {
 	const props = {
 		onBack: () => {},
 		config: mockConfig,
-		preloadedData: null,
 		userEmail: null,
 	};
 
@@ -84,7 +81,6 @@ test('Integration: WeeklyTimetableView handles today navigation', t => {
 	stdin.write('t');
 
 	const output = lastFrame()!;
-	t.true(output.includes('JIRACLE - Weekly Worklog Overview'));
 	t.true(output.includes('Week'));
 });
 
@@ -92,7 +88,6 @@ test('Integration: WeeklyTimetableView handles refresh', t => {
 	const props = {
 		onBack: () => {},
 		config: mockConfig,
-		preloadedData: null,
 		userEmail: null,
 	};
 
@@ -104,7 +99,7 @@ test('Integration: WeeklyTimetableView handles refresh', t => {
 	stdin.write('r');
 
 	const output = lastFrame()!;
-	t.true(output.includes('JIRACLE - Weekly Worklog Overview'));
+	t.true(output.includes('Week'));
 });
 
 test('Integration: WeeklyTimetableView handles back navigation', t => {
@@ -114,6 +109,7 @@ test('Integration: WeeklyTimetableView handles back navigation', t => {
 			backCalled = true;
 		},
 		config: mockConfig,
+		userEmail: null,
 	};
 
 	const {stdin} = render(React.createElement(WeeklyTimetableView, props));
@@ -131,6 +127,7 @@ test('Integration: WeeklyTimetableView handles escape key for back navigation', 
 			backCalled = true;
 		},
 		config: mockConfig,
+		userEmail: null,
 	};
 
 	const {stdin} = render(React.createElement(WeeklyTimetableView, props));
@@ -145,7 +142,6 @@ test('Integration: Week calculations work correctly', t => {
 	const props = {
 		onBack: () => {},
 		config: mockConfig,
-		preloadedData: null,
 		userEmail: null,
 	};
 
@@ -165,7 +161,6 @@ test('Integration: TimetableGrid displays correct structure when loading', t => 
 	const props = {
 		onBack: () => {},
 		config: mockConfig,
-		preloadedData: null,
 		userEmail: null,
 	};
 
@@ -196,7 +191,7 @@ test('Integration: Error handling for invalid config', t => {
 	const output = lastFrame()!;
 
 	// Should still render the main structure
-	t.true(output.includes('JIRACLE - Weekly Worklog Overview'));
+	t.true(output.includes('Week'));
 
 	// Should handle the error gracefully
 	const hasErrorHandling =

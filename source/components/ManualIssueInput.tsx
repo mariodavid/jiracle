@@ -16,7 +16,7 @@ export default function ManualIssueInput({
 	onSubmit,
 }: ManualIssueInputProps) {
 	return (
-		<Box flexDirection="column">
+		<Box flexDirection="column" height={40}>
 			<Text color="cyan">Enter issue key or URL:</Text>
 			<Text color="gray">
 				Examples: JTS-1234 or https://jira.example.com/browse/JTS-1234

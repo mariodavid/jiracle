@@ -1,115 +1,189 @@
-# Editable Table Plan - Phase 1: Cell Selection
+# Editable Table Plan - Phase 2: Direct Worklog Entry
 
 ## Goal
 
-Implement table cell selection with Tab navigation and visual focus indicators for the timetable grid. Focus starts on current day by default.
+Implement direct worklog entry when pressing Enter on a focused cell in the timetable. The issue key and date should be automatically determined from the selected cell, and the user only needs to enter time and comment.
 
 ## Requirements
 
-- Tab navigation between cells (left to right, top to bottom)
-- Visual indication of selected/focused cell
-- Default focus on current day column
-- Skip non-editable cells (header, issue key column, separators)
+- Enter key on focused cell starts worklog flow
+- Issue key and date are pre-filled from selected cell
+- User only enters time and comment
+- Smooth transition to worklog form
+- Return to timetable after successful submission
 
-## Architecture
+## Current State Analysis
 
-### 1. Focus Management
+The timetable already has:
 
-- Use Ink's `useFocus` hook for each selectable cell
-- Each day column cell (Mon-Sun + Total) becomes focusable
-- Issue rows have 8 focusable cells each (7 days + total)
-- Daily total row has 8 focusable cells
-
-### 2. Cell Types
-
-- **Focusable cells**: Day columns for each issue row + daily totals row
-- **Non-focusable**: Issue key column, separators, headers
-
-### 3. Visual Design
-
-- Focused cell: Different background color or border style
-- Unfocused cells: Normal appearance
-- Use `useFocus().isFocused` to determine visual state
-
-### 4. Default Focus
-
-- Calculate current day of week (Monday = 0, Sunday = 6)
-- Focus first issue's current day cell by default
-- If no issues, focus daily total's current day cell
+- ✅ Cell focus management with arrow key navigation
+- ✅ Focus indicators with cyan background
+- ✅ Worklog flow implementation in `useWorklogFlow.ts`
+- ✅ Weekly timetable as main entry point
 
 ## Implementation Plan
 
-### Step 1: Create Focusable Cell Component
+### 1. TimetableGrid Enhancement
+
+**File**: `source/components/TimetableGrid.tsx`
+
+Add Enter key handler to existing `useInput` hook:
 
 ```typescript
-interface FocusableCellProps {
-	value: string;
-	focusId: string;
-	isDefault?: boolean;
-}
+useInput((input, key) => {
+	// ... existing arrow key navigation ...
 
-function FocusableCell({value, focusId, isDefault}: FocusableCellProps) {
-	const {isFocused} = useFocus({id: focusId, isActive: true});
+	if (key.return && onCellWorklog) {
+		// Get current focus info
+		const issueKey = issueKeys[currentFocus.row];
+		const date = weekDates[currentFocus.col];
 
-	return (
-		<Box
-			width={8}
-			justifyContent="flex-end"
-			backgroundColor={isFocused ? 'blue' : undefined}
-		>
-			<Text color={isFocused ? 'white' : undefined}>{value}</Text>
-		</Box>
-	);
-}
-```
-
-### Step 2: Modify TimetableGrid Component
-
-- Replace static day cells with FocusableCell components
-- Generate unique focusId for each cell (e.g., `issue-${issueKey}-${dayIndex}`)
-- Add focus IDs for daily totals row
-- Calculate current day and set default focus
-
-### Step 3: Focus Calculation Logic
-
-```typescript
-function getCurrentDayIndex(): number {
-	const today = new Date();
-	const dayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, ...
-	return dayOfWeek === 0 ? 6 : dayOfWeek - 1; // Convert to Monday = 0
-}
-
-function getDefaultFocusId(issueMap: Record<string, IssueData>): string {
-	const currentDayIndex = getCurrentDayIndex();
-	const firstIssueKey = Object.keys(issueMap)[0];
-
-	if (firstIssueKey) {
-		return `issue-${firstIssueKey}-${currentDayIndex}`;
+		// Only trigger on day cells (not total column)
+		if (currentFocus.col < 7 && issueKey) {
+			onCellWorklog({issueKey, date});
+		}
 	}
+});
+```
 
-	return `daily-total-${currentDayIndex}`;
+Add new prop:
+
+```typescript
+export interface TimetableGridProps {
+	data: WeeklyWorklogSummary | null;
+	isLoading: boolean;
+	onWeekChange?: (direction: 'prev' | 'next') => void;
+	onCellWorklog?: (data: {issueKey: string; date: Date}) => void;
 }
 ```
 
-### Step 4: Focus Manager Integration
+### 2. WeeklyTimetableView Enhancement
 
-- Use `useFocusManager` to set default focus on component mount
-- Add effect to focus default cell when data loads
+**File**: `source/components/WeeklyTimetableView.tsx`
+
+Add prop and pass through to TimetableGrid:
+
+```typescript
+export interface WeeklyTimetableViewProps {
+	onBack: () => void;
+	onLogWork?: () => void;
+	onCellWorklog?: (data: {issueKey: string; date: Date}) => void;
+	config: JiraConfig;
+	preloadedData?: WeeklyWorklogSummary | null;
+	userEmail?: string | null;
+}
+```
+
+Update footer to show Enter shortcut:
+
+```typescript
+<Text color="gray">
+	[↑↓←→] Navigate Cells [Enter] Log Work [Shift+←→] Week Navigation [L] Log Work
+	[T] Today [R] Refresh [Q] Quit
+</Text>
+```
+
+### 3. App.tsx Enhancement
+
+**File**: `source/app.tsx`
+
+Add handler for prefilled worklog:
+
+```typescript
+const handleCellWorklog = async (data: {issueKey: string; date: Date}) => {
+	// Fetch issue details first
+	const issue = await jiraClient.fetchIssue(data.issueKey);
+
+	// Start worklog flow with prefilled data
+	startWorklogWithPrefilledData(issue, data.date);
+};
+```
+
+### 4. useWorklogFlow Enhancement
+
+**File**: `source/hooks/useWorklogFlow.ts`
+
+Add new function to start with prefilled data:
+
+```typescript
+const startWorklogWithPrefilledData = (issue: JiraIssue, date: Date) => {
+	// Reset all state
+	setSelectedIssue(issue);
+	setSelectedTime('');
+	setComment('');
+	setSelectedDate(date.toISOString().split('T')[0]);
+	setIssueSelectionMode(null);
+	setManualIssueKey('');
+	setInputError('');
+
+	// Skip to time selection
+	setStep('time-selection');
+};
+```
+
+Return the new function:
+
+```typescript
+return {
+	// ... existing returns ...
+	startWorklogWithPrefilledData,
+};
+```
+
+### 5. Updated User Flow
+
+1. **Cell Selection**: User navigates to desired cell (Issue + Day)
+2. **Enter Press**: User presses Enter
+3. **Issue Lookup**: System fetches issue details from Jira
+4. **Time Selection**: User selects/enters time duration
+5. **Comment Entry**: User enters comment
+6. **Submission**: Worklog is saved with prefilled issue and date
+7. **Return**: User returns to timetable
+
+## Technical Details
+
+### Date Handling
+
+- Extract date from `weekDates[currentFocus.col]`
+- Format for API: `date.toISOString().split('T')[0]`
+- Skip total column (col >= 7)
+
+### Issue Key Extraction
+
+- Get from `issueKeys[currentFocus.row]`
+- Only valid for issue rows (not daily totals)
+
+### Error Handling
+
+- Handle issue fetch failures gracefully
+- Show error message if issue not accessible
+- Return to timetable on error
 
 ## Files to Modify
 
-- `source/components/TimetableGrid.tsx`: Main implementation
-- Create new component: `source/components/FocusableCell.tsx`
+1. `source/components/TimetableGrid.tsx` - Add Enter handler + callback prop
+2. `source/components/WeeklyTimetableView.tsx` - Pass through callback + update footer
+3. `source/app.tsx` - Add cell worklog handler
+4. `source/hooks/useWorklogFlow.ts` - Add prefill functionality
 
-## Testing
+## User Experience Improvements
 
-- Tab navigation works correctly between cells
-- Visual focus indicator is visible
-- Default focus on current day works
-- Skip non-editable areas correctly
+- **Faster workflow**: Skip issue selection step
+- **Context awareness**: Date and issue pre-selected
+- **Keyboard-first**: No mouse/trackpad needed
+- **Visual feedback**: Clear focus indicators show selection
 
-## Future Phases
+## Testing Considerations
 
-- Phase 2: Edit mode when pressing Enter on focused cell
-- Phase 3: Input validation and data persistence
-- Phase 4: Keyboard shortcuts (Escape to cancel, etc.)
+- Test Enter key only works on day cells (not total column)
+- Test issue fetch error handling
+- Test date formatting for API
+- Test return to timetable after submission
+- Update existing tests for new keyboard shortcuts
+
+## Future Enhancements
+
+- **Edit existing entries**: If cell has hours, pre-fill time field
+- **Bulk operations**: Select multiple cells for batch entry
+- **Quick time shortcuts**: Number keys for common durations
+- **Validation**: Warn about weekend entries or overtime

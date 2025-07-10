@@ -78,8 +78,8 @@ test('TimetableGrid renders table header', t => {
 	t.true(output.includes('Wed'));
 	t.true(output.includes('Thu'));
 	t.true(output.includes('Fri'));
-	t.true(output.includes('Sat'));
-	t.true(output.includes('Sun'));
+	t.false(output.includes('Sat'));
+	t.false(output.includes('Sun'));
 	t.true(output.includes('Total'));
 });
 
@@ -89,7 +89,7 @@ test('TimetableGrid renders issue data correctly', t => {
 		weekEnd: new Date('2024-10-20T23:59:59.999Z'),
 		dailySummaries: [
 			{
-				date: new Date('2024-10-19T00:00:00.000Z'), // Saturday
+				date: new Date('2024-10-18T00:00:00.000Z'), // Friday
 				totalHours: 5.5,
 				issues: [
 					{
@@ -118,7 +118,7 @@ test('TimetableGrid renders issue data correctly', t => {
 	const output = lastFrame()!;
 	t.true(output.includes('TEST-117'));
 	t.true(output.includes('Test Issue Summary'));
-	t.true(output.includes('5.5')); // Aggregated hours for Saturday
+	t.true(output.includes('5.5')); // Aggregated hours for Friday
 });
 
 test('TimetableGrid formats hours correctly', t => {
@@ -127,7 +127,7 @@ test('TimetableGrid formats hours correctly', t => {
 		weekEnd: new Date('2024-10-20T23:59:59.999Z'),
 		dailySummaries: [
 			{
-				date: new Date('2024-10-19T00:00:00.000Z'),
+				date: new Date('2024-10-18T00:00:00.000Z'), // Friday
 				totalHours: 2.5,
 				issues: [
 					{
@@ -158,7 +158,7 @@ test('TimetableGrid shows daily totals', t => {
 		weekEnd: new Date('2024-10-20T23:59:59.999Z'),
 		dailySummaries: [
 			{
-				date: new Date('2024-10-19T00:00:00.000Z'), // Saturday
+				date: new Date('2024-10-18T00:00:00.000Z'), // Friday
 				totalHours: 8.0,
 				issues: [
 					{
@@ -186,7 +186,7 @@ test('TimetableGrid shows daily totals', t => {
 
 	const output = lastFrame()!;
 	t.true(output.includes('Daily Total'));
-	t.true(output.includes('8')); // Daily total for Saturday
+	t.true(output.includes('8')); // Daily total for Friday
 });
 
 test('TimetableGrid shows week total', t => {
@@ -265,7 +265,7 @@ test('TimetableGrid shows dash for zero hours', t => {
 		weekEnd: new Date('2024-10-20T23:59:59.999Z'),
 		dailySummaries: [
 			{
-				date: new Date('2024-10-19T00:00:00.000Z'), // Only Saturday has work
+				date: new Date('2024-10-18T00:00:00.000Z'), // Only Friday has work
 				totalHours: 4.0,
 				issues: [
 					{
@@ -287,7 +287,7 @@ test('TimetableGrid shows dash for zero hours', t => {
 	const {lastFrame} = render(React.createElement(TimetableGrid, props));
 
 	const output = lastFrame()!;
-	// Should show '-' for days without work (Mon-Fri, Sun)
+	// Should show '-' for days without work (Mon-Thu only, since Fri has work)
 	const dashCount = (output.match(/-/g) || []).length;
 	t.true(dashCount >= 6); // At least 6 dashes for days without work
 });

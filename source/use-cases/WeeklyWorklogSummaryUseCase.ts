@@ -1,4 +1,5 @@
 import {JiraClient} from '../jira-client.js';
+import {formatLocalDateKey} from '../utils/date.js';
 import {
 	WeeklyWorklogSummary,
 	DailyWorklogSummary,
@@ -92,7 +93,8 @@ export class WeeklyWorklogSummaryUseCase {
 				.filter(worklog => worklog.author.emailAddress === currentUserEmail)
 				.forEach(worklog => {
 					const worklogDate = new Date(worklog.started);
-					const dateKey = this.formatDateForJql(worklogDate);
+					// Use local date instead of UTC date for consistency with week calculation
+					const localDateKey = formatLocalDateKey(worklogDate);
 					const hours = worklog.timeSpentSeconds / 3600; // Convert seconds to hours
 
 					const issueEntry: IssueWorklogEntry = {
@@ -101,15 +103,15 @@ export class WeeklyWorklogSummaryUseCase {
 						hours,
 					};
 
-					const existingSummary = dailyWorklogMap.get(dateKey);
+					const existingSummary = dailyWorklogMap.get(localDateKey);
 					if (existingSummary) {
 						existingSummary.issues.push(issueEntry);
-						dailyWorklogMap.set(dateKey, {
+						dailyWorklogMap.set(localDateKey, {
 							...existingSummary,
 							totalHours: existingSummary.totalHours + hours,
 						});
 					} else {
-						dailyWorklogMap.set(dateKey, {
+						dailyWorklogMap.set(localDateKey, {
 							date: worklogDate,
 							totalHours: hours,
 							issues: [issueEntry],

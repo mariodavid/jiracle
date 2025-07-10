@@ -69,6 +69,7 @@ export default function MainMenu({onSelect}: MainMenuProps) {
 			paddingX={2}
 			paddingY={1}
 			width={containerWidth}
+			height={40}
 		>
 			<Header />
 			<Box paddingY={1}>

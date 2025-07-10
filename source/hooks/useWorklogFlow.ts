@@ -5,6 +5,7 @@ import {
 	extractIssueKeyFromInput,
 	getFavoriteDefaultComment,
 } from '../jira-client.js';
+import {formatLocalDateKey} from '../utils/date.js';
 import type {JiraIssue, JiraConfig, WorklogRequest} from '../jira-client.js';
 import {readFileSync} from 'fs';
 import {homedir} from 'os';
@@ -287,8 +288,35 @@ export function useWorklogFlow(config?: JiraConfig) {
 		}
 	};
 
-	const handleCommentSubmit = () => {
-		setStep('date-selection');
+	const handleCommentSubmit = async () => {
+		// If we have a pre-selected date (from timetable), skip date selection and submit directly
+		if (selectedDate) {
+			setStep('submitting');
+
+			try {
+				if (client && selectedIssue) {
+					// Convert to proper Jira format: yyyy-MM-dd'T'HH:mm:ss.SSSZ
+					const selectedDateTime = new Date(selectedDate);
+					const formattedStarted = selectedDateTime
+						.toISOString()
+						.replace('Z', '+0000');
+
+					const worklogData: WorklogRequest = {
+						timeSpent: selectedTime,
+						comment: comment || 'Worked on this issue',
+						started: formattedStarted,
+					};
+
+					await client.addWorklog(selectedIssue.key, worklogData);
+					setStep('success');
+				}
+			} catch (err) {
+				setError(err instanceof Error ? err.message : 'Unknown error');
+				setStep('error');
+			}
+		} else {
+			setStep('date-selection');
+		}
 	};
 
 	const handleDateSelect = async (value: string) => {
@@ -316,6 +344,29 @@ export function useWorklogFlow(config?: JiraConfig) {
 			setError(err instanceof Error ? err.message : 'Unknown error');
 			setStep('error');
 		}
+	};
+
+	const startWorklogWithPrefilledData = (issue: JiraIssue, date: Date) => {
+		// Check if this issue is a favorite
+		const isFavorite = currentConfig?.favorites?.some(
+			fav => fav.key === issue.key,
+		);
+		const defaultComment =
+			isFavorite && currentConfig
+				? getFavoriteDefaultComment(currentConfig.favorites || [], issue.key)
+				: undefined;
+
+		// Reset all state
+		setSelectedIssue(issue);
+		setSelectedTime('');
+		setComment(defaultComment || '');
+		setSelectedDate(formatLocalDateKey(date));
+		setIssueSelectionMode(isFavorite ? 'favorites' : null);
+		setManualIssueKey('');
+		setInputError('');
+
+		// Skip to time selection
+		setStep('time-selection');
 	};
 
 	return {
@@ -356,6 +407,7 @@ export function useWorklogFlow(config?: JiraConfig) {
 		handleCustomTimeSubmit,
 		handleCommentSubmit,
 		handleDateSelect,
+		startWorklogWithPrefilledData,
 	};
 }
 

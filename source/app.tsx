@@ -29,7 +29,6 @@ export default function App({config}: Props) {
 		manualIssueKey,
 		inputError,
 		currentConfig,
-		currentWeekWorklog,
 		currentUser,
 
 		// State setters
@@ -53,6 +52,7 @@ export default function App({config}: Props) {
 		handleCustomTimeSubmit,
 		handleCommentSubmit,
 		handleDateSelect,
+		startWorklogWithPrefilledData,
 	} = useWorklogFlow(config);
 
 	// ESC key handling for navigation
@@ -81,6 +81,27 @@ export default function App({config}: Props) {
 			}
 		}
 	});
+
+	// Handle cell worklog from timetable
+	const handleCellWorklog = async (data: {issueKey: string; date: Date}) => {
+		try {
+			if (currentConfig) {
+				// We need to import and create a JiraClient here
+				const {JiraClient} = await import('./jira-client.js');
+				const jiraClient = new JiraClient(currentConfig);
+
+				// Fetch issue details
+				const issue = await jiraClient.fetchIssue(data.issueKey);
+
+				// Start worklog flow with prefilled data
+				startWorklogWithPrefilledData(issue, data.date);
+			}
+		} catch (err) {
+			console.error('Failed to fetch issue for cell worklog:', err);
+			// Fallback to regular worklog flow
+			handleMainMenuSelect('log-work');
+		}
+	};
 
 	if (step === 'loading') {
 		return <LoadingScreen message="Loading configuration and issues..." />;
@@ -207,8 +228,8 @@ export default function App({config}: Props) {
 					// Use the main menu select handler to start log work flow
 					handleMainMenuSelect('log-work');
 				}}
+				onCellWorklog={handleCellWorklog}
 				config={currentConfig}
-				preloadedData={currentWeekWorklog}
 				userEmail={currentUser}
 			/>
 		);

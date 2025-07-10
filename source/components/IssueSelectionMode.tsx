@@ -11,7 +11,7 @@ export default function IssueSelectionMode({
 	onSelect,
 }: IssueSelectionModeProps) {
 	return (
-		<Box flexDirection="column">
+		<Box flexDirection="column" height={40}>
 			<Text color="cyan">How would you like to select an issue?</Text>
 			<Text> </Text>
 			<Select options={issueSelectionModeItems} onChange={onSelect} />
