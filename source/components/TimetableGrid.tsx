@@ -1,15 +1,21 @@
-import React from 'react';
-import {Box, Text} from 'ink';
+import React, {useEffect, useState} from 'react';
+import {Box, Text, useFocusManager, useInput} from 'ink';
 import {WeeklyWorklogSummary} from '../domain/WeeklyWorklogSummary.js';
+import {FocusableCell} from './FocusableCell.js';
 
 export interface TimetableGridProps {
 	data: WeeklyWorklogSummary | null;
 	isLoading: boolean;
+	onWeekChange?: (direction: 'prev' | 'next') => void;
 }
 
 const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
-export function TimetableGrid({data, isLoading}: TimetableGridProps) {
+export function TimetableGrid({
+	data,
+	isLoading,
+	onWeekChange,
+}: TimetableGridProps) {
 	if (isLoading) {
 		return (
 			<Box justifyContent="center" paddingY={2}>
@@ -41,6 +47,93 @@ export function TimetableGrid({data, isLoading}: TimetableGridProps) {
 	const dailyTotals = calculateDailyTotals(data, weekDates);
 
 	const tableWidth = 20 + 7 * 8 + 8; // Issue + 7 days + Total = 84
+
+	// Focus management
+	const {focus} = useFocusManager();
+	const defaultFocusId = getDefaultFocusId(issueMap);
+
+	// Track current focus position for arrow navigation
+	const [currentFocus, setCurrentFocus] = useState({
+		row: 0,
+		col: getCurrentDayIndex(),
+	});
+
+	// Calculate grid dimensions
+	const issueKeys = Object.keys(issueMap);
+	const numRows = issueKeys.length; // Only issue rows are focusable
+	const numCols = 8; // 7 days + total
+
+	// Set default focus when component mounts
+	useEffect(() => {
+		if (defaultFocusId) {
+			focus(defaultFocusId);
+		}
+	}, [defaultFocusId, focus]);
+
+	// Arrow key navigation
+	useInput((_input, key) => {
+		if (key.shift && key.leftArrow && onWeekChange) {
+			onWeekChange('prev');
+			return;
+		}
+
+		if (key.shift && key.rightArrow && onWeekChange) {
+			onWeekChange('next');
+			return;
+		}
+
+		if (key.leftArrow) {
+			const newCol = Math.max(0, currentFocus.col - 1);
+			const newFocusId = getFocusIdForPosition(
+				currentFocus.row,
+				newCol,
+				issueKeys,
+			);
+			if (newFocusId) {
+				focus(newFocusId);
+				setCurrentFocus({row: currentFocus.row, col: newCol});
+			}
+		}
+
+		if (key.rightArrow) {
+			const newCol = Math.min(numCols - 1, currentFocus.col + 1);
+			const newFocusId = getFocusIdForPosition(
+				currentFocus.row,
+				newCol,
+				issueKeys,
+			);
+			if (newFocusId) {
+				focus(newFocusId);
+				setCurrentFocus({row: currentFocus.row, col: newCol});
+			}
+		}
+
+		if (key.upArrow) {
+			const newRow = Math.max(0, currentFocus.row - 1);
+			const newFocusId = getFocusIdForPosition(
+				newRow,
+				currentFocus.col,
+				issueKeys,
+			);
+			if (newFocusId) {
+				focus(newFocusId);
+				setCurrentFocus({row: newRow, col: currentFocus.col});
+			}
+		}
+
+		if (key.downArrow) {
+			const newRow = Math.min(numRows - 1, currentFocus.row + 1);
+			const newFocusId = getFocusIdForPosition(
+				newRow,
+				currentFocus.col,
+				issueKeys,
+			);
+			if (newFocusId) {
+				focus(newFocusId);
+				setCurrentFocus({row: newRow, col: currentFocus.col});
+			}
+		}
+	});
 
 	return (
 		<Box flexDirection="column" paddingX={1} alignItems="center">
@@ -80,15 +173,19 @@ export function TimetableGrid({data, isLoading}: TimetableGridProps) {
 							</Text>
 						</Box>
 						{weekDates.map((date, index) => (
-							<Box key={index} width={8} justifyContent="flex-end">
-								<Text>
-									{formatHours(issueData.dailyHours[formatDateKey(date)] || 0)}
-								</Text>
-							</Box>
+							<FocusableCell
+								key={index}
+								value={formatHours(
+									issueData.dailyHours[formatDateKey(date)] || 0,
+								)}
+								focusId={`issue-${issueKey}-${index}`}
+							/>
 						))}
-						<Box width={8} justifyContent="flex-end">
-							<Text bold>{formatHours(issueData.weekTotal)}</Text>
-						</Box>
+						<FocusableCell
+							value={formatHours(issueData.weekTotal)}
+							focusId={`issue-${issueKey}-total`}
+							isTotal={true}
+						/>
 					</Box>
 					<Box paddingLeft={1}>
 						<Text color="gray" dimColor>
@@ -205,4 +302,39 @@ function truncateText(text: string, maxLength: number): string {
 	}
 
 	return text.substring(0, maxLength - 3) + '...';
+}
+
+function getCurrentDayIndex(): number {
+	const today = new Date();
+	const dayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, ...
+	return dayOfWeek === 0 ? 6 : dayOfWeek - 1; // Convert to Monday = 0
+}
+
+function getDefaultFocusId(issueMap: Record<string, IssueData>): string {
+	const currentDayIndex = getCurrentDayIndex();
+	const firstIssueKey = Object.keys(issueMap)[0];
+
+	if (firstIssueKey) {
+		return `issue-${firstIssueKey}-${currentDayIndex}`;
+	}
+
+	// If no issues, return first issue's first day as fallback
+	return `issue-placeholder-0`;
+}
+
+function getFocusIdForPosition(
+	row: number,
+	col: number,
+	issueKeys: string[],
+): string | null {
+	// Only issue rows are focusable (daily totals row is not focusable)
+	if (row < issueKeys.length) {
+		const issueKey = issueKeys[row];
+		if (col === 7) {
+			return `issue-${issueKey}-total`;
+		}
+		return `issue-${issueKey}-${col}`;
+	}
+
+	return null;
 }

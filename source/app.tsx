@@ -4,7 +4,6 @@ import {Alert} from '@inkjs/ui';
 import type {Props} from './types/index.js';
 import {useWorklogFlow} from './hooks/useWorklogFlow.js';
 import LoadingScreen from './components/LoadingScreen.js';
-import MainMenu from './components/MainMenu.js';
 import IssueSelectionModeComponent from './components/IssueSelectionMode.js';
 import IssueList from './components/IssueList.js';
 import ManualIssueInput from './components/ManualIssueInput.js';
@@ -91,9 +90,7 @@ export default function App({config}: Props) {
 		return <Alert variant="error">Error: {error}</Alert>;
 	}
 
-	if (step === 'main-menu') {
-		return <MainMenu onSelect={handleMainMenuSelect} />;
-	}
+	// Main menu step removed - we start directly with weekly timetable
 
 	if (step === 'issue-selection-mode') {
 		return (
@@ -206,6 +203,10 @@ export default function App({config}: Props) {
 		return (
 			<WeeklyTimetableView
 				onBack={handleBackFromTimetable}
+				onLogWork={() => {
+					// Use the main menu select handler to start log work flow
+					handleMainMenuSelect('log-work');
+				}}
 				config={currentConfig}
 				preloadedData={currentWeekWorklog}
 				userEmail={currentUser}

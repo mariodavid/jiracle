@@ -124,8 +124,8 @@ test.serial(
 		// Wait for main menu
 		await new Promise(resolve => setTimeout(resolve, 3000));
 
-		// Step 1: Select "Log Work"
-		stdin.write('\r');
+		// Step 1: Press "L" to log work from timetable
+		stdin.write('l');
 		await new Promise(resolve => setTimeout(resolve, 500));
 
 		// Step 2: Select "Favorites"
@@ -257,8 +257,8 @@ test.serial(
 		await new Promise(resolve => setTimeout(resolve, 3000));
 
 		// Navigate through the complete workflow
-		// Step 1: Select "Log Work"
-		stdin.write('\r');
+		// Step 1: Press "L" to log work from timetable
+		stdin.write('l');
 		await new Promise(resolve => setTimeout(resolve, 500));
 
 		// Step 2: Select "Favorites"
@@ -383,8 +383,8 @@ test.serial(
 		// Wait for main menu
 		await new Promise(resolve => setTimeout(resolve, 3000));
 
-		// Step 1: Select "Log Work"
-		stdin.write('\r');
+		// Step 1: Press "L" to log work from timetable
+		stdin.write('l');
 		await new Promise(resolve => setTimeout(resolve, 500));
 
 		// Step 2: Select "Other" for manual input
@@ -535,8 +535,8 @@ test.serial(
 		// Wait for main menu
 		await new Promise(resolve => setTimeout(resolve, 3000));
 
-		// Step 1: Select "Log Work"
-		stdin.write('\r');
+		// Step 1: Press "L" to log work from timetable
+		stdin.write('l');
 		await new Promise(resolve => setTimeout(resolve, 500));
 
 		// Step 2: Select "Other" for manual input
@@ -637,8 +637,8 @@ test.serial(
 		// Wait for main menu
 		await new Promise(resolve => setTimeout(resolve, 3000));
 
-		// Step 1: Select "Log Work"
-		stdin.write('\r');
+		// Step 1: Press "L" to log work from timetable
+		stdin.write('l');
 		await new Promise(resolve => setTimeout(resolve, 500));
 
 		// Step 2: Select "Favorites"

@@ -45,7 +45,7 @@ export function useWorklogFlow(config?: JiraConfig) {
 				setIssueSelectionMode(null);
 				setManualIssueKey('');
 				setInputError('');
-				setStep('main-menu');
+				setStep('weekly-timetable');
 			}, 2000);
 
 			return () => clearTimeout(timer);
@@ -101,7 +101,7 @@ export function useWorklogFlow(config?: JiraConfig) {
 				setAssignedIssues(assigned);
 				setCurrentWeekWorklog(currentWeekData);
 				setCurrentUser(userEmail);
-				setStep('main-menu');
+				setStep('weekly-timetable');
 			} catch (err) {
 				setError(err instanceof Error ? err.message : 'Unknown error');
 				setStep('error');
@@ -195,11 +195,12 @@ export function useWorklogFlow(config?: JiraConfig) {
 
 	const handleBackToMainMenu = () => {
 		setIssueSelectionMode(null);
-		setStep('main-menu');
+		setStep('weekly-timetable');
 	};
 
 	const handleBackFromTimetable = () => {
-		setStep('main-menu');
+		// No back from timetable since it's the main view now
+		// Could potentially exit the app or do nothing
 	};
 
 	const handleBackToIssueSelectionMode = () => {
@@ -281,7 +282,8 @@ export function useWorklogFlow(config?: JiraConfig) {
 		} else {
 			// Show error for invalid time format
 			setError('Invalid time format. Examples: 2h, 30m, 1.5h, 2h 30m');
-			setStep('error');
+			// Return to time selection instead of error step
+			setStep('custom-time-input');
 		}
 	};
 

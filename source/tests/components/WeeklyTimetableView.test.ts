@@ -26,19 +26,20 @@ test('WeeklyTimetableView renders basic structure', t => {
 	const output = lastFrame()!;
 
 	// Should render header
-	t.true(output.includes('JIRACLE - Weekly Timetable'));
+	t.true(output.includes('JIRACLE - Weekly Worklog Overview'));
 
 	// Should render week navigation elements
 	t.true(output.includes('← Previous Week'));
 	t.true(output.includes('Next Week →'));
 	t.true(output.includes('Week'));
 
-	// Should render keyboard shortcuts
-	t.true(output.includes('[←] Previous Week'));
-	t.true(output.includes('[→] Next Week'));
+	// Should render keyboard shortcuts (updated for new navigation)
+	t.true(output.includes('[↑↓←→] Navigate Cells'));
+	t.true(output.includes('[Shift+←→] Week Navigation'));
 	t.true(output.includes('[T] Today'));
 	t.true(output.includes('[R] Refresh'));
-	t.true(output.includes('[Q] Back'));
+	t.true(output.includes('[L] Log Work'));
+	t.true(output.includes('[Q] Quit'));
 });
 
 test('WeeklyTimetableView shows loading state initially', t => {

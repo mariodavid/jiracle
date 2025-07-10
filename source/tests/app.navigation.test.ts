@@ -78,7 +78,7 @@ test.beforeEach(() => {
 
 // No cleanup needed since we don't touch the real config file anymore
 
-test('should show main menu after loading', async t => {
+test('should show weekly timetable after loading', async t => {
 	const {lastFrame, unmount} = render(
 		React.createElement(App, {config: testConfig}),
 	);
@@ -89,32 +89,32 @@ test('should show main menu after loading', async t => {
 	const output = lastFrame();
 	console.log('Test output:', output);
 
-	// First check if we see main menu or if still loading
+	// First check if we see weekly timetable or if still loading
 	if (output?.includes('Loading configuration and issues')) {
 		t.fail('App is still in loading state');
 		unmount();
 		return;
 	}
 
-	// Check if we got to the main menu
+	// Check if we got to the weekly timetable
 	t.true(output?.includes('JIRACLE') ?? false);
-	t.true(output?.includes('LOG WORK') ?? false);
-	t.true(output?.includes('WEEKLY TIMETABLE') ?? false);
-	t.true(output?.includes('SETTINGS') ?? false);
+	t.true(output?.includes('Weekly Worklog Overview') ?? false);
+	t.true(output?.includes('Week') ?? false);
+	t.true(output?.includes('[L] Log Work') ?? false);
 
 	unmount();
 });
 
-test('should navigate to issue selection mode when log work is selected', async t => {
+test('should navigate to issue selection mode when log work is selected from timetable', async t => {
 	const {lastFrame, stdin, unmount} = render(
 		React.createElement(App, {config: testConfig}),
 	);
 
-	// Wait for main menu
+	// Wait for weekly timetable
 	await new Promise(resolve => setTimeout(resolve, 3000));
 
-	// Simulate pressing Enter to select "Log Work" (first option)
-	stdin.write('\r');
+	// Simulate pressing "L" to log work
+	stdin.write('l');
 
 	// Wait for navigation
 	await new Promise(resolve => setTimeout(resolve, 500));

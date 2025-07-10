@@ -112,8 +112,8 @@ test.serial(
 		// Clear previous fetch calls
 		fetchCalls.length = 0;
 
-		// Step 1: Select "Log Work"
-		stdin.write('\r');
+		// Step 1: Press "L" to log work from timetable
+		stdin.write('l');
 		await new Promise(resolve => setTimeout(resolve, 500));
 
 		// Step 2: Select "Favorites"
@@ -226,8 +226,8 @@ test.serial('should handle empty favorites gracefully', async t => {
 		'Should not fetch favorites when favorites array is empty',
 	);
 
-	// Step 1: Select "Log Work"
-	stdin.write('\r');
+	// Step 1: Press "L" to log work from timetable
+	stdin.write('l');
 	await new Promise(resolve => setTimeout(resolve, 500));
 
 	// Step 2: Select "Favorites"

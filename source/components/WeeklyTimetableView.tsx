@@ -8,6 +8,7 @@ import type {WeeklyWorklogSummary} from '../domain/WeeklyWorklogSummary.js';
 
 export interface WeeklyTimetableViewProps {
 	onBack: () => void;
+	onLogWork?: () => void;
 	config: JiraConfig;
 	preloadedData?: WeeklyWorklogSummary | null;
 	userEmail?: string | null;
@@ -15,6 +16,7 @@ export interface WeeklyTimetableViewProps {
 
 export function WeeklyTimetableView({
 	onBack,
+	onLogWork,
 	config,
 	preloadedData,
 	userEmail,
@@ -41,13 +43,13 @@ export function WeeklyTimetableView({
 	const displayData = isCurrentWeek ? preloadedData : data;
 	const displayLoading = isCurrentWeek ? false : isLoading;
 
-	const handlePreviousWeek = () => {
+	const navigateToPreviousWeek = () => {
 		const newWeek = new Date(currentWeek);
 		newWeek.setDate(currentWeek.getDate() - 7);
 		setCurrentWeek(newWeek);
 	};
 
-	const handleNextWeek = () => {
+	const navigateToNextWeek = () => {
 		const newWeek = new Date(currentWeek);
 		newWeek.setDate(currentWeek.getDate() + 7);
 		setCurrentWeek(newWeek);
@@ -60,15 +62,15 @@ export function WeeklyTimetableView({
 	useInput((input, key) => {
 		if (input === 'q' || key.escape) {
 			onBack();
-		} else if (key.leftArrow) {
-			handlePreviousWeek();
-		} else if (key.rightArrow) {
-			handleNextWeek();
 		} else if (input === 't') {
 			handleCurrentWeek();
 		} else if (input === 'r') {
 			refresh();
+		} else if (input === 'l' && onLogWork) {
+			onLogWork();
 		}
+		// Note: Arrow keys are now handled by TimetableGrid for cell navigation
+		// Shift+Arrow keys are handled by TimetableGrid for week navigation
 	});
 
 	return (
@@ -76,15 +78,15 @@ export function WeeklyTimetableView({
 			{/* Header */}
 			<Box justifyContent="center" paddingY={1}>
 				<Text bold color="white">
-					JIRACLE - Weekly Timetable
+					JIRACLE - Weekly Worklog Overview
 				</Text>
 			</Box>
 
 			{/* Week Navigator */}
 			<WeekNavigator
 				currentWeek={currentWeek}
-				onPreviousWeek={handlePreviousWeek}
-				onNextWeek={handleNextWeek}
+				onPreviousWeek={navigateToPreviousWeek}
+				onNextWeek={navigateToNextWeek}
 				onCurrentWeek={handleCurrentWeek}
 			/>
 
@@ -96,12 +98,23 @@ export function WeeklyTimetableView({
 			)}
 
 			{/* Timetable Grid */}
-			<TimetableGrid data={displayData} isLoading={displayLoading} />
+			<TimetableGrid
+				data={displayData}
+				isLoading={displayLoading}
+				onWeekChange={direction => {
+					if (direction === 'prev') {
+						navigateToPreviousWeek();
+					} else {
+						navigateToNextWeek();
+					}
+				}}
+			/>
 
 			{/* Footer with keyboard shortcuts */}
 			<Box justifyContent="center" paddingY={1}>
 				<Text color="gray">
-					[←] Previous Week [→] Next Week [T] Today [R] Refresh [Q] Back
+					[↑↓←→] Navigate Cells [Shift+←→] Week Navigation [L] Log Work [T]
+					Today [R] Refresh [Q] Quit
 				</Text>
 			</Box>
 		</Box>
