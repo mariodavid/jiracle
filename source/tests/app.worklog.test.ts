@@ -103,6 +103,18 @@ test.beforeEach(() => {
 			} as Response;
 		}
 
+		// Mock getCurrentUser endpoint
+		if (urlString.includes('/rest/api/2/myself')) {
+			return {
+				ok: true,
+				status: 200,
+				json: async () => ({
+					emailAddress: 'test@example.com',
+					displayName: 'Test User',
+				}),
+			} as Response;
+		}
+
 		// Default response for unknown endpoints
 		return {
 			ok: false,

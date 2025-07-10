@@ -12,7 +12,7 @@ export interface TimetableGridProps {
 	onCellWorklog?: (data: {issueKey: string; date: Date}) => void;
 }
 
-const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
 
 export function TimetableGrid({
 	data,
@@ -37,12 +37,12 @@ export function TimetableGrid({
 	const dailyTotals = data ? calculateDailyTotals(data, weekDates) : [];
 	const defaultFocusId = data ? getDefaultFocusId(issueMap) : null;
 
-	const tableWidth = 20 + 7 * 8 + 8; // Issue + 7 days + Total = 84
+	const tableWidth = 20 + 5 * 8 + 8; // Issue + 5 weekdays + Total = 68
 
 	// Calculate grid dimensions
 	const issueKeys = Object.keys(issueMap);
 	const numRows = issueKeys.length; // Only issue rows are focusable
-	const numCols = 8; // 7 days + total
+	const numCols = 6; // 5 weekdays + total
 
 	// Set default focus when component mounts
 	useEffect(() => {
@@ -53,11 +53,7 @@ export function TimetableGrid({
 
 	// Arrow key navigation
 	useInput((_input, key) => {
-		// Only handle input if we have data
-		if (!data || isLoading || data.dailySummaries.length === 0) {
-			return;
-		}
-
+		// Always handle week navigation (even when no data)
 		if (key.shift && key.leftArrow && onWeekChange) {
 			onWeekChange('prev');
 			return;
@@ -68,13 +64,18 @@ export function TimetableGrid({
 			return;
 		}
 
+		// Only handle other input if we have data
+		if (!data || isLoading || data.dailySummaries.length === 0) {
+			return;
+		}
+
 		if (key.return && onCellWorklog) {
 			// Get current focus info
 			const issueKey = issueKeys[currentFocus.row];
 			const date = weekDates[currentFocus.col];
 
 			// Only trigger on weekday cells (not total column) and valid issue
-			if (currentFocus.col < 7 && issueKey && date) {
+			if (currentFocus.col < 5 && issueKey && date) {
 				onCellWorklog({issueKey, date});
 			}
 			return;
@@ -136,9 +137,14 @@ export function TimetableGrid({
 	// CONDITIONAL RENDERING AFTER ALL HOOKS
 	if (isLoading) {
 		return (
-			<Box flexDirection="column" paddingX={1} alignItems="center" minHeight={MIN_HEIGHT}>
+			<Box
+				flexDirection="column"
+				paddingX={1}
+				alignItems="center"
+				minHeight={MIN_HEIGHT}
+			>
 				<Box
-					flexDirection="column" 
+					flexDirection="column"
 					alignItems="center"
 					justifyContent="center"
 					flexGrow={1}
@@ -151,9 +157,14 @@ export function TimetableGrid({
 
 	if (!data) {
 		return (
-			<Box flexDirection="column" paddingX={1} alignItems="center" minHeight={MIN_HEIGHT}>
+			<Box
+				flexDirection="column"
+				paddingX={1}
+				alignItems="center"
+				minHeight={MIN_HEIGHT}
+			>
 				<Box
-					flexDirection="column" 
+					flexDirection="column"
 					alignItems="center"
 					justifyContent="center"
 					flexGrow={1}
@@ -166,9 +177,14 @@ export function TimetableGrid({
 
 	if (data.dailySummaries.length === 0) {
 		return (
-			<Box flexDirection="column" paddingX={1} alignItems="center" minHeight={MIN_HEIGHT}>
+			<Box
+				flexDirection="column"
+				paddingX={1}
+				alignItems="center"
+				minHeight={MIN_HEIGHT}
+			>
 				<Box
-					flexDirection="column" 
+					flexDirection="column"
 					alignItems="center"
 					justifyContent="center"
 					flexGrow={1}
@@ -179,9 +195,13 @@ export function TimetableGrid({
 		);
 	}
 
-
 	return (
-		<Box flexDirection="column" paddingX={1} alignItems="center" minHeight={MIN_HEIGHT}>
+		<Box
+			flexDirection="column"
+			paddingX={1}
+			alignItems="center"
+			minHeight={MIN_HEIGHT}
+		>
 			{/* Header */}
 			<Box flexDirection="row">
 				<Box width={20}>
@@ -190,15 +210,15 @@ export function TimetableGrid({
 					</Text>
 				</Box>
 				{DAYS.map(day => (
-					<Box key={day} width={8} justifyContent="flex-end">
+					<Box key={day} width={8}>
 						<Text bold color="white">
-							{day}
+							{day.padStart(7) + ' '}
 						</Text>
 					</Box>
 				))}
-				<Box width={8} justifyContent="flex-end">
+				<Box width={8}>
 					<Text bold color="white">
-						Total
+						{'Total'.padStart(7) + ' '}
 					</Text>
 				</Box>
 			</Box>
@@ -253,15 +273,15 @@ export function TimetableGrid({
 					</Text>
 				</Box>
 				{dailyTotals.map((total, index) => (
-					<Box key={index} width={8} justifyContent="flex-end">
+					<Box key={index} width={8}>
 						<Text bold color="yellow">
-							{formatHours(total)}
+							{formatHours(total).padStart(7) + ' '}
 						</Text>
 					</Box>
 				))}
-				<Box width={8} justifyContent="flex-end">
+				<Box width={8}>
 					<Text bold color="green">
-						{formatHours(data.weekTotal)}
+						{formatHours(data.weekTotal).padStart(7) + ' '}
 					</Text>
 				</Box>
 			</Box>
@@ -271,7 +291,8 @@ export function TimetableGrid({
 
 function generateWeekDates(weekStart: Date): Date[] {
 	const dates: Date[] = [];
-	for (let i = 0; i < 7; i++) {
+	// Only generate weekdays (Monday to Friday)
+	for (let i = 0; i < 5; i++) {
 		const date = new Date(weekStart);
 		date.setDate(weekStart.getDate() + i);
 		dates.push(date);
@@ -313,7 +334,7 @@ function calculateDailyTotals(
 	data: WeeklyWorklogSummary,
 	weekDates: Date[],
 ): number[] {
-	const totals: number[] = new Array(7).fill(0);
+	const totals: number[] = new Array(5).fill(0);
 
 	data.dailySummaries.forEach(dailySummary => {
 		const dateKey = formatLocalDateKey(dailySummary.date);
@@ -328,7 +349,6 @@ function calculateDailyTotals(
 
 	return totals;
 }
-
 
 function formatHours(hours: number): string {
 	if (hours === 0) {
@@ -372,7 +392,7 @@ function getFocusIdForPosition(
 	// Only issue rows are focusable (daily totals row is not focusable)
 	if (row < issueKeys.length) {
 		const issueKey = issueKeys[row];
-		if (col === 7) {
+		if (col === 5) {
 			return `issue-${issueKey}-total`;
 		}
 		return `issue-${issueKey}-${col}`;

@@ -120,7 +120,7 @@ test('Integration: WeeklyTimetableView handles back navigation', t => {
 	t.true(backCalled);
 });
 
-test('Integration: WeeklyTimetableView handles escape key for back navigation', t => {
+test('Integration: WeeklyTimetableView handles q key for back navigation', t => {
 	let backCalled = false;
 	const props = {
 		onBack: () => {
@@ -132,8 +132,8 @@ test('Integration: WeeklyTimetableView handles escape key for back navigation', 
 
 	const {stdin} = render(React.createElement(WeeklyTimetableView, props));
 
-	// Simulate escape key press
-	stdin.write('\u001B'); // Escape key
+	// Simulate 'q' key press (quit/back)
+	stdin.write('q');
 
 	t.true(backCalled);
 });

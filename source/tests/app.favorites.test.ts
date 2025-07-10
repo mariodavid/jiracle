@@ -76,6 +76,18 @@ test.serial(
 				} as Response;
 			}
 
+			// Mock getCurrentUser endpoint
+			if (urlString.includes('/rest/api/2/myself')) {
+				return {
+					ok: true,
+					status: 200,
+					json: async () => ({
+						emailAddress: 'test@example.com',
+						displayName: 'Test User',
+					}),
+				} as Response;
+			}
+
 			// Default response for unknown endpoints
 			return {
 				ok: false,
@@ -194,6 +206,18 @@ test.serial('should handle empty favorites gracefully', async t => {
 					total: 1,
 					startAt: 0,
 					maxResults: 50,
+				}),
+			} as Response;
+		}
+
+		// Mock getCurrentUser endpoint
+		if (urlString.includes('/rest/api/2/myself')) {
+			return {
+				ok: true,
+				status: 200,
+				json: async () => ({
+					emailAddress: 'test@example.com',
+					displayName: 'Test User',
 				}),
 			} as Response;
 		}
@@ -327,6 +351,18 @@ test.serial('should fetch favorite issues with object format', async t => {
 					total: 3,
 					startAt: 0,
 					maxResults: 50,
+				}),
+			} as Response;
+		}
+
+		// Mock getCurrentUser endpoint
+		if (urlString.includes('/rest/api/2/myself')) {
+			return {
+				ok: true,
+				status: 200,
+				json: async () => ({
+					emailAddress: 'test@example.com',
+					displayName: 'Test User',
 				}),
 			} as Response;
 		}

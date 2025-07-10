@@ -291,3 +291,109 @@ test('TimetableGrid shows dash for zero hours', t => {
 	const dashCount = (output.match(/-/g) || []).length;
 	t.true(dashCount >= 6); // At least 6 dashes for days without work
 });
+
+// Navigation Tests - Testing the fix for empty week navigation bug
+test('TimetableGrid allows week navigation even with empty data', t => {
+	const navigationCalls: Array<'prev' | 'next'> = [];
+
+	const handleWeekChange = (direction: 'prev' | 'next') => {
+		navigationCalls.push(direction);
+	};
+
+	const emptyData: WeeklyWorklogSummary = {
+		weekStart: new Date('2024-01-08'),
+		weekEnd: new Date('2024-01-14'),
+		weekTotal: 0,
+		dailySummaries: [], // Empty week - no worklogs
+	};
+
+	const props = {
+		data: emptyData,
+		isLoading: false,
+		onWeekChange: handleWeekChange,
+	};
+
+	const {stdin} = render(React.createElement(TimetableGrid, props));
+
+	// Should show "No worklogs found for this week"
+	// But navigation should still work
+
+	// Simulate Shift+LeftArrow (previous week) - this should work
+	stdin.write('\u001b[1;2D');
+
+	// Simulate Shift+RightArrow (next week) - this should also work
+	stdin.write('\u001b[1;2C');
+
+	// Navigation should work even with empty data (this was the bug)
+	t.is(navigationCalls.length, 2);
+	t.is(navigationCalls[0], 'prev');
+	t.is(navigationCalls[1], 'next');
+});
+
+test('TimetableGrid blocks cell interaction with empty data but allows week navigation', t => {
+	const navigationCalls: Array<'prev' | 'next'> = [];
+	const cellWorklogCalls: Array<{issueKey: string; date: Date}> = [];
+
+	const handleWeekChange = (direction: 'prev' | 'next') => {
+		navigationCalls.push(direction);
+	};
+
+	const handleCellWorklog = (data: {issueKey: string; date: Date}) => {
+		cellWorklogCalls.push(data);
+	};
+
+	const emptyData: WeeklyWorklogSummary = {
+		weekStart: new Date('2024-01-08'),
+		weekEnd: new Date('2024-01-14'),
+		weekTotal: 0,
+		dailySummaries: [], // Empty week
+	};
+
+	const props = {
+		data: emptyData,
+		isLoading: false,
+		onWeekChange: handleWeekChange,
+		onCellWorklog: handleCellWorklog,
+	};
+
+	const {stdin} = render(React.createElement(TimetableGrid, props));
+
+	// Try Enter key (should NOT trigger cell worklog for empty week)
+	stdin.write('\r');
+
+	// Try arrow keys (should NOT work for cell navigation with empty data)
+	stdin.write('\u001b[C'); // Right arrow
+	stdin.write('\u001b[A'); // Up arrow
+
+	// Try week navigation (SHOULD work even with empty data)
+	stdin.write('\u001b[1;2D'); // Shift+Left arrow
+
+	// Cell interactions should be blocked, week navigation should work
+	t.is(cellWorklogCalls.length, 0); // No cell worklog calls
+	t.is(navigationCalls.length, 1); // Week navigation should work
+	t.is(navigationCalls[0], 'prev');
+});
+
+test('TimetableGrid allows navigation during loading state', t => {
+	const navigationCalls: Array<'prev' | 'next'> = [];
+
+	const handleWeekChange = (direction: 'prev' | 'next') => {
+		navigationCalls.push(direction);
+	};
+
+	const props = {
+		data: null,
+		isLoading: true,
+		onWeekChange: handleWeekChange,
+	};
+
+	const {stdin} = render(React.createElement(TimetableGrid, props));
+
+	// Navigation should work even during loading
+	stdin.write('\u001b[1;2D'); // Shift+LeftArrow
+	stdin.write('\u001b[1;2C'); // Shift+RightArrow
+
+	t.is(navigationCalls.length, 2);
+	t.is(navigationCalls[0], 'prev');
+	t.is(navigationCalls[1], 'next');
+});

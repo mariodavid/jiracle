@@ -1,5 +1,6 @@
 import React from 'react';
 import {Box, Text} from 'ink';
+import {getStartOfWeek, getEndOfWeek} from '../utils/date.js';
 
 export interface WeekNavigatorProps {
 	currentWeek: Date;
@@ -44,20 +45,6 @@ export function WeekNavigator({currentWeek}: WeekNavigatorProps) {
 			<Text color="blue">Next Week →</Text>
 		</Box>
 	);
-}
-
-function getStartOfWeek(date: Date): Date {
-	const d = new Date(date);
-	const day = d.getDay();
-	const diff = d.getDate() - day + (day === 0 ? -6 : 1); // Monday as start of week
-	return new Date(d.setDate(diff));
-}
-
-function getEndOfWeek(date: Date): Date {
-	const start = getStartOfWeek(date);
-	const end = new Date(start);
-	end.setDate(start.getDate() + 6);
-	return end;
 }
 
 function getWeekNumber(date: Date): number {

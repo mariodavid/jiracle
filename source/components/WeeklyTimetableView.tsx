@@ -6,6 +6,7 @@ import {WeekNavigator} from './WeekNavigator.js';
 import {TimetableGrid} from './TimetableGrid.js';
 import {useWeeklyWorklogSummary} from '../hooks/useWeeklyWorklogSummary.js';
 import type {JiraConfig} from '../jira-client.js';
+import {getStartOfWeek, getEndOfWeek} from '../utils/date.js';
 
 export interface WeeklyTimetableViewProps {
 	onBack: () => void;
@@ -45,7 +46,7 @@ export function WeeklyTimetableView({
 		const timer = setTimeout(() => {
 			refresh();
 		}, 100);
-		
+
 		return () => clearTimeout(timer);
 	}, []); // Empty dependency array means this runs only on mount
 
@@ -104,6 +105,9 @@ export function WeeklyTimetableView({
 				</Box>
 			)}
 
+			{/* Extra spacing between week navigator and table */}
+			<Box paddingY={1} />
+
 			{/* Timetable Grid */}
 			<TimetableGrid
 				data={displayData}
@@ -134,21 +138,4 @@ export function WeeklyTimetableView({
 			</Box>
 		</Box>
 	);
-}
-
-function getStartOfWeek(date: Date): Date {
-	const d = new Date(date);
-	const day = d.getDay();
-	const diff = d.getDate() - day + (day === 0 ? -6 : 1); // Monday as start of week
-	d.setDate(diff);
-	d.setHours(0, 0, 0, 0);
-	return d;
-}
-
-function getEndOfWeek(date: Date): Date {
-	const start = getStartOfWeek(date);
-	const end = new Date(start);
-	end.setDate(start.getDate() + 6);
-	end.setHours(23, 59, 59, 999);
-	return end;
 }

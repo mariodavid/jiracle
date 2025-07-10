@@ -17,8 +17,10 @@ export function FocusableCell({
 }: FocusableCellProps) {
 	const {isFocused} = useFocus({id: focusId, isActive: true});
 
-	// Create a fixed-width string with padding
-	const displayValue = ` ${value} `.padStart(width);
+	// Create a right-aligned value with some padding for visual spacing
+	const displayValue = isFocused 
+		? ` ${value} `.padStart(width)  // Full width when focused
+		: value.padStart(width - 1) + ' '; // Normal spacing when not focused
 
 	return (
 		<Box width={width}>

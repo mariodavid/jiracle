@@ -170,6 +170,9 @@ export class JiraClient {
 		this.baseUrl = `${this.jiraUrl}rest/api/2`;
 
 		// Configure Winston logger
+		const isTestEnvironment =
+			process.env['NODE_ENV'] === 'test' || process.env['AVA_CONFIG'];
+
 		this.logger = winston.createLogger({
 			level: 'info',
 			format: winston.format.combine(
@@ -186,10 +189,15 @@ export class JiraClient {
 					),
 					level: 'info',
 				}),
-				new winston.transports.Console({
-					level: 'error',
-					format: winston.format.simple(),
-				}),
+				// Only log to console if not in test environment
+				...(isTestEnvironment
+					? []
+					: [
+							new winston.transports.Console({
+								level: 'error',
+								format: winston.format.simple(),
+							}),
+					  ]),
 			],
 		});
 	}
@@ -493,9 +501,6 @@ export class JiraClient {
 	}
 
 	async searchIssuesWithWorklogs(jql: string): Promise<JiraSearchResponse> {
-		// Artificial delay to see the loading spinner
-		await new Promise(resolve => setTimeout(resolve, 1000));
-		
 		const searchUrl = `${this.baseUrl}/search`;
 		const requestData = {
 			jql,
@@ -538,7 +543,7 @@ export class JiraClient {
 				url: searchUrl,
 				requestData,
 				status: response.status,
-				issueCount: data.issues.length,
+				issueCount: data.issues?.length ?? 0,
 				total: data.total,
 			});
 

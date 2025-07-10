@@ -119,10 +119,10 @@ test('searchIssuesWithWorklogs builds correct request', async t => {
 
 	global.fetch = async (url, options) => {
 		capturedRequest = {url: url as string, options: options!};
-		return {
-			ok: true,
-			json: async () => mockSearchResponse,
-		} as Response;
+		return new Response(JSON.stringify(mockSearchResponse), {
+			status: 200,
+			headers: {'Content-Type': 'application/json'},
+		});
 	};
 
 	try {
@@ -154,11 +154,10 @@ test('searchIssuesWithWorklogs handles API errors', async t => {
 	// Mock fetch to return error
 	const originalFetch = global.fetch;
 	global.fetch = async () => {
-		return {
-			ok: false,
+		return new Response('Invalid JQL query', {
 			status: 400,
-			text: async () => 'Invalid JQL query',
-		} as Response;
+			statusText: 'Bad Request',
+		});
 	};
 
 	try {
@@ -330,10 +329,10 @@ test('searchIssuesWithWorklogs parses response correctly', async t => {
 
 	const originalFetch = global.fetch;
 	global.fetch = async () => {
-		return {
-			ok: true,
-			json: async () => mockSearchResponse,
-		} as Response;
+		return new Response(JSON.stringify(mockSearchResponse), {
+			status: 200,
+			headers: {'Content-Type': 'application/json'},
+		});
 	};
 
 	try {
