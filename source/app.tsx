@@ -56,7 +56,7 @@ export default function App({config}: Props) {
 	} = useWorklogFlow(config);
 
 	// ESC key handling for navigation
-	useInput((_, key) => {
+	useInput((_input, key) => {
 		if (key.escape) {
 			if (step === 'issue-selection-mode') {
 				handleBackToMainMenu();
