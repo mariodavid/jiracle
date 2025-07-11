@@ -7,9 +7,9 @@ import {homedir} from 'os';
 const cliPath = join(process.cwd(), 'dist', 'cli.js');
 const originalConfigPath = join(homedir(), '.config', 'jiracle.json');
 
-// Integration tests for CLI workload functionality
+// Integration tests for CLI worklog functionality
 
-test('workload add - invalid Jira URL shows connection error', t => {
+test('worklog add - invalid Jira URL shows connection error', t => {
 	const backup = existsSync(originalConfigPath)
 		? readFileSync(originalConfigPath, 'utf8')
 		: null;
@@ -27,7 +27,7 @@ test('workload add - invalid Jira URL shows connection error', t => {
 			'node',
 			[
 				cliPath,
-				'workload',
+				'worklog',
 				'add',
 				'--issue',
 				'TEST-123',
@@ -58,7 +58,7 @@ test('workload add - invalid Jira URL shows connection error', t => {
 	}
 });
 
-test('workload add - malformed JSON config shows error', t => {
+test('worklog add - malformed JSON config shows error', t => {
 	const backup = existsSync(originalConfigPath)
 		? readFileSync(originalConfigPath, 'utf8')
 		: null;
@@ -70,7 +70,7 @@ test('workload add - malformed JSON config shows error', t => {
 			'node',
 			[
 				cliPath,
-				'workload',
+				'worklog',
 				'add',
 				'--issue',
 				'TEST-123',
@@ -100,7 +100,7 @@ test('workload add - malformed JSON config shows error', t => {
 	}
 });
 
-test('workload add - incomplete config shows error', t => {
+test('worklog add - incomplete config shows error', t => {
 	const backup = existsSync(originalConfigPath)
 		? readFileSync(originalConfigPath, 'utf8')
 		: null;
@@ -117,7 +117,7 @@ test('workload add - incomplete config shows error', t => {
 			'node',
 			[
 				cliPath,
-				'workload',
+				'worklog',
 				'add',
 				'--issue',
 				'TEST-123',
@@ -147,7 +147,7 @@ test('workload add - incomplete config shows error', t => {
 	}
 });
 
-test.serial('workload add - end to end successful flow structure', t => {
+test.serial('worklog add - end to end successful flow structure', t => {
 	// This test verifies the structure of a successful call without making actual API requests
 	// It uses a timeout to prevent hanging on network calls
 
@@ -168,7 +168,7 @@ test.serial('workload add - end to end successful flow structure', t => {
 			'node',
 			[
 				cliPath,
-				'workload',
+				'worklog',
 				'add',
 				'--issue',
 				'TEST-123',

@@ -27,16 +27,16 @@ function runCli(args: string[]): {
 	}
 }
 
-test('workload add - missing required flags shows error', t => {
-	const result = runCli(['workload', 'add']);
+test('worklog add - missing required flags shows error', t => {
+	const result = runCli(['worklog', 'add']);
 
 	t.is(result.exitCode, 1);
 	t.true(result.stderr.includes('All flags are required'));
 });
 
-test('workload add - missing issue flag shows error', t => {
+test('worklog add - missing issue flag shows error', t => {
 	const result = runCli([
-		'workload',
+		'worklog',
 		'add',
 		'--date',
 		'2025-07-10',
@@ -50,9 +50,9 @@ test('workload add - missing issue flag shows error', t => {
 	t.true(result.stderr.includes('All flags are required'));
 });
 
-test('workload add - missing date flag shows error', t => {
+test('worklog add - missing date flag shows error', t => {
 	const result = runCli([
-		'workload',
+		'worklog',
 		'add',
 		'--issue',
 		'TEST-123',
@@ -66,9 +66,9 @@ test('workload add - missing date flag shows error', t => {
 	t.true(result.stderr.includes('All flags are required'));
 });
 
-test('workload add - missing time flag shows error', t => {
+test('worklog add - missing time flag shows error', t => {
 	const result = runCli([
-		'workload',
+		'worklog',
 		'add',
 		'--issue',
 		'TEST-123',
@@ -82,9 +82,9 @@ test('workload add - missing time flag shows error', t => {
 	t.true(result.stderr.includes('All flags are required'));
 });
 
-test('workload add - missing comment flag shows error', t => {
+test('worklog add - missing comment flag shows error', t => {
 	const result = runCli([
-		'workload',
+		'worklog',
 		'add',
 		'--issue',
 		'TEST-123',
@@ -98,9 +98,9 @@ test('workload add - missing comment flag shows error', t => {
 	t.true(result.stderr.includes('All flags are required'));
 });
 
-test('workload add - invalid date format shows error', t => {
+test('worklog add - invalid date format shows error', t => {
 	const result = runCli([
-		'workload',
+		'worklog',
 		'add',
 		'--issue',
 		'TEST-123',
@@ -116,9 +116,9 @@ test('workload add - invalid date format shows error', t => {
 	t.true(result.stderr.includes('Date must be in YYYY-MM-DD format'));
 });
 
-test('workload add - invalid time format shows error', t => {
+test('worklog add - invalid time format shows error', t => {
 	const result = runCli([
-		'workload',
+		'worklog',
 		'add',
 		'--issue',
 		'TEST-123',
@@ -134,12 +134,12 @@ test('workload add - invalid time format shows error', t => {
 	t.true(result.stderr.includes('Time must be in format'));
 });
 
-test('workload add - valid time formats are accepted', t => {
+test('worklog add - valid time formats are accepted', t => {
 	const validTimeFormats = ['5h', '30m', '2.5h', '1:30'];
 
 	for (const timeFormat of validTimeFormats) {
 		const result = runCli([
-			'workload',
+			'worklog',
 			'add',
 			'--issue',
 			'TEST-123',
@@ -158,9 +158,9 @@ test('workload add - valid time formats are accepted', t => {
 	}
 });
 
-test('workload add - aliases work correctly', t => {
+test('worklog add - aliases work correctly', t => {
 	const result = runCli([
-		'workload',
+		'worklog',
 		'add',
 		'-i',
 		'TEST-123',
@@ -175,14 +175,14 @@ test('workload add - aliases work correctly', t => {
 	t.false(result.stderr.includes('All flags are required'));
 });
 
-test('workload add - unknown command shows error', t => {
+test('worklog add - unknown command shows error', t => {
 	const result = runCli(['unknown', 'command']);
 
 	t.is(result.exitCode, 1);
 	t.true(result.stderr.includes('Unknown command: unknown command'));
 });
 
-test('workload add - missing config file shows error', t => {
+test('worklog add - missing config file shows error', t => {
 	const backup = existsSync(originalConfigPath)
 		? readFileSync(originalConfigPath, 'utf8')
 		: null;
@@ -193,7 +193,7 @@ test('workload add - missing config file shows error', t => {
 
 	try {
 		const result = runCli([
-			'workload',
+			'worklog',
 			'add',
 			'--issue',
 			'TEST-123',
@@ -214,7 +214,7 @@ test('workload add - missing config file shows error', t => {
 	}
 });
 
-test('workload add - date validation edge cases', t => {
+test('worklog add - date validation edge cases', t => {
 	const invalidDates = [
 		'2025-13-01', // Invalid month
 		'2025-02-30', // Invalid day
@@ -224,7 +224,7 @@ test('workload add - date validation edge cases', t => {
 
 	for (const date of invalidDates) {
 		const result = runCli([
-			'workload',
+			'worklog',
 			'add',
 			'--issue',
 			'TEST-123',
@@ -243,7 +243,7 @@ test('workload add - date validation edge cases', t => {
 
 	for (const date of validDates) {
 		const result = runCli([
-			'workload',
+			'worklog',
 			'add',
 			'--issue',
 			'TEST-123',
@@ -262,7 +262,7 @@ test('workload add - date validation edge cases', t => {
 	}
 });
 
-test('workload add - clean error messages for non-existent issue', t => {
+test('worklog add - clean error messages for non-existent issue', t => {
 	const backup = existsSync(originalConfigPath)
 		? readFileSync(originalConfigPath, 'utf8')
 		: null;
@@ -277,7 +277,7 @@ test('workload add - clean error messages for non-existent issue', t => {
 
 	try {
 		const result = runCli([
-			'workload',
+			'worklog',
 			'add',
 			'--issue',
 			'NONEXISTENT-123',
@@ -304,7 +304,7 @@ test('workload add - clean error messages for non-existent issue', t => {
 	}
 });
 
-test('workload add - time validation edge cases', t => {
+test('worklog add - time validation edge cases', t => {
 	const validTimeFormats = [
 		'1h', // Simple hour
 		'30m', // Simple minutes
@@ -317,7 +317,7 @@ test('workload add - time validation edge cases', t => {
 
 	for (const time of validTimeFormats) {
 		const result = runCli([
-			'workload',
+			'worklog',
 			'add',
 			'--issue',
 			'TEST-123',
@@ -347,7 +347,7 @@ test('workload add - time validation edge cases', t => {
 
 	for (const time of invalidTimeFormats) {
 		const result = runCli([
-			'workload',
+			'worklog',
 			'add',
 			'--issue',
 			'TEST-123',

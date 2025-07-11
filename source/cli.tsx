@@ -13,12 +13,12 @@ const cli = meow(
 	`
 	Usage
 	  $ jiracle
-	  $ jiracle workload add --issue <issue-key> --date <YYYY-MM-DD> --time <time> --comment <comment>
+	  $ jiracle worklog add --issue <issue-key> --date <YYYY-MM-DD> --time <time> --comment <comment>
 
 	Commands
-	  workload add    Add a worklog entry to an issue
+	  worklog add    Add a worklog entry to an issue
 
-	Options for workload add
+	Options for worklog add
 	  --issue      Issue key (e.g., JTS-2398)
 	  --date       Work date in YYYY-MM-DD format
 	  --time       Time spent (e.g., 5h, 30m, 2.5h)
@@ -26,7 +26,7 @@ const cli = meow(
 
 	Examples
 	  $ jiracle
-	  $ jiracle workload add --issue JTS-2398 --date 2025-08-01 --time 5h --comment "Did some work"
+	  $ jiracle worklog add --issue JTS-2398 --date 2025-08-01 --time 5h --comment "Did some work"
 `,
 	{
 		importMeta: import.meta,
@@ -164,7 +164,7 @@ export async function executeWorklogAdd(
 	}
 }
 
-async function handleWorkloadAdd() {
+async function handleWorklogAdd() {
 	const {issue, date, time, comment} = cli.flags;
 
 	// Type guards to ensure all flags are strings
@@ -195,8 +195,8 @@ async function handleWorkloadAdd() {
 if (cli.input.length > 0) {
 	const [command, subcommand] = cli.input;
 
-	if (command === 'workload' && subcommand === 'add') {
-		await handleWorkloadAdd();
+	if (command === 'worklog' && subcommand === 'add') {
+		await handleWorklogAdd();
 	} else {
 		console.error(`Unknown command: ${cli.input.join(' ')}`);
 		process.exit(1);
