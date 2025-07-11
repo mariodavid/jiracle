@@ -43,10 +43,31 @@ export function TimetableGrid({
 	const dailyTotals = data ? calculateDailyTotals(data, weekDates) : [];
 	const defaultFocusId = data ? getDefaultFocusId(issueMap) : null;
 
+	// Sort issues by project prefix and number
+	const sortIssuesByKey = (issues: Array<[string, any]>) => {
+		return issues.sort(([aKey], [bKey]) => {
+			const aParts = aKey.split('-');
+			const bParts = bKey.split('-');
+
+			const aProject = aParts[0] || '';
+			const bProject = bParts[0] || '';
+			const aNumber = aParts[1] || '0';
+			const bNumber = bParts[1] || '0';
+
+			if (aProject !== bProject) {
+				return aProject.localeCompare(bProject);
+			}
+
+			return parseInt(aNumber, 10) - parseInt(bNumber, 10);
+		});
+	};
+
+	const sortedIssueEntries = sortIssuesByKey(Object.entries(issueMap));
+
 	const tableWidth = 20 + 5 * 8 + 8; // Issue + 5 weekdays + Total = 68
 
 	// Calculate grid dimensions
-	const issueKeys = Object.keys(issueMap);
+	const issueKeys = sortedIssueEntries.map(([issueKey]) => issueKey);
 	const numRows = issueKeys.length; // Only issue rows are focusable
 	const numCols = 5; // 5 weekdays only (total column not selectable)
 
@@ -262,7 +283,7 @@ export function TimetableGrid({
 			</Box>
 
 			{/* Issue rows */}
-			{Object.entries(issueMap).map(([issueKey, issueData]) => (
+			{sortedIssueEntries.map(([issueKey, issueData]) => (
 				<Box key={issueKey} flexDirection="column">
 					<Box flexDirection="row">
 						<Box width={20}>
