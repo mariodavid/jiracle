@@ -282,42 +282,47 @@ export class JiraClient {
 	readonly baseUrl: string;
 	private readonly logger: winston.Logger;
 
-	constructor(config: JiraConfig) {
+	constructor(config: JiraConfig, customLogger?: winston.Logger) {
 		this.jiraUrl = config.jiraUrl;
 		this.apiToken = config.apiToken;
 		this.baseUrl = `${this.jiraUrl}rest/api/2`;
 
-		// Configure Winston logger
-		const isTestEnvironment =
-			process.env['NODE_ENV'] === 'test' || process.env['AVA_CONFIG'];
+		// Use custom logger if provided, otherwise create default logger
+		if (customLogger) {
+			this.logger = customLogger;
+		} else {
+			// Configure Winston logger
+			const isTestEnvironment =
+				process.env['NODE_ENV'] === 'test' || process.env['AVA_CONFIG'];
 
-		this.logger = winston.createLogger({
-			level: 'info',
-			format: winston.format.combine(
-				winston.format.timestamp(),
-				winston.format.errors({stack: true}),
-				winston.format.json(),
-			),
-			transports: [
-				new winston.transports.File({
-					filename: join(
-						process.env['HOME'] || '~',
-						'.config',
-						'jiracle-requests.log',
-					),
-					level: 'info',
-				}),
-				// Only log to console if not in test environment
-				...(isTestEnvironment
-					? []
-					: [
-							new winston.transports.Console({
-								level: 'error',
-								format: winston.format.simple(),
-							}),
-					  ]),
-			],
-		});
+			this.logger = winston.createLogger({
+				level: 'info',
+				format: winston.format.combine(
+					winston.format.timestamp(),
+					winston.format.errors({stack: true}),
+					winston.format.json(),
+				),
+				transports: [
+					new winston.transports.File({
+						filename: join(
+							process.env['HOME'] || '~',
+							'.config',
+							'jiracle-requests.log',
+						),
+						level: 'info',
+					}),
+					// Only log to console if not in test environment
+					...(isTestEnvironment
+						? []
+						: [
+								new winston.transports.Console({
+									level: 'error',
+									format: winston.format.simple(),
+								}),
+						  ]),
+				],
+			});
+		}
 	}
 
 	async fetchAssignedIssues(): Promise<JiraIssue[]> {
