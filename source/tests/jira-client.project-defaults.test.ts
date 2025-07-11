@@ -52,30 +52,6 @@ test('resolveDefaults uses global defaults when available', t => {
 	t.is(result.source.time, 'global');
 });
 
-test('resolveDefaults uses project defaults when available', t => {
-	const config: JiraConfig = {
-		jiraUrl: 'https://test.com',
-		username: 'test',
-		apiToken: 'token',
-		defaultComment: 'Global comment',
-		defaultTime: '4h',
-		projects: [
-			{
-				key: 'JTS',
-				defaultComment: 'JTS project work',
-				defaultTime: '6h',
-			},
-		],
-	};
-
-	const result = resolveDefaults(config, 'JTS-123');
-
-	t.is(result.comment, 'JTS project work');
-	t.is(result.time, '6h');
-	t.is(result.source.comment, 'project');
-	t.is(result.source.time, 'project');
-});
-
 test('resolveDefaults uses issue defaults when available (highest priority)', t => {
 	const config: JiraConfig = {
 		jiraUrl: 'https://test.com',
@@ -83,11 +59,18 @@ test('resolveDefaults uses issue defaults when available (highest priority)', t 
 		apiToken: 'token',
 		defaultComment: 'Global comment',
 		defaultTime: '4h',
+		groups: [
+			{
+				id: 'dev',
+				name: 'Dev Team',
+				defaultComment: 'Group work',
+				defaultTime: '6h',
+			},
+		],
 		projects: [
 			{
 				key: 'JTS',
-				defaultComment: 'JTS project work',
-				defaultTime: '6h',
+				groupId: 'dev',
 			},
 		],
 		favorites: [
@@ -114,11 +97,18 @@ test('resolveDefaults mixes sources correctly', t => {
 		apiToken: 'token',
 		defaultComment: 'Global comment',
 		defaultTime: '4h',
+		groups: [
+			{
+				id: 'dev',
+				name: 'Dev Team',
+				defaultComment: 'Group work',
+				// No defaultTime in group
+			},
+		],
 		projects: [
 			{
 				key: 'JTS',
-				defaultComment: 'JTS project work',
-				// No defaultTime in project
+				groupId: 'dev',
 			},
 		],
 		favorites: [
@@ -132,9 +122,9 @@ test('resolveDefaults mixes sources correctly', t => {
 
 	const result = resolveDefaults(config, 'JTS-123');
 
-	// Comment should come from project level
-	t.is(result.comment, 'JTS project work');
-	t.is(result.source.comment, 'project');
+	// Comment should come from group level
+	t.is(result.comment, 'Group work');
+	t.is(result.source.comment, 'group');
 
 	// Time should come from issue level
 	t.is(result.time, '8h');
@@ -148,12 +138,6 @@ test('resolveDefaults falls back through hierarchy correctly', t => {
 		apiToken: 'token',
 		defaultComment: 'Global comment',
 		// No global time
-		projects: [
-			{
-				key: 'JTS',
-				// No project comment or time
-			},
-		],
 		favorites: [
 			{
 				key: 'JTS-123',
@@ -173,54 +157,316 @@ test('resolveDefaults falls back through hierarchy correctly', t => {
 	t.is(result.source.time, 'fallback');
 });
 
-test('resolveDefaults handles project without match', t => {
+test('resolveDefaults handles project without group assignment', t => {
 	const config: JiraConfig = {
 		jiraUrl: 'https://test.com',
 		username: 'test',
 		apiToken: 'token',
 		defaultComment: 'Global comment',
 		defaultTime: '4h',
+		groups: [
+			{
+				id: 'other',
+				name: 'Other Team',
+				defaultComment: 'Other group work',
+				defaultTime: '6h',
+			},
+		],
 		projects: [
 			{
 				key: 'DIFFERENT',
-				defaultComment: 'Different project work',
-				defaultTime: '6h',
+				groupId: 'other',
 			},
 		],
 	};
 
 	const result = resolveDefaults(config, 'JTS-123');
 
-	// Should use global defaults since JTS project not configured
+	// Should use global defaults since JTS project has no group
 	t.is(result.comment, 'Global comment');
 	t.is(result.time, '4h');
 	t.is(result.source.comment, 'global');
 	t.is(result.source.time, 'global');
 });
 
-test('resolveDefaults handles partial project configuration', t => {
+// Group functionality tests
+
+test('resolveDefaults uses group defaults from issue group assignment', t => {
 	const config: JiraConfig = {
 		jiraUrl: 'https://test.com',
 		username: 'test',
 		apiToken: 'token',
-		defaultComment: 'Global comment',
-		defaultTime: '4h',
-		projects: [
+		groups: [
 			{
-				key: 'JTS',
+				id: 'dev',
+				name: 'Dev Team',
+				defaultComment: 'Development work',
 				defaultTime: '6h',
-				// No defaultComment
+			},
+		],
+		favorites: [
+			{
+				key: 'JTS-123',
+				groupId: 'dev',
 			},
 		],
 	};
 
 	const result = resolveDefaults(config, 'JTS-123');
 
-	// Comment should fall back to global
+	t.is(result.comment, 'Development work');
+	t.is(result.source.comment, 'group');
+	t.is(result.time, '6h');
+	t.is(result.source.time, 'group');
+	t.is(result.group?.id, 'dev');
+	t.is(result.group?.name, 'Dev Team');
+});
+
+test('resolveDefaults uses group defaults from project group assignment', t => {
+	const config: JiraConfig = {
+		jiraUrl: 'https://test.com',
+		username: 'test',
+		apiToken: 'token',
+		groups: [
+			{
+				id: 'monitoring',
+				name: 'Monitoring & Ops',
+				defaultComment: 'Monitoring tasks',
+				defaultTime: '2h',
+			},
+		],
+		projects: [
+			{
+				key: 'MON',
+				groupId: 'monitoring',
+			},
+		],
+	};
+
+	const result = resolveDefaults(config, 'MON-456');
+
+	t.is(result.comment, 'Monitoring tasks');
+	t.is(result.source.comment, 'group');
+	t.is(result.time, '2h');
+	t.is(result.source.time, 'group');
+	t.is(result.group?.id, 'monitoring');
+	t.is(result.group?.name, 'Monitoring & Ops');
+});
+
+test('resolveDefaults prioritizes issue group over project group', t => {
+	const config: JiraConfig = {
+		jiraUrl: 'https://test.com',
+		username: 'test',
+		apiToken: 'token',
+		groups: [
+			{
+				id: 'dev',
+				name: 'Dev Team',
+				defaultComment: 'Development work',
+				defaultTime: '6h',
+			},
+			{
+				id: 'monitoring',
+				name: 'Monitoring & Ops',
+				defaultComment: 'Monitoring tasks',
+				defaultTime: '2h',
+			},
+		],
+		projects: [
+			{
+				key: 'JTS',
+				groupId: 'dev',
+			},
+		],
+		favorites: [
+			{
+				key: 'JTS-123',
+				groupId: 'monitoring',
+			},
+		],
+	};
+
+	const result = resolveDefaults(config, 'JTS-123');
+
+	// Should use issue group (monitoring), not project group (dev)
+	t.is(result.comment, 'Monitoring tasks');
+	t.is(result.source.comment, 'group');
+	t.is(result.time, '2h');
+	t.is(result.source.time, 'group');
+	t.is(result.group?.id, 'monitoring');
+});
+
+test('resolveDefaults respects priority hierarchy with groups: issue > group > global', t => {
+	const config: JiraConfig = {
+		jiraUrl: 'https://test.com',
+		username: 'test',
+		apiToken: 'token',
+		defaultComment: 'Global comment',
+		defaultTime: '1h',
+		groups: [
+			{
+				id: 'dev',
+				name: 'Dev Team',
+				defaultComment: 'Group comment',
+				defaultTime: '6h',
+			},
+		],
+		projects: [
+			{
+				key: 'JTS',
+				groupId: 'dev',
+			},
+		],
+		favorites: [
+			{
+				key: 'JTS-123',
+				defaultComment: 'Issue comment',
+			},
+		],
+	};
+
+	const result = resolveDefaults(config, 'JTS-123');
+
+	// Comment: issue wins
+	t.is(result.comment, 'Issue comment');
+	t.is(result.source.comment, 'issue');
+
+	// Time: should fall back to group (no issue time defined)
+	t.is(result.time, '6h');
+	t.is(result.source.time, 'group');
+});
+
+test('resolveDefaults falls back through group hierarchy correctly', t => {
+	const config: JiraConfig = {
+		jiraUrl: 'https://test.com',
+		username: 'test',
+		apiToken: 'token',
+		defaultComment: 'Global comment',
+		defaultTime: '8h',
+		groups: [
+			{
+				id: 'dev',
+				name: 'Dev Team',
+				defaultComment: 'Group comment',
+				// No defaultTime defined
+			},
+		],
+		projects: [
+			{
+				key: 'JTS',
+				groupId: 'dev',
+				// Project only has group assignment
+			},
+		],
+		favorites: [
+			{
+				key: 'JTS-123',
+				// No issue defaults defined
+			},
+		],
+	};
+
+	const result = resolveDefaults(config, 'JTS-123');
+
+	// Comment: should use group
+	t.is(result.comment, 'Group comment');
+	t.is(result.source.comment, 'group');
+
+	// Time: should fall back to global (group doesn't have defaultTime)
+	t.is(result.time, '8h');
+	t.is(result.source.time, 'global');
+});
+
+test('resolveDefaults handles invalid group references gracefully', t => {
+	const config: JiraConfig = {
+		jiraUrl: 'https://test.com',
+		username: 'test',
+		apiToken: 'token',
+		defaultComment: 'Global comment',
+		defaultTime: '4h',
+		groups: [
+			{
+				id: 'existing',
+				name: 'Existing Group',
+				defaultComment: 'Group comment',
+			},
+		],
+		favorites: [
+			{
+				key: 'JTS-123',
+				groupId: 'nonexistent',
+			},
+		],
+	};
+
+	const result = resolveDefaults(config, 'JTS-123');
+
+	// Should fall back to global since group doesn't exist
+	t.is(result.comment, 'Global comment');
+	t.is(result.source.comment, 'global');
+	t.is(result.time, '4h');
+	t.is(result.source.time, 'global');
+	t.is(result.group, undefined);
+});
+
+test('resolveDefaults works with groups containing only partial defaults', t => {
+	const config: JiraConfig = {
+		jiraUrl: 'https://test.com',
+		username: 'test',
+		apiToken: 'token',
+		defaultComment: 'Global comment',
+		defaultTime: '2h',
+		groups: [
+			{
+				id: 'partial',
+				name: 'Partial Group',
+				defaultTime: '8h',
+				// No defaultComment
+			},
+		],
+		favorites: [
+			{
+				key: 'JTS-123',
+				groupId: 'partial',
+			},
+		],
+	};
+
+	const result = resolveDefaults(config, 'JTS-123');
+
+	// Comment: should fall back to global (group doesn't have defaultComment)
 	t.is(result.comment, 'Global comment');
 	t.is(result.source.comment, 'global');
 
-	// Time should come from project
-	t.is(result.time, '6h');
-	t.is(result.source.time, 'project');
+	// Time: should use group
+	t.is(result.time, '8h');
+	t.is(result.source.time, 'group');
+	t.is(result.group?.id, 'partial');
+});
+
+test('resolveDefaults includes group desiredAmount in result', t => {
+	const config: JiraConfig = {
+		jiraUrl: 'https://test.com',
+		username: 'test',
+		apiToken: 'token',
+		groups: [
+			{
+				id: 'dev',
+				name: 'Dev Team',
+				defaultComment: 'Development work',
+				defaultTime: '6h',
+				desiredAmount: 25,
+			},
+		],
+		favorites: [
+			{
+				key: 'JTS-123',
+				groupId: 'dev',
+			},
+		],
+	};
+
+	const result = resolveDefaults(config, 'JTS-123');
+
+	t.is(result.group?.desiredAmount, 25);
 });

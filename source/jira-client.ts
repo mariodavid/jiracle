@@ -1,13 +1,21 @@
+export interface Group {
+	id: string;
+	name: string;
+	defaultComment?: string;
+	defaultTime?: string;
+	desiredAmount?: number;
+}
+
 export interface FavoriteIssue {
 	key: string;
 	defaultComment?: string;
 	defaultTime?: string;
+	groupId?: string;
 }
 
 export interface ProjectDefaults {
 	key: string;
-	defaultComment?: string;
-	defaultTime?: string;
+	groupId?: string;
 }
 
 export interface JiraConfig {
@@ -16,8 +24,10 @@ export interface JiraConfig {
 	apiToken: string;
 	favorites?: FavoriteIssue[];
 	projects?: ProjectDefaults[];
+	groups?: Group[];
 	defaultComment?: string;
 	defaultTime?: string;
+	workingHoursPerWeek?: number;
 }
 
 export interface JiraIssueField {
@@ -156,9 +166,10 @@ export function extractProjectKey(issueKey: string): string | null {
 export interface ResolvedDefaults {
 	comment: string;
 	time: string;
+	group?: Group;
 	source: {
-		comment: 'issue' | 'project' | 'global' | 'fallback';
-		time: 'issue' | 'project' | 'global' | 'fallback';
+		comment: 'issue' | 'group' | 'global' | 'fallback';
+		time: 'issue' | 'group' | 'global' | 'fallback';
 	};
 }
 
@@ -168,6 +179,7 @@ export function resolveDefaults(
 ): ResolvedDefaults {
 	const favorites = config.favorites || [];
 	const projects = config.projects || [];
+	const groups = config.groups || [];
 
 	// Extract project key from issue key
 	const projectKey = extractProjectKey(issueKey);
@@ -175,21 +187,29 @@ export function resolveDefaults(
 	// Find issue-specific defaults
 	const favorite = favorites.find(fav => fav.key === issueKey);
 
-	// Find project-specific defaults
+	// Find project for group lookup
 	const projectDefaults = projectKey
 		? projects.find(proj => proj.key === projectKey)
 		: undefined;
 
-	// Resolve comment with priority: issue → project → global → fallback
+	// Find group defaults (priority: issue group > project group)
+	let group: Group | undefined;
+	if (favorite?.groupId) {
+		group = groups.find(g => g.id === favorite.groupId);
+	} else if (projectDefaults?.groupId) {
+		group = groups.find(g => g.id === projectDefaults.groupId);
+	}
+
+	// Resolve comment with priority: issue → group → global → fallback
 	let comment = '';
-	let commentSource: 'issue' | 'project' | 'global' | 'fallback' = 'fallback';
+	let commentSource: 'issue' | 'group' | 'global' | 'fallback' = 'fallback';
 
 	if (favorite?.defaultComment) {
 		comment = favorite.defaultComment;
 		commentSource = 'issue';
-	} else if (projectDefaults?.defaultComment) {
-		comment = projectDefaults.defaultComment;
-		commentSource = 'project';
+	} else if (group?.defaultComment) {
+		comment = group.defaultComment;
+		commentSource = 'group';
 	} else if (config.defaultComment) {
 		comment = config.defaultComment;
 		commentSource = 'global';
@@ -198,16 +218,16 @@ export function resolveDefaults(
 		commentSource = 'fallback';
 	}
 
-	// Resolve time with priority: issue → project → global → fallback
+	// Resolve time with priority: issue → group → global → fallback
 	let time = '1h'; // fallback
-	let timeSource: 'issue' | 'project' | 'global' | 'fallback' = 'fallback';
+	let timeSource: 'issue' | 'group' | 'global' | 'fallback' = 'fallback';
 
 	if (favorite?.defaultTime) {
 		time = favorite.defaultTime;
 		timeSource = 'issue';
-	} else if (projectDefaults?.defaultTime) {
-		time = projectDefaults.defaultTime;
-		timeSource = 'project';
+	} else if (group?.defaultTime) {
+		time = group.defaultTime;
+		timeSource = 'group';
 	} else if (config.defaultTime) {
 		time = config.defaultTime;
 		timeSource = 'global';
@@ -219,6 +239,7 @@ export function resolveDefaults(
 	return {
 		comment,
 		time,
+		group,
 		source: {
 			comment: commentSource,
 			time: timeSource,
