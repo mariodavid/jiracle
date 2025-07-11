@@ -116,7 +116,7 @@ test('should show weekly timetable after loading', async t => {
 	unmount();
 });
 
-test('should navigate to issue selection mode when log work is selected from timetable', async t => {
+test('should stay on weekly timetable when log work key is pressed', async t => {
 	const {lastFrame, stdin, unmount} = render(
 		React.createElement(App, {config: testConfig}),
 	);
@@ -124,19 +124,17 @@ test('should navigate to issue selection mode when log work is selected from tim
 	// Wait for weekly timetable
 	await new Promise(resolve => setTimeout(resolve, 3000));
 
-	// Simulate pressing "L" to log work
+	// Simulate pressing "L" - this should no longer trigger manual flow
 	stdin.write('l');
 
-	// Wait for navigation
+	// Wait a bit
 	await new Promise(resolve => setTimeout(resolve, 500));
 
 	const output = lastFrame();
 
-	// Should show issue selection mode
-	t.true(output?.includes('How would you like to select an issue?') ?? false);
-	t.true(output?.includes('Favorites') ?? false);
-	t.true(output?.includes('Assigned Issues') ?? false);
-	t.true(output?.includes('Other (Enter Issue Key)') ?? false);
+	// Should still show weekly timetable (inline form is the only way to log now)
+	t.true(output?.includes('Week') ?? false);
+	t.true(output?.includes('[L] Log Work') ?? false);
 
 	unmount();
 });

@@ -6,21 +6,10 @@ export type Props = {
 
 export type Step =
 	| 'loading'
-	| 'main-menu'
-	| 'issue-selection-mode'
-	| 'issue-selection'
-	| 'manual-issue-input'
-	| 'time-selection'
-	| 'comment-input'
-	| 'date-selection'
-	| 'submitting'
-	| 'success'
 	| 'error'
 	| 'weekly-timetable'
 	| 'delete-confirmation'
 	| 'deleting';
-
-export type IssueSelectionMode = 'favorites' | 'assigned' | 'other' | null;
 
 export type SelectOption = {
 	label: string;
