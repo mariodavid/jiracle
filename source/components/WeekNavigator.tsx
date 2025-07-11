@@ -7,9 +7,10 @@ export interface WeekNavigatorProps {
 	onPreviousWeek: () => void;
 	onNextWeek: () => void;
 	onCurrentWeek: () => void;
+	activeArea: 'prev-week' | 'timetable' | 'next-week';
 }
 
-export function WeekNavigator({currentWeek}: WeekNavigatorProps) {
+export function WeekNavigator({currentWeek, activeArea}: WeekNavigatorProps) {
 	const weekStart = getStartOfWeek(currentWeek);
 	const weekEnd = getEndOfWeek(currentWeek);
 	const weekNumber = getWeekNumber(currentWeek);
@@ -36,13 +37,26 @@ export function WeekNavigator({currentWeek}: WeekNavigatorProps) {
 		}
 	};
 
+	const isPrevFocused = activeArea === 'prev-week';
+	const isNextFocused = activeArea === 'next-week';
+
 	return (
 		<Box justifyContent="space-between" paddingX={1}>
-			<Text color="blue">← Previous Week</Text>
+			<Text
+				color={isPrevFocused ? 'black' : 'blue'}
+				backgroundColor={isPrevFocused ? 'blue' : undefined}
+			>
+				{' ← Previous Week '}
+			</Text>
 			<Text>
 				Week {weekNumber} ({formatDateRange(weekStart, weekEnd)})
 			</Text>
-			<Text color="blue">Next Week →</Text>
+			<Text
+				color={isNextFocused ? 'black' : 'blue'}
+				backgroundColor={isNextFocused ? 'blue' : undefined}
+			>
+				{' Next Week → '}
+			</Text>
 		</Box>
 	);
 }

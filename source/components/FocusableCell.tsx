@@ -7,6 +7,7 @@ export interface FocusableCellProps {
 	isDefault?: boolean;
 	isTotal?: boolean;
 	width?: number;
+	isActive?: boolean;
 }
 
 export function FocusableCell({
@@ -14,12 +15,13 @@ export function FocusableCell({
 	focusId,
 	isTotal = false,
 	width = 8,
+	isActive = true,
 }: FocusableCellProps) {
-	const {isFocused} = useFocus({id: focusId, isActive: true});
+	const {isFocused} = useFocus({id: focusId, isActive});
 
 	// Create a right-aligned value with some padding for visual spacing
-	const displayValue = isFocused 
-		? ` ${value} `.padStart(width)  // Full width when focused
+	const displayValue = isFocused
+		? ` ${value} `.padStart(width) // Full width when focused
 		: value.padStart(width - 1) + ' '; // Normal spacing when not focused
 
 	return (

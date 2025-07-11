@@ -11,7 +11,6 @@ export type Step =
 	| 'issue-selection'
 	| 'manual-issue-input'
 	| 'time-selection'
-	| 'custom-time-input'
 	| 'comment-input'
 	| 'date-selection'
 	| 'submitting'

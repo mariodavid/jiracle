@@ -10,6 +10,7 @@ test('WeekNavigator renders current week range', t => {
 		onPreviousWeek: () => {},
 		onNextWeek: () => {},
 		onCurrentWeek: () => {},
+		activeArea: 'timetable' as const,
 	};
 
 	const {lastFrame} = render(React.createElement(WeekNavigator, mockProps));
@@ -27,6 +28,7 @@ test('WeekNavigator renders week spanning different months', t => {
 		onPreviousWeek: () => {},
 		onNextWeek: () => {},
 		onCurrentWeek: () => {},
+		activeArea: 'timetable' as const,
 	};
 
 	const {lastFrame} = render(React.createElement(WeekNavigator, mockProps));
@@ -41,6 +43,7 @@ test('WeekNavigator renders week spanning different years', t => {
 		onPreviousWeek: () => {},
 		onNextWeek: () => {},
 		onCurrentWeek: () => {},
+		activeArea: 'timetable' as const,
 	};
 
 	const {lastFrame} = render(React.createElement(WeekNavigator, mockProps));
@@ -55,6 +58,7 @@ test('WeekNavigator calculates correct week number', t => {
 		onPreviousWeek: () => {},
 		onNextWeek: () => {},
 		onCurrentWeek: () => {},
+		activeArea: 'timetable' as const,
 	};
 
 	const {lastFrame} = render(React.createElement(WeekNavigator, mockProps));
@@ -69,6 +73,7 @@ test('WeekNavigator handles Monday start of week correctly', t => {
 		onPreviousWeek: () => {},
 		onNextWeek: () => {},
 		onCurrentWeek: () => {},
+		activeArea: 'timetable' as const,
 	};
 
 	const {lastFrame} = render(React.createElement(WeekNavigator, mockProps));
@@ -83,6 +88,7 @@ test('WeekNavigator handles first week of year', t => {
 		onPreviousWeek: () => {},
 		onNextWeek: () => {},
 		onCurrentWeek: () => {},
+		activeArea: 'timetable' as const,
 	};
 
 	const {lastFrame} = render(React.createElement(WeekNavigator, mockProps));

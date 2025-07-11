@@ -150,7 +150,7 @@ test.serial(
 
 		// Verify we're in time selection
 		let output = lastFrame();
-		t.true(output?.includes('Select time to log') ?? false);
+		t.true(output?.includes('Type or use ↑/↓ to adjust') ?? false);
 
 		// Step 4: Select first time option (1 hour)
 		stdin.write('\r');
@@ -158,9 +158,12 @@ test.serial(
 
 		// Verify we're in comment input
 		output = lastFrame();
-		t.true(output?.includes('Enter comment') ?? false);
+		t.true(
+			output?.includes('Enter comment (optional, press Enter to continue)') ??
+				false,
+		);
 
-		// Step 5: Enter comment
+		// Step 5: Enter comment (optional, press Enter to continue)
 		stdin.write('Test comment for worklog');
 		stdin.write('\r');
 		await new Promise(resolve => setTimeout(resolve, 500));
@@ -285,7 +288,7 @@ test.serial(
 		stdin.write('\r');
 		await new Promise(resolve => setTimeout(resolve, 500));
 
-		// Step 5: Enter comment
+		// Step 5: Enter comment (optional, press Enter to continue)
 		stdin.write('Test comment for worklog');
 		stdin.write('\r');
 		await new Promise(resolve => setTimeout(resolve, 500));
@@ -427,17 +430,17 @@ test.serial(
 
 		// Step 4: Verify we're now in time selection
 		output = lastFrame();
-		t.true(output?.includes('Select time to log') ?? false);
+		t.true(output?.includes('Type or use ↑/↓ to adjust') ?? false);
 		t.true(output?.includes('JTS-1234') ?? false);
 		t.true(output?.includes('Manually entered issue') ?? false);
 
 		// Step 5: Continue with workflow - select 2 hours
-		stdin.write(ARROW_DOWN);
+		stdin.write('\u001B[A'); // Up arrow to increment from 1h to 2h
 		await new Promise(resolve => setTimeout(resolve, 100));
 		stdin.write('\r');
 		await new Promise(resolve => setTimeout(resolve, 500));
 
-		// Step 6: Enter comment
+		// Step 6: Enter comment (optional, press Enter to continue)
 		stdin.write('Manual issue test');
 		await new Promise(resolve => setTimeout(resolve, 200));
 		stdin.write('\r');
@@ -579,26 +582,21 @@ test.serial(
 
 		// Step 4: Verify we're now in time selection with correct issue
 		output = lastFrame();
-		t.true(output?.includes('Select time to log') ?? false);
+		t.true(output?.includes('Type or use ↑/↓ to adjust') ?? false);
 		t.true(output?.includes('JTS-5678') ?? false);
 		t.true(output?.includes('Issue from URL input') ?? false);
 
-		// Step 5: Select 30 minutes (scroll down to custom and enter)
-		// First go to custom option
-		for (let i = 0; i < 5; i++) {
-			stdin.write(ARROW_DOWN);
-			await new Promise(resolve => setTimeout(resolve, 100));
-		}
-		stdin.write('\r');
-		await new Promise(resolve => setTimeout(resolve, 500));
-
-		// Step 6: Enter custom time
-		stdin.write('30m');
+		// Step 5: Enter 30 minutes directly
+		stdin.write('3');
+		await new Promise(resolve => setTimeout(resolve, 50));
+		stdin.write('0');
+		await new Promise(resolve => setTimeout(resolve, 50));
+		stdin.write('m');
 		await new Promise(resolve => setTimeout(resolve, 200));
 		stdin.write('\r');
 		await new Promise(resolve => setTimeout(resolve, 500));
 
-		// Step 7: Enter comment
+		// Step 7: Enter comment (optional, press Enter to continue)
 		stdin.write('Fixed via URL');
 		await new Promise(resolve => setTimeout(resolve, 200));
 		stdin.write('\r');
@@ -667,7 +665,10 @@ test.serial(
 
 		// Verify we're in comment input and the default comment is pre-filled
 		const output = lastFrame();
-		t.true(output?.includes('Enter comment') ?? false);
+		t.true(
+			output?.includes('Enter comment (optional, press Enter to continue)') ??
+				false,
+		);
 		t.true(output?.includes('Working on feature implementation') ?? false);
 
 		// Step 5: Accept the default comment by pressing Enter

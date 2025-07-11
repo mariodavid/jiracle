@@ -13,11 +13,11 @@ export const issueSelectionModeItems: SelectOption[] = [
 ];
 
 export const timeItems: SelectOption[] = [
-	{label: '1 hour', value: '1h'},
-	{label: '2 hours', value: '2h'},
-	{label: '4 hours', value: '4h'},
-	{label: '6 hours', value: '6h'},
-	{label: '8 hours', value: '8h'},
+	{label: '1h', value: '1h'},
+	{label: '2h', value: '2h'},
+	{label: '4h', value: '4h'},
+	{label: '6h', value: '6h'},
+	{label: '8h', value: '8h'},
 	{label: 'Custom time...', value: 'custom'},
 ];
 

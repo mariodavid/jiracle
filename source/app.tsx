@@ -7,7 +7,6 @@ import LoadingScreen from './components/LoadingScreen.js';
 import IssueSelectionModeComponent from './components/IssueSelectionMode.js';
 import IssueList from './components/IssueList.js';
 import ManualIssueInput from './components/ManualIssueInput.js';
-import TimeSelection from './components/WorklogForm/TimeSelection.js';
 import CustomTimeInput from './components/WorklogForm/CustomTimeInput.js';
 import CommentInput from './components/WorklogForm/CommentInput.js';
 import DateSelection from './components/WorklogForm/DateSelection.js';
@@ -49,7 +48,6 @@ export default function App({config}: Props) {
 		handleMainMenuSelect,
 		handleIssueSelectionModeSelect,
 		handleManualIssueSubmit,
-		handleCustomTimeSubmit,
 		handleCommentSubmit,
 		handleDateSelect,
 		startWorklogWithPrefilledData,
@@ -70,8 +68,6 @@ export default function App({config}: Props) {
 				} else {
 					handleBackToIssueSelection();
 				}
-			} else if (step === 'custom-time-input') {
-				handleBackToTimeSelection();
 			} else if (step === 'comment-input') {
 				handleBackToTimeSelection();
 			} else if (step === 'date-selection') {
@@ -157,22 +153,13 @@ export default function App({config}: Props) {
 
 	if (step === 'time-selection' && selectedIssue) {
 		return (
-			<TimeSelection
-				selectedIssue={selectedIssue}
-				onSelect={handleTimeSelect}
-			/>
-		);
-	}
-
-	if (step === 'custom-time-input' && selectedIssue) {
-		return (
 			<CustomTimeInput
 				selectedIssue={selectedIssue}
 				value={selectedTime}
 				onChange={setSelectedTime}
 				onSubmit={value => {
 					setSelectedTime(value);
-					handleCustomTimeSubmit();
+					handleTimeSelect(value);
 				}}
 			/>
 		);

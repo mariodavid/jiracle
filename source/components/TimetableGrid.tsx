@@ -10,6 +10,9 @@ export interface TimetableGridProps {
 	isLoading: boolean;
 	onWeekChange?: (direction: 'prev' | 'next') => void;
 	onCellWorklog?: (data: {issueKey: string; date: Date}) => void;
+	isActive?: boolean;
+	shouldFocusCell?: boolean;
+	onCellFocused?: () => void;
 }
 
 const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
@@ -19,6 +22,9 @@ export function TimetableGrid({
 	isLoading,
 	onWeekChange,
 	onCellWorklog,
+	isActive = true,
+	shouldFocusCell = false,
+	onCellFocused,
 }: TimetableGridProps) {
 	// Fixed minimum height container for all states
 	const MIN_HEIGHT = 15;
@@ -42,7 +48,7 @@ export function TimetableGrid({
 	// Calculate grid dimensions
 	const issueKeys = Object.keys(issueMap);
 	const numRows = issueKeys.length; // Only issue rows are focusable
-	const numCols = 6; // 5 weekdays + total
+	const numCols = 5; // 5 weekdays only (total column not selectable)
 
 	// Set default focus when component mounts
 	useEffect(() => {
@@ -51,8 +57,27 @@ export function TimetableGrid({
 		}
 	}, [defaultFocusId, focus]);
 
+	// Focus a cell when table becomes active
+	useEffect(() => {
+		if (shouldFocusCell && data && issueKeys.length > 0) {
+			// Focus the first available cell (first issue, today's column or Monday)
+			const todayCol = getCurrentDayIndex();
+			const focusId = getFocusIdForPosition(0, todayCol, issueKeys);
+			if (focusId) {
+				focus(focusId);
+				setCurrentFocus({row: 0, col: todayCol});
+				onCellFocused?.();
+			}
+		}
+	}, [shouldFocusCell, data, issueKeys, focus, onCellFocused]);
+
 	// Arrow key navigation
 	useInput((_input, key) => {
+		// Only handle input when table is active
+		if (!isActive) {
+			return;
+		}
+
 		// Always handle week navigation (even when no data)
 		if (key.shift && key.leftArrow && onWeekChange) {
 			onWeekChange('prev');
@@ -82,7 +107,9 @@ export function TimetableGrid({
 		}
 
 		if (key.leftArrow) {
-			const newCol = Math.max(0, currentFocus.col - 1);
+			// Wrap around: if at first column (Monday), go to last column (Friday)
+			const newCol =
+				currentFocus.col === 0 ? numCols - 1 : currentFocus.col - 1;
 			const newFocusId = getFocusIdForPosition(
 				currentFocus.row,
 				newCol,
@@ -95,7 +122,9 @@ export function TimetableGrid({
 		}
 
 		if (key.rightArrow) {
-			const newCol = Math.min(numCols - 1, currentFocus.col + 1);
+			// Wrap around: if at last column (Friday), go to first column (Monday)
+			const newCol =
+				currentFocus.col === numCols - 1 ? 0 : currentFocus.col + 1;
 			const newFocusId = getFocusIdForPosition(
 				currentFocus.row,
 				newCol,
@@ -108,7 +137,9 @@ export function TimetableGrid({
 		}
 
 		if (key.upArrow) {
-			const newRow = Math.max(0, currentFocus.row - 1);
+			// Wrap around: if at first row, go to last row
+			const newRow =
+				currentFocus.row === 0 ? numRows - 1 : currentFocus.row - 1;
 			const newFocusId = getFocusIdForPosition(
 				newRow,
 				currentFocus.col,
@@ -121,7 +152,9 @@ export function TimetableGrid({
 		}
 
 		if (key.downArrow) {
-			const newRow = Math.min(numRows - 1, currentFocus.row + 1);
+			// Wrap around: if at last row, go to first row
+			const newRow =
+				currentFocus.row === numRows - 1 ? 0 : currentFocus.row + 1;
 			const newFocusId = getFocusIdForPosition(
 				newRow,
 				currentFocus.col,
@@ -237,20 +270,31 @@ export function TimetableGrid({
 								{issueKey}
 							</Text>
 						</Box>
-						{weekDates.map((date, index) => (
-							<FocusableCell
-								key={index}
-								value={formatHours(
-									issueData.dailyHours[formatLocalDateKey(date)] || 0,
-								)}
-								focusId={`issue-${issueKey}-${index}`}
-							/>
-						))}
-						<FocusableCell
-							value={formatHours(issueData.weekTotal)}
-							focusId={`issue-${issueKey}-total`}
-							isTotal={true}
-						/>
+						{weekDates.map((date, index) =>
+							isActive ? (
+								<FocusableCell
+									key={index}
+									value={formatHours(
+										issueData.dailyHours[formatLocalDateKey(date)] || 0,
+									)}
+									focusId={`issue-${issueKey}-${index}`}
+									isActive={true}
+								/>
+							) : (
+								<Box key={index} width={8}>
+									<Text>
+										{formatHours(
+											issueData.dailyHours[formatLocalDateKey(date)] || 0,
+										).padStart(7) + ' '}
+									</Text>
+								</Box>
+							),
+						)}
+						<Box width={8}>
+							<Text bold color="yellow">
+								{formatHours(issueData.weekTotal).padStart(7) + ' '}
+							</Text>
+						</Box>
 					</Box>
 					<Box paddingLeft={1}>
 						<Text color="gray" dimColor>
@@ -390,11 +434,9 @@ function getFocusIdForPosition(
 	issueKeys: string[],
 ): string | null {
 	// Only issue rows are focusable (daily totals row is not focusable)
-	if (row < issueKeys.length) {
+	// Only weekday columns are focusable (total column is not focusable)
+	if (row < issueKeys.length && col < 5) {
 		const issueKey = issueKeys[row];
-		if (col === 5) {
-			return `issue-${issueKey}-total`;
-		}
 		return `issue-${issueKey}-${col}`;
 	}
 

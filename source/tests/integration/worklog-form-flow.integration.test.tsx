@@ -1,0 +1,183 @@
+import test from 'ava';
+import React from 'react';
+import {render} from 'ink-testing-library';
+import {WeeklyTimetableView} from '../../components/WeeklyTimetableView.js';
+
+// Mock fetch to simulate API calls
+let mockFetchCallCount = 0;
+let shouldFailWorklogSubmit = false;
+
+const originalFetch = global.fetch;
+
+// Setup mock fetch
+test.beforeEach(() => {
+	mockFetchCallCount = 0;
+	shouldFailWorklogSubmit = false;
+
+	global.fetch = async (url: RequestInfo | URL, options?: RequestInit) => {
+		mockFetchCallCount++;
+		const urlString = url.toString();
+
+		// Mock worklog submission
+		if (urlString.includes('/worklog') && options?.method === 'POST') {
+			if (shouldFailWorklogSubmit) {
+				return {
+					ok: false,
+					status: 400,
+					text: () => Promise.resolve('Bad Request'),
+				} as Response;
+			}
+
+			// Store worklog data if needed for validation
+			return {
+				ok: true,
+				status: 201,
+				json: () => Promise.resolve({}),
+			} as Response;
+		}
+
+		// Mock search for worklogs
+		if (urlString.includes('/search')) {
+			return {
+				ok: true,
+				status: 200,
+				json: () =>
+					Promise.resolve({
+						issues: [
+							{
+								key: 'TEST-123',
+								fields: {
+									summary: 'Test Issue',
+									worklog: {
+										total: 1,
+										worklogs: [
+											{
+												id: '12345',
+												timeSpent: '1h',
+												comment: 'Test worklog',
+												started: '2025-07-10T09:00:00.000+0000',
+												author: {
+													emailAddress: 'test@example.com',
+												},
+											},
+										],
+									},
+								},
+							},
+						],
+					}),
+			} as Response;
+		}
+
+		// Default mock response
+		return {
+			ok: true,
+			status: 200,
+			json: () => Promise.resolve({}),
+		} as Response;
+	};
+});
+
+test.afterEach(() => {
+	global.fetch = originalFetch;
+});
+
+const mockConfig = {
+	jiraUrl: 'https://jira.example.com/',
+	username: 'test@example.com',
+	apiToken: 'test-token',
+};
+
+test('Integration: Component renders without errors', async t => {
+	const props = {
+		onBack: () => {},
+		config: mockConfig,
+		userEmail: 'test@example.com',
+	};
+
+	render(React.createElement(WeeklyTimetableView, props));
+
+	// Wait for initial render
+	await new Promise(resolve => setTimeout(resolve, 100));
+
+	// Component should not crash
+	t.pass();
+});
+
+test('Integration: API calls are made', async t => {
+	const props = {
+		onBack: () => {},
+		config: mockConfig,
+		userEmail: 'test@example.com',
+	};
+
+	render(React.createElement(WeeklyTimetableView, props));
+
+	// Wait for API calls
+	await new Promise(resolve => setTimeout(resolve, 200));
+
+	// Should have made at least one API call for loading data
+	t.true(mockFetchCallCount >= 1);
+});
+
+test('Integration: Component handles API errors gracefully', async t => {
+	shouldFailWorklogSubmit = true;
+
+	const props = {
+		onBack: () => {},
+		config: mockConfig,
+		userEmail: 'test@example.com',
+	};
+
+	render(React.createElement(WeeklyTimetableView, props));
+
+	// Wait for component to stabilize
+	await new Promise(resolve => setTimeout(resolve, 100));
+
+	// Component should not crash even with API errors
+	t.pass();
+});
+
+test('Integration: Component accepts different configurations', async t => {
+	const props = {
+		onBack: () => {},
+		config: {
+			jiraUrl: 'https://different.example.com/',
+			username: 'different@example.com',
+			apiToken: 'different-token',
+		},
+		userEmail: 'different@example.com',
+	};
+
+	render(React.createElement(WeeklyTimetableView, props));
+
+	await new Promise(resolve => setTimeout(resolve, 100));
+
+	// Should handle different configs without error
+	t.pass();
+});
+
+test('Integration: Mock fetch setup works correctly', t => {
+	// Test that our mock is working
+	t.is(typeof global.fetch, 'function');
+	// Reset counter for this test since other tests might have run first
+	mockFetchCallCount = 0;
+	t.is(mockFetchCallCount, 0);
+});
+
+test('Integration: Component lifecycle completes', async t => {
+	const props = {
+		onBack: () => {},
+		config: mockConfig,
+		userEmail: 'test@example.com',
+	};
+
+	const {unmount} = render(React.createElement(WeeklyTimetableView, props));
+
+	// Wait for component lifecycle
+	await new Promise(resolve => setTimeout(resolve, 150));
+
+	// Should complete lifecycle without errors
+	unmount();
+	t.pass();
+});

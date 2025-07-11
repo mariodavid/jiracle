@@ -8,6 +8,7 @@ export interface JiraConfig {
 	username: string;
 	apiToken: string;
 	favorites?: FavoriteIssue[];
+	defaultComment?: string;
 }
 
 export interface JiraIssueField {

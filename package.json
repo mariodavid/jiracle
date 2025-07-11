@@ -10,6 +10,7 @@
 	"scripts": {
 		"build": "tsc",
 		"dev": "tsc --watch",
+		"dev:watch": "nodemon --watch dist --exec \"node dist/cli.js\"",
 		"start": "npm run build && node dist/cli.js",
 		"test": "npm run build && prettier --check . && ava"
 	},

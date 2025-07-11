@@ -133,11 +133,13 @@ export function useWorklogFlow(config?: JiraConfig) {
 		}
 	};
 
-	const handleTimeSelect = (value: string) => {
-		if (value === 'custom') {
-			setStep('custom-time-input');
-		} else {
-			setSelectedTime(value);
+	const handleTimeSelect = (timeValue?: string) => {
+		// Use the passed value or the current state
+		const timeToValidate = timeValue || selectedTime;
+		// Normalize time format for Jira API
+		const normalizedTime = normalizeTimeFormat(timeToValidate);
+		if (normalizedTime) {
+			setSelectedTime(normalizedTime);
 
 			// Set default comment if this is a favorite issue and comment is empty
 			if (
@@ -156,6 +158,11 @@ export function useWorklogFlow(config?: JiraConfig) {
 			}
 
 			setStep('comment-input');
+		} else {
+			// Show error for invalid time format
+			setError('Invalid time format. Examples: 2h, 30m, 1.5h, 2h 30m');
+			// Stay on time selection
+			setStep('time-selection');
 		}
 	};
 
@@ -271,20 +278,6 @@ export function useWorklogFlow(config?: JiraConfig) {
 				}
 			}
 			setInputError(errorMessage);
-		}
-	};
-
-	const handleCustomTimeSubmit = () => {
-		// Normalize time format for Jira API
-		const normalizedTime = normalizeTimeFormat(selectedTime);
-		if (normalizedTime) {
-			setSelectedTime(normalizedTime);
-			setStep('comment-input');
-		} else {
-			// Show error for invalid time format
-			setError('Invalid time format. Examples: 2h, 30m, 1.5h, 2h 30m');
-			// Return to time selection instead of error step
-			setStep('custom-time-input');
 		}
 	};
 
@@ -404,7 +397,6 @@ export function useWorklogFlow(config?: JiraConfig) {
 		handleMainMenuSelect,
 		handleIssueSelectionModeSelect,
 		handleManualIssueSubmit,
-		handleCustomTimeSubmit,
 		handleCommentSubmit,
 		handleDateSelect,
 		startWorklogWithPrefilledData,
