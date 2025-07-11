@@ -3,7 +3,7 @@ import {Box, Text, useInput, useFocus} from 'ink';
 import {TextInput, Spinner} from '@inkjs/ui';
 import CustomTimeInput from './WorklogForm/CustomTimeInput.js';
 import type {JiraConfig} from '../jira-client.js';
-import {getFavoriteDefaultTime} from '../jira-client.js';
+import {resolveDefaults} from '../jira-client.js';
 
 interface InlineWorklogFormProps {
 	issueKey: string;
@@ -36,17 +36,11 @@ export function InlineWorklogForm({
 	const getDefaultTime = () => {
 		if (defaultTimeSpent) return defaultTimeSpent;
 
-		// Check for favorite-specific default time
-		if (isFavorite && config?.favorites) {
-			const favoriteDefaultTime = getFavoriteDefaultTime(
-				config.favorites,
-				issueKey,
-			);
-			if (favoriteDefaultTime) return favoriteDefaultTime;
+		// Use the new hierarchical default resolution
+		if (config) {
+			const defaults = resolveDefaults(config, issueKey);
+			return defaults.time;
 		}
-
-		// Check for global default time
-		if (config?.defaultTime) return config.defaultTime;
 
 		// Fallback to 1h
 		return '1h';

@@ -12,8 +12,7 @@ import {
 	JiraClient,
 	type JiraConfig,
 	type WorklogRequest,
-	getFavoriteDefaultComment,
-	getFavoriteDefaultTime,
+	resolveDefaults,
 } from '../jira-client.js';
 import {
 	getStartOfWeek,
@@ -157,39 +156,14 @@ export function WeeklyTimetableView({
 	};
 
 	const handleCellWorklog = (data: {issueKey: string; date: Date}) => {
-		// Get the favorite default comment for this issue if it exists
-		const favoriteComment = config.favorites
-			? getFavoriteDefaultComment(config.favorites, data.issueKey)
-			: undefined;
-
-		// Use favorite comment, then global default comment, then empty string
-		const defaultComment = favoriteComment || config.defaultComment || '';
-
-		// Get the default time for this issue
-		const isFavoriteIssue = config?.favorites?.some(
-			fav => fav.key === data.issueKey,
-		);
-		let defaultTime = '1h'; // fallback
-
-		if (isFavoriteIssue && config?.favorites) {
-			const favoriteDefaultTime = getFavoriteDefaultTime(
-				config.favorites,
-				data.issueKey,
-			);
-			if (favoriteDefaultTime) {
-				defaultTime = favoriteDefaultTime;
-			} else if (config?.defaultTime) {
-				defaultTime = config.defaultTime;
-			}
-		} else if (config?.defaultTime) {
-			defaultTime = config.defaultTime;
-		}
+		// Resolve defaults using the new hierarchical system
+		const defaults = resolveDefaults(config, data.issueKey);
 
 		setWorklogForm({
 			issueKey: data.issueKey,
 			date: data.date,
-			timeSpent: defaultTime,
-			comment: defaultComment,
+			timeSpent: defaults.time,
+			comment: defaults.comment,
 			isVisible: true,
 		});
 		setWorklogError(null); // Clear any previous error

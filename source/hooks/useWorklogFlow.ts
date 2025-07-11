@@ -3,7 +3,7 @@ import {
 	JiraClient,
 	normalizeTimeFormat,
 	extractIssueKeyFromInput,
-	getFavoriteDefaultComment,
+	resolveDefaults,
 } from '../jira-client.js';
 import {formatLocalDateKey} from '../utils/date.js';
 import type {JiraIssue, JiraConfig, WorklogRequest} from '../jira-client.js';
@@ -118,14 +118,11 @@ export function useWorklogFlow(config?: JiraConfig) {
 		if (issue) {
 			setSelectedIssue(issue);
 
-			// Set default comment if this is a favorite issue and has a configured comment
-			if (issueSelectionMode === 'favorites' && currentConfig) {
-				const defaultComment = getFavoriteDefaultComment(
-					currentConfig.favorites || [],
-					value,
-				);
-				if (defaultComment) {
-					setComment(defaultComment);
+			// Set default comment using hierarchical resolution
+			if (currentConfig) {
+				const defaults = resolveDefaults(currentConfig, value);
+				if (defaults.comment) {
+					setComment(defaults.comment);
 				}
 			}
 
@@ -142,18 +139,10 @@ export function useWorklogFlow(config?: JiraConfig) {
 			setSelectedTime(normalizedTime);
 
 			// Set default comment if this is a favorite issue and comment is empty
-			if (
-				issueSelectionMode === 'favorites' &&
-				currentConfig &&
-				selectedIssue &&
-				!comment
-			) {
-				const defaultComment = getFavoriteDefaultComment(
-					currentConfig.favorites || [],
-					selectedIssue.key,
-				);
-				if (defaultComment) {
-					setComment(defaultComment);
+			if (currentConfig && selectedIssue && !comment) {
+				const defaults = resolveDefaults(currentConfig, selectedIssue.key);
+				if (defaults.comment) {
+					setComment(defaults.comment);
 				}
 			}
 
@@ -182,13 +171,10 @@ export function useWorklogFlow(config?: JiraConfig) {
 		setSelectedTime('');
 		setSelectedDate('');
 
-		// Reset comment to default if this is a favorite issue with a configured comment
-		if (issueSelectionMode === 'favorites' && currentConfig && selectedIssue) {
-			const defaultComment = getFavoriteDefaultComment(
-				currentConfig.favorites || [],
-				selectedIssue.key,
-			);
-			setComment(defaultComment || '');
+		// Reset comment to default using hierarchical resolution
+		if (currentConfig && selectedIssue) {
+			const defaults = resolveDefaults(currentConfig, selectedIssue.key);
+			setComment(defaults.comment);
 		} else {
 			setComment('');
 		}
@@ -344,10 +330,9 @@ export function useWorklogFlow(config?: JiraConfig) {
 		const isFavorite = currentConfig?.favorites?.some(
 			fav => fav.key === issue.key,
 		);
-		const defaultComment =
-			isFavorite && currentConfig
-				? getFavoriteDefaultComment(currentConfig.favorites || [], issue.key)
-				: undefined;
+		const defaultComment = currentConfig
+			? resolveDefaults(currentConfig, issue.key).comment
+			: undefined;
 
 		// Reset all state
 		setSelectedIssue(issue);

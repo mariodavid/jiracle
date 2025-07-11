@@ -1,7 +1,7 @@
 import React, {useState, useRef} from 'react';
 import {Text, Box, useInput} from 'ink';
 import type {JiraIssue, JiraConfig} from '../../jira-client.js';
-import {getFavoriteDefaultTime} from '../../jira-client.js';
+import {resolveDefaults} from '../../jira-client.js';
 
 type CustomTimeInputProps = {
 	selectedIssue?: JiraIssue;
@@ -22,22 +22,17 @@ export default function CustomTimeInput({
 	config,
 	issueSelectionMode,
 }: CustomTimeInputProps) {
+	// Remove unused parameter warning
+	void issueSelectionMode;
 	// Determine default time based on issue and configuration
 	const getDefaultTime = () => {
 		// If value is explicitly provided, always use it (parent has already calculated default)
 		if (value) return value;
 
-		// Check for favorite-specific default time
-		if (
-			issueSelectionMode === 'favorites' &&
-			selectedIssue &&
-			config?.favorites
-		) {
-			const favoriteDefaultTime = getFavoriteDefaultTime(
-				config.favorites,
-				selectedIssue.key,
-			);
-			if (favoriteDefaultTime) return favoriteDefaultTime;
+		// Use the new hierarchical default resolution
+		if (selectedIssue && config) {
+			const defaults = resolveDefaults(config, selectedIssue.key);
+			return defaults.time;
 		}
 
 		// Check for global default time

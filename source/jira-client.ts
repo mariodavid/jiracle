@@ -4,11 +4,18 @@ export interface FavoriteIssue {
 	defaultTime?: string;
 }
 
+export interface ProjectDefaults {
+	key: string;
+	defaultComment?: string;
+	defaultTime?: string;
+}
+
 export interface JiraConfig {
 	jiraUrl: string;
 	username: string;
 	apiToken: string;
 	favorites?: FavoriteIssue[];
+	projects?: ProjectDefaults[];
 	defaultComment?: string;
 	defaultTime?: string;
 }
@@ -138,6 +145,85 @@ export function getFavoriteDefaultTime(
 ): string | undefined {
 	const favorite = favorites.find(fav => fav.key === issueKey);
 	return favorite?.defaultTime;
+}
+
+export function extractProjectKey(issueKey: string): string | null {
+	// Extract project key from issue key (e.g., "JTS-2457" → "JTS")
+	const match = issueKey.match(/^([A-Z]+)-\d+$/);
+	return match ? match[1] ?? null : null;
+}
+
+export interface ResolvedDefaults {
+	comment: string;
+	time: string;
+	source: {
+		comment: 'issue' | 'project' | 'global' | 'fallback';
+		time: 'issue' | 'project' | 'global' | 'fallback';
+	};
+}
+
+export function resolveDefaults(
+	config: JiraConfig,
+	issueKey: string,
+): ResolvedDefaults {
+	const favorites = config.favorites || [];
+	const projects = config.projects || [];
+
+	// Extract project key from issue key
+	const projectKey = extractProjectKey(issueKey);
+
+	// Find issue-specific defaults
+	const favorite = favorites.find(fav => fav.key === issueKey);
+
+	// Find project-specific defaults
+	const projectDefaults = projectKey
+		? projects.find(proj => proj.key === projectKey)
+		: undefined;
+
+	// Resolve comment with priority: issue → project → global → fallback
+	let comment = '';
+	let commentSource: 'issue' | 'project' | 'global' | 'fallback' = 'fallback';
+
+	if (favorite?.defaultComment) {
+		comment = favorite.defaultComment;
+		commentSource = 'issue';
+	} else if (projectDefaults?.defaultComment) {
+		comment = projectDefaults.defaultComment;
+		commentSource = 'project';
+	} else if (config.defaultComment) {
+		comment = config.defaultComment;
+		commentSource = 'global';
+	} else {
+		comment = '';
+		commentSource = 'fallback';
+	}
+
+	// Resolve time with priority: issue → project → global → fallback
+	let time = '1h'; // fallback
+	let timeSource: 'issue' | 'project' | 'global' | 'fallback' = 'fallback';
+
+	if (favorite?.defaultTime) {
+		time = favorite.defaultTime;
+		timeSource = 'issue';
+	} else if (projectDefaults?.defaultTime) {
+		time = projectDefaults.defaultTime;
+		timeSource = 'project';
+	} else if (config.defaultTime) {
+		time = config.defaultTime;
+		timeSource = 'global';
+	} else {
+		time = '1h';
+		timeSource = 'fallback';
+	}
+
+	return {
+		comment,
+		time,
+		source: {
+			comment: commentSource,
+			time: timeSource,
+		},
+	};
 }
 
 export function extractIssueKeyFromInput(input: string): string | null {
