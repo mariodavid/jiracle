@@ -20,6 +20,7 @@
 	"dependencies": {
 		"@inkjs/ui": "^2.0.0",
 		"@types/ms": "^2.1.0",
+		"figures": "^6.1.0",
 		"ink": "^6.0.1",
 		"ink-big-text": "^2.0.0",
 		"ink-gradient": "^3.0.0",

@@ -1,4 +1,4 @@
-import {JiraClient} from '../jira-client.js';
+import {JiraClient, type FavoriteIssue} from '../jira-client.js';
 import {formatLocalDateKey} from '../utils/date.js';
 import {
 	WeeklyWorklogSummary,
@@ -14,6 +14,7 @@ export class WeeklyWorklogSummaryUseCase {
 		weekStart: Date,
 		weekEnd: Date,
 		userEmail?: string,
+		favoriteIssues?: FavoriteIssue[],
 	): Promise<WeeklyWorklogSummary> {
 		// Build JQL query for issues with worklogs in the date range
 		const jql = this.buildJqlQuery(weekStart, weekEnd);
@@ -25,18 +26,43 @@ export class WeeklyWorklogSummaryUseCase {
 		// Search for issues with worklogs in the date range
 		const searchResult = await this.jiraClient.searchIssuesWithWorklogs(jql);
 
+		// Fetch favorite issues details if provided
+		const favoriteIssuesData =
+			favoriteIssues && favoriteIssues.length > 0
+				? await this.jiraClient.fetchFavoriteIssues(favoriteIssues)
+				: [];
+
+		// Merge worklogged issues with favorite issues (avoid duplicates)
+		const allIssueKeys = new Set([
+			...searchResult.issues.map(issue => issue.key),
+			...favoriteIssuesData.map(issue => issue.key),
+		]);
+
 		// Fetch detailed worklogs for each issue
 		const issuesWithWorklogs: IssueWithWorklogs[] = await Promise.all(
-			searchResult.issues.map(async issue => {
+			Array.from(allIssueKeys).map(async issueKey => {
+				// Find issue data from either worklogs search or favorites
+				const worklogIssue = searchResult.issues.find(
+					issue => issue.key === issueKey,
+				);
+				const favoriteIssue = favoriteIssuesData.find(
+					issue => issue.key === issueKey,
+				);
+
+				const issueData = worklogIssue || favoriteIssue;
+				if (!issueData) {
+					throw new Error(`Issue data not found for ${issueKey}`);
+				}
+
 				const worklogResponse = await this.jiraClient.getIssueWorklogs(
-					issue.key,
+					issueKey,
 				);
 				return {
 					issue: {
-						id: issue.id,
-						key: issue.key,
+						id: issueData.id,
+						key: issueData.key,
 						fields: {
-							summary: issue.fields.summary,
+							summary: issueData.fields.summary,
 						},
 					},
 					worklogs: worklogResponse.worklogs,
@@ -51,6 +77,16 @@ export class WeeklyWorklogSummaryUseCase {
 			weekEnd,
 			currentUserEmail,
 		);
+
+		// Add favorite issues without worklogs to the first available day (for display purposes)
+		if (favoriteIssues && favoriteIssues.length > 0) {
+			this.addFavoriteIssuesWithoutWorklogs(
+				dailySummaries,
+				issuesWithWorklogs,
+				favoriteIssuesData,
+				weekStart,
+			);
+		}
 
 		// Calculate week total
 		const weekTotal = dailySummaries.reduce(
@@ -133,5 +169,47 @@ export class WeeklyWorklogSummaryUseCase {
 	): boolean {
 		const worklogDate = new Date(worklogStarted);
 		return worklogDate >= weekStart && worklogDate <= weekEnd;
+	}
+
+	private addFavoriteIssuesWithoutWorklogs(
+		dailySummaries: DailyWorklogSummary[],
+		issuesWithWorklogs: IssueWithWorklogs[],
+		favoriteIssuesData: any[],
+		weekStart: Date,
+	): void {
+		// Find favorite issues that have no worklogs
+		const issueKeysWithWorklogs = new Set(
+			issuesWithWorklogs
+				.filter(iwl => iwl.worklogs.length > 0)
+				.map(iwl => iwl.issue.key),
+		);
+
+		const favoriteIssuesWithoutWorklogs = favoriteIssuesData.filter(
+			favorite => !issueKeysWithWorklogs.has(favorite.key),
+		);
+
+		if (favoriteIssuesWithoutWorklogs.length === 0) {
+			return;
+		}
+
+		// Create or use first day to add favorite issues with 0 hours
+		if (dailySummaries.length === 0) {
+			// No worklogs at all, create a summary for the first day of the week
+			dailySummaries.push({
+				date: new Date(weekStart),
+				totalHours: 0,
+				issues: [],
+			});
+		}
+
+		// Add favorite issues with 0 hours to the first day
+		const firstDay = dailySummaries[0]!;
+		favoriteIssuesWithoutWorklogs.forEach(favorite => {
+			firstDay.issues.push({
+				issueKey: favorite.key,
+				issueSummary: favorite.fields.summary,
+				hours: 0,
+			});
+		});
 	}
 }

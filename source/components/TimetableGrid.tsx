@@ -1,9 +1,11 @@
 import React, {useEffect, useState} from 'react';
 import {Box, Text, useFocusManager, useInput} from 'ink';
 import {Spinner} from '@inkjs/ui';
+import figures from 'figures';
 import {WeeklyWorklogSummary} from '../domain/WeeklyWorklogSummary.js';
 import {FocusableCell} from './FocusableCell.js';
 import {formatLocalDateKey} from '../utils/date.js';
+import type {FavoriteIssue} from '../jira-client.js';
 
 export interface TimetableGridProps {
 	data: WeeklyWorklogSummary | null;
@@ -13,6 +15,7 @@ export interface TimetableGridProps {
 	isActive?: boolean;
 	shouldFocusCell?: boolean;
 	onCellFocused?: () => void;
+	favoriteIssues?: FavoriteIssue[];
 }
 
 const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
@@ -25,6 +28,7 @@ export function TimetableGrid({
 	isActive = true,
 	shouldFocusCell = false,
 	onCellFocused,
+	favoriteIssues = [],
 }: TimetableGridProps) {
 	// Fixed minimum height container for all states
 	const MIN_HEIGHT = 15;
@@ -39,9 +43,15 @@ export function TimetableGrid({
 	// Calculate values that depend on data (with safe defaults)
 	const weekStart = data ? new Date(data.weekStart) : new Date();
 	const weekDates = generateWeekDates(weekStart);
-	const issueMap = data ? buildIssueMap(data) : {};
+	const issueMap =
+		data && data.dailySummaries.length > 0
+			? buildIssueMap(data)
+			: buildIssueMapFromFavorites(favoriteIssues);
 	const dailyTotals = data ? calculateDailyTotals(data, weekDates) : [];
-	const defaultFocusId = data ? getDefaultFocusId(issueMap) : null;
+	const defaultFocusId =
+		data || Object.keys(issueMap).length > 0
+			? getDefaultFocusId(issueMap)
+			: null;
 
 	// Sort issues by project prefix and number
 	const sortIssuesByKey = (issues: Array<[string, any]>) => {
@@ -63,6 +73,21 @@ export function TimetableGrid({
 	};
 
 	const sortedIssueEntries = sortIssuesByKey(Object.entries(issueMap));
+
+	// Helper function to check if an issue is a favorite
+	const isFavoriteIssue = (issueKey: string): boolean => {
+		return favoriteIssues.some(fav => fav.key === issueKey);
+	};
+
+	// Helper function to format issue key with favorite marker and fixed width
+	const formatIssueKey = (issueKey: string): string => {
+		// Pad the entire issue key to a fixed width (e.g. 12 characters)
+		const paddedIssueKey = issueKey.padEnd(12, ' ');
+
+		return isFavoriteIssue(issueKey)
+			? `${paddedIssueKey} ${figures.star}`
+			: paddedIssueKey;
+	};
 
 	const tableWidth = 20 + 5 * 8 + 8; // Issue + 5 weekdays + Total = 68
 
@@ -229,7 +254,7 @@ export function TimetableGrid({
 		);
 	}
 
-	if (data.dailySummaries.length === 0) {
+	if (data.dailySummaries.length === 0 && favoriteIssues.length === 0) {
 		return (
 			<Box
 				flexDirection="column"
@@ -288,7 +313,7 @@ export function TimetableGrid({
 					<Box flexDirection="row">
 						<Box width={20}>
 							<Text bold color="cyan">
-								{issueKey}
+								{formatIssueKey(issueKey)}
 							</Text>
 						</Box>
 						{weekDates.map((date, index) =>
@@ -374,6 +399,7 @@ interface IssueData {
 function buildIssueMap(data: WeeklyWorklogSummary): Record<string, IssueData> {
 	const issueMap: Record<string, IssueData> = {};
 
+	// Process all worklog data (includes favorites with 0 hours from WeeklyWorklogSummaryUseCase)
 	data.dailySummaries.forEach(dailySummary => {
 		const dateKey = formatLocalDateKey(dailySummary.date);
 
@@ -390,6 +416,22 @@ function buildIssueMap(data: WeeklyWorklogSummary): Record<string, IssueData> {
 				(issueMap[issue.issueKey]!.dailyHours[dateKey] || 0) + issue.hours;
 			issueMap[issue.issueKey]!.weekTotal += issue.hours;
 		});
+	});
+
+	return issueMap;
+}
+
+function buildIssueMapFromFavorites(
+	favoriteIssues: FavoriteIssue[],
+): Record<string, IssueData> {
+	const issueMap: Record<string, IssueData> = {};
+
+	favoriteIssues.forEach(favorite => {
+		issueMap[favorite.key] = {
+			summary: `Favorite: ${favorite.key}`,
+			dailyHours: {},
+			weekTotal: 0,
+		};
 	});
 
 	return issueMap;

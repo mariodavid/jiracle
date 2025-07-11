@@ -2,7 +2,7 @@ import {useState, useEffect} from 'react';
 import {WeeklyWorklogSummary} from '../domain/WeeklyWorklogSummary.js';
 import {WeeklyWorklogSummaryUseCase} from '../use-cases/WeeklyWorklogSummaryUseCase.js';
 import {JiraClient} from '../jira-client.js';
-import type {JiraConfig} from '../jira-client.js';
+import type {JiraConfig, FavoriteIssue} from '../jira-client.js';
 
 // Simple cache to avoid duplicate API calls
 const weekDataCache = new Map<string, WeeklyWorklogSummary>();
@@ -21,16 +21,22 @@ export function useWeeklyWorklogSummary(
 	config: JiraConfig,
 	skipAutoLoad: boolean = false,
 	userEmail?: string,
+	favoriteIssues?: FavoriteIssue[],
 ): UseWeeklyWorklogSummaryResult {
 	const [data, setData] = useState<WeeklyWorklogSummary | null>(null);
 	const [isLoading, setIsLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 
 	const fetchData = async () => {
-		// Create cache key based on week and user
+		// Create cache key based on week, user, and favorite issues
+		const favoriteKeys =
+			favoriteIssues
+				?.map(f => f.key)
+				.sort()
+				.join(',') || '';
 		const cacheKey = `${weekStart.toISOString().split('T')[0]}-${
 			weekEnd.toISOString().split('T')[0]
-		}-${userEmail || 'unknown'}`;
+		}-${userEmail || 'unknown'}-${favoriteKeys}`;
 
 		// Check if data is already cached
 		if (weekDataCache.has(cacheKey)) {
@@ -50,7 +56,12 @@ export function useWeeklyWorklogSummary(
 		try {
 			const jiraClient = new JiraClient(config);
 			const useCase = new WeeklyWorklogSummaryUseCase(jiraClient);
-			const summary = await useCase.execute(weekStart, weekEnd, userEmail);
+			const summary = await useCase.execute(
+				weekStart,
+				weekEnd,
+				userEmail,
+				favoriteIssues,
+			);
 
 			// Cache the result
 			weekDataCache.set(cacheKey, summary);
@@ -67,13 +78,18 @@ export function useWeeklyWorklogSummary(
 		if (!skipAutoLoad) {
 			fetchData();
 		}
-	}, [weekStart, weekEnd, config, skipAutoLoad, userEmail]);
+	}, [weekStart, weekEnd, config, skipAutoLoad, userEmail, favoriteIssues]);
 
 	const refresh = () => {
 		// Clear cache for current week and reload
+		const favoriteKeys =
+			favoriteIssues
+				?.map(f => f.key)
+				.sort()
+				.join(',') || '';
 		const cacheKey = `${weekStart.toISOString().split('T')[0]}-${
 			weekEnd.toISOString().split('T')[0]
-		}-${userEmail || 'unknown'}`;
+		}-${userEmail || 'unknown'}-${favoriteKeys}`;
 		weekDataCache.delete(cacheKey);
 		fetchData();
 	};

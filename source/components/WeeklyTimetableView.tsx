@@ -91,6 +91,7 @@ export function WeeklyTimetableView({
 		config,
 		false, // Always load fresh data when component mounts
 		userEmail || undefined,
+		config.favorites, // Pass favorite issues to include them in the table
 	);
 
 	// Always use fresh data from the hook
@@ -349,6 +350,7 @@ export function WeeklyTimetableView({
 					isActive={activeArea === 'timetable'}
 					shouldFocusCell={shouldFocusCell}
 					onCellFocused={() => setShouldFocusCell(false)}
+					favoriteIssues={config.favorites}
 				/>
 			)}
 

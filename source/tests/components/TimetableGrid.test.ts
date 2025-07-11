@@ -1,6 +1,7 @@
 import test from 'ava';
 import React from 'react';
 import {render} from 'ink-testing-library';
+import figures from 'figures';
 import {TimetableGrid} from '../../components/TimetableGrid.js';
 import type {WeeklyWorklogSummary} from '../../domain/WeeklyWorklogSummary.js';
 
@@ -455,7 +456,7 @@ test('TimetableGrid sorts issues by project prefix and number', t => {
 	// Should be sorted: GVV-5417, GVV-5419, GVV-5420, JTS-2456, JTS-2457
 	t.true(issueLines.length >= 5, 'Should have at least 5 issue lines');
 
-	// Find the indices of each issue in the output
+	// Find the indices of each issue in the output (with fixed width padding)
 	const gvv5417Index = issueLines.findIndex(line => line.includes('GVV-5417'));
 	const gvv5419Index = issueLines.findIndex(line => line.includes('GVV-5419'));
 	const gvv5420Index = issueLines.findIndex(line => line.includes('GVV-5420'));
@@ -568,4 +569,175 @@ test('TimetableGrid sorts issues numerically within same project (124 before 102
 	t.true(gvv124Index < gvv1029Index, 'GVV-124 should come before GVV-1029');
 	t.true(gvv124Index !== -1, 'GVV-124 should be found in output');
 	t.true(gvv1029Index !== -1, 'GVV-1029 should be found in output');
+});
+
+test('TimetableGrid shows favorite issues with asterisk marker', t => {
+	const sampleData: WeeklyWorklogSummary = {
+		weekStart: new Date('2024-10-14T00:00:00.000Z'),
+		weekEnd: new Date('2024-10-20T23:59:59.999Z'),
+		dailySummaries: [
+			{
+				date: new Date('2024-10-18T00:00:00.000Z'),
+				totalHours: 6.0,
+				issues: [
+					{
+						issueKey: 'GVV-5417',
+						issueSummary: 'Favorite issue',
+						hours: 3.0,
+					},
+					{
+						issueKey: 'JTS-2456',
+						issueSummary: 'Regular issue',
+						hours: 3.0,
+					},
+				],
+			},
+		],
+		weekTotal: 6.0,
+	};
+
+	const favoriteIssues = [
+		{
+			key: 'GVV-5417',
+			defaultTime: '4h',
+			defaultComment: 'Favorite work',
+		},
+	];
+
+	const props = {
+		data: sampleData,
+		isLoading: false,
+		favoriteIssues,
+	};
+
+	const {lastFrame} = render(React.createElement(TimetableGrid, props));
+	const output = lastFrame()!;
+
+	// Favorite issue should have star suffix with fixed width padding
+	t.true(
+		output.includes(`GVV-5417     ${figures.star}`),
+		'Favorite issue should be marked with star',
+	);
+
+	// Non-favorite issue should not have star but should be padded to fixed width
+	t.true(
+		output.includes('JTS-2456    '),
+		'Regular issue should be shown with fixed width padding',
+	);
+	t.false(
+		output.includes(`JTS-2456     ${figures.star}`),
+		'Regular issue should not have star',
+	);
+});
+
+test('TimetableGrid handles favorite issues without worklogs', t => {
+	// This test simulates when favorites are included via WeeklyWorklogSummaryUseCase
+	// but have no worklog entries (0 hours for all days)
+	const sampleData: WeeklyWorklogSummary = {
+		weekStart: new Date('2024-10-14T00:00:00.000Z'),
+		weekEnd: new Date('2024-10-20T23:59:59.999Z'),
+		dailySummaries: [
+			{
+				date: new Date('2024-10-18T00:00:00.000Z'),
+				totalHours: 3.0,
+				issues: [
+					{
+						issueKey: 'JTS-2456',
+						issueSummary: 'Issue with worklog',
+						hours: 3.0,
+					},
+				],
+			},
+		],
+		weekTotal: 3.0,
+	};
+
+	// This represents a scenario where a favorite issue was fetched
+	// but has no worklogs, so it would appear with 0 hours
+	const favoriteIssues = [
+		{
+			key: 'GVV-5417',
+			defaultTime: '4h',
+			defaultComment: 'Favorite without worklog',
+		},
+		{
+			key: 'JTS-2456',
+			defaultTime: '2h',
+			defaultComment: 'Favorite with worklog',
+		},
+	];
+
+	const props = {
+		data: sampleData,
+		isLoading: false,
+		favoriteIssues,
+	};
+
+	const {lastFrame} = render(React.createElement(TimetableGrid, props));
+	const output = lastFrame()!;
+
+	// Both issues should appear (one with worklog, one is configured favorite)
+	t.true(
+		output.includes(`JTS-2456     ${figures.star}`),
+		'Favorite with worklog should have star',
+	);
+	t.true(
+		output.includes('JTS-2456    '),
+		'Issue with worklog should be present',
+	);
+
+	// Note: GVV-5417 won't appear in this test because it's not in the worklog data
+	// The WeeklyWorklogSummaryUseCase would need to include it in the data
+	// This test validates the visual marking works correctly for favorites that do appear
+});
+
+test('TimetableGrid shows favorite issues even when no worklogs exist', t => {
+	// Empty worklog data - no worklogs for this week
+	const emptyData: WeeklyWorklogSummary = {
+		weekStart: new Date('2024-10-14T00:00:00.000Z'),
+		weekEnd: new Date('2024-10-20T23:59:59.999Z'),
+		dailySummaries: [], // No worklogs at all
+		weekTotal: 0,
+	};
+
+	const favoriteIssues = [
+		{
+			key: 'GVV-5417',
+			defaultTime: '4h',
+			defaultComment: 'Favorite work',
+		},
+		{
+			key: 'JTS-2456',
+			defaultTime: '2h',
+			defaultComment: 'Other favorite',
+		},
+	];
+
+	const props = {
+		data: emptyData,
+		isLoading: false,
+		favoriteIssues,
+	};
+
+	const {lastFrame} = render(React.createElement(TimetableGrid, props));
+	const output = lastFrame()!;
+
+	// Both favorite issues should appear even without worklogs
+	t.true(
+		output.includes(`GVV-5417     ${figures.star}`),
+		'Favorite GVV-5417 should be shown with star',
+	);
+	t.true(
+		output.includes(`JTS-2456     ${figures.star}`),
+		'Favorite JTS-2456 should be shown with star',
+	);
+
+	// Should show dashes for all days (no worklogs)
+	t.true(output.includes('-'), 'Should show dashes for days without worklogs');
+
+	// Should NOT show "No worklogs found" message when favorites exist
+	t.false(
+		output.includes('No worklogs found'),
+		'Should not show no worklogs message when favorites exist',
+	);
 });
