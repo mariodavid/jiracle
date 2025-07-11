@@ -5,7 +5,8 @@ import figures from 'figures';
 import {WeeklyWorklogSummary} from '../domain/WeeklyWorklogSummary.js';
 import {FocusableCell} from './FocusableCell.js';
 import {formatLocalDateKey} from '../utils/date.js';
-import type {FavoriteIssue, JiraConfig} from '../jira-client.js';
+import type {FavoriteIssue, JiraConfig, Group} from '../jira-client.js';
+import {resolveDefaults} from '../jira-client.js';
 import {openInBrowser, generateJiraIssueUrl} from '../utils/browser.js';
 
 export interface TimetableGridProps {
@@ -58,7 +59,82 @@ export function TimetableGrid({
 			? getDefaultFocusId(issueMap)
 			: null;
 
-	// Sort issues by project prefix and number
+	// Group issues by their resolved groups
+	interface IssueGroup {
+		group: Group | null;
+		issues: Array<[string, any]>;
+		totalHours: number;
+	}
+
+	const groupIssuesByResolvedGroup = (
+		issues: Array<[string, any]>,
+	): IssueGroup[] => {
+		if (!config) {
+			// Fallback: treat all issues as ungrouped
+			return [
+				{
+					group: null,
+					issues: sortIssuesByKey(issues),
+					totalHours: issues.reduce(
+						(sum, [, issueData]) => sum + issueData.weekTotal,
+						0,
+					),
+				},
+			];
+		}
+
+		const groupMap = new Map<string, IssueGroup>();
+		const ungroupedIssues: Array<[string, any]> = [];
+
+		for (const [issueKey, issueData] of issues) {
+			const resolved = resolveDefaults(config, issueKey);
+			const group = resolved.group;
+
+			if (group) {
+				const groupId = group.id;
+				if (!groupMap.has(groupId)) {
+					groupMap.set(groupId, {
+						group,
+						issues: [],
+						totalHours: 0,
+					});
+				}
+				groupMap.get(groupId)!.issues.push([issueKey, issueData]);
+				groupMap.get(groupId)!.totalHours += issueData.weekTotal;
+			} else {
+				ungroupedIssues.push([issueKey, issueData]);
+			}
+		}
+
+		const groups = Array.from(groupMap.values());
+
+		// Sort issues within each group by issue key
+		for (const group of groups) {
+			group.issues = sortIssuesByKey(group.issues);
+		}
+
+		// Sort groups by group name
+		groups.sort((a, b) => {
+			if (!a.group || !b.group) return 0;
+			return a.group.name.localeCompare(b.group.name);
+		});
+
+		// Add ungrouped issues at the end if any
+		if (ungroupedIssues.length > 0) {
+			groups.push({
+				group: null,
+				issues: sortIssuesByKey(ungroupedIssues),
+				totalHours: ungroupedIssues.reduce(
+					(sum, [, issueData]) => sum + issueData.weekTotal,
+					0,
+				),
+			});
+		}
+
+		return groups;
+	};
+
+	// Sort issues by project prefix and number (helper function)
 	const sortIssuesByKey = (issues: Array<[string, any]>) => {
 		return issues.sort(([aKey], [bKey]) => {
 			const aParts = aKey.split('-');
@@ -77,7 +153,8 @@ export function TimetableGrid({
 		});
 	};
 
-	const sortedIssueEntries = sortIssuesByKey(Object.entries(issueMap));
+	const issueGroups = groupIssuesByResolvedGroup(Object.entries(issueMap));
+	const allSortedIssues = issueGroups.flatMap(group => group.issues);
 
 	// Helper function to check if an issue is a favorite
 	const isFavoriteIssue = (issueKey: string): boolean => {
@@ -86,7 +163,7 @@ export function TimetableGrid({
 
 	// Helper function to format issue key with favorite marker and fixed width
 	const formatIssueKey = (issueKey: string): string => {
-		// Pad the entire issue key to a fixed width (e.g. 12 characters)
+		// Pad the entire issue key to a fixed width (e.g. 12 characters for consistency)
 		const paddedIssueKey = issueKey.padEnd(12, ' ');
 
 		return isFavoriteIssue(issueKey)
@@ -94,10 +171,29 @@ export function TimetableGrid({
 			: paddedIssueKey;
 	};
 
-	const tableWidth = 20 + 5 * 8 + 8; // Issue + 5 weekdays + Total = 68
+	// Helper function to generate vertical group label
+	const generateVerticalLabel = (groupName: string): string => {
+		return groupName[0] || ' ';
+	};
+
+	// Helper function to format group total with desired amount comparison
+	const formatGroupTotal = (group: IssueGroup): string => {
+		const totalHours = formatHours(group.totalHours);
+
+		if (group.group?.desiredAmount) {
+			const desired = group.group.desiredAmount;
+			const actual = group.totalHours;
+			const status = actual >= desired ? '✓' : '⚠️';
+			return `${totalHours}/${desired}h ${status}`.padStart(7) + ' ';
+		}
+
+		return `${totalHours}h`.padStart(7) + ' ';
+	};
+
+	const tableWidth = 2 + 20 + 5 * 8 + 8; // Group + Issue + 5 weekdays + Total = 70
 
 	// Calculate grid dimensions
-	const issueKeys = sortedIssueEntries.map(([issueKey]) => issueKey);
+	const issueKeys = allSortedIssues.map(([issueKey]) => issueKey);
 	const numRows = issueKeys.length; // Only issue rows are focusable
 	const numCols = 5; // 5 weekdays only (total column not selectable)
 
@@ -316,6 +412,11 @@ export function TimetableGrid({
 		>
 			{/* Header */}
 			<Box flexDirection="row">
+				<Box width={2}>
+					<Text bold color="white">
+						{' '}
+					</Text>
+				</Box>
 				<Box width={20}>
 					<Text bold color="white">
 						Issue
@@ -340,46 +441,76 @@ export function TimetableGrid({
 				<Text color="gray">{'─'.repeat(tableWidth)}</Text>
 			</Box>
 
-			{/* Issue rows */}
-			{sortedIssueEntries.map(([issueKey, issueData]) => (
-				<Box key={issueKey} flexDirection="column">
-					<Box flexDirection="row">
-						<Box width={20}>
-							<Text bold color="cyan">
-								{formatIssueKey(issueKey)}
-							</Text>
-						</Box>
-						{weekDates.map((date, index) =>
-							isActive ? (
-								<FocusableCell
-									key={`${issueKey}-focusable-cell-${index}`}
-									value={formatHours(
-										issueData.dailyHours[formatLocalDateKey(date)] || 0,
+			{/* Issue rows grouped by resolved groups */}
+			{issueGroups.map(group => (
+				<Box key={group.group?.id || 'ungrouped'} flexDirection="column">
+					{group.issues.map(([issueKey, issueData], issueIndex) => {
+						const isLastInGroup = issueIndex === group.issues.length - 1;
+						return (
+							<Box key={issueKey} flexDirection="column">
+								<Box flexDirection="row">
+									{/* Group label column */}
+									<Box width={2}>
+										{issueIndex === 0 && group.group ? (
+											<Text bold color="magenta">
+												{generateVerticalLabel(group.group.name)}
+											</Text>
+										) : issueIndex < (group.group?.name.length || 0) ? (
+											<Text bold color="magenta">
+												{group.group?.name[issueIndex] || ' '}
+											</Text>
+										) : (
+											<Text> </Text>
+										)}
+									</Box>
+									{/* Issue key column */}
+									<Box width={20}>
+										<Text bold color="cyan">
+											{formatIssueKey(issueKey)}
+										</Text>
+									</Box>
+									{/* Day columns */}
+									{weekDates.map((date, index) =>
+										isActive ? (
+											<FocusableCell
+												key={`${issueKey}-focusable-cell-${index}`}
+												value={formatHours(
+													issueData.dailyHours[formatLocalDateKey(date)] || 0,
+												)}
+												focusId={`issue-${issueKey}-${index}`}
+												isActive={true}
+											/>
+										) : (
+											<Box key={`${issueKey}-static-cell-${index}`} width={8}>
+												<Text>
+													{formatHours(
+														issueData.dailyHours[formatLocalDateKey(date)] || 0,
+													).padStart(7) + ' '}
+												</Text>
+											</Box>
+										),
 									)}
-									focusId={`issue-${issueKey}-${index}`}
-									isActive={true}
-								/>
-							) : (
-								<Box key={`${issueKey}-static-cell-${index}`} width={8}>
-									<Text>
-										{formatHours(
-											issueData.dailyHours[formatLocalDateKey(date)] || 0,
-										).padStart(7) + ' '}
+									{/* Total column */}
+									<Box width={8}>
+										{isLastInGroup ? (
+											<Text bold color="green">
+												{formatGroupTotal(group)}
+											</Text>
+										) : (
+											<Text bold color="yellow">
+												{formatHours(issueData.weekTotal).padStart(7) + ' '}
+											</Text>
+										)}
+									</Box>
+								</Box>
+								<Box paddingLeft={2}>
+									<Text color="gray" dimColor>
+										{truncateText(issueData.summary, 50)}
 									</Text>
 								</Box>
-							),
-						)}
-						<Box width={8}>
-							<Text bold color="yellow">
-								{formatHours(issueData.weekTotal).padStart(7) + ' '}
-							</Text>
-						</Box>
-					</Box>
-					<Box paddingLeft={1}>
-						<Text color="gray" dimColor>
-							{truncateText(issueData.summary, 50)}
-						</Text>
-					</Box>
+							</Box>
+						);
+					})}
 				</Box>
 			))}
 
@@ -390,6 +521,9 @@ export function TimetableGrid({
 
 			{/* Daily totals */}
 			<Box flexDirection="row">
+				<Box width={2}>
+					<Text> </Text>
+				</Box>
 				<Box width={20}>
 					<Text bold color="yellow">
 						Daily Total
