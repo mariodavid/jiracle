@@ -111,7 +111,7 @@ test('should show weekly timetable after loading', async t => {
 	// Check if we got to the weekly timetable (BigText renders as ASCII art)
 	t.true(output?.includes('Week') ?? false);
 	t.true(output?.includes('Week') ?? false);
-	t.true(output?.includes('[L] Log Work') ?? false);
+	t.true(output?.includes('[T] Today') ?? false);
 
 	unmount();
 });
@@ -134,7 +134,7 @@ test('should stay on weekly timetable when log work key is pressed', async t => 
 
 	// Should still show weekly timetable (inline form is the only way to log now)
 	t.true(output?.includes('Week') ?? false);
-	t.true(output?.includes('[L] Log Work') ?? false);
+	t.true(output?.includes('[T] Today') ?? false);
 
 	unmount();
 });

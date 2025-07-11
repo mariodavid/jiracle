@@ -510,12 +510,26 @@ export function WeeklyTimetableView({
 			)}
 
 			{/* Footer with keyboard shortcuts - moved to bottom */}
-			<Box justifyContent="center" paddingY={1}>
-				<Text color="gray">
-					{worklogForm.isVisible
-						? '[↑↓] Select Time [Tab] Switch Areas [Enter] Submit [Esc] Cancel'
-						: '[↑↓←→] Navigate Cells [Enter] Log Work [D] Delete Worklogs [Shift+←→] Week Navigation [L] Log Work [T] Today [R] Refresh [Q] Quit'}
-				</Text>
+			<Box
+				justifyContent="center"
+				paddingY={1}
+				flexDirection="column"
+				alignItems="center"
+			>
+				{worklogForm.isVisible ? (
+					<Text color="gray">
+						[↑↓] Select Time [Tab] Switch Areas [Enter] Submit [Esc] Cancel
+					</Text>
+				) : (
+					<>
+						<Text color="gray">
+							[↑↓←→] Navigate Cells [Enter] Log Work [Shift+←→] Week Navigation
+						</Text>
+						<Text color="gray">
+							[D] Delete Worklogs [T] Today [R] Refresh [Q] Quit
+						</Text>
+					</>
+				)}
 			</Box>
 		</Box>
 	);

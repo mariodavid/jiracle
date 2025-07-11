@@ -34,7 +34,7 @@ test('Integration: WeeklyTimetableView renders complete UI structure', t => {
 	t.true(output.includes('[Shift+←→] Week Navigation'));
 	t.true(output.includes('[T] Today'));
 	t.true(output.includes('[R] Refresh'));
-	t.true(output.includes('[L] Log Work'));
+	t.true(output.includes('[D] Delete Worklogs'));
 	t.true(output.includes('[Q] Quit'));
 
 	// Should show loading or error state initially since API calls will fail
