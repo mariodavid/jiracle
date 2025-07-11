@@ -102,7 +102,6 @@ export function WeeklyTimetableView({
 		} ${date.getDate()}`;
 	};
 
-
 	const weekStart = getStartOfWeek(currentWeek);
 	const weekEnd = getEndOfWeek(currentWeek);
 
@@ -440,7 +439,13 @@ export function WeeklyTimetableView({
 				{worklogForm.isVisible ? (
 					/* Inline Worklog Form - replaces table */
 					<Box justifyContent="center">
-						<Box width={68} borderStyle="round" borderColor="cyan" paddingX={1} paddingY={1}>
+						<Box
+							width={68}
+							borderStyle="round"
+							borderColor="cyan"
+							paddingX={1}
+							paddingY={1}
+						>
 							<InlineWorklogForm
 								issueKey={worklogForm.issueKey}
 								date={worklogForm.date}
@@ -460,7 +465,13 @@ export function WeeklyTimetableView({
 				) : activeArea === 'delete-confirmation' && deleteCandidate ? (
 					/* Delete Confirmation - replaces table */
 					<Box justifyContent="center">
-						<Box width={68} borderStyle="round" borderColor="red" paddingX={1} paddingY={1}>
+						<Box
+							width={68}
+							borderStyle="round"
+							borderColor="red"
+							paddingX={1}
+							paddingY={1}
+						>
 							{isDeleting ? (
 								<Box flexDirection="row" alignItems="center">
 									<Spinner />
