@@ -60,15 +60,13 @@ export function InlineWorklogForm({
 	});
 	const [comment, setComment] = useState(defaultComment);
 	const [focusArea, setFocusArea] = useState<FocusArea>('time');
-	const [localSubmitting, setLocalSubmitting] = useState(false);
 	const submittingRef = useRef(false);
 
 	const {isFocused} = useFocus({autoFocus: true});
 
-	// Reset local submitting state when parent submission completes
+	// Reset submitting ref when parent submission completes
 	useEffect(() => {
 		if (!isSubmitting) {
-			setLocalSubmitting(false);
 			submittingRef.current = false;
 		}
 	}, [isSubmitting]);
@@ -167,7 +165,6 @@ export function InlineWorklogForm({
 	const handleSubmit = useCallback(() => {
 		console.log('InlineWorklogForm: handleSubmit called', {
 			isSubmitting,
-			localSubmitting,
 			submittingRef: submittingRef.current,
 			selectedTime,
 			comment,
@@ -175,17 +172,16 @@ export function InlineWorklogForm({
 		});
 
 		// Immediate synchronous check with ref
-		if (isSubmitting || localSubmitting || submittingRef.current) {
+		if (isSubmitting || submittingRef.current) {
 			console.log('InlineWorklogForm: Blocked duplicate submission');
 			return; // Don't submit if already submitting
 		}
 
 		// Set ref immediately (synchronous)
 		submittingRef.current = true;
-		setLocalSubmitting(true);
 		const timeSpent = selectedTime;
 		onSubmit({timeSpent, comment});
-	}, [isSubmitting, localSubmitting, selectedTime, comment, onSubmit]);
+	}, [isSubmitting, selectedTime, comment, onSubmit]);
 
 	const renderButtons = () => {
 		return (

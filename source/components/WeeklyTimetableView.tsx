@@ -71,7 +71,6 @@ export function WeeklyTimetableView({
 		count: number;
 	} | null>(null);
 	const [deleteError, setDeleteError] = useState<string | null>(null);
-	const [isSubmittingWorklog, setIsSubmittingWorklog] = useState(false);
 
 	// Format date for display
 	const formatDate = (date: Date) => {
@@ -200,7 +199,7 @@ export function WeeklyTimetableView({
 	const handleWorklogSubmit = useCallback(
 		async (data: {timeSpent: string; comment: string}) => {
 			// Immediate guard against double submission
-			if (isSubmittingWorklog) {
+			if (worklogSubmitting) {
 				console.log('WeeklyTimetableView: Blocked duplicate submission');
 				return;
 			}
@@ -212,7 +211,6 @@ export function WeeklyTimetableView({
 				timestamp: new Date().toISOString(),
 			});
 
-			setIsSubmittingWorklog(true);
 			setWorklogSubmitting(true);
 			setWorklogError(null);
 
@@ -252,7 +250,6 @@ export function WeeklyTimetableView({
 					err instanceof Error ? err.message : 'Failed to submit worklog',
 				);
 			} finally {
-				setIsSubmittingWorklog(false);
 				setWorklogSubmitting(false);
 			}
 		},
@@ -260,7 +257,7 @@ export function WeeklyTimetableView({
 			worklogForm.issueKey,
 			worklogForm.date,
 			config,
-			isSubmittingWorklog,
+			worklogSubmitting,
 			refresh,
 		],
 	);
