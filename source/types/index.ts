@@ -16,7 +16,9 @@ export type Step =
 	| 'submitting'
 	| 'success'
 	| 'error'
-	| 'weekly-timetable';
+	| 'weekly-timetable'
+	| 'delete-confirmation'
+	| 'deleting';
 
 export type IssueSelectionMode = 'favorites' | 'assigned' | 'other' | null;
 

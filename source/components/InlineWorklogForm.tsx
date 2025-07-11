@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect, useCallback, useRef} from 'react';
 import {Box, Text, useInput, useFocus} from 'ink';
 import {TextInput, Spinner} from '@inkjs/ui';
 import CustomTimeInput from './WorklogForm/CustomTimeInput.js';
@@ -60,8 +60,18 @@ export function InlineWorklogForm({
 	});
 	const [comment, setComment] = useState(defaultComment);
 	const [focusArea, setFocusArea] = useState<FocusArea>('time');
+	const [localSubmitting, setLocalSubmitting] = useState(false);
+	const submittingRef = useRef(false);
 
 	const {isFocused} = useFocus({autoFocus: true});
+
+	// Reset local submitting state when parent submission completes
+	useEffect(() => {
+		if (!isSubmitting) {
+			setLocalSubmitting(false);
+			submittingRef.current = false;
+		}
+	}, [isSubmitting]);
 
 	// Format date for display
 	const formatDate = (date: Date) => {
@@ -154,11 +164,28 @@ export function InlineWorklogForm({
 		return inputValue;
 	};
 
-	const handleSubmit = () => {
-		if (isSubmitting) return; // Don't submit if already submitting
+	const handleSubmit = useCallback(() => {
+		console.log('InlineWorklogForm: handleSubmit called', {
+			isSubmitting,
+			localSubmitting,
+			submittingRef: submittingRef.current,
+			selectedTime,
+			comment,
+			timestamp: new Date().toISOString(),
+		});
+
+		// Immediate synchronous check with ref
+		if (isSubmitting || localSubmitting || submittingRef.current) {
+			console.log('InlineWorklogForm: Blocked duplicate submission');
+			return; // Don't submit if already submitting
+		}
+
+		// Set ref immediately (synchronous)
+		submittingRef.current = true;
+		setLocalSubmitting(true);
 		const timeSpent = selectedTime;
 		onSubmit({timeSpent, comment});
-	};
+	}, [isSubmitting, localSubmitting, selectedTime, comment, onSubmit]);
 
 	const renderButtons = () => {
 		return (

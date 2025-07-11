@@ -12,6 +12,7 @@ export interface TimetableGridProps {
 	isLoading: boolean;
 	onWeekChange?: (direction: 'prev' | 'next') => void;
 	onCellWorklog?: (data: {issueKey: string; date: Date}) => void;
+	onCellDelete?: (data: {issueKey: string; date: Date}) => void;
 	isActive?: boolean;
 	shouldFocusCell?: boolean;
 	onCellFocused?: () => void;
@@ -25,6 +26,7 @@ export function TimetableGrid({
 	isLoading,
 	onWeekChange,
 	onCellWorklog,
+	onCellDelete,
 	isActive = true,
 	shouldFocusCell = false,
 	onCellFocused,
@@ -148,6 +150,19 @@ export function TimetableGrid({
 			// Only trigger on weekday cells (not total column) and valid issue
 			if (currentFocus.col < 5 && issueKey && date) {
 				onCellWorklog({issueKey, date});
+			}
+			return;
+		}
+
+		// Handle 'd' key for delete
+		if (_input === 'd' && onCellDelete) {
+			// Get current focus info
+			const issueKey = issueKeys[currentFocus.row];
+			const date = weekDates[currentFocus.col];
+
+			// Only trigger on weekday cells (not total column) and valid issue
+			if (currentFocus.col < 5 && issueKey && date) {
+				onCellDelete({issueKey, date});
 			}
 			return;
 		}

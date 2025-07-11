@@ -1,10 +1,12 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useCallback} from 'react';
 import {Box, Text, useInput} from 'ink';
+import {Alert, Spinner} from '@inkjs/ui';
 import Gradient from 'ink-gradient';
 import BigText from 'ink-big-text';
 import {WeekNavigator} from './WeekNavigator.js';
 import {TimetableGrid} from './TimetableGrid.js';
 import {InlineWorklogForm} from './InlineWorklogForm.js';
+import {DeleteWorklogConfirmation} from './DeleteWorklogConfirmation.js';
 import {useWeeklyWorklogSummary} from '../hooks/useWeeklyWorklogSummary.js';
 import {
 	JiraClient,
@@ -13,7 +15,11 @@ import {
 	getFavoriteDefaultComment,
 	getFavoriteDefaultTime,
 } from '../jira-client.js';
-import {getStartOfWeek, getEndOfWeek} from '../utils/date.js';
+import {
+	getStartOfWeek,
+	getEndOfWeek,
+	formatLocalDateKey,
+} from '../utils/date.js';
 
 interface WorklogFormData {
 	issueKey: string;
@@ -39,7 +45,11 @@ export function WeeklyTimetableView({
 }: WeeklyTimetableViewProps) {
 	const [currentWeek, setCurrentWeek] = useState(new Date());
 	const [activeArea, setActiveArea] = useState<
-		'prev-week' | 'timetable' | 'next-week' | 'worklog-form'
+		| 'prev-week'
+		| 'timetable'
+		| 'next-week'
+		| 'worklog-form'
+		| 'delete-confirmation'
 	>('timetable');
 	const [shouldFocusCell, setShouldFocusCell] = useState(true);
 	const [worklogForm, setWorklogForm] = useState<WorklogFormData>({
@@ -51,6 +61,17 @@ export function WeeklyTimetableView({
 	});
 	const [worklogSubmitting, setWorklogSubmitting] = useState(false);
 	const [worklogError, setWorklogError] = useState<string | null>(null);
+	const [deleteCandidate, setDeleteCandidate] = useState<{
+		issueKey: string;
+		date: Date;
+	} | null>(null);
+	const [isDeleting, setIsDeleting] = useState(false);
+	const [deleteSuccess, setDeleteSuccess] = useState<{
+		issueKey: string;
+		count: number;
+	} | null>(null);
+	const [deleteError, setDeleteError] = useState<string | null>(null);
+	const [isSubmittingWorklog, setIsSubmittingWorklog] = useState(false);
 
 	// Format date for display
 	const formatDate = (date: Date) => {
@@ -176,56 +197,168 @@ export function WeeklyTimetableView({
 		setActiveArea('worklog-form');
 	};
 
-	const handleWorklogSubmit = async (data: {
-		timeSpent: string;
-		comment: string;
-	}) => {
-		setWorklogSubmitting(true);
-		setWorklogError(null);
+	const handleWorklogSubmit = useCallback(
+		async (data: {timeSpent: string; comment: string}) => {
+			// Immediate guard against double submission
+			if (isSubmittingWorklog) {
+				console.log('WeeklyTimetableView: Blocked duplicate submission');
+				return;
+			}
 
-		try {
-			// Create Jira client
-			const client = new JiraClient(config);
-
-			// Format the date to match Jira's expected format
-			const selectedDateTime = new Date(worklogForm.date);
-			// Set time to 9:00 AM for worklog start time
-			selectedDateTime.setHours(9, 0, 0, 0);
-			const formattedStarted = selectedDateTime
-				.toISOString()
-				.replace('Z', '+0000');
-
-			const worklogData: WorklogRequest = {
+			console.log('WeeklyTimetableView: handleWorklogSubmit called', {
+				issueKey: worklogForm.issueKey,
 				timeSpent: data.timeSpent,
-				comment: data.comment || 'Work logged via Jiracle',
-				started: formattedStarted,
-			};
+				comment: data.comment,
+				timestamp: new Date().toISOString(),
+			});
 
-			await client.addWorklog(worklogForm.issueKey, worklogData);
+			setIsSubmittingWorklog(true);
+			setWorklogSubmitting(true);
+			setWorklogError(null);
 
-			// Close form and return to table
-			setWorklogForm(prev => ({...prev, isVisible: false}));
-			setActiveArea('timetable');
+			try {
+				// Create Jira client
+				const client = new JiraClient(config);
 
-			// Refresh the data to show the new worklog
-			refresh();
-		} catch (err) {
-			setWorklogError(
-				err instanceof Error ? err.message : 'Failed to submit worklog',
-			);
-		} finally {
-			setWorklogSubmitting(false);
-		}
-	};
+				// Format the date to match Jira's expected format
+				const selectedDateTime = new Date(worklogForm.date);
+				// Set time to 9:00 AM for worklog start time
+				selectedDateTime.setHours(9, 0, 0, 0);
+				const formattedStarted = selectedDateTime
+					.toISOString()
+					.replace('Z', '+0000');
+
+				const worklogData: WorklogRequest = {
+					timeSpent: data.timeSpent,
+					comment: data.comment || 'Work logged via Jiracle',
+					started: formattedStarted,
+				};
+
+				await client.addWorklog(worklogForm.issueKey, worklogData);
+
+				console.log('WeeklyTimetableView: Worklog submitted successfully', {
+					issueKey: worklogForm.issueKey,
+					timestamp: new Date().toISOString(),
+				});
+
+				// Close form and return to table
+				setWorklogForm(prev => ({...prev, isVisible: false}));
+				setActiveArea('timetable');
+
+				// Refresh the data to show the new worklog
+				refresh();
+			} catch (err) {
+				setWorklogError(
+					err instanceof Error ? err.message : 'Failed to submit worklog',
+				);
+			} finally {
+				setIsSubmittingWorklog(false);
+				setWorklogSubmitting(false);
+			}
+		},
+		[
+			worklogForm.issueKey,
+			worklogForm.date,
+			config,
+			isSubmittingWorklog,
+			refresh,
+		],
+	);
 
 	const handleWorklogCancel = () => {
 		setWorklogForm(prev => ({...prev, isVisible: false}));
 		setActiveArea('timetable');
 	};
 
+	const handleCellDelete = (data: {issueKey: string; date: Date}) => {
+		setDeleteCandidate(data);
+		setActiveArea('delete-confirmation');
+	};
+
+	const handleDeleteConfirm = async (confirmed: boolean) => {
+		if (!confirmed || !deleteCandidate) {
+			setDeleteCandidate(null);
+			setActiveArea('timetable');
+			return;
+		}
+
+		setIsDeleting(true);
+		try {
+			const jiraClient = new JiraClient(config);
+			const worklogResponse = await jiraClient.getIssueWorklogs(
+				deleteCandidate.issueKey,
+			);
+
+			// Filter worklogs for the selected date and current user only
+			const targetDateString = formatLocalDateKey(deleteCandidate.date);
+			const worklogsToDelete = worklogResponse.worklogs.filter(worklog => {
+				if (!worklog.started) return false;
+				const worklogDate = new Date(worklog.started);
+				const worklogDateString = formatLocalDateKey(worklogDate);
+				const matchesDate = worklogDateString === targetDateString;
+				const isCurrentUser = userEmail
+					? worklog.author.emailAddress === userEmail
+					: true;
+				return matchesDate && isCurrentUser;
+			});
+
+			console.log(
+				`Found ${worklogsToDelete.length} worklogs to delete for ${deleteCandidate.issueKey} on ${targetDateString}`,
+			);
+
+			// Delete each matching worklog
+			for (const worklog of worklogsToDelete) {
+				console.log(
+					`Deleting worklog ${worklog.id} (${worklog.timeSpentSeconds}s)`,
+				);
+				await jiraClient.deleteWorklog(deleteCandidate.issueKey, worklog.id);
+			}
+
+			// Refresh the data
+			refresh();
+
+			// Show success alert
+			setDeleteSuccess({
+				issueKey: deleteCandidate.issueKey,
+				count: worklogsToDelete.length,
+			});
+		} catch (error) {
+			console.error('Error deleting worklogs:', error);
+			const errorMessage =
+				error instanceof Error ? error.message : 'Unknown error occurred';
+			setDeleteError(`Failed to delete worklogs: ${errorMessage}`);
+		} finally {
+			setIsDeleting(false);
+			setDeleteCandidate(null);
+			setActiveArea('timetable');
+		}
+	};
+
+	// Auto-hide delete success alert after 3 seconds
+	useEffect(() => {
+		if (deleteSuccess) {
+			const timer = setTimeout(() => {
+				setDeleteSuccess(null);
+			}, 3000);
+			return () => clearTimeout(timer);
+		}
+		return undefined;
+	}, [deleteSuccess]);
+
+	// Auto-hide delete error alert after 5 seconds
+	useEffect(() => {
+		if (deleteError) {
+			const timer = setTimeout(() => {
+				setDeleteError(null);
+			}, 5000);
+			return () => clearTimeout(timer);
+		}
+		return undefined;
+	}, [deleteError]);
+
 	useInput((input, key) => {
-		// Don't handle input if worklog form is visible
-		if (worklogForm.isVisible) {
+		// Don't handle input if worklog form is visible or delete confirmation is active
+		if (worklogForm.isVisible || activeArea === 'delete-confirmation') {
 			return;
 		}
 
@@ -283,14 +416,19 @@ export function WeeklyTimetableView({
 				</Gradient>
 			</Box>
 
-			{/* Week Navigator - only when not in form mode */}
-			{!worklogForm.isVisible && (
+			{/* Week Navigator - only when not in form or delete mode */}
+			{!worklogForm.isVisible && activeArea !== 'delete-confirmation' && (
 				<WeekNavigator
 					currentWeek={currentWeek}
 					onPreviousWeek={navigateToPreviousWeek}
 					onNextWeek={navigateToNextWeek}
 					onCurrentWeek={handleCurrentWeek}
-					activeArea={activeArea === 'worklog-form' ? 'timetable' : activeArea}
+					activeArea={
+						activeArea === 'worklog-form' ||
+						(activeArea as string) === 'delete-confirmation'
+							? 'timetable'
+							: (activeArea as 'prev-week' | 'timetable' | 'next-week')
+					}
 				/>
 			)}
 
@@ -310,10 +448,12 @@ export function WeeklyTimetableView({
 				</Box>
 			)}
 
-			{/* Extra spacing between week navigator and table - only when not in form mode */}
-			{!worklogForm.isVisible && <Box paddingY={1} />}
+			{/* Extra spacing between week navigator and table - only when not in form or delete mode */}
+			{!worklogForm.isVisible && activeArea !== 'delete-confirmation' && (
+				<Box paddingY={1} />
+			)}
 
-			{/* Conditional content: either table or form */}
+			{/* Conditional content: table, form, or delete confirmation */}
 			{worklogForm.isVisible ? (
 				/* Inline Worklog Form - replaces table */
 				<Box justifyContent="center">
@@ -334,6 +474,24 @@ export function WeeklyTimetableView({
 						/>
 					</Box>
 				</Box>
+			) : activeArea === 'delete-confirmation' && deleteCandidate ? (
+				/* Delete Confirmation - replaces table */
+				<Box justifyContent="center">
+					<Box width={68}>
+						{isDeleting ? (
+							<Box flexDirection="row" alignItems="center">
+								<Spinner />
+								<Text> Deleting worklogs...</Text>
+							</Box>
+						) : (
+							<DeleteWorklogConfirmation
+								issueKey={deleteCandidate.issueKey}
+								dayLabel={formatDate(deleteCandidate.date)}
+								onConfirm={handleDeleteConfirm}
+							/>
+						)}
+					</Box>
+				</Box>
 			) : (
 				/* Timetable Grid */
 				<TimetableGrid
@@ -347,6 +505,7 @@ export function WeeklyTimetableView({
 						}
 					}}
 					onCellWorklog={handleCellWorklog}
+					onCellDelete={handleCellDelete}
 					isActive={activeArea === 'timetable'}
 					shouldFocusCell={shouldFocusCell}
 					onCellFocused={() => setShouldFocusCell(false)}
@@ -361,12 +520,30 @@ export function WeeklyTimetableView({
 				</Text>
 			</Box>
 
+			{/* Delete success alert */}
+			{deleteSuccess && (
+				<Alert variant="success" title="Worklogs deleted">
+					{deleteSuccess.count > 0
+						? `Successfully deleted ${deleteSuccess.count} worklog${
+								deleteSuccess.count === 1 ? '' : 's'
+						  } for ${deleteSuccess.issueKey}`
+						: `No worklogs found to delete for ${deleteSuccess.issueKey}`}
+				</Alert>
+			)}
+
+			{/* Delete error alert */}
+			{deleteError && (
+				<Alert variant="error" title="Delete failed">
+					{deleteError}
+				</Alert>
+			)}
+
 			{/* Footer with keyboard shortcuts - moved to bottom */}
 			<Box justifyContent="center" paddingY={1}>
 				<Text color="gray">
 					{worklogForm.isVisible
 						? '[↑↓] Select Time [Tab] Switch Areas [Enter] Submit [Esc] Cancel'
-						: '[↑↓←→] Navigate Cells [Enter] Log Work [Shift+←→] Week Navigation [L] Log Work [T] Today [R] Refresh [Q] Quit'}
+						: '[↑↓←→] Navigate Cells [Enter] Log Work [D] Delete Worklogs [Shift+←→] Week Navigation [L] Log Work [T] Today [R] Refresh [Q] Quit'}
 				</Text>
 			</Box>
 		</Box>

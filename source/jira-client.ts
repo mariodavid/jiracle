@@ -416,6 +416,7 @@ export class JiraClient {
 			url: worklogUrl,
 			issueKey,
 			worklogData,
+			timestamp: new Date().toISOString(),
 		});
 
 		try {
@@ -448,6 +449,7 @@ export class JiraClient {
 				issueKey,
 				worklogData,
 				status: response.status,
+				timestamp: new Date().toISOString(),
 			});
 		} catch (error) {
 			this.logger.error('Error adding worklog', {
@@ -505,6 +507,57 @@ export class JiraClient {
 				method: 'GET',
 				url: worklogUrl,
 				issueKey,
+				error: error instanceof Error ? error.message : 'Unknown error',
+			});
+			throw error;
+		}
+	}
+
+	async deleteWorklog(issueKey: string, worklogId: string): Promise<void> {
+		const deleteUrl = `${this.baseUrl}/issue/${issueKey}/worklog/${worklogId}`;
+
+		this.logger.info('Deleting worklog', {
+			method: 'DELETE',
+			url: deleteUrl,
+			issueKey,
+			worklogId,
+		});
+
+		try {
+			const response = await fetch(deleteUrl, {
+				method: 'DELETE',
+				headers: {
+					Authorization: `Bearer ${this.apiToken}`,
+					Accept: 'application/json',
+				},
+			});
+
+			if (!response.ok) {
+				const errorText = await response.text();
+				this.logger.error('Failed to delete worklog', {
+					method: 'DELETE',
+					url: deleteUrl,
+					issueKey,
+					worklogId,
+					status: response.status,
+					error: errorText,
+				});
+				throw new Error(`Jira API error: ${response.status} - ${errorText}`);
+			}
+
+			this.logger.info('Successfully deleted worklog', {
+				method: 'DELETE',
+				url: deleteUrl,
+				issueKey,
+				worklogId,
+				status: response.status,
+			});
+		} catch (error) {
+			this.logger.error('Error deleting worklog', {
+				method: 'DELETE',
+				url: deleteUrl,
+				issueKey,
+				worklogId,
 				error: error instanceof Error ? error.message : 'Unknown error',
 			});
 			throw error;
