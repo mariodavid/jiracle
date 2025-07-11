@@ -22,7 +22,6 @@ type FocusArea = 'time' | 'comment' | 'submit' | 'cancel';
 
 export function InlineWorklogForm({
 	issueKey,
-	date,
 	defaultTimeSpent,
 	defaultComment = '',
 	onSubmit,
@@ -64,36 +63,6 @@ export function InlineWorklogForm({
 			submittingRef.current = false;
 		}
 	}, [isSubmitting]);
-
-	// Format date for display
-	const formatDate = (date: Date) => {
-		const days = [
-			'Sunday',
-			'Monday',
-			'Tuesday',
-			'Wednesday',
-			'Thursday',
-			'Friday',
-			'Saturday',
-		];
-		const months = [
-			'Jan',
-			'Feb',
-			'Mar',
-			'Apr',
-			'May',
-			'Jun',
-			'Jul',
-			'Aug',
-			'Sep',
-			'Oct',
-			'Nov',
-			'Dec',
-		];
-		return `${days[date.getDay()]}, ${
-			months[date.getMonth()]
-		} ${date.getDate()}`;
-	};
 
 	useInput(
 		(_, key) => {
@@ -200,25 +169,6 @@ export function InlineWorklogForm({
 	if (isSubmitting) {
 		return (
 			<Box flexDirection="column" minHeight={10}>
-				{/* Header row - same level as table header */}
-				<Box flexDirection="row">
-					<Box width={20}>
-						<Text bold color="white">
-							Log Work
-						</Text>
-					</Box>
-					<Box flexGrow={1} justifyContent="center">
-						<Text color="cyan" bold>
-							{issueKey} on {formatDate(date)}
-						</Text>
-					</Box>
-				</Box>
-
-				{/* Separator - same as table */}
-				<Box width={68}>
-					<Text color="gray">{'─'.repeat(68)}</Text>
-				</Box>
-
 				{/* Loading content */}
 				<Box
 					marginTop={3}
@@ -239,25 +189,6 @@ export function InlineWorklogForm({
 
 	return (
 		<Box flexDirection="column" minHeight={10}>
-			{/* Header row - same level as table header */}
-			<Box flexDirection="row">
-				<Box width={20}>
-					<Text bold color="white">
-						Log Work
-					</Text>
-				</Box>
-				<Box flexGrow={1} justifyContent="center">
-					<Text color="cyan" bold>
-						{issueKey} on {formatDate(date)}
-					</Text>
-				</Box>
-			</Box>
-
-			{/* Separator - same as table */}
-			<Box width={68}>
-				<Text color="gray">{'─'.repeat(68)}</Text>
-			</Box>
-
 			{/* Main Content */}
 			<Box marginTop={1} flexDirection="row" minHeight={8}>
 				{/* Left Column: Time Selection */}

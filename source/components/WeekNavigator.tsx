@@ -10,33 +10,15 @@ export interface WeekNavigatorProps {
 	activeArea: 'prev-week' | 'timetable' | 'next-week';
 }
 
-export function WeekNavigator({currentWeek, activeArea}: WeekNavigatorProps) {
+// Helper function to get week title - exported for use in TitleBar
+export function getWeekTitle(currentWeek: Date): string {
 	const weekStart = getStartOfWeek(currentWeek);
 	const weekEnd = getEndOfWeek(currentWeek);
 	const weekNumber = getWeekNumber(currentWeek);
+	return `Week ${weekNumber} (${formatDateRange(weekStart, weekEnd)})`;
+}
 
-	const formatDateRange = (start: Date, end: Date): string => {
-		const startFormatted = formatDate(start);
-		const endFormatted = formatDate(end);
-
-		if (
-			start.getMonth() === end.getMonth() &&
-			start.getFullYear() === end.getFullYear()
-		) {
-			// Same month: "Jan 6-12, 2025"
-			const monthName = start.toLocaleDateString('en-US', {month: 'short'});
-			return `${monthName} ${start.getDate()}-${end.getDate()}, ${start.getFullYear()}`;
-		} else if (start.getFullYear() === end.getFullYear()) {
-			// Same year: "Dec 30 - Jan 5, 2025"
-			const startMonth = start.toLocaleDateString('en-US', {month: 'short'});
-			const endMonth = end.toLocaleDateString('en-US', {month: 'short'});
-			return `${startMonth} ${start.getDate()} - ${endMonth} ${end.getDate()}, ${start.getFullYear()}`;
-		} else {
-			// Different years: "Dec 30, 2024 - Jan 5, 2025"
-			return `${startFormatted} - ${endFormatted}`;
-		}
-	};
-
+export function WeekNavigator({activeArea}: WeekNavigatorProps) {
 	const isPrevFocused = activeArea === 'prev-week';
 	const isNextFocused = activeArea === 'next-week';
 
@@ -48,9 +30,7 @@ export function WeekNavigator({currentWeek, activeArea}: WeekNavigatorProps) {
 			>
 				{' ← Previous Week '}
 			</Text>
-			<Text>
-				Week {weekNumber} ({formatDateRange(weekStart, weekEnd)})
-			</Text>
+			<Box flexGrow={1} />
 			<Text
 				color={isNextFocused ? 'black' : 'blue'}
 				backgroundColor={isNextFocused ? 'blue' : undefined}
@@ -59,6 +39,28 @@ export function WeekNavigator({currentWeek, activeArea}: WeekNavigatorProps) {
 			</Text>
 		</Box>
 	);
+}
+
+function formatDateRange(start: Date, end: Date): string {
+	const startFormatted = formatDate(start);
+	const endFormatted = formatDate(end);
+
+	if (
+		start.getMonth() === end.getMonth() &&
+		start.getFullYear() === end.getFullYear()
+	) {
+		// Same month: "Jan 6-12, 2025"
+		const monthName = start.toLocaleDateString('en-US', {month: 'short'});
+		return `${monthName} ${start.getDate()}-${end.getDate()}, ${start.getFullYear()}`;
+	} else if (start.getFullYear() === end.getFullYear()) {
+		// Same year: "Dec 30 - Jan 5, 2025"
+		const startMonth = start.toLocaleDateString('en-US', {month: 'short'});
+		const endMonth = end.toLocaleDateString('en-US', {month: 'short'});
+		return `${startMonth} ${start.getDate()} - ${endMonth} ${end.getDate()}, ${start.getFullYear()}`;
+	} else {
+		// Different years: "Dec 30, 2024 - Jan 5, 2025"
+		return `${startFormatted} - ${endFormatted}`;
+	}
 }
 
 function getWeekNumber(date: Date): number {

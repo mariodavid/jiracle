@@ -3,10 +3,11 @@ import {Box, Text, useInput} from 'ink';
 import {Alert, Spinner} from '@inkjs/ui';
 import Gradient from 'ink-gradient';
 import BigText from 'ink-big-text';
-import {WeekNavigator} from './WeekNavigator.js';
+import {WeekNavigator, getWeekTitle} from './WeekNavigator.js';
 import {TimetableGrid} from './TimetableGrid.js';
 import {InlineWorklogForm} from './InlineWorklogForm.js';
 import {DeleteWorklogConfirmation} from './DeleteWorklogConfirmation.js';
+import {TitleBar} from './TitleBar.js';
 import {useWeeklyWorklogSummary} from '../hooks/useWeeklyWorklogSummary.js';
 import {
 	JiraClient,
@@ -100,6 +101,7 @@ export function WeeklyTimetableView({
 			months[date.getMonth()]
 		} ${date.getDate()}`;
 	};
+
 
 	const weekStart = getStartOfWeek(currentWeek);
 	const weekEnd = getEndOfWeek(currentWeek);
@@ -380,139 +382,143 @@ export function WeeklyTimetableView({
 
 	return (
 		<Box flexDirection="column" height={40}>
-			{/* JIRACLE Rainbow Banner */}
-			<Box justifyContent="center" paddingY={1}>
-				<Gradient name="rainbow">
-					<BigText text="JIRACLE" font="tiny" />
-				</Gradient>
-			</Box>
-
-			{/* Week Navigator - only when not in form or delete mode */}
-			{!worklogForm.isVisible && activeArea !== 'delete-confirmation' && (
-				<WeekNavigator
-					currentWeek={currentWeek}
-					onPreviousWeek={navigateToPreviousWeek}
-					onNextWeek={navigateToNextWeek}
-					onCurrentWeek={handleCurrentWeek}
-					activeArea={
-						activeArea === 'worklog-form' ||
-						(activeArea as string) === 'delete-confirmation'
-							? 'timetable'
-							: (activeArea as 'prev-week' | 'timetable' | 'next-week')
-					}
-				/>
-			)}
-
-			{/* Show issue info when in form mode */}
-			{worklogForm.isVisible && (
+			{/* Header Area - Fixed Height */}
+			<Box height={8} flexDirection="column">
+				{/* JIRACLE Rainbow Banner */}
 				<Box justifyContent="center" paddingY={1}>
-					<Text color="white" bold>
-						{worklogForm.issueKey} on {formatDate(worklogForm.date)}
-					</Text>
+					<Gradient name="rainbow">
+						<BigText text="JIRACLE" font="tiny" />
+					</Gradient>
 				</Box>
-			)}
 
-			{/* Error Display */}
-			{error && (
-				<Box justifyContent="center" paddingY={1}>
-					<Text color="red">Error: {error}</Text>
-				</Box>
-			)}
-
-			{/* Extra spacing between week navigator and table - only when not in form or delete mode */}
-			{!worklogForm.isVisible && activeArea !== 'delete-confirmation' && (
-				<Box paddingY={1} />
-			)}
-
-			{/* Conditional content: table, form, or delete confirmation */}
-			{worklogForm.isVisible ? (
-				/* Inline Worklog Form - replaces table */
-				<Box justifyContent="center">
-					<Box width={68}>
-						<InlineWorklogForm
-							issueKey={worklogForm.issueKey}
-							date={worklogForm.date}
-							defaultTimeSpent={worklogForm.timeSpent}
-							defaultComment={worklogForm.comment}
-							onSubmit={handleWorklogSubmit}
-							onCancel={handleWorklogCancel}
-							isSubmitting={worklogSubmitting}
-							error={worklogError}
-							config={config}
-							isFavorite={config?.favorites?.some(
-								fav => fav.key === worklogForm.issueKey,
-							)}
-						/>
-					</Box>
-				</Box>
-			) : activeArea === 'delete-confirmation' && deleteCandidate ? (
-				/* Delete Confirmation - replaces table */
-				<Box justifyContent="center">
-					<Box width={68}>
-						{isDeleting ? (
-							<Box flexDirection="row" alignItems="center">
-								<Spinner />
-								<Text> Deleting worklogs...</Text>
-							</Box>
-						) : (
-							<DeleteWorklogConfirmation
-								issueKey={deleteCandidate.issueKey}
-								dayLabel={formatDate(deleteCandidate.date)}
-								onConfirm={handleDeleteConfirm}
-							/>
-						)}
-					</Box>
-				</Box>
-			) : (
-				/* Timetable Grid */
-				<TimetableGrid
-					data={displayData}
-					isLoading={displayLoading}
-					onWeekChange={direction => {
-						if (direction === 'prev') {
-							navigateToPreviousWeek();
-						} else {
-							navigateToNextWeek();
+				{/* Week Navigator - only when not in form or delete mode */}
+				{!worklogForm.isVisible && activeArea !== 'delete-confirmation' && (
+					<WeekNavigator
+						currentWeek={currentWeek}
+						onPreviousWeek={navigateToPreviousWeek}
+						onNextWeek={navigateToNextWeek}
+						onCurrentWeek={handleCurrentWeek}
+						activeArea={
+							activeArea === 'worklog-form' ||
+							(activeArea as string) === 'delete-confirmation'
+								? 'timetable'
+								: (activeArea as 'prev-week' | 'timetable' | 'next-week')
 						}
-					}}
-					onCellWorklog={handleCellWorklog}
-					onCellDelete={handleCellDelete}
-					isActive={activeArea === 'timetable'}
-					shouldFocusCell={shouldFocusCell}
-					onCellFocused={() => setShouldFocusCell(false)}
-					favoriteIssues={config.favorites}
-				/>
-			)}
+					/>
+				)}
 
-			{/* Extra spacing to make app taller */}
-			<Box paddingY={4}>
-				<Text color="gray" dimColor>
-					{/* Empty space for better visual layout */}
-				</Text>
+				{/* Show title based on current mode */}
+				{worklogForm.isVisible ? (
+					<TitleBar
+						title={`${worklogForm.issueKey} on ${formatDate(worklogForm.date)}`}
+					/>
+				) : activeArea === 'delete-confirmation' && deleteCandidate ? (
+					<TitleBar
+						title={`Delete worklogs for ${deleteCandidate.issueKey}`}
+						color="red"
+					/>
+				) : (
+					<TitleBar title={getWeekTitle(currentWeek)} />
+				)}
+
+				{/* Error Display */}
+				{error && (
+					<Box justifyContent="center" paddingY={1}>
+						<Text color="red">Error: {error}</Text>
+					</Box>
+				)}
 			</Box>
 
-			{/* Delete success alert */}
-			{deleteSuccess && (
-				<Alert variant="success" title="Worklogs deleted">
-					{deleteSuccess.count > 0
-						? `Successfully deleted ${deleteSuccess.count} worklog${
-								deleteSuccess.count === 1 ? '' : 's'
-						  } for ${deleteSuccess.issueKey}`
-						: `No worklogs found to delete for ${deleteSuccess.issueKey}`}
-				</Alert>
-			)}
+			{/* Main Content Area - Fixed Height */}
+			<Box height={25} flexDirection="column">
+				{/* Extra spacing between week navigator and table - only when not in form or delete mode */}
+				{!worklogForm.isVisible && activeArea !== 'delete-confirmation' && (
+					<Box paddingY={1} />
+				)}
 
-			{/* Delete error alert */}
-			{deleteError && (
-				<Alert variant="error" title="Delete failed">
-					{deleteError}
-				</Alert>
-			)}
+				{/* Conditional content: table, form, or delete confirmation */}
+				{worklogForm.isVisible ? (
+					/* Inline Worklog Form - replaces table */
+					<Box justifyContent="center">
+						<Box width={68} borderStyle="round" borderColor="cyan" paddingX={1} paddingY={1}>
+							<InlineWorklogForm
+								issueKey={worklogForm.issueKey}
+								date={worklogForm.date}
+								defaultTimeSpent={worklogForm.timeSpent}
+								defaultComment={worklogForm.comment}
+								onSubmit={handleWorklogSubmit}
+								onCancel={handleWorklogCancel}
+								isSubmitting={worklogSubmitting}
+								error={worklogError}
+								config={config}
+								isFavorite={config?.favorites?.some(
+									fav => fav.key === worklogForm.issueKey,
+								)}
+							/>
+						</Box>
+					</Box>
+				) : activeArea === 'delete-confirmation' && deleteCandidate ? (
+					/* Delete Confirmation - replaces table */
+					<Box justifyContent="center">
+						<Box width={68} borderStyle="round" borderColor="red" paddingX={1} paddingY={1}>
+							{isDeleting ? (
+								<Box flexDirection="row" alignItems="center">
+									<Spinner />
+									<Text> Deleting worklogs...</Text>
+								</Box>
+							) : (
+								<DeleteWorklogConfirmation
+									issueKey={deleteCandidate.issueKey}
+									dayLabel={formatDate(deleteCandidate.date)}
+									onConfirm={handleDeleteConfirm}
+								/>
+							)}
+						</Box>
+					</Box>
+				) : (
+					/* Timetable Grid */
+					<TimetableGrid
+						data={displayData}
+						isLoading={displayLoading}
+						onWeekChange={direction => {
+							if (direction === 'prev') {
+								navigateToPreviousWeek();
+							} else {
+								navigateToNextWeek();
+							}
+						}}
+						onCellWorklog={handleCellWorklog}
+						onCellDelete={handleCellDelete}
+						isActive={activeArea === 'timetable'}
+						shouldFocusCell={shouldFocusCell}
+						onCellFocused={() => setShouldFocusCell(false)}
+						favoriteIssues={config.favorites}
+					/>
+				)}
 
-			{/* Footer with keyboard shortcuts - moved to bottom */}
+				{/* Delete success alert */}
+				{deleteSuccess && (
+					<Alert variant="success" title="Worklogs deleted">
+						{deleteSuccess.count > 0
+							? `Successfully deleted ${deleteSuccess.count} worklog${
+									deleteSuccess.count === 1 ? '' : 's'
+							  } for ${deleteSuccess.issueKey}`
+							: `No worklogs found to delete for ${deleteSuccess.issueKey}`}
+					</Alert>
+				)}
+
+				{/* Delete error alert */}
+				{deleteError && (
+					<Alert variant="error" title="Delete failed">
+						{deleteError}
+					</Alert>
+				)}
+			</Box>
+
+			{/* Footer Area - Fixed Height */}
 			<Box
+				height={7}
 				justifyContent="center"
-				paddingY={1}
 				flexDirection="column"
 				alignItems="center"
 			>

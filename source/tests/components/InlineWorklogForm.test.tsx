@@ -16,10 +16,7 @@ test('InlineWorklogForm renders basic structure', t => {
 	const {lastFrame} = render(React.createElement(InlineWorklogForm, mockProps));
 	const output = lastFrame() || '';
 
-	// Check for basic elements
-	t.true(output.includes('Log Work'));
-	t.true(output.includes('TEST-123'));
-	t.true(output.includes('Thursday, Jul 10'));
+	// Check for basic elements (no longer includes "Log Work" header)
 	t.true(output.includes('Time spent:'));
 	t.true(output.includes('Comment:'));
 	t.true(output.includes('[Submit]'));
@@ -112,10 +109,10 @@ test('InlineWorklogForm component structure is correct', t => {
 	const {lastFrame} = render(React.createElement(InlineWorklogForm, mockProps));
 	const output = lastFrame() || '';
 
-	// Basic structure validation
+	// Basic structure validation (no longer includes "Log Work" header)
 	t.true(output.length > 0);
-	t.true(output.includes('Log Work'));
-	t.true(output.includes('TEST-123'));
+	t.true(output.includes('Time spent:'));
+	t.true(output.includes('Comment:'));
 });
 
 // === CONFIGURATION INTEGRATION TESTS ===
