@@ -20,6 +20,7 @@ import {
 	getEndOfWeek,
 	formatLocalDateKey,
 } from '../utils/date.js';
+import {isBrowserOpenSupported} from '../utils/browser.js';
 
 interface WorklogFormData {
 	issueKey: string;
@@ -504,6 +505,7 @@ export function WeeklyTimetableView({
 						shouldFocusCell={shouldFocusCell}
 						onCellFocused={() => setShouldFocusCell(false)}
 						favoriteIssues={config.favorites}
+						config={config}
 					/>
 				)}
 
@@ -543,7 +545,11 @@ export function WeeklyTimetableView({
 							[↑↓←→] Navigate Cells [Enter] Log Work [Shift+←→] Week Navigation
 						</Text>
 						<Text color="gray">
-							[D] Delete Worklogs [T] Today [R] Refresh [Q] Quit
+							[D] Delete Worklogs
+							{isBrowserOpenSupported() && config.jiraUrl
+								? ' [O] Open in Browser'
+								: ''}{' '}
+							[T] Today [R] Refresh [Q] Quit
 						</Text>
 					</>
 				)}

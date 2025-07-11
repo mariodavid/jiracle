@@ -5,7 +5,8 @@ import figures from 'figures';
 import {WeeklyWorklogSummary} from '../domain/WeeklyWorklogSummary.js';
 import {FocusableCell} from './FocusableCell.js';
 import {formatLocalDateKey} from '../utils/date.js';
-import type {FavoriteIssue} from '../jira-client.js';
+import type {FavoriteIssue, JiraConfig} from '../jira-client.js';
+import {openInBrowser, generateJiraIssueUrl} from '../utils/browser.js';
 
 export interface TimetableGridProps {
 	data: WeeklyWorklogSummary | null;
@@ -17,6 +18,7 @@ export interface TimetableGridProps {
 	shouldFocusCell?: boolean;
 	onCellFocused?: () => void;
 	favoriteIssues?: FavoriteIssue[];
+	config?: JiraConfig;
 }
 
 const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
@@ -31,6 +33,7 @@ export function TimetableGrid({
 	shouldFocusCell = false,
 	onCellFocused,
 	favoriteIssues = [],
+	config,
 }: TimetableGridProps) {
 	// Fixed minimum height container for all states
 	const MIN_HEIGHT = 15;
@@ -163,6 +166,21 @@ export function TimetableGrid({
 			// Only trigger on weekday cells (not total column) and valid issue
 			if (currentFocus.col < 5 && issueKey && date) {
 				onCellDelete({issueKey, date});
+			}
+			return;
+		}
+
+		// Handle 'o' key for opening issue in browser
+		if (_input === 'o' && config?.jiraUrl) {
+			// Get current focus info
+			const issueKey = issueKeys[currentFocus.row];
+
+			// Only trigger if valid issue is selected
+			if (issueKey) {
+				const jiraUrl = generateJiraIssueUrl(config.jiraUrl, issueKey);
+				openInBrowser(jiraUrl).catch(error => {
+					console.error('Failed to open browser:', error);
+				});
 			}
 			return;
 		}
