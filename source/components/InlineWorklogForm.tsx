@@ -150,12 +150,14 @@ export function InlineWorklogForm({
 		return (
 			<Box gap={2}>
 				<Text
+					key="submit-button"
 					color={focusArea === 'submit' ? 'black' : 'blue'}
 					backgroundColor={focusArea === 'submit' ? 'blue' : undefined}
 				>
 					{' [Submit] '}
 				</Text>
 				<Text
+					key="cancel-button"
 					color={focusArea === 'cancel' ? 'black' : 'blue'}
 					backgroundColor={focusArea === 'cancel' ? 'blue' : undefined}
 				>

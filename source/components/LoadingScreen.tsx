@@ -18,13 +18,13 @@ export default function LoadingScreen({
 			justifyContent="center"
 			height={40}
 		>
-			<Text> </Text>
-			<Gradient name="rainbow">
+			<Text key="spacer-1"> </Text>
+			<Gradient key="loading-gradient" name="rainbow">
 				<BigText text="JIRACLE" />
 			</Gradient>
-			<Text> </Text>
-			<Spinner label={message} />
-			<Text> </Text>
+			<Text key="spacer-2"> </Text>
+			<Spinner key="spinner" label={message} />
+			<Text key="spacer-3"> </Text>
 		</Box>
 	);
 }

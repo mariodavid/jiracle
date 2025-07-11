@@ -17,14 +17,18 @@ export default function IssueList({issues, title, onSelect}: IssueListProps) {
 
 	return (
 		<Box flexDirection="column" height={40}>
-			<Text color="cyan">{title}</Text>
-			<Text> </Text>
-			<Select options={issueItems} onChange={onSelect} />
-			<Text> </Text>
-			<Text color="redBright" wrap="wrap">
+			<Text key="title" color="cyan">
+				{title}
+			</Text>
+			<Text key="spacer-1"> </Text>
+			<Select key="select" options={issueItems} onChange={onSelect} />
+			<Text key="spacer-2"> </Text>
+			<Text key="empty" color="redBright" wrap="wrap">
 				{' '}
 			</Text>
-			<Text color="gray">Press ESC to go back to issue selection mode</Text>
+			<Text key="help" color="gray">
+				Press ESC to go back to issue selection mode
+			</Text>
 		</Box>
 	);
 }

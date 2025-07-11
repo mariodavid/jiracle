@@ -12,7 +12,11 @@ export function RainbowText({children, bold = false}: RainbowTextProps) {
 	return (
 		<>
 			{children.split('').map((char, index) => (
-				<Text key={index} color={colors[index % colors.length]} bold={bold}>
+				<Text
+					key={`char-${index}`}
+					color={colors[index % colors.length]}
+					bold={bold}
+				>
 					{char}
 				</Text>
 			))}

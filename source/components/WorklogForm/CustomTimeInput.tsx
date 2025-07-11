@@ -278,20 +278,22 @@ export default function CustomTimeInput({
 		<Box flexDirection="column" height={40}>
 			{selectedIssue && (
 				<>
-					<Text color="green">
+					<Text key="selected-issue" color="green">
 						Selected: {selectedIssue.key} - {selectedIssue.fields.summary}
 					</Text>
-					<Text> </Text>
+					<Text key="spacer-issue"> </Text>
 				</>
 			)}
-			<Text color="cyan">Enter time:</Text>
-			<Text> </Text>
+			<Text key="enter-time-label" color="cyan">
+				Enter time:
+			</Text>
+			<Text key="spacer-1"> </Text>
 			{renderInput()}
-			<Text> </Text>
-			<Text color="redBright" wrap="wrap">
+			<Text key="spacer-2"> </Text>
+			<Text key="empty-space" color="redBright" wrap="wrap">
 				{' '}
 			</Text>
-			<Text color="gray">
+			<Text key="help-text" color="gray">
 				Type or use ↑/↓ to adjust, Enter to continue, ESC to go back
 			</Text>
 		</Box>

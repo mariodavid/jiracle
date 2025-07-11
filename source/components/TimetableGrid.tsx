@@ -334,7 +334,7 @@ export function TimetableGrid({
 						{weekDates.map((date, index) =>
 							isActive ? (
 								<FocusableCell
-									key={index}
+									key={`${issueKey}-focusable-cell-${index}`}
 									value={formatHours(
 										issueData.dailyHours[formatLocalDateKey(date)] || 0,
 									)}
@@ -342,7 +342,7 @@ export function TimetableGrid({
 									isActive={true}
 								/>
 							) : (
-								<Box key={index} width={8}>
+								<Box key={`${issueKey}-static-cell-${index}`} width={8}>
 									<Text>
 										{formatHours(
 											issueData.dailyHours[formatLocalDateKey(date)] || 0,
@@ -378,7 +378,7 @@ export function TimetableGrid({
 					</Text>
 				</Box>
 				{dailyTotals.map((total, index) => (
-					<Box key={index} width={8}>
+					<Box key={`daily-total-${index}`} width={8}>
 						<Text bold color="yellow">
 							{formatHours(total).padStart(7) + ' '}
 						</Text>

@@ -385,7 +385,7 @@ export function WeeklyTimetableView({
 			<Box height={8} flexDirection="column">
 				{/* JIRACLE Rainbow Banner */}
 				<Box justifyContent="center" paddingY={1}>
-					<Gradient name="rainbow">
+					<Gradient key="weekly-gradient" name="rainbow">
 						<BigText text="JIRACLE" font="tiny" />
 					</Gradient>
 				</Box>
