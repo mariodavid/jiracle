@@ -145,16 +145,25 @@ export function WeeklyTimetableView({
 		const newWeek = new Date(currentWeek);
 		newWeek.setDate(currentWeek.getDate() - 7);
 		setCurrentWeek(newWeek);
+		// Return focus to table after navigation
+		setActiveArea('timetable');
+		setShouldFocusCell(true);
 	};
 
 	const navigateToNextWeek = () => {
 		const newWeek = new Date(currentWeek);
 		newWeek.setDate(currentWeek.getDate() + 7);
 		setCurrentWeek(newWeek);
+		// Return focus to table after navigation
+		setActiveArea('timetable');
+		setShouldFocusCell(true);
 	};
 
 	const handleCurrentWeek = () => {
 		setCurrentWeek(new Date());
+		// Return focus to table after navigation
+		setActiveArea('timetable');
+		setShouldFocusCell(true);
 	};
 
 	const handleCellWorklog = (data: {issueKey: string; date: Date}) => {

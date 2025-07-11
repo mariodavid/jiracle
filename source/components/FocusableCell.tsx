@@ -8,6 +8,13 @@ export interface FocusableCellProps {
 	isTotal?: boolean;
 	width?: number;
 	isActive?: boolean;
+	issueKey?: string;
+	columnIndex?: number;
+	onFocusChange?: (
+		issueKey: string,
+		columnIndex: number,
+		isFocused: boolean,
+	) => void;
 }
 
 export function FocusableCell({
@@ -16,8 +23,23 @@ export function FocusableCell({
 	isTotal = false,
 	width = 8,
 	isActive = true,
+	issueKey,
+	columnIndex,
+	onFocusChange,
 }: FocusableCellProps) {
 	const {isFocused} = useFocus({id: focusId, isActive});
+
+	// Call focus change callback when this cell gets focused
+	React.useEffect(() => {
+		if (
+			isFocused &&
+			issueKey !== undefined &&
+			columnIndex !== undefined &&
+			onFocusChange
+		) {
+			onFocusChange(issueKey, columnIndex, true);
+		}
+	}, [isFocused, issueKey, columnIndex, onFocusChange]);
 
 	// Create a right-aligned value with some padding for visual spacing
 	const displayValue = isFocused
