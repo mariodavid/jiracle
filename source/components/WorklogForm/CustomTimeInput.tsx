@@ -1,6 +1,7 @@
 import React, {useState, useRef} from 'react';
 import {Text, Box, useInput} from 'ink';
-import type {JiraIssue} from '../../jira-client.js';
+import type {JiraIssue, JiraConfig} from '../../jira-client.js';
+import {getFavoriteDefaultTime} from '../../jira-client.js';
 
 type CustomTimeInputProps = {
 	selectedIssue?: JiraIssue;
@@ -8,6 +9,8 @@ type CustomTimeInputProps = {
 	onChange: (value: string) => void;
 	onSubmit: (value: string) => void;
 	compact?: boolean;
+	config?: JiraConfig;
+	issueSelectionMode?: 'favorites' | 'assigned' | 'other' | null;
 };
 
 export default function CustomTimeInput({
@@ -16,12 +19,41 @@ export default function CustomTimeInput({
 	onChange,
 	onSubmit,
 	compact = false,
+	config,
+	issueSelectionMode,
 }: CustomTimeInputProps) {
-	const [timeInputValue, setTimeInputValue] = useState(value || '1h');
-	const [cursorPosition, setCursorPosition] = useState((value || '1h').length);
+	// Determine default time based on issue and configuration
+	const getDefaultTime = () => {
+		// If value is explicitly provided, always use it (parent has already calculated default)
+		if (value) return value;
+
+		// Check for favorite-specific default time
+		if (
+			issueSelectionMode === 'favorites' &&
+			selectedIssue &&
+			config?.favorites
+		) {
+			const favoriteDefaultTime = getFavoriteDefaultTime(
+				config.favorites,
+				selectedIssue.key,
+			);
+			if (favoriteDefaultTime) return favoriteDefaultTime;
+		}
+
+		// Check for global default time
+		if (config?.defaultTime) return config.defaultTime;
+
+		// Fallback to 1h
+		return '1h';
+	};
+
+	const defaultTime = getDefaultTime();
+	const initialValue = value || defaultTime;
+	const [timeInputValue, setTimeInputValue] = useState(initialValue);
+	const [cursorPosition, setCursorPosition] = useState(initialValue.length);
 	const [isSelected, setIsSelected] = useState(true); // Start with text selected
 	const isSelectedRef = useRef(true); // Track selection state synchronously
-	const timeInputValueRef = useRef(value || '1h'); // Track current value synchronously
+	const timeInputValueRef = useRef(initialValue); // Track current value synchronously
 
 	// Helper function to check if a character is valid for the current input
 	const isValidInputChar = (char: string, currentValue: string): boolean => {
@@ -123,28 +155,28 @@ export default function CustomTimeInput({
 
 	const normalizeTimeOnSubmit = (inputValue: string) => {
 		let normalizedValue = inputValue;
-		
+
 		// Convert comma to dot (German decimal separator)
 		if (normalizedValue.includes(',')) {
 			normalizedValue = normalizedValue.replace(/,/g, '.');
 		}
-		
+
 		// If user just entered numbers, add 'h' automatically
 		if (/^\d+([.,]\d+)?$/.test(normalizedValue)) {
 			normalizedValue = normalizedValue + 'h';
 		}
-		
+
 		// If user entered h+digits (like "2h5"), add 'm' automatically
 		if (/^\d+h\d+$/.test(normalizedValue)) {
 			normalizedValue = normalizedValue + 'm';
 		}
-		
+
 		// Update the display if normalization happened
 		if (normalizedValue !== inputValue) {
 			setTimeInputValue(normalizedValue);
 			onChange(normalizedValue);
 		}
-		
+
 		return normalizedValue;
 	};
 

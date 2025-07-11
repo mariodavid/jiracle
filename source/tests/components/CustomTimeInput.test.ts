@@ -380,6 +380,86 @@ test('CustomTimeInput converts comma to dot on submit with Tab', t => {
 	t.is(changedValue, '2.5h'); // Should also update the displayed value
 });
 
+test('CustomTimeInput uses global default time from config', t => {
+	const config = {
+		jiraUrl: 'https://jira.example.com/',
+		username: 'test@example.com',
+		apiToken: 'test-token',
+		defaultTime: '4h',
+	};
+
+	const {lastFrame} = render(
+		React.createElement(CustomTimeInput, {
+			...defaultProps,
+			value: '',
+			config,
+			compact: true,
+		}),
+	);
+
+	const output = lastFrame() || '';
+	t.true(output.includes('4h'));
+});
+
+test('CustomTimeInput uses favorite-specific default time', t => {
+	const config = {
+		jiraUrl: 'https://jira.example.com/',
+		username: 'test@example.com',
+		apiToken: 'test-token',
+		defaultTime: '4h',
+		favorites: [{key: 'TEST-123', defaultTime: '8h'}],
+	};
+
+	const testIssue = {
+		...mockIssue,
+		key: 'TEST-123',
+	};
+
+	const {lastFrame} = render(
+		React.createElement(CustomTimeInput, {
+			...defaultProps,
+			value: '',
+			selectedIssue: testIssue,
+			config,
+			issueSelectionMode: 'favorites',
+			compact: true,
+		}),
+	);
+
+	const output = lastFrame() || '';
+	t.true(output.includes('8h'));
+});
+
+test('CustomTimeInput favorite default time overrides global default', t => {
+	const config = {
+		jiraUrl: 'https://jira.example.com/',
+		username: 'test@example.com',
+		apiToken: 'test-token',
+		defaultTime: '4h',
+		favorites: [{key: 'TEST-123', defaultTime: '6h'}],
+	};
+
+	const testIssue = {
+		...mockIssue,
+		key: 'TEST-123',
+	};
+
+	const {lastFrame} = render(
+		React.createElement(CustomTimeInput, {
+			...defaultProps,
+			value: '',
+			selectedIssue: testIssue,
+			config,
+			issueSelectionMode: 'favorites',
+			compact: true,
+		}),
+	);
+
+	const output = lastFrame() || '';
+	t.true(output.includes('6h'));
+	t.false(output.includes('4h'));
+});
+
 test('CustomTimeInput allows typing time units', t => {
 	let changedValue = '';
 	const onChange = (value: string) => {

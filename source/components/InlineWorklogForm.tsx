@@ -2,6 +2,8 @@ import React, {useState} from 'react';
 import {Box, Text, useInput, useFocus} from 'ink';
 import {TextInput, Spinner} from '@inkjs/ui';
 import CustomTimeInput from './WorklogForm/CustomTimeInput.js';
+import type {JiraConfig} from '../jira-client.js';
+import {getFavoriteDefaultTime} from '../jira-client.js';
 
 interface InlineWorklogFormProps {
 	issueKey: string;
@@ -12,6 +14,8 @@ interface InlineWorklogFormProps {
 	onCancel: () => void;
 	isSubmitting?: boolean;
 	error?: string | null;
+	config?: JiraConfig;
+	isFavorite?: boolean;
 }
 
 type FocusArea = 'time' | 'comment' | 'submit' | 'cancel';
@@ -19,20 +23,41 @@ type FocusArea = 'time' | 'comment' | 'submit' | 'cancel';
 export function InlineWorklogForm({
 	issueKey,
 	date,
-	defaultTimeSpent = '1h',
+	defaultTimeSpent,
 	defaultComment = '',
 	onSubmit,
 	onCancel,
 	isSubmitting = false,
 	error = null,
+	config,
+	isFavorite = false,
 }: InlineWorklogFormProps) {
+	// Determine default time based on configuration
+	const getDefaultTime = () => {
+		if (defaultTimeSpent) return defaultTimeSpent;
+
+		// Check for favorite-specific default time
+		if (isFavorite && config?.favorites) {
+			const favoriteDefaultTime = getFavoriteDefaultTime(
+				config.favorites,
+				issueKey,
+			);
+			if (favoriteDefaultTime) return favoriteDefaultTime;
+		}
+
+		// Check for global default time
+		if (config?.defaultTime) return config.defaultTime;
+
+		// Fallback to 1h
+		return '1h';
+	};
+
 	const [selectedTime, setSelectedTime] = useState(() => {
-		// Parse existing value or default to 1h
-		return defaultTimeSpent || '1h';
+		return getDefaultTime();
 	});
-	const [timeInputValue, setTimeInputValue] = useState(
-		defaultTimeSpent || '1h',
-	);
+	const [timeInputValue, setTimeInputValue] = useState(() => {
+		return getDefaultTime();
+	});
 	const [comment, setComment] = useState(defaultComment);
 	const [focusArea, setFocusArea] = useState<FocusArea>('time');
 
@@ -228,6 +253,8 @@ export function InlineWorklogForm({
 								onChange={handleTimeInputChange}
 								onSubmit={() => setFocusArea('comment')}
 								compact={true}
+								config={config}
+								issueSelectionMode={isFavorite ? 'favorites' : null}
 							/>
 						) : (
 							<Box>

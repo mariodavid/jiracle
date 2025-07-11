@@ -1,6 +1,7 @@
 export interface FavoriteIssue {
 	key: string;
 	defaultComment?: string;
+	defaultTime?: string;
 }
 
 export interface JiraConfig {
@@ -9,6 +10,7 @@ export interface JiraConfig {
 	apiToken: string;
 	favorites?: FavoriteIssue[];
 	defaultComment?: string;
+	defaultTime?: string;
 }
 
 export interface JiraIssueField {
@@ -128,6 +130,14 @@ export function getFavoriteDefaultComment(
 ): string | undefined {
 	const favorite = favorites.find(fav => fav.key === issueKey);
 	return favorite?.defaultComment;
+}
+
+export function getFavoriteDefaultTime(
+	favorites: FavoriteIssue[],
+	issueKey: string,
+): string | undefined {
+	const favorite = favorites.find(fav => fav.key === issueKey);
+	return favorite?.defaultTime;
 }
 
 export function extractIssueKeyFromInput(input: string): string | null {

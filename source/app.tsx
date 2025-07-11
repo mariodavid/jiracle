@@ -161,6 +161,8 @@ export default function App({config}: Props) {
 					setSelectedTime(value);
 					handleTimeSelect(value);
 				}}
+				config={currentConfig || undefined}
+				issueSelectionMode={issueSelectionMode}
 			/>
 		);
 	}

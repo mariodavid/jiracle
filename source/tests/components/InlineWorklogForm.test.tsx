@@ -117,3 +117,151 @@ test('InlineWorklogForm component structure is correct', t => {
 	t.true(output.includes('Log Work'));
 	t.true(output.includes('TEST-123'));
 });
+
+// === CONFIGURATION INTEGRATION TESTS ===
+
+test('InlineWorklogForm uses global default time from config', t => {
+	const configProps = {
+		...mockProps,
+		defaultTimeSpent: undefined, // Don't override with prop
+		config: {
+			jiraUrl: 'https://jira.example.com/',
+			username: 'test@example.com',
+			apiToken: 'test-token',
+			defaultTime: '6h',
+		},
+		isFavorite: false,
+	};
+
+	const {lastFrame} = render(
+		React.createElement(InlineWorklogForm, configProps),
+	);
+	const output = lastFrame() || '';
+
+	// Should show global default time from config
+	t.true(output.includes('6h'));
+	t.false(output.includes('1h')); // Should not show fallback
+});
+
+test('InlineWorklogForm uses favorite-specific default time', t => {
+	const configProps = {
+		...mockProps,
+		issueKey: 'SPECIAL-456',
+		defaultTimeSpent: undefined, // Don't override with prop
+		config: {
+			jiraUrl: 'https://jira.example.com/',
+			username: 'test@example.com',
+			apiToken: 'test-token',
+			defaultTime: '4h', // Global default
+			favorites: [
+				{key: 'SPECIAL-456', defaultTime: '8h'},
+				{key: 'OTHER-123', defaultTime: '2h'},
+			],
+		},
+		isFavorite: true,
+	};
+
+	const {lastFrame} = render(
+		React.createElement(InlineWorklogForm, configProps),
+	);
+	const output = lastFrame() || '';
+
+	// Should show favorite-specific time, not global default
+	t.true(output.includes('8h'));
+	t.false(output.includes('4h')); // Should not show global default
+	t.false(output.includes('1h')); // Should not show fallback
+});
+
+test('InlineWorklogForm favorite time overrides global default', t => {
+	const configProps = {
+		...mockProps,
+		issueKey: 'FAV-789',
+		defaultTimeSpent: undefined, // Don't override with prop
+		config: {
+			jiraUrl: 'https://jira.example.com/',
+			username: 'test@example.com',
+			apiToken: 'test-token',
+			defaultTime: '3h', // Global default
+			favorites: [
+				{key: 'FAV-789', defaultTime: '12h'}, // Favorite override
+			],
+		},
+		isFavorite: true,
+	};
+
+	const {lastFrame} = render(
+		React.createElement(InlineWorklogForm, configProps),
+	);
+	const output = lastFrame() || '';
+
+	// Should prioritize favorite time over global default
+	t.true(output.includes('12h'));
+	t.false(output.includes('3h')); // Should not show global default
+});
+
+test('InlineWorklogForm falls back to global default when favorite has no time', t => {
+	const configProps = {
+		...mockProps,
+		issueKey: 'FAV-NO-TIME',
+		defaultTimeSpent: undefined, // Don't override with prop
+		config: {
+			jiraUrl: 'https://jira.example.com/',
+			username: 'test@example.com',
+			apiToken: 'test-token',
+			defaultTime: '5h', // Global default
+			favorites: [
+				{key: 'FAV-NO-TIME'}, // Favorite without defaultTime
+			],
+		},
+		isFavorite: true,
+	};
+
+	const {lastFrame} = render(
+		React.createElement(InlineWorklogForm, configProps),
+	);
+	const output = lastFrame() || '';
+
+	// Should fall back to global default when favorite has no time
+	t.true(output.includes('5h'));
+	t.false(output.includes('1h')); // Should not show fallback
+});
+
+test('InlineWorklogForm falls back to 1h when no config provided', t => {
+	const noConfigProps = {
+		...mockProps,
+		defaultTimeSpent: undefined, // Don't override with prop
+		config: undefined, // No config
+		isFavorite: false,
+	};
+
+	const {lastFrame} = render(
+		React.createElement(InlineWorklogForm, noConfigProps),
+	);
+	const output = lastFrame() || '';
+
+	// Should fall back to 1h when no config is provided
+	t.true(output.includes('1h'));
+});
+
+test('InlineWorklogForm explicit defaultTimeSpent overrides config', t => {
+	const explicitProps = {
+		...mockProps,
+		defaultTimeSpent: '10h', // Explicitly provided
+		config: {
+			jiraUrl: 'https://jira.example.com/',
+			username: 'test@example.com',
+			apiToken: 'test-token',
+			defaultTime: '7h', // Should be ignored
+		},
+		isFavorite: false,
+	};
+
+	const {lastFrame} = render(
+		React.createElement(InlineWorklogForm, explicitProps),
+	);
+	const output = lastFrame() || '';
+
+	// Should use explicit prop over config
+	t.true(output.includes('10h'));
+	t.false(output.includes('7h')); // Should not show config default
+});
