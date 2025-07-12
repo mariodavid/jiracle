@@ -25,6 +25,7 @@ The application presents your Jira issues in a calendar-like timetable where eac
 - **Keyboard Navigation** - Navigate efficiently with arrow keys and shortcuts
 - **Quick Time Entry** - Log time directly in the grid cells with inline forms
 - **Smart Issue Selection** - Access favorites, assigned issues, or search by key
+- **Daily Reminders** - Automatic desktop notifications to remind you to log time
 - **Default Comments** - Configure global and issue-specific default comments
 - **Favorite Issues** - Quick access to frequently used issues
 - **Inline Editing** - Edit worklogs without leaving the timetable view
@@ -77,6 +78,11 @@ Create a configuration file at `~/.config/jiracle.json`:
 	"username": "your-email@company.com",
 	"apiToken": "your-jira-api-token",
 	"defaultComment": "Work logged via Jiracle",
+	"reminders": {
+		"enabled": true,
+		"times": ["11:30", "16:30"],
+		"weekdaysOnly": true
+	},
 	"favorites": [
 		{
 			"key": "PROJ-123",
@@ -97,6 +103,7 @@ Create a configuration file at `~/.config/jiracle.json`:
 | `username`       | Yes      | Your Jira username/email                                                |
 | `apiToken`       | Yes      | Your Jira API token                                                     |
 | `defaultComment` | No       | Default comment for all worklogs when no specific comment is configured |
+| `reminders`      | No       | Daily reminder settings for desktop notifications                       |
 | `favorites`      | No       | Array of favorite issues with optional default comments                 |
 
 ### Favorite Issues
@@ -133,6 +140,44 @@ When creating a worklog, comments are used in this priority order:
 3. **Empty string** - No default comment
 
 Example: If `PROJ-123` has a specific `defaultComment` and you have a global `defaultComment`, the specific one will be used for `PROJ-123`, while other issues use the global default.
+
+### Daily Reminders
+
+Jiracle can automatically remind you to log time with desktop notifications. When the app is running, it periodically checks if you've logged any time today and sends a notification if you haven't.
+
+**Configuration:**
+
+```json
+{
+	"reminders": {
+		"enabled": true,
+		"times": ["11:30", "16:30"],
+		"weekdaysOnly": true
+	}
+}
+```
+
+**Reminder Options:**
+
+| Option         | Type     | Default | Description                                             |
+| -------------- | -------- | ------- | ------------------------------------------------------- |
+| `enabled`      | boolean  | `false` | Enable or disable reminder notifications                |
+| `times`        | string[] | `[]`    | Array of times to check (24-hour format, e.g., "11:30") |
+| `weekdaysOnly` | boolean  | `true`  | Only send reminders on weekdays (Monday-Friday)         |
+
+**How it works:**
+
+- While Jiracle is running, it checks every minute if the current time matches any configured reminder times (±1 minute tolerance)
+- If you haven't logged any time today, it sends a desktop notification: "⏳ You haven't logged time today!"
+- Each reminder time only triggers once per day to avoid spam
+- Notifications reset daily, so you'll get reminded again tomorrow
+- Works cross-platform on macOS, Windows, and Linux
+
+**Example scenarios:**
+
+- **Meeting reminders**: Set times like `["11:30", "16:30"]` to remind yourself before lunch and end of day
+- **Hourly check-ins**: Use `["09:00", "12:00", "15:00", "17:00"]` for regular reminders throughout the day
+- **Weekend work**: Set `weekdaysOnly: false` if you also work weekends and want reminders
 
 ### Getting a Jira API Token
 

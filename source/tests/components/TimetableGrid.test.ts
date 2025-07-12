@@ -741,3 +741,225 @@ test('TimetableGrid shows favorite issues even when no worklogs exist', t => {
 		'Should not show no worklogs message when favorites exist',
 	);
 });
+
+test('TimetableGrid displays aliases for favorite issues', t => {
+	const sampleData: WeeklyWorklogSummary = {
+		weekStart: new Date('2024-10-14T00:00:00.000Z'),
+		weekEnd: new Date('2024-10-20T23:59:59.999Z'),
+		dailySummaries: [
+			{
+				date: new Date('2024-10-18T00:00:00.000Z'),
+				totalHours: 6.0,
+				issues: [
+					{
+						issueKey: 'JTS-2456',
+						issueSummary: 'Dev work issue',
+						hours: 4.0,
+					},
+					{
+						issueKey: 'GVV-5419',
+						issueSummary: 'Monitoring issue',
+						hours: 2.0,
+					},
+				],
+			},
+		],
+		weekTotal: 6.0,
+	};
+
+	const favoriteIssues = [
+		{
+			key: 'JTS-2456',
+			alias: 'Dev Work',
+			defaultTime: '8h',
+			defaultComment: 'Development work',
+		},
+		{
+			key: 'GVV-5419',
+			alias: 'Monitoring API',
+			defaultTime: '4h',
+		},
+	];
+
+	const props = {
+		data: sampleData,
+		isLoading: false,
+		favoriteIssues,
+	};
+
+	const {lastFrame} = render(React.createElement(TimetableGrid, props));
+	const output = lastFrame()!;
+
+	// Should display aliases instead of issue keys
+	t.true(
+		output.includes(`Dev Work     ${figures.star}`),
+		'Should display alias "Dev Work" for JTS-2456',
+	);
+	t.true(
+		output.includes(`Monitoring API ${figures.star}`),
+		'Should display alias "Monitoring API" for GVV-5419',
+	);
+
+	// Should NOT display the original issue keys in the issue column
+	t.false(
+		output.includes(`JTS-2456     ${figures.star}`),
+		'Should not display original key JTS-2456 when alias is set',
+	);
+	t.false(
+		output.includes(`GVV-5419     ${figures.star}`),
+		'Should not display original key GVV-5419 when alias is set',
+	);
+});
+
+test('TimetableGrid shows original key when no alias is configured', t => {
+	const sampleData: WeeklyWorklogSummary = {
+		weekStart: new Date('2024-10-14T00:00:00.000Z'),
+		weekEnd: new Date('2024-10-20T23:59:59.999Z'),
+		dailySummaries: [
+			{
+				date: new Date('2024-10-18T00:00:00.000Z'),
+				totalHours: 4.0,
+				issues: [
+					{
+						issueKey: 'JTS-2456',
+						issueSummary: 'Issue without alias',
+						hours: 4.0,
+					},
+				],
+			},
+		],
+		weekTotal: 4.0,
+	};
+
+	const favoriteIssues = [
+		{
+			key: 'JTS-2456',
+			// No alias property set
+			defaultTime: '8h',
+			defaultComment: 'Development work',
+		},
+	];
+
+	const props = {
+		data: sampleData,
+		isLoading: false,
+		favoriteIssues,
+	};
+
+	const {lastFrame} = render(React.createElement(TimetableGrid, props));
+	const output = lastFrame()!;
+
+	// Should display original issue key when no alias
+	t.true(
+		output.includes(`JTS-2456     ${figures.star}`),
+		'Should display original key JTS-2456 when no alias is set',
+	);
+});
+
+test('TimetableGrid handles mixed alias and non-alias favorites', t => {
+	const sampleData: WeeklyWorklogSummary = {
+		weekStart: new Date('2024-10-14T00:00:00.000Z'),
+		weekEnd: new Date('2024-10-20T23:59:59.999Z'),
+		dailySummaries: [
+			{
+				date: new Date('2024-10-18T00:00:00.000Z'),
+				totalHours: 6.0,
+				issues: [
+					{
+						issueKey: 'JTS-2456',
+						issueSummary: 'Dev work',
+						hours: 3.0,
+					},
+					{
+						issueKey: 'GVV-5419',
+						issueSummary: 'Regular work',
+						hours: 3.0,
+					},
+				],
+			},
+		],
+		weekTotal: 6.0,
+	};
+
+	const favoriteIssues = [
+		{
+			key: 'JTS-2456',
+			alias: 'Dev Work',
+			defaultTime: '8h',
+		},
+		{
+			key: 'GVV-5419',
+			// No alias - should show original key
+			defaultTime: '4h',
+		},
+	];
+
+	const props = {
+		data: sampleData,
+		isLoading: false,
+		favoriteIssues,
+	};
+
+	const {lastFrame} = render(React.createElement(TimetableGrid, props));
+	const output = lastFrame()!;
+
+	// One with alias, one without
+	t.true(
+		output.includes(`Dev Work     ${figures.star}`),
+		'Should display alias for JTS-2456',
+	);
+	t.true(
+		output.includes(`GVV-5419     ${figures.star}`),
+		'Should display original key for GVV-5419 when no alias',
+	);
+	t.false(
+		output.includes(`JTS-2456     ${figures.star}`),
+		'Should not display original JTS-2456 when alias is set',
+	);
+});
+
+test('TimetableGrid displays aliases with proper padding', t => {
+	const emptyData: WeeklyWorklogSummary = {
+		weekStart: new Date('2024-10-14T00:00:00.000Z'),
+		weekEnd: new Date('2024-10-20T23:59:59.999Z'),
+		dailySummaries: [],
+		weekTotal: 0,
+	};
+
+	const favoriteIssues = [
+		{
+			key: 'JTS-2456',
+			alias: 'A', // Very short alias
+			defaultTime: '8h',
+		},
+		{
+			key: 'GVV-5419',
+			alias: 'Very Long Alias Name', // Long alias (longer than 12 chars)
+			defaultTime: '4h',
+		},
+	];
+
+	const props = {
+		data: emptyData,
+		isLoading: false,
+		favoriteIssues,
+	};
+
+	const {lastFrame} = render(React.createElement(TimetableGrid, props));
+	const output = lastFrame()!;
+
+	// Check that short aliases are properly padded
+	t.true(
+		output.includes(`A            ${figures.star}`),
+		'Short alias should be padded to 12 characters plus star',
+	);
+
+	// Long aliases should be included (the star may be on a separate line due to layout)
+	t.true(
+		output.includes('Very Long Alias Name'),
+		'Long alias should be displayed',
+	);
+	// Both aliases should have stars (check that both favorite issues have stars)
+	const starCount = (output.match(new RegExp(figures.star, 'g')) || []).length;
+	t.is(starCount, 2, 'Both favorite issues should have stars');
+});

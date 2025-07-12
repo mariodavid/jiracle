@@ -177,14 +177,18 @@ export function TimetableGrid({
 		return favoriteIssues.some(fav => fav.key === issueKey);
 	};
 
-	// Helper function to format issue key with favorite marker and fixed width
+	// Helper function to format issue key with alias support, favorite marker and fixed width
 	const formatIssueKey = (issueKey: string): string => {
-		// Pad the entire issue key to a fixed width (e.g. 12 characters for consistency)
-		const paddedIssueKey = issueKey.padEnd(12, ' ');
+		// Check if this issue has an alias configured
+		const favoriteIssue = favoriteIssues.find(fav => fav.key === issueKey);
+		const displayText = favoriteIssue?.alias || issueKey;
+
+		// Pad the display text to a fixed width (e.g. 12 characters for consistency)
+		const paddedDisplayText = displayText.padEnd(12, ' ');
 
 		return isFavoriteIssue(issueKey)
-			? `${paddedIssueKey} ${figures.star}`
-			: paddedIssueKey;
+			? `${paddedDisplayText} ${figures.star}`
+			: paddedDisplayText;
 	};
 
 	// Helper function to format group total with desired amount comparison

@@ -8,6 +8,7 @@ export interface Group {
 
 export interface FavoriteIssue {
 	key: string;
+	alias?: string;
 	defaultComment?: string;
 	defaultTime?: string;
 	groupId?: string;
@@ -16,6 +17,12 @@ export interface FavoriteIssue {
 export interface ProjectDefaults {
 	key: string;
 	groupId?: string;
+}
+
+export interface ReminderConfig {
+	enabled: boolean;
+	times: string[];
+	weekdaysOnly: boolean;
 }
 
 export interface JiraConfig {
@@ -28,6 +35,7 @@ export interface JiraConfig {
 	defaultComment?: string;
 	defaultTime?: string;
 	workingHoursPerWeek?: number;
+	reminders?: ReminderConfig;
 }
 
 export interface JiraIssueField {
@@ -775,6 +783,38 @@ export class JiraClient {
 			this.logger.error('Error fetching current user', {
 				method: 'GET',
 				url: myselfUrl,
+				error: error instanceof Error ? error.message : 'Unknown error',
+			});
+			throw error;
+		}
+	}
+
+	async hasWorklogForToday(): Promise<boolean> {
+		const today = new Date();
+		const todayFormatted = today.toISOString().split('T')[0];
+
+		const jql = `worklogDate = "${todayFormatted}" AND worklogAuthor = currentUser()`;
+
+		this.logger.info('Checking for worklogs today', {
+			method: 'POST',
+			date: todayFormatted,
+			jql,
+		});
+
+		try {
+			const searchResult = await this.searchIssuesWithWorklogs(jql);
+			const hasWorklogs = searchResult.total > 0;
+
+			this.logger.info('Worklog check completed', {
+				date: todayFormatted,
+				hasWorklogs,
+				total: searchResult.total,
+			});
+
+			return hasWorklogs;
+		} catch (error) {
+			this.logger.error('Error checking worklogs for today', {
+				date: todayFormatted,
 				error: error instanceof Error ? error.message : 'Unknown error',
 			});
 			throw error;

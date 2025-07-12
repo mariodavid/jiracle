@@ -7,6 +7,7 @@ import {join} from 'path';
 import type {Step} from '../types/index.js';
 import {WeeklyWorklogSummaryUseCase} from '../use-cases/WeeklyWorklogSummaryUseCase.js';
 import type {WeeklyWorklogSummary} from '../domain/WeeklyWorklogSummary.js';
+import {ReminderService} from '../services/ReminderService.js';
 
 export function useWorklogFlow(config?: JiraConfig) {
 	const [currentWeekWorklog, setCurrentWeekWorklog] =
@@ -16,6 +17,8 @@ export function useWorklogFlow(config?: JiraConfig) {
 	const [currentConfig, setCurrentConfig] = useState<JiraConfig | null>(null);
 	const [step, setStep] = useState<Step>('loading');
 	const [error, setError] = useState<string | null>(null);
+	const [reminderService, setReminderService] =
+		useState<ReminderService | null>(null);
 
 	// No longer needed for manual flow - only keep what inline form needs
 
@@ -68,6 +71,17 @@ export function useWorklogFlow(config?: JiraConfig) {
 				// No longer need to set favorite/assigned issues
 				setCurrentWeekWorklog(currentWeekData);
 				setCurrentUser(userEmail);
+
+				// Start reminder service if enabled
+				if (parsedConfig.reminders?.enabled) {
+					const reminder = new ReminderService(
+						jiraClient,
+						parsedConfig.reminders,
+					);
+					reminder.start();
+					setReminderService(reminder);
+				}
+
 				setStep('weekly-timetable');
 			} catch (err) {
 				setError(err instanceof Error ? err.message : 'Unknown error');
@@ -77,6 +91,15 @@ export function useWorklogFlow(config?: JiraConfig) {
 
 		loadConfigAndIssues();
 	}, [config]);
+
+	// Cleanup reminder service on unmount
+	useEffect(() => {
+		return () => {
+			if (reminderService) {
+				reminderService.stop();
+			}
+		};
+	}, [reminderService]);
 
 	const handleBackFromTimetable = () => {
 		// No back from timetable since it's the main view now
