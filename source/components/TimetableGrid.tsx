@@ -17,6 +17,7 @@ export interface TimetableGridProps {
 	onCellWorklog?: (data: {issueKey: string; date: Date}) => void;
 	onCellDelete?: (data: {issueKey: string; date: Date}) => void;
 	onAttendanceEdit?: (data: {date: Date}) => void;
+	onAttendanceDelete?: (data: {date: Date}) => void;
 	onOpenInBrowser?: (issueKey: string) => void;
 	isActive?: boolean;
 	favoriteIssues?: FavoriteIssue[];
@@ -34,6 +35,7 @@ export function TimetableGrid({
 	onCellWorklog,
 	onCellDelete,
 	onAttendanceEdit,
+	onAttendanceDelete,
 	onOpenInBrowser,
 	isActive = true,
 	favoriteIssues = [],
@@ -284,16 +286,17 @@ export function TimetableGrid({
 			return;
 		}
 
-		// Handle 'd' for delete (only for issue cells, not attendance)
-		if (
-			(_input === 'd' || _input === 'D') &&
-			onCellDelete &&
-			focusedCell &&
-			!focusedCell.isAttendance
-		) {
+		// Handle 'd' for delete
+		if ((_input === 'd' || _input === 'D') && focusedCell) {
 			const date = weekDates[focusedCell.columnIndex];
 			if (date) {
-				onCellDelete({issueKey: focusedCell.issueKey, date});
+				if (focusedCell.isAttendance && onAttendanceDelete) {
+					// Delete attendance record
+					onAttendanceDelete({date});
+				} else if (!focusedCell.isAttendance && onCellDelete) {
+					// Delete worklog
+					onCellDelete({issueKey: focusedCell.issueKey, date});
+				}
 			}
 			return;
 		}

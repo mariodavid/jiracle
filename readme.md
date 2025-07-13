@@ -314,6 +314,50 @@ jiracle/
 - The app caches data for 5 minutes by default
 - Large numbers of worklogs may slow down initial loading
 
+## Debug Logging
+
+Jiracle includes debug logging for troubleshooting UI interactions and worklog operations. By default, debug logs are disabled to keep the interface clean.
+
+### Enable Debug Logging
+
+Set the `JIRACLE_LOG_LEVEL` environment variable to `debug`:
+
+```bash
+# Enable debug logging for current session
+export JIRACLE_LOG_LEVEL=debug
+jiracle
+
+# Or run with debug logging for single execution
+JIRACLE_LOG_LEVEL=debug jiracle
+```
+
+### Debug Log Output
+
+Debug logs are written to:
+- **File**: `~/.config/jiracle-ui.log` (always)
+- **Console**: Only when not in test environment
+
+Debug logs include:
+- Form submission events and duplicate submission prevention
+- Worklog creation and deletion operations
+- UI interaction details and timestamps
+
+### Log Levels
+
+| Level   | Description                                      |
+|---------|--------------------------------------------------|
+| `error` | Only errors                                      |
+| `warn`  | Warnings and errors                              |
+| `info`  | General information (default)                    |
+| `debug` | Detailed debugging information                   |
+
+Example debug output:
+```
+2025-07-13T19:00:00.000Z [debug]: InlineWorklogForm: handleSubmit called
+2025-07-13T19:00:01.000Z [debug]: WeeklyTimetableView: Worklog submitted successfully
+2025-07-13T19:00:02.000Z [debug]: Found 2 worklogs to delete for JTS-2457 on 2025-07-16
+```
+
 ## License
 
 MIT © [Your Name]

@@ -7,6 +7,7 @@ import {WeekNavigator, getWeekTitle} from './WeekNavigator.js';
 import {TimetableGrid} from './TimetableGrid.js';
 import {InlineWorklogForm} from './InlineWorklogForm.js';
 import {DeleteWorklogConfirmation} from './DeleteWorklogConfirmation.js';
+import {DeleteAttendanceConfirmation} from './DeleteAttendanceConfirmation.js';
 import {TitleBar} from './TitleBar.js';
 import {AttendanceManager} from '../attendance/AttendanceManager.js';
 import {AttendanceEditForm} from './AttendanceEditForm.js';
@@ -28,6 +29,7 @@ import {
 	openInBrowser,
 	generateJiraIssueUrl,
 } from '../utils/browser.js';
+import {uiLogger} from '../utils/logger.js';
 
 interface WorklogFormData {
 	issueKey: string;
@@ -53,7 +55,11 @@ export function WeeklyTimetableView({
 }: WeeklyTimetableViewProps) {
 	const [currentWeek, setCurrentWeek] = useState(new Date());
 	const [activeArea, setActiveArea] = useState<
-		'timetable' | 'worklog-form' | 'delete-confirmation' | 'attendance-edit'
+		| 'timetable'
+		| 'worklog-form'
+		| 'delete-confirmation'
+		| 'delete-attendance-confirmation'
+		| 'attendance-edit'
 	>('timetable');
 	const [worklogForm, setWorklogForm] = useState<WorklogFormData>({
 		issueKey: '',
@@ -68,7 +74,11 @@ export function WeeklyTimetableView({
 		issueKey: string;
 		date: Date;
 	} | null>(null);
+	const [deleteAttendanceCandidate, setDeleteAttendanceCandidate] = useState<{
+		date: Date;
+	} | null>(null);
 	const [isDeleting, setIsDeleting] = useState(false);
+	const [isDeletingAttendance, setIsDeletingAttendance] = useState(false);
 	const [deleteSuccess, setDeleteSuccess] = useState<{
 		issueKey: string;
 		count: number;
@@ -198,11 +208,11 @@ export function WeeklyTimetableView({
 		async (data: {timeSpent: string; comment: string}) => {
 			// Immediate guard against double submission
 			if (worklogSubmitting) {
-				console.log('WeeklyTimetableView: Blocked duplicate submission');
+				uiLogger.debug('WeeklyTimetableView: Blocked duplicate submission');
 				return;
 			}
 
-			console.log('WeeklyTimetableView: handleWorklogSubmit called', {
+			uiLogger.debug('WeeklyTimetableView: handleWorklogSubmit called', {
 				issueKey: worklogForm.issueKey,
 				timeSpent: data.timeSpent,
 				comment: data.comment,
@@ -232,7 +242,7 @@ export function WeeklyTimetableView({
 
 				await client.addWorklog(worklogForm.issueKey, worklogData);
 
-				console.log('WeeklyTimetableView: Worklog submitted successfully', {
+				uiLogger.debug('WeeklyTimetableView: Worklog submitted successfully', {
 					issueKey: worklogForm.issueKey,
 					timestamp: new Date().toISOString(),
 				});
@@ -318,6 +328,11 @@ export function WeeklyTimetableView({
 		setActiveArea('timetable');
 	};
 
+	const handleDeleteAttendance = (data: {date: Date}) => {
+		setDeleteAttendanceCandidate(data);
+		setActiveArea('delete-attendance-confirmation');
+	};
+
 	const handleOpenInBrowser = async (issueKey: string) => {
 		if (!config.jiraUrl) return;
 		try {
@@ -355,13 +370,13 @@ export function WeeklyTimetableView({
 				return matchesDate && isCurrentUser;
 			});
 
-			console.log(
+			uiLogger.debug(
 				`Found ${worklogsToDelete.length} worklogs to delete for ${deleteCandidate.issueKey} on ${targetDateString}`,
 			);
 
 			// Delete each matching worklog
 			for (const worklog of worklogsToDelete) {
-				console.log(
+				uiLogger.debug(
 					`Deleting worklog ${worklog.id} (${worklog.timeSpentSeconds}s)`,
 				);
 				await jiraClient.deleteWorklog(deleteCandidate.issueKey, worklog.id);
@@ -383,6 +398,39 @@ export function WeeklyTimetableView({
 		} finally {
 			setIsDeleting(false);
 			setDeleteCandidate(null);
+			setActiveArea('timetable');
+		}
+	};
+
+	const handleDeleteAttendanceConfirm = async (confirmed: boolean) => {
+		if (!confirmed || !deleteAttendanceCandidate || !attendanceManager) {
+			setDeleteAttendanceCandidate(null);
+			setActiveArea('timetable');
+			return;
+		}
+		setIsDeletingAttendance(true);
+		try {
+			const targetDateString = formatLocalDateKey(
+				deleteAttendanceCandidate.date,
+			);
+			const deleted = await attendanceManager.deleteAttendance(
+				targetDateString,
+			);
+
+			if (deleted) {
+				// Refresh the data
+				refresh();
+				// Force attendance data refresh in TimetableGrid
+				setAttendanceRefreshKey(prev => prev + 1);
+			}
+		} catch (error) {
+			console.error('Error deleting attendance:', error);
+			const errorMessage =
+				error instanceof Error ? error.message : 'Unknown error occurred';
+			setDeleteError(`Failed to delete attendance: ${errorMessage}`);
+		} finally {
+			setIsDeletingAttendance(false);
+			setDeleteAttendanceCandidate(null);
 			setActiveArea('timetable');
 		}
 	};
@@ -414,6 +462,7 @@ export function WeeklyTimetableView({
 		if (
 			worklogForm.isVisible ||
 			activeArea === 'delete-confirmation' ||
+			activeArea === 'delete-attendance-confirmation' ||
 			activeArea === 'attendance-edit'
 		) {
 			return;
@@ -448,15 +497,17 @@ export function WeeklyTimetableView({
 				</Box>
 
 				{/* Week Navigator - only when not in form or delete mode */}
-				{!worklogForm.isVisible && activeArea !== 'delete-confirmation' && (
-					<WeekNavigator
-						currentWeek={currentWeek}
-						onPreviousWeek={navigateToPreviousWeek}
-						onNextWeek={navigateToNextWeek}
-						onCurrentWeek={handleCurrentWeek}
-						activeArea="timetable"
-					/>
-				)}
+				{!worklogForm.isVisible &&
+					activeArea !== 'delete-confirmation' &&
+					activeArea !== 'delete-attendance-confirmation' && (
+						<WeekNavigator
+							currentWeek={currentWeek}
+							onPreviousWeek={navigateToPreviousWeek}
+							onNextWeek={navigateToNextWeek}
+							onCurrentWeek={handleCurrentWeek}
+							activeArea="timetable"
+						/>
+					)}
 
 				{/* Show title based on current mode */}
 				{worklogForm.isVisible ? (
@@ -466,6 +517,14 @@ export function WeeklyTimetableView({
 				) : activeArea === 'delete-confirmation' && deleteCandidate ? (
 					<TitleBar
 						title={`Delete worklogs for ${deleteCandidate.issueKey}`}
+						color="red"
+					/>
+				) : activeArea === 'delete-attendance-confirmation' &&
+				  deleteAttendanceCandidate ? (
+					<TitleBar
+						title={`Delete attendance for ${formatDate(
+							deleteAttendanceCandidate.date,
+						)}`}
 						color="red"
 					/>
 				) : activeArea === 'attendance-edit' && attendanceEdit ? (
@@ -487,9 +546,11 @@ export function WeeklyTimetableView({
 			{/* Main Content Area - Fixed Height */}
 			<Box height={25} flexDirection="column">
 				{/* Extra spacing between week navigator and table - only when not in form or delete mode */}
-				{!worklogForm.isVisible && activeArea !== 'delete-confirmation' && (
-					<Box paddingY={1} />
-				)}
+				{!worklogForm.isVisible &&
+					activeArea !== 'delete-confirmation' &&
+					activeArea !== 'delete-attendance-confirmation' && (
+						<Box paddingY={1} />
+					)}
 
 				{/* Conditional content: table, form, delete confirmation, or attendance edit */}
 				{worklogForm.isVisible ? (
@@ -542,6 +603,30 @@ export function WeeklyTimetableView({
 							)}
 						</Box>
 					</Box>
+				) : activeArea === 'delete-attendance-confirmation' &&
+				  deleteAttendanceCandidate ? (
+					/* Delete Attendance Confirmation - replaces table */
+					<Box justifyContent="center">
+						<Box
+							width={68}
+							borderStyle="round"
+							borderColor="red"
+							paddingX={2}
+							paddingY={1}
+						>
+							{isDeletingAttendance ? (
+								<Box flexDirection="row" alignItems="center">
+									<Spinner />
+									<Text> Deleting attendance...</Text>
+								</Box>
+							) : (
+								<DeleteAttendanceConfirmation
+									dayLabel={formatDate(deleteAttendanceCandidate.date)}
+									onConfirm={handleDeleteAttendanceConfirm}
+								/>
+							)}
+						</Box>
+					</Box>
 				) : activeArea === 'attendance-edit' && attendanceEdit ? (
 					/* Attendance Edit Form - replaces table */
 					<Box justifyContent="center">
@@ -576,6 +661,7 @@ export function WeeklyTimetableView({
 						onCellWorklog={handleCellWorklog}
 						onCellDelete={handleCellDelete}
 						onAttendanceEdit={handleAttendanceEdit}
+						onAttendanceDelete={handleDeleteAttendance}
 						onOpenInBrowser={handleOpenInBrowser}
 						isActive={true}
 						favoriteIssues={config.favorites}

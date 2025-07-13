@@ -1,20 +1,18 @@
 import React from 'react';
 import {Confirmation} from './Confirmation.js';
 
-interface DeleteWorklogConfirmationProps {
-	issueKey: string;
+interface DeleteAttendanceConfirmationProps {
 	dayLabel: string;
 	onConfirm: (confirmed: boolean) => void;
 }
 
-export function DeleteWorklogConfirmation({
-	issueKey,
+export function DeleteAttendanceConfirmation({
 	dayLabel,
 	onConfirm,
-}: DeleteWorklogConfirmationProps) {
+}: DeleteAttendanceConfirmationProps) {
 	return (
 		<Confirmation
-			message={`Delete all worklogs for ${issueKey} on ${dayLabel}?`}
+			message={`Delete attendance record for ${dayLabel}?`}
 			onConfirm={onConfirm}
 		/>
 	);

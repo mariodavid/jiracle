@@ -203,6 +203,17 @@ export class AttendanceManager {
 		this.config = {...this.config, ...newConfig};
 	}
 
+	async deleteAttendance(date: string): Promise<boolean> {
+		const attendance = await this.storage.getByDate(date);
+		if (!attendance) {
+			return false; // No attendance record found for this date
+		}
+
+		// Remove the attendance record from storage
+		await this.storage.deleteByDate(date);
+		return true;
+	}
+
 	private getCurrentDate(): string {
 		return new Date().toISOString().split('T')[0]!;
 	}

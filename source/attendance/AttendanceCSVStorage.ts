@@ -86,6 +86,14 @@ export class AttendanceCSVStorage {
 		await this.write(attendances);
 	}
 
+	async deleteByDate(date: string): Promise<void> {
+		const attendances = await this.readAll();
+		const filteredAttendances = attendances.filter(
+			attendance => attendance.date !== date,
+		);
+		await this.write(filteredAttendances);
+	}
+
 	private parseCSVLine(line: string): Attendance {
 		const [date, checkIn, checkOut, breakMinutes, totalHours, notes] =
 			line.split(',');

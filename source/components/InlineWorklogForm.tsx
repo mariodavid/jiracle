@@ -4,6 +4,7 @@ import {TextInput, Spinner} from '@inkjs/ui';
 import DurationInput from './WorklogForm/DurationInput.js';
 import type {JiraConfig} from '../jira-client.js';
 import {resolveDefaults} from '../jira-client.js';
+import {uiLogger} from '../utils/logger.js';
 
 interface InlineWorklogFormProps {
 	issueKey: string;
@@ -126,7 +127,7 @@ export function InlineWorklogForm({
 	};
 
 	const handleSubmit = useCallback(() => {
-		console.log('InlineWorklogForm: handleSubmit called', {
+		uiLogger.debug('InlineWorklogForm: handleSubmit called', {
 			isSubmitting,
 			submittingRef: submittingRef.current,
 			selectedTime,
@@ -136,7 +137,7 @@ export function InlineWorklogForm({
 
 		// Immediate synchronous check with ref
 		if (isSubmitting || submittingRef.current) {
-			console.log('InlineWorklogForm: Blocked duplicate submission');
+			uiLogger.debug('InlineWorklogForm: Blocked duplicate submission');
 			return; // Don't submit if already submitting
 		}
 
