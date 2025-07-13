@@ -401,9 +401,40 @@ export function TimetableGrid({
 				return m === 0 ? h.toString() : `${h}:${minutes}`;
 			};
 
+			// Calculate working hours (total time - break time)
+			const calculateWorkingHours = (
+				checkIn: string,
+				checkOut: string,
+				breakTime: number,
+			): string => {
+				const [inHours, inMinutes] = checkIn.split(':').map(Number);
+				const [outHours, outMinutes] = checkOut.split(':').map(Number);
+
+				const inTotalMinutes = (inHours || 0) * 60 + (inMinutes || 0);
+				const outTotalMinutes = (outHours || 0) * 60 + (outMinutes || 0);
+
+				const totalMinutes = outTotalMinutes - inTotalMinutes;
+				const workingMinutes = totalMinutes - breakTime * 60;
+
+				const hours = Math.floor(workingMinutes / 60);
+				const minutes = workingMinutes % 60;
+
+				return minutes === 0 ? `${hours}h` : `${hours}h${minutes}m`;
+			};
+
 			const checkIn = formatTime(attendance.checkIn || '08:00');
 			const checkOut = formatTime(attendance.checkOut || '17:00');
-			return `${checkIn}-${checkOut}`;
+			const breakMinutes =
+				attendance.breakMinutes ||
+				config?.attendance?.defaultBreakMinutes ||
+				60; // Use configured break time or default to 60 minutes
+			const workingHours = calculateWorkingHours(
+				attendance.checkIn || '08:00',
+				attendance.checkOut || '17:00',
+				breakMinutes / 60,
+			);
+
+			return `${checkIn}-${checkOut}\n${workingHours}`;
 		};
 
 		return (

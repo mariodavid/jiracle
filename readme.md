@@ -334,24 +334,27 @@ JIRACLE_LOG_LEVEL=debug jiracle
 ### Debug Log Output
 
 Debug logs are written to:
+
 - **File**: `~/.config/jiracle-ui.log` (always)
 - **Console**: Only when not in test environment
 
 Debug logs include:
+
 - Form submission events and duplicate submission prevention
 - Worklog creation and deletion operations
 - UI interaction details and timestamps
 
 ### Log Levels
 
-| Level   | Description                                      |
-|---------|--------------------------------------------------|
-| `error` | Only errors                                      |
-| `warn`  | Warnings and errors                              |
-| `info`  | General information (default)                    |
-| `debug` | Detailed debugging information                   |
+| Level   | Description                    |
+| ------- | ------------------------------ |
+| `error` | Only errors                    |
+| `warn`  | Warnings and errors            |
+| `info`  | General information (default)  |
+| `debug` | Detailed debugging information |
 
 Example debug output:
+
 ```
 2025-07-13T19:00:00.000Z [debug]: InlineWorklogForm: handleSubmit called
 2025-07-13T19:00:01.000Z [debug]: WeeklyTimetableView: Worklog submitted successfully
