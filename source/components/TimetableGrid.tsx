@@ -225,10 +225,12 @@ export function TimetableGrid({
 			const desired = group.group.desiredAmount;
 			const actual = group.totalHours;
 			const status = actual >= desired ? '✓' : '⚠️';
-			return `${totalHours}/${desired}h ${status}`.padStart(10) + ' ';
+			return `${totalHours}/${desired}h ${status}`.padStart(7) + ' ';
 		}
 
-		return `${totalHours}h`.padStart(10) + ' ';
+		// Only append 'h' if totalHours is not '-'
+		const formattedTotal = totalHours === '-' ? '-' : `${totalHours}h`;
+		return formattedTotal.padStart(7) + ' ';
 	};
 
 	const tableWidth = 2 + 20 + 5 * 12 + 8; // Group + Issue + 5 weekdays (wider) + Total = 90
@@ -561,8 +563,21 @@ export function TimetableGrid({
 					{group.group && (
 						<Box flexDirection="column">
 							{/* Separator line above group total */}
-							<Box width={tableWidth}>
-								<Text color="gray">{'─'.repeat(tableWidth)}</Text>
+							<Box flexDirection="row">
+								<Box width={2}>
+									<Text color="gray">{'─'.repeat(2)}</Text>
+								</Box>
+								<Box width={20}>
+									<Text color="gray">{'─'.repeat(20)}</Text>
+								</Box>
+								{weekDates.map((_, index) => (
+									<Box key={`sep-${group.group?.id}-${index}`} width={12}>
+										<Text color="gray">{'─'.repeat(12)}</Text>
+									</Box>
+								))}
+								<Box width={8}>
+									<Text color="gray">{'─'.repeat(8)}</Text>
+								</Box>
 							</Box>
 							{/* Group total row */}
 							<Box flexDirection="row">
@@ -582,7 +597,7 @@ export function TimetableGrid({
 										<Text> </Text>
 									</Box>
 								))}
-								<Box width={11}>
+								<Box width={8}>
 									<Text bold color="green">
 										{formatGroupTotal(group)}
 									</Text>
