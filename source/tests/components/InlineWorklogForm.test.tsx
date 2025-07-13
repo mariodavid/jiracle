@@ -27,8 +27,7 @@ test('InlineWorklogForm shows time options', t => {
 	const {lastFrame} = render(React.createElement(InlineWorklogForm, mockProps));
 	const output = lastFrame() || '';
 
-	// Check for arrow key instructions and default time
-	t.true(output.includes('↑/↓ adjust or type'));
+	// Check for default time (help text no longer shown in compact mode)
 	t.true(output.includes('1h')); // Default time
 });
 
@@ -66,8 +65,8 @@ test('InlineWorklogForm shows custom time input when selected', t => {
 
 	const output = lastFrame() || '';
 
-	// Now we always show the arrow key time adjustment
-	t.true(output.includes('↑/↓ adjust or type'));
+	// Form should be functional (help text no longer shown in compact mode)
+	t.true(output.includes('Time spent:'));
 });
 
 test('InlineWorklogForm handles default values', t => {

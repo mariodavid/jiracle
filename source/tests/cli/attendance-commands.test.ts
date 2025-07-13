@@ -56,13 +56,16 @@ function createDisabledConfig(): string {
 	return configPath;
 }
 
-function cleanup(configPath: string) {
+function cleanup(configPath: string, csvPath?: string) {
 	if (existsSync(configPath)) {
 		unlinkSync(configPath);
 	}
+	if (csvPath && existsSync(csvPath)) {
+		unlinkSync(csvPath);
+	}
 }
 
-test('should check in with default time', async t => {
+test.serial('should check in with default time', async t => {
 	const {configPath, csvPath} = createTestConfig();
 
 	const params: CheckInParams = {
@@ -75,10 +78,10 @@ test('should check in with default time', async t => {
 	t.true(result.message.includes('Checked in at 08:00'));
 	t.true(result.message.includes('on 2025-07-11'));
 
-	cleanup(configPath);
+	cleanup(configPath, csvPath);
 });
 
-test('should check in with custom time', async t => {
+test.serial('should check in with custom time', async t => {
 	const {configPath, csvPath} = createTestConfig();
 
 	const params: CheckInParams = {
@@ -91,10 +94,10 @@ test('should check in with custom time', async t => {
 	t.true(result.success);
 	t.true(result.message.includes('Checked in at 08:30'));
 
-	cleanup(configPath);
+	cleanup(configPath, csvPath);
 });
 
-test('should fail check in with invalid time', async t => {
+test.serial('should fail check in with invalid time', async t => {
 	const {configPath, csvPath} = createTestConfig();
 
 	const params: CheckInParams = {
@@ -107,10 +110,10 @@ test('should fail check in with invalid time', async t => {
 	t.false(result.success);
 	t.true(result.message.includes('Time must be in HH:MM format'));
 
-	cleanup(configPath);
+	cleanup(configPath, csvPath);
 });
 
-test('should fail check in with invalid date', async t => {
+test.serial('should fail check in with invalid date', async t => {
 	const {configPath, csvPath} = createTestConfig();
 
 	const params: CheckInParams = {
@@ -122,10 +125,10 @@ test('should fail check in with invalid date', async t => {
 	t.false(result.success);
 	t.true(result.message.includes('Date must be in YYYY-MM-DD format'));
 
-	cleanup(configPath);
+	cleanup(configPath, csvPath);
 });
 
-test('should check out with default time', async t => {
+test.serial('should check out with default time', async t => {
 	const {configPath, csvPath} = createTestConfig();
 
 	// Check in first
@@ -141,10 +144,10 @@ test('should check out with default time', async t => {
 	t.true(result.message.includes('Checked out at 17:00'));
 	t.true(result.message.includes('8.5h total'));
 
-	cleanup(configPath);
+	cleanup(configPath, csvPath);
 });
 
-test('should check out with custom time', async t => {
+test.serial('should check out with custom time', async t => {
 	const {configPath, csvPath} = createTestConfig();
 
 	// Check in first
@@ -165,10 +168,10 @@ test('should check out with custom time', async t => {
 	t.true(result.message.includes('Checked out at 17:30'));
 	t.true(result.message.includes('8.5h total'));
 
-	cleanup(configPath);
+	cleanup(configPath, csvPath);
 });
 
-test('should show status for empty day', async t => {
+test.serial('should show status for empty day', async t => {
 	const {configPath, csvPath} = createTestConfig();
 
 	const params: StatusParams = {
@@ -180,10 +183,10 @@ test('should show status for empty day', async t => {
 	t.true(result.success);
 	t.true(result.message.includes('2025-07-11: No attendance recorded'));
 
-	cleanup(configPath);
+	cleanup(configPath, csvPath);
 });
 
-test('should show status after check in', async t => {
+test.serial('should show status after check in', async t => {
 	const {configPath, csvPath} = createTestConfig();
 
 	// Check in first
@@ -202,10 +205,10 @@ test('should show status after check in', async t => {
 	t.true(result.success);
 	t.true(result.message.includes('2025-07-11: Checked in at 08:00'));
 
-	cleanup(configPath);
+	cleanup(configPath, csvPath);
 });
 
-test('should show status after full day', async t => {
+test.serial('should show status after full day', async t => {
 	const {configPath, csvPath} = createTestConfig();
 
 	// Full day
@@ -231,10 +234,10 @@ test('should show status after full day', async t => {
 	t.true(result.message.includes('8h 30m'));
 	t.true(result.message.includes('Target: 8h'));
 
-	cleanup(configPath);
+	cleanup(configPath, csvPath);
 });
 
-test('should fail when attendance is disabled', async t => {
+test.serial('should fail when attendance is disabled', async t => {
 	const configPath = createDisabledConfig();
 
 	const params: CheckInParams = {
@@ -249,7 +252,7 @@ test('should fail when attendance is disabled', async t => {
 	cleanup(configPath);
 });
 
-test('should handle missing config file', async t => {
+test.serial('should handle missing config file', async t => {
 	const nonExistentPath = '/tmp/non-existent-config.json';
 
 	const params: CheckInParams = {
@@ -265,7 +268,7 @@ test('should handle missing config file', async t => {
 	);
 });
 
-test('should validate time format strictly', async t => {
+test.serial('should validate time format strictly', async t => {
 	const {configPath, csvPath} = createTestConfig();
 
 	// Test various invalid time formats
@@ -282,10 +285,10 @@ test('should validate time format strictly', async t => {
 		t.true(result.message.includes('Time must be in HH:MM format'));
 	}
 
-	cleanup(configPath);
+	cleanup(configPath, csvPath);
 });
 
-test('should validate date format strictly', async t => {
+test.serial('should validate date format strictly', async t => {
 	const {configPath, csvPath} = createTestConfig();
 
 	// Test various invalid date formats
@@ -308,5 +311,5 @@ test('should validate date format strictly', async t => {
 		t.true(result.message.includes('Date must be in YYYY-MM-DD format'));
 	}
 
-	cleanup(configPath);
+	cleanup(configPath, csvPath);
 });

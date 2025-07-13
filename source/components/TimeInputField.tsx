@@ -74,7 +74,8 @@ export default function TimeInputField({
 		}
 		if (newValue.length === 5) {
 			// Five characters: HH:MM format
-			if (!/^[0-1][0-9]:[0-5][0-9]|2[0-3]:[0-5][0-9]$/.test(newValue)) return false;
+			if (!/^[0-1][0-9]:[0-5][0-9]|2[0-3]:[0-5][0-9]$/.test(newValue))
+				return false;
 		}
 
 		return true;
@@ -135,7 +136,9 @@ export default function TimeInputField({
 				const hours = parseInt(match[1]!, 10);
 				const minutes = parseInt(match[2]!, 10);
 				if (hours >= 0 && hours <= 23 && minutes >= 0 && minutes <= 59) {
-					normalizedValue = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+					normalizedValue = `${hours.toString().padStart(2, '0')}:${minutes
+						.toString()
+						.padStart(2, '0')}`;
 				}
 			}
 		}
@@ -179,7 +182,9 @@ export default function TimeInputField({
 		} else {
 			// Configurable minute increments
 			newMinutes =
-				direction === 'up' ? currentMinutes + incrementMinutes : currentMinutes - incrementMinutes;
+				direction === 'up'
+					? currentMinutes + incrementMinutes
+					: currentMinutes - incrementMinutes;
 		}
 
 		const timeString = formatMinutesToTime(newMinutes);
@@ -262,11 +267,7 @@ export default function TimeInputField({
 	};
 
 	if (compact) {
-		return (
-			<Box>
-				{renderInput()}
-			</Box>
-		);
+		return <Box>{renderInput()}</Box>;
 	}
 
 	return (

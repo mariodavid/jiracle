@@ -167,12 +167,12 @@ export default function DurationInput({
 		if (/^\d+([.,]\d+)?$/.test(normalizedValue)) {
 			const hasDecimal = /[.,]/.test(normalizedValue);
 			const numericValue = parseFloat(normalizedValue.replace(',', '.'));
-			
+
 			// Smart unit selection:
 			// - If has decimal (1.5, 2,5): always hours
 			// - If >= 10: likely minutes
 			// - If < 10: likely hours
-			const smartUnit = hasDecimal ? 'h' : (numericValue >= 10 ? 'm' : 'h');
+			const smartUnit = hasDecimal ? 'h' : numericValue >= 10 ? 'm' : 'h';
 			normalizedValue = normalizedValue + smartUnit;
 		}
 
@@ -180,7 +180,7 @@ export default function DurationInput({
 		if (/^\d+h\d+$/.test(normalizedValue)) {
 			normalizedValue = normalizedValue + 'm';
 		}
-		
+
 		// Final cleanup: ensure any remaining commas are converted to dots
 		normalizedValue = normalizedValue.replace(/,/g, '.');
 
@@ -197,30 +197,31 @@ export default function DurationInput({
 	const adjustTime = (direction: 'up' | 'down') => {
 		const currentHours = parseTimeToHours(timeInputValueRef.current);
 		const totalMinutes = Math.round(currentHours * 60);
-		
+
 		// Create marks based on incrementMinutes (e.g., every 15min, 36min, 60min, etc.)
 		const marks = [];
 		for (let min = 0; min <= 24 * 60; min += incrementMinutes) {
 			marks.push(min);
 		}
-		
+
 		let newTotalMinutes: number;
 		if (direction === 'up') {
 			// Find next mark that's greater than current
 			newTotalMinutes = marks.find(mark => mark > totalMinutes) || totalMinutes;
 		} else {
 			// Find previous mark that's less than current
-			newTotalMinutes = marks.reverse().find(mark => mark < totalMinutes) || incrementMinutes;
+			newTotalMinutes =
+				marks.reverse().find(mark => mark < totalMinutes) || incrementMinutes;
 			marks.reverse(); // Restore original order
 		}
-		
+
 		// Ensure minimum value
 		newTotalMinutes = Math.max(newTotalMinutes, incrementMinutes);
-		
+
 		// Convert back to appropriate format
 		const hours = Math.floor(newTotalMinutes / 60);
 		const minutes = newTotalMinutes % 60;
-		
+
 		let timeString: string;
 		if (hours > 0 && minutes > 0) {
 			timeString = `${hours}h${minutes}m`;
@@ -229,7 +230,7 @@ export default function DurationInput({
 		} else {
 			timeString = `${minutes}m`;
 		}
-		
+
 		setTimeInputValue(timeString);
 		timeInputValueRef.current = timeString;
 		setCursorPosition(timeString.length);
@@ -310,11 +311,7 @@ export default function DurationInput({
 	};
 
 	if (compact) {
-		return (
-			<Box flexDirection="column">
-				{renderInput()}
-			</Box>
-		);
+		return <Box flexDirection="column">{renderInput()}</Box>;
 	}
 
 	return (

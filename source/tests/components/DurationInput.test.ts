@@ -63,7 +63,7 @@ test('DurationInput renders in compact mode', t => {
 
 	const output = lastFrame() || '';
 	t.true(output.includes('3h'));
-	t.true(output.includes('↑/↓ adjust or type'));
+	// Help text is no longer shown in compact mode
 	// Should not include issue info in compact mode
 	t.false(output.includes('TEST-123'));
 });
@@ -117,10 +117,11 @@ test('DurationInput handles arrow key navigation', t => {
 			value: '2h',
 			onChange,
 			compact: true,
+			incrementMinutes: 60, // 1 hour increments
 		}),
 	);
 
-	// Press up arrow - should increment to 3h
+	// Press up arrow - should increment by 1 hour to 3h
 	stdin.write('\u001B[A'); // Up arrow
 
 	t.is(changedValue, '3h');
@@ -138,16 +139,17 @@ test('DurationInput handles down arrow navigation', t => {
 			value: '3h',
 			onChange,
 			compact: true,
+			incrementMinutes: 60, // 1 hour increments
 		}),
 	);
 
-	// Press down arrow - should decrement to 2h
+	// Press down arrow - should decrement by 1 hour to 2h
 	stdin.write('\u001B[B'); // Down arrow
 
 	t.is(changedValue, '2h');
 });
 
-test('DurationInput prevents going below 1h', t => {
+test('DurationInput prevents going below minimum increment', t => {
 	let changedValue = '';
 	const onChange = (value: string) => {
 		changedValue = value;
@@ -159,10 +161,11 @@ test('DurationInput prevents going below 1h', t => {
 			value: '1h',
 			onChange,
 			compact: true,
+			incrementMinutes: 60, // 1 hour increments
 		}),
 	);
 
-	// Press down arrow - should stay at 1h
+	// Press down arrow - should stay at minimum (1h with 60min increments)
 	stdin.write('\u001B[B'); // Down arrow
 
 	t.is(changedValue, '1h');
@@ -267,13 +270,14 @@ test('DurationInput parses different time formats', t => {
 			value: '30m', // 30 minutes = 0.5 hours
 			onChange,
 			compact: true,
+			incrementMinutes: 60, // 1 hour increments
 		}),
 	);
 
-	// Press up arrow - should increment by 1 hour to 1.5h
+	// Press up arrow - should increment to next 60min mark (from 30m to 60m = 1h)
 	stdin.write('\u001B[A'); // Up arrow
 
-	t.is(changedValue, '1h'); // Should be 1 hour (0.5 + 1 = 1.5, but we round to integers)
+	t.is(changedValue, '1h'); // Next 60-minute increment from 30m is 60m = 1h
 });
 
 test('DurationInput handles day format', t => {
@@ -285,16 +289,17 @@ test('DurationInput handles day format', t => {
 	const {stdin} = render(
 		React.createElement(DurationInput, {
 			...defaultProps,
-			value: '1d', // 1 day = 8 hours
+			value: '1d', // 1 day = 8 hours = 480 minutes
 			onChange,
 			compact: true,
+			incrementMinutes: 60, // 1 hour increments
 		}),
 	);
 
 	// Press up arrow - should increment by 1 hour to 9h
 	stdin.write('\u001B[A'); // Up arrow
 
-	t.is(changedValue, '9h');
+	t.is(changedValue, '9h'); // 8 hours + 1 hour = 9 hours
 });
 
 test('DurationInput allows typing decimal numbers', t => {
@@ -1121,7 +1126,11 @@ test('DurationInput smart unit detection with comma - hours for decimals', t => 
 		}
 		stdin.write('\r');
 
-		t.is(submittedValue, expected, `Input "${input}" should become "${expected}"`);
+		t.is(
+			submittedValue,
+			expected,
+			`Input "${input}" should become "${expected}"`,
+		);
 	});
 });
 
@@ -1155,6 +1164,10 @@ test('DurationInput smart unit detection with comma - whole numbers for minutes'
 		}
 		stdin.write('\r');
 
-		t.is(submittedValue, expected, `Input "${input}" should become "${expected}"`);
+		t.is(
+			submittedValue,
+			expected,
+			`Input "${input}" should become "${expected}"`,
+		);
 	});
 });

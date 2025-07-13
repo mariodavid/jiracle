@@ -23,7 +23,11 @@ import {
 	getEndOfWeek,
 	formatLocalDateKey,
 } from '../utils/date.js';
-import {isBrowserOpenSupported, openInBrowser, generateJiraIssueUrl} from '../utils/browser.js';
+import {
+	isBrowserOpenSupported,
+	openInBrowser,
+	generateJiraIssueUrl,
+} from '../utils/browser.js';
 
 interface WorklogFormData {
 	issueKey: string;
@@ -49,10 +53,7 @@ export function WeeklyTimetableView({
 }: WeeklyTimetableViewProps) {
 	const [currentWeek, setCurrentWeek] = useState(new Date());
 	const [activeArea, setActiveArea] = useState<
-		| 'timetable'
-		| 'worklog-form'
-		| 'delete-confirmation'
-		| 'attendance-edit'
+		'timetable' | 'worklog-form' | 'delete-confirmation' | 'attendance-edit'
 	>('timetable');
 	const [worklogForm, setWorklogForm] = useState<WorklogFormData>({
 		issueKey: '',
@@ -468,7 +469,9 @@ export function WeeklyTimetableView({
 						color="red"
 					/>
 				) : activeArea === 'attendance-edit' && attendanceEdit ? (
-					<TitleBar title={`Anwesenheit - ${formatDate(attendanceEdit.date)}`} />
+					<TitleBar
+						title={`Anwesenheit - ${formatDate(attendanceEdit.date)}`}
+					/>
 				) : (
 					<TitleBar title={getWeekTitle(currentWeek)} />
 				)}

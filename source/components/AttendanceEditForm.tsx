@@ -25,12 +25,12 @@ export function AttendanceEditForm({
 		if (initialData?.checkIn) return initialData.checkIn;
 		return config?.attendance?.defaultCheckIn || '08:00';
 	};
-	
+
 	const getDefaultCheckOut = () => {
 		if (initialData?.checkOut) return initialData.checkOut;
 		return config?.attendance?.defaultCheckOut || '17:00';
 	};
-	
+
 	const [checkIn, setCheckIn] = useState(getDefaultCheckIn());
 	const [checkOut, setCheckOut] = useState(getDefaultCheckOut());
 	const [breakMinutes, setBreakMinutes] = useState(
@@ -69,12 +69,12 @@ export function AttendanceEditForm({
 		const month = String(date.getMonth() + 1).padStart(2, '0');
 		const day = String(date.getDate()).padStart(2, '0');
 		const localDateString = `${year}-${month}-${day}`;
-		
+
 		// Parse break minutes using Duration class
 		const parseBreakMinutes = (timeStr: string): number => {
 			return new Duration(timeStr).toMinutes();
 		};
-		
+
 		const attendanceData: Attendance = {
 			date: localDateString,
 			checkIn: checkIn || undefined,

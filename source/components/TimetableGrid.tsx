@@ -382,7 +382,7 @@ export function TimetableGrid({
 
 		const getCellValue = (date: string): string => {
 			const attendance = weeklyAttendance[date];
-			
+
 			if (!attendance || (!attendance.checkIn && !attendance.checkOut)) {
 				return '-'; // Show dash when no data exists
 			}
@@ -432,7 +432,8 @@ export function TimetableGrid({
 								) : (
 									<Box key={`attendance-static-${row.key}-${date}`} width={12}>
 										<Text>
-											{getCellValue(formatLocalDateKey(date)).padStart(11) + ' '}
+											{getCellValue(formatLocalDateKey(date)).padStart(11) +
+												' '}
 										</Text>
 									</Box>
 								),

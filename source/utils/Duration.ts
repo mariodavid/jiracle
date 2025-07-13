@@ -21,7 +21,9 @@ export class Duration {
 		if (!timeStr) return 0;
 
 		// Handle combined format (2h30m, 1h15m, etc.)
-		const combinedMatch = timeStr.match(/^(\d+(?:[.,]\d+)?)h(\d+(?:[.,]\d+)?)m$/i);
+		const combinedMatch = timeStr.match(
+			/^(\d+(?:[.,]\d+)?)h(\d+(?:[.,]\d+)?)m$/i,
+		);
 		if (combinedMatch) {
 			const hours = parseFloat(combinedMatch[1]!.replace(',', '.'));
 			const minutes = parseFloat(combinedMatch[2]!.replace(',', '.'));
@@ -78,7 +80,7 @@ export class Duration {
 	 */
 	toString(): string {
 		if (this.minutes === 0) return '0m';
-		
+
 		const hours = Math.floor(this.minutes / 60);
 		const remainingMinutes = this.minutes % 60;
 
