@@ -1,7 +1,7 @@
 import React, {useState, useEffect, useCallback, useRef} from 'react';
 import {Box, Text, useInput, useFocus} from 'ink';
 import {TextInput, Spinner} from '@inkjs/ui';
-import CustomTimeInput from './WorklogForm/CustomTimeInput.js';
+import DurationInput from './WorklogForm/DurationInput.js';
 import type {JiraConfig} from '../jira-client.js';
 import {resolveDefaults} from '../jira-client.js';
 
@@ -198,13 +198,14 @@ export function InlineWorklogForm({
 					<Text color="yellow">Time spent:</Text>
 					<Box marginTop={1}>
 						{focusArea === 'time' ? (
-							<CustomTimeInput
+							<DurationInput
 								value={timeInputValue}
 								onChange={handleTimeInputChange}
 								onSubmit={() => setFocusArea('comment')}
 								compact={true}
 								config={config}
 								issueSelectionMode={isFavorite ? 'favorites' : null}
+								incrementMinutes={60}
 							/>
 						) : (
 							<Box>

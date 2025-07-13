@@ -7,7 +7,8 @@ import {FocusableCell} from './FocusableCell.js';
 import {formatLocalDateKey} from '../utils/date.js';
 import type {FavoriteIssue, JiraConfig, Group} from '../jira-client.js';
 import {resolveDefaults} from '../jira-client.js';
-import {openInBrowser, generateJiraIssueUrl} from '../utils/browser.js';
+import {AttendanceManager} from '../attendance/AttendanceManager.js';
+import type {WeeklyAttendance} from '../attendance/types.js';
 
 export interface TimetableGridProps {
 	data: WeeklyWorklogSummary | null;
@@ -15,11 +16,13 @@ export interface TimetableGridProps {
 	onWeekChange?: (direction: 'prev' | 'next') => void;
 	onCellWorklog?: (data: {issueKey: string; date: Date}) => void;
 	onCellDelete?: (data: {issueKey: string; date: Date}) => void;
+	onAttendanceEdit?: (data: {date: Date}) => void;
+	onOpenInBrowser?: (issueKey: string) => void;
 	isActive?: boolean;
-	shouldFocusCell?: boolean;
-	onCellFocused?: () => void;
 	favoriteIssues?: FavoriteIssue[];
 	config?: JiraConfig;
+	attendanceManager?: AttendanceManager;
+	attendanceRefreshKey?: number;
 }
 
 const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
@@ -30,25 +33,51 @@ export function TimetableGrid({
 	onWeekChange,
 	onCellWorklog,
 	onCellDelete,
+	onAttendanceEdit,
+	onOpenInBrowser,
 	isActive = true,
-	shouldFocusCell = false,
-	onCellFocused,
 	favoriteIssues = [],
 	config,
+	attendanceManager,
+	attendanceRefreshKey = 0,
 }: TimetableGridProps) {
 	// Fixed minimum height container for all states
 	const MIN_HEIGHT = 15;
 
-	// Track focused cell for row/column highlighting
+	// Track focused cell for row/column highlighting and Enter handling
 	const [focusedCell, setFocusedCell] = useState<{
 		issueKey: string;
 		columnIndex: number;
+		isAttendance?: boolean;
 	} | null>(null);
+
+	// Attendance data state
+	const [weeklyAttendance, setWeeklyAttendance] = useState<WeeklyAttendance>(
+		{},
+	);
+
+	// Load attendance data when attendanceManager, week, or refresh key changes
+	useEffect(() => {
+		if (!attendanceManager || !data) return;
+
+		const loadAttendanceData = async () => {
+			try {
+				const weekStart = new Date(data.weekStart);
+				const weekly = await attendanceManager.getWeeklyAttendance(weekStart);
+				setWeeklyAttendance(weekly);
+			} catch (err) {
+				console.error('Failed to load attendance data:', err);
+			}
+		};
+
+		loadAttendanceData();
+	}, [attendanceManager, data, attendanceRefreshKey]);
 
 	const handleFocusChange = useCallback(
 		(issueKey: string, columnIndex: number, isFocused: boolean) => {
 			if (isFocused) {
-				setFocusedCell({issueKey, columnIndex});
+				const isAttendance = issueKey.startsWith('attendance-');
+				setFocusedCell({issueKey, columnIndex, isAttendance});
 			}
 			// Don't clear on blur - only update when we get a new focus
 		},
@@ -57,10 +86,6 @@ export function TimetableGrid({
 
 	// CALL ALL HOOKS FIRST (before any conditional returns)
 	const {focus} = useFocusManager();
-	const [currentFocus, setCurrentFocus] = useState({
-		row: 0,
-		col: getCurrentDayIndex(),
-	});
 
 	// Calculate values that depend on data (with safe defaults)
 	const weekStart = data ? new Date(data.weekStart) : new Date();
@@ -170,7 +195,6 @@ export function TimetableGrid({
 	};
 
 	const issueGroups = groupIssuesByResolvedGroup(Object.entries(issueMap));
-	const allSortedIssues = issueGroups.flatMap(group => group.issues);
 
 	// Helper function to check if an issue is a favorite
 	const isFavoriteIssue = (issueKey: string): boolean => {
@@ -205,42 +229,23 @@ export function TimetableGrid({
 		return `${totalHours}h`.padStart(10) + ' ';
 	};
 
-	const tableWidth = 2 + 20 + 5 * 8 + 8; // Group + Issue + 5 weekdays + Total = 70
+	const tableWidth = 2 + 20 + 5 * 12 + 8; // Group + Issue + 5 weekdays (wider) + Total = 90
 
-	// Calculate grid dimensions
-	const issueKeys = allSortedIssues.map(([issueKey]) => issueKey);
-	const numRows = issueKeys.length; // Only issue rows are focusable
-	const numCols = 5; // 5 weekdays only (total column not selectable)
-
-	// Set default focus when component mounts
+	// Set default focus when component mounts (simplified)
 	useEffect(() => {
 		if (defaultFocusId) {
 			focus(defaultFocusId);
 		}
 	}, [defaultFocusId, focus]);
 
-	// Focus a cell when table becomes active
-	useEffect(() => {
-		if (shouldFocusCell && data && issueKeys.length > 0) {
-			// Focus the first available cell (first issue, today's column or Monday)
-			const todayCol = getCurrentDayIndex();
-			const focusId = getFocusIdForPosition(0, todayCol, issueKeys);
-			if (focusId) {
-				focus(focusId);
-				setCurrentFocus({row: 0, col: todayCol});
-				onCellFocused?.();
-			}
-		}
-	}, [shouldFocusCell, data, issueKeys, focus, onCellFocused]);
-
-	// Arrow key navigation
+	// Simplified input handling - only week navigation and special keys
 	useInput((_input, key) => {
 		// Only handle input when table is active
 		if (!isActive) {
 			return;
 		}
 
-		// Always handle week navigation (even when no data)
+		// Week navigation with Shift+Arrow
 		if (key.shift && key.leftArrow && onWeekChange) {
 			onWeekChange('prev');
 			return;
@@ -251,110 +256,61 @@ export function TimetableGrid({
 			return;
 		}
 
-		// Only handle other input if we have data
-		if (!data || isLoading || data.dailySummaries.length === 0) {
-			return;
-		}
-
-		if (key.return && onCellWorklog) {
-			// Get current focus info
-			const issueKey = issueKeys[currentFocus.row];
-			const date = weekDates[currentFocus.col];
-
-			// Only trigger on weekday cells (not total column) and valid issue
-			if (currentFocus.col < 5 && issueKey && date) {
-				onCellWorklog({issueKey, date});
+		// Handle Enter for worklog editing (only for issue cells, not attendance)
+		if (
+			key.return &&
+			onCellWorklog &&
+			focusedCell &&
+			!focusedCell.isAttendance
+		) {
+			const date = weekDates[focusedCell.columnIndex];
+			if (date) {
+				onCellWorklog({issueKey: focusedCell.issueKey, date});
 			}
 			return;
 		}
 
-		// Handle 'd' key for delete
-		if (_input === 'd' && onCellDelete) {
-			// Get current focus info
-			const issueKey = issueKeys[currentFocus.row];
-			const date = weekDates[currentFocus.col];
-
-			// Only trigger on weekday cells (not total column) and valid issue
-			if (currentFocus.col < 5 && issueKey && date) {
-				onCellDelete({issueKey, date});
+		// Handle Enter for attendance editing
+		if (
+			key.return &&
+			onAttendanceEdit &&
+			focusedCell &&
+			focusedCell.isAttendance
+		) {
+			const date = weekDates[focusedCell.columnIndex];
+			if (date) {
+				onAttendanceEdit({date});
 			}
 			return;
 		}
 
-		// Handle 'o' key for opening issue in browser
-		if (_input === 'o' && config?.jiraUrl) {
-			// Get current focus info
-			const issueKey = issueKeys[currentFocus.row];
-
-			// Only trigger if valid issue is selected
-			if (issueKey) {
-				const jiraUrl = generateJiraIssueUrl(config.jiraUrl, issueKey);
-				openInBrowser(jiraUrl).catch(error => {
-					console.error('Failed to open browser:', error);
-				});
+		// Handle 'd' for delete (only for issue cells, not attendance)
+		if (
+			(_input === 'd' || _input === 'D') &&
+			onCellDelete &&
+			focusedCell &&
+			!focusedCell.isAttendance
+		) {
+			const date = weekDates[focusedCell.columnIndex];
+			if (date) {
+				onCellDelete({issueKey: focusedCell.issueKey, date});
 			}
 			return;
 		}
 
-		if (key.leftArrow) {
-			// Wrap around: if at first column (Monday), go to last column (Friday)
-			const newCol =
-				currentFocus.col === 0 ? numCols - 1 : currentFocus.col - 1;
-			const newFocusId = getFocusIdForPosition(
-				currentFocus.row,
-				newCol,
-				issueKeys,
-			);
-			if (newFocusId) {
-				focus(newFocusId);
-				setCurrentFocus({row: currentFocus.row, col: newCol});
-			}
+		// Handle 'O' for opening focused issue in browser
+		if (
+			(_input === 'o' || _input === 'O') &&
+			onOpenInBrowser &&
+			focusedCell &&
+			!focusedCell.isAttendance
+		) {
+			onOpenInBrowser(focusedCell.issueKey);
+			return;
 		}
 
-		if (key.rightArrow) {
-			// Wrap around: if at last column (Friday), go to first column (Monday)
-			const newCol =
-				currentFocus.col === numCols - 1 ? 0 : currentFocus.col + 1;
-			const newFocusId = getFocusIdForPosition(
-				currentFocus.row,
-				newCol,
-				issueKeys,
-			);
-			if (newFocusId) {
-				focus(newFocusId);
-				setCurrentFocus({row: currentFocus.row, col: newCol});
-			}
-		}
-
-		if (key.upArrow) {
-			// Wrap around: if at first row, go to last row
-			const newRow =
-				currentFocus.row === 0 ? numRows - 1 : currentFocus.row - 1;
-			const newFocusId = getFocusIdForPosition(
-				newRow,
-				currentFocus.col,
-				issueKeys,
-			);
-			if (newFocusId) {
-				focus(newFocusId);
-				setCurrentFocus({row: newRow, col: currentFocus.col});
-			}
-		}
-
-		if (key.downArrow) {
-			// Wrap around: if at last row, go to first row
-			const newRow =
-				currentFocus.row === numRows - 1 ? 0 : currentFocus.row + 1;
-			const newFocusId = getFocusIdForPosition(
-				newRow,
-				currentFocus.col,
-				issueKeys,
-			);
-			if (newFocusId) {
-				focus(newFocusId);
-				setCurrentFocus({row: newRow, col: currentFocus.col});
-			}
-		}
+		// Note: Regular arrow keys and tab are handled by Ink's default focus system
+		// TODO: Add 'o' for browser opening, Enter for attendance editing
 	});
 
 	// CONDITIONAL RENDERING AFTER ALL HOOKS
@@ -418,6 +374,84 @@ export function TimetableGrid({
 		);
 	}
 
+	// Render attendance row (compact: shows time range like "8:00-17:00")
+	const renderAttendanceRows = () => {
+		const attendanceRows = [
+			{key: 'attendance', label: 'Anwesenheit', type: 'attendance' as const},
+		];
+
+		const getCellValue = (date: string): string => {
+			const attendance = weeklyAttendance[date];
+			
+			if (!attendance || (!attendance.checkIn && !attendance.checkOut)) {
+				return '-'; // Show dash when no data exists
+			}
+
+			// Format times to compact format (remove leading zeros and :00)
+			const formatTime = (time: string) => {
+				if (!time) return '';
+				const [hours, minutes] = time.split(':');
+				const h = parseInt(hours || '0', 10);
+				const m = parseInt(minutes || '0', 10);
+				return m === 0 ? h.toString() : `${h}:${minutes}`;
+			};
+
+			const checkIn = formatTime(attendance.checkIn || '08:00');
+			const checkOut = formatTime(attendance.checkOut || '17:00');
+			return `${checkIn}-${checkOut}`;
+		};
+
+		return (
+			<>
+				{attendanceRows.map(row => (
+					<Box key={`attendance-row-${row.key}`} flexDirection="column">
+						<Box flexDirection="row">
+							{/* Arrow indicator - empty for attendance rows */}
+							<Box width={2}>
+								<Text> </Text>
+							</Box>
+							{/* Row label */}
+							<Box width={20}>
+								<Text bold color="yellow">
+									{row.label.padEnd(12, ' ')}
+								</Text>
+							</Box>
+							{/* Day columns */}
+							{weekDates.map((date, index) =>
+								isActive ? (
+									<FocusableCell
+										key={`attendance-${row.key}-${index}`}
+										value={getCellValue(formatLocalDateKey(date))}
+										focusId={`attendance-${row.key}-${index}`}
+										isActive={true}
+										issueKey={`attendance-${row.key}`}
+										columnIndex={index}
+										onFocusChange={handleFocusChange}
+										width={12}
+									/>
+								) : (
+									<Box key={`attendance-static-${row.key}-${date}`} width={12}>
+										<Text>
+											{getCellValue(formatLocalDateKey(date)).padStart(11) + ' '}
+										</Text>
+									</Box>
+								),
+							)}
+							{/* Total column - empty for attendance rows */}
+							<Box width={8}>
+								<Text> </Text>
+							</Box>
+						</Box>
+					</Box>
+				))}
+				{/* Separator after attendance rows */}
+				<Box width={tableWidth}>
+					<Text color="gray">{'─'.repeat(tableWidth)}</Text>
+				</Box>
+			</>
+		);
+	};
+
 	return (
 		<Box
 			flexDirection="column"
@@ -438,9 +472,9 @@ export function TimetableGrid({
 					</Text>
 				</Box>
 				{DAYS.map(day => (
-					<Box key={day} width={8}>
+					<Box key={day} width={12}>
 						<Text bold color="white">
-							{day.padStart(7) + ' '}
+							{day.padStart(9) + ' '}
 						</Text>
 					</Box>
 				))}
@@ -455,6 +489,9 @@ export function TimetableGrid({
 			<Box width={tableWidth}>
 				<Text color="gray">{'─'.repeat(tableWidth)}</Text>
 			</Box>
+
+			{/* Attendance rows - only show if attendanceManager is available */}
+			{attendanceManager && renderAttendanceRows()}
 
 			{/* Issue rows grouped by resolved groups */}
 			{issueGroups.map(group => (
@@ -489,14 +526,14 @@ export function TimetableGrid({
 												issueKey={issueKey}
 												columnIndex={index}
 												onFocusChange={handleFocusChange}
-												width={8}
+												width={12}
 											/>
 										) : (
-											<Box key={`${issueKey}-static-cell-${index}`} width={8}>
+											<Box key={`${issueKey}-static-cell-${index}`} width={12}>
 												<Text>
 													{formatHours(
 														issueData.dailyHours[formatLocalDateKey(date)] || 0,
-													).padStart(7) + ' '}
+													).padStart(9) + ' '}
 												</Text>
 											</Box>
 										),
@@ -536,7 +573,7 @@ export function TimetableGrid({
 								{weekDates.map((_, index) => (
 									<Box
 										key={`group-total-${group.group?.id}-${index}`}
-										width={8}
+										width={12}
 									>
 										<Text> </Text>
 									</Box>
@@ -572,9 +609,9 @@ export function TimetableGrid({
 					</Text>
 				</Box>
 				{dailyTotals.map((total, index) => (
-					<Box key={`daily-total-${index}`} width={8}>
+					<Box key={`daily-total-${index}`} width={12}>
 						<Text bold color="yellow">
-							{formatHours(total).padStart(7) + ' '}
+							{formatHours(total).padStart(9) + ' '}
 						</Text>
 					</Box>
 				))}
@@ -698,19 +735,4 @@ function getDefaultFocusId(issueMap: Record<string, IssueData>): string {
 
 	// If no issues, return first issue's first day as fallback
 	return `issue-placeholder-0`;
-}
-
-function getFocusIdForPosition(
-	row: number,
-	col: number,
-	issueKeys: string[],
-): string | null {
-	// Only issue rows are focusable (daily totals row is not focusable)
-	// Only weekday columns are focusable (total column is not focusable)
-	if (row < issueKeys.length && col < 5) {
-		const issueKey = issueKeys[row];
-		return `issue-${issueKey}-${col}`;
-	}
-
-	return null;
 }

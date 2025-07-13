@@ -1,7 +1,7 @@
 import test from 'ava';
 import React from 'react';
 import {render} from 'ink-testing-library';
-import CustomTimeInput from '../../components/WorklogForm/CustomTimeInput.js';
+import DurationInput from '../../components/WorklogForm/DurationInput.js';
 
 const mockIssue = {
 	id: '12345',
@@ -37,9 +37,9 @@ const defaultProps = {
 	onSubmit: () => {},
 };
 
-test('CustomTimeInput renders with initial value', t => {
+test('DurationInput renders with initial value', t => {
 	const {lastFrame} = render(
-		React.createElement(CustomTimeInput, {
+		React.createElement(DurationInput, {
 			...defaultProps,
 			selectedIssue: mockIssue,
 			value: '2h',
@@ -52,9 +52,9 @@ test('CustomTimeInput renders with initial value', t => {
 	t.true(output.includes('2h'));
 });
 
-test('CustomTimeInput renders in compact mode', t => {
+test('DurationInput renders in compact mode', t => {
 	const {lastFrame} = render(
-		React.createElement(CustomTimeInput, {
+		React.createElement(DurationInput, {
 			...defaultProps,
 			value: '3h',
 			compact: true,
@@ -68,9 +68,9 @@ test('CustomTimeInput renders in compact mode', t => {
 	t.false(output.includes('TEST-123'));
 });
 
-test('CustomTimeInput shows selection state initially', t => {
+test('DurationInput shows selection state initially', t => {
 	const {lastFrame} = render(
-		React.createElement(CustomTimeInput, {
+		React.createElement(DurationInput, {
 			...defaultProps,
 			value: '4h',
 			compact: true,
@@ -84,14 +84,14 @@ test('CustomTimeInput shows selection state initially', t => {
 	t.false(output.includes('█'));
 });
 
-test('CustomTimeInput calls onChange when typing', t => {
+test('DurationInput calls onChange when typing', t => {
 	let changedValue = '';
 	const onChange = (value: string) => {
 		changedValue = value;
 	};
 
 	const {stdin} = render(
-		React.createElement(CustomTimeInput, {
+		React.createElement(DurationInput, {
 			...defaultProps,
 			value: '1h',
 			onChange,
@@ -105,14 +105,14 @@ test('CustomTimeInput calls onChange when typing', t => {
 	t.is(changedValue, '5');
 });
 
-test('CustomTimeInput handles arrow key navigation', t => {
+test('DurationInput handles arrow key navigation', t => {
 	let changedValue = '';
 	const onChange = (value: string) => {
 		changedValue = value;
 	};
 
 	const {stdin} = render(
-		React.createElement(CustomTimeInput, {
+		React.createElement(DurationInput, {
 			...defaultProps,
 			value: '2h',
 			onChange,
@@ -126,14 +126,14 @@ test('CustomTimeInput handles arrow key navigation', t => {
 	t.is(changedValue, '3h');
 });
 
-test('CustomTimeInput handles down arrow navigation', t => {
+test('DurationInput handles down arrow navigation', t => {
 	let changedValue = '';
 	const onChange = (value: string) => {
 		changedValue = value;
 	};
 
 	const {stdin} = render(
-		React.createElement(CustomTimeInput, {
+		React.createElement(DurationInput, {
 			...defaultProps,
 			value: '3h',
 			onChange,
@@ -147,14 +147,14 @@ test('CustomTimeInput handles down arrow navigation', t => {
 	t.is(changedValue, '2h');
 });
 
-test('CustomTimeInput prevents going below 1h', t => {
+test('DurationInput prevents going below 1h', t => {
 	let changedValue = '';
 	const onChange = (value: string) => {
 		changedValue = value;
 	};
 
 	const {stdin} = render(
-		React.createElement(CustomTimeInput, {
+		React.createElement(DurationInput, {
 			...defaultProps,
 			value: '1h',
 			onChange,
@@ -168,14 +168,14 @@ test('CustomTimeInput prevents going below 1h', t => {
 	t.is(changedValue, '1h');
 });
 
-test('CustomTimeInput prevents going above 24h', t => {
+test('DurationInput prevents going above 24h', t => {
 	let changedValue = '';
 	const onChange = (value: string) => {
 		changedValue = value;
 	};
 
 	const {stdin} = render(
-		React.createElement(CustomTimeInput, {
+		React.createElement(DurationInput, {
 			...defaultProps,
 			value: '24h',
 			onChange,
@@ -189,14 +189,14 @@ test('CustomTimeInput prevents going above 24h', t => {
 	t.is(changedValue, '24h');
 });
 
-test('CustomTimeInput handles backspace on selected text', t => {
+test('DurationInput handles backspace on selected text', t => {
 	let changedValue = '';
 	const onChange = (value: string) => {
 		changedValue = value;
 	};
 
 	const {stdin} = render(
-		React.createElement(CustomTimeInput, {
+		React.createElement(DurationInput, {
 			...defaultProps,
 			value: '5h',
 			onChange,
@@ -210,14 +210,14 @@ test('CustomTimeInput handles backspace on selected text', t => {
 	t.is(changedValue, '');
 });
 
-test('CustomTimeInput calls onSubmit with auto-completion', t => {
+test('DurationInput calls onSubmit with auto-completion', t => {
 	let submittedValue = '';
 	const onSubmit = (value: string) => {
 		submittedValue = value;
 	};
 
 	const {stdin} = render(
-		React.createElement(CustomTimeInput, {
+		React.createElement(DurationInput, {
 			...defaultProps,
 			value: '1h',
 			onSubmit,
@@ -234,14 +234,14 @@ test('CustomTimeInput calls onSubmit with auto-completion', t => {
 	t.is(submittedValue, '5h');
 });
 
-test('CustomTimeInput handles existing complete values', t => {
+test('DurationInput handles existing complete values', t => {
 	let submittedValue = '';
 	const onSubmit = (value: string) => {
 		submittedValue = value;
 	};
 
 	const {stdin} = render(
-		React.createElement(CustomTimeInput, {
+		React.createElement(DurationInput, {
 			...defaultProps,
 			value: '2h',
 			onSubmit,
@@ -255,14 +255,14 @@ test('CustomTimeInput handles existing complete values', t => {
 	t.is(submittedValue, '2h');
 });
 
-test('CustomTimeInput parses different time formats', t => {
+test('DurationInput parses different time formats', t => {
 	let changedValue = '';
 	const onChange = (value: string) => {
 		changedValue = value;
 	};
 
 	const {stdin} = render(
-		React.createElement(CustomTimeInput, {
+		React.createElement(DurationInput, {
 			...defaultProps,
 			value: '30m', // 30 minutes = 0.5 hours
 			onChange,
@@ -276,14 +276,14 @@ test('CustomTimeInput parses different time formats', t => {
 	t.is(changedValue, '1h'); // Should be 1 hour (0.5 + 1 = 1.5, but we round to integers)
 });
 
-test('CustomTimeInput handles day format', t => {
+test('DurationInput handles day format', t => {
 	let changedValue = '';
 	const onChange = (value: string) => {
 		changedValue = value;
 	};
 
 	const {stdin} = render(
-		React.createElement(CustomTimeInput, {
+		React.createElement(DurationInput, {
 			...defaultProps,
 			value: '1d', // 1 day = 8 hours
 			onChange,
@@ -297,14 +297,14 @@ test('CustomTimeInput handles day format', t => {
 	t.is(changedValue, '9h');
 });
 
-test('CustomTimeInput allows typing decimal numbers', t => {
+test('DurationInput allows typing decimal numbers', t => {
 	let changedValue = '';
 	const onChange = (value: string) => {
 		changedValue = value;
 	};
 
 	const {stdin} = render(
-		React.createElement(CustomTimeInput, {
+		React.createElement(DurationInput, {
 			...defaultProps,
 			value: '1h',
 			onChange,
@@ -320,7 +320,7 @@ test('CustomTimeInput allows typing decimal numbers', t => {
 	t.is(changedValue, '2.5');
 });
 
-test('CustomTimeInput converts comma to dot on submit with Enter', t => {
+test('DurationInput converts comma to dot on submit with Enter', t => {
 	let changedValue = '';
 	let submittedValue = '';
 	const onChange = (value: string) => {
@@ -331,7 +331,7 @@ test('CustomTimeInput converts comma to dot on submit with Enter', t => {
 	};
 
 	const {stdin} = render(
-		React.createElement(CustomTimeInput, {
+		React.createElement(DurationInput, {
 			...defaultProps,
 			value: '1h',
 			onChange,
@@ -350,7 +350,7 @@ test('CustomTimeInput converts comma to dot on submit with Enter', t => {
 	t.is(changedValue, '1.5h'); // Should also update the displayed value
 });
 
-test('CustomTimeInput converts comma to dot on submit with Tab', t => {
+test('DurationInput converts comma to dot on submit with Tab', t => {
 	let changedValue = '';
 	let submittedValue = '';
 	const onChange = (value: string) => {
@@ -361,7 +361,7 @@ test('CustomTimeInput converts comma to dot on submit with Tab', t => {
 	};
 
 	const {stdin} = render(
-		React.createElement(CustomTimeInput, {
+		React.createElement(DurationInput, {
 			...defaultProps,
 			value: '1h',
 			onChange,
@@ -380,7 +380,7 @@ test('CustomTimeInput converts comma to dot on submit with Tab', t => {
 	t.is(changedValue, '2.5h'); // Should also update the displayed value
 });
 
-test('CustomTimeInput uses global default time from config', t => {
+test('DurationInput uses global default time from config', t => {
 	const config = {
 		jiraUrl: 'https://jira.example.com/',
 		username: 'test@example.com',
@@ -389,7 +389,7 @@ test('CustomTimeInput uses global default time from config', t => {
 	};
 
 	const {lastFrame} = render(
-		React.createElement(CustomTimeInput, {
+		React.createElement(DurationInput, {
 			...defaultProps,
 			value: '',
 			config,
@@ -401,7 +401,7 @@ test('CustomTimeInput uses global default time from config', t => {
 	t.true(output.includes('4h'));
 });
 
-test('CustomTimeInput uses favorite-specific default time', t => {
+test('DurationInput uses favorite-specific default time', t => {
 	const config = {
 		jiraUrl: 'https://jira.example.com/',
 		username: 'test@example.com',
@@ -416,7 +416,7 @@ test('CustomTimeInput uses favorite-specific default time', t => {
 	};
 
 	const {lastFrame} = render(
-		React.createElement(CustomTimeInput, {
+		React.createElement(DurationInput, {
 			...defaultProps,
 			value: '',
 			selectedIssue: testIssue,
@@ -430,7 +430,7 @@ test('CustomTimeInput uses favorite-specific default time', t => {
 	t.true(output.includes('8h'));
 });
 
-test('CustomTimeInput favorite default time overrides global default', t => {
+test('DurationInput favorite default time overrides global default', t => {
 	const config = {
 		jiraUrl: 'https://jira.example.com/',
 		username: 'test@example.com',
@@ -445,7 +445,7 @@ test('CustomTimeInput favorite default time overrides global default', t => {
 	};
 
 	const {lastFrame} = render(
-		React.createElement(CustomTimeInput, {
+		React.createElement(DurationInput, {
 			...defaultProps,
 			value: '',
 			selectedIssue: testIssue,
@@ -460,14 +460,14 @@ test('CustomTimeInput favorite default time overrides global default', t => {
 	t.false(output.includes('4h'));
 });
 
-test('CustomTimeInput allows typing time units', t => {
+test('DurationInput allows typing time units', t => {
 	let changedValue = '';
 	const onChange = (value: string) => {
 		changedValue = value;
 	};
 
 	const {stdin} = render(
-		React.createElement(CustomTimeInput, {
+		React.createElement(DurationInput, {
 			...defaultProps,
 			value: '1h',
 			onChange,
@@ -485,14 +485,14 @@ test('CustomTimeInput allows typing time units', t => {
 
 // === INPUT VALIDATION TESTS ===
 
-test('CustomTimeInput rejects invalid characters', t => {
+test('DurationInput rejects invalid characters', t => {
 	let changedValue = '';
 	const onChange = (value: string) => {
 		changedValue = value;
 	};
 
 	const {stdin} = render(
-		React.createElement(CustomTimeInput, {
+		React.createElement(DurationInput, {
 			...defaultProps,
 			value: '1h',
 			onChange,
@@ -507,14 +507,14 @@ test('CustomTimeInput rejects invalid characters', t => {
 	t.is(changedValue, '');
 });
 
-test('CustomTimeInput prevents multiple dots', t => {
+test('DurationInput prevents multiple dots', t => {
 	let changedValue = '';
 	const onChange = (value: string) => {
 		changedValue = value;
 	};
 
 	const {stdin} = render(
-		React.createElement(CustomTimeInput, {
+		React.createElement(DurationInput, {
 			...defaultProps,
 			value: '1h',
 			onChange,
@@ -530,14 +530,14 @@ test('CustomTimeInput prevents multiple dots', t => {
 	t.is(changedValue, '2.');
 });
 
-test('CustomTimeInput prevents multiple commas', t => {
+test('DurationInput prevents multiple commas', t => {
 	let changedValue = '';
 	const onChange = (value: string) => {
 		changedValue = value;
 	};
 
 	const {stdin} = render(
-		React.createElement(CustomTimeInput, {
+		React.createElement(DurationInput, {
 			...defaultProps,
 			value: '1h',
 			onChange,
@@ -553,14 +553,14 @@ test('CustomTimeInput prevents multiple commas', t => {
 	t.is(changedValue, '2,');
 });
 
-test('CustomTimeInput prevents mixed decimal separators', t => {
+test('DurationInput prevents mixed decimal separators', t => {
 	let changedValue = '';
 	const onChange = (value: string) => {
 		changedValue = value;
 	};
 
 	const {stdin} = render(
-		React.createElement(CustomTimeInput, {
+		React.createElement(DurationInput, {
 			...defaultProps,
 			value: '1h',
 			onChange,
@@ -577,14 +577,14 @@ test('CustomTimeInput prevents mixed decimal separators', t => {
 	t.is(changedValue, '2.5');
 });
 
-test('CustomTimeInput prevents multiple units', t => {
+test('DurationInput prevents multiple units', t => {
 	let changedValue = '';
 	const onChange = (value: string) => {
 		changedValue = value;
 	};
 
 	const {stdin} = render(
-		React.createElement(CustomTimeInput, {
+		React.createElement(DurationInput, {
 			...defaultProps,
 			value: '1h',
 			onChange,
@@ -600,7 +600,7 @@ test('CustomTimeInput prevents multiple units', t => {
 	t.is(changedValue, '2h');
 });
 
-test('CustomTimeInput allows and auto-completes h+digits pattern', t => {
+test('DurationInput allows and auto-completes h+digits pattern', t => {
 	let changedValue = '';
 	let submittedValue = '';
 	const onChange = (value: string) => {
@@ -611,7 +611,7 @@ test('CustomTimeInput allows and auto-completes h+digits pattern', t => {
 	};
 
 	const {stdin} = render(
-		React.createElement(CustomTimeInput, {
+		React.createElement(DurationInput, {
 			...defaultProps,
 			value: '1h',
 			onChange,
@@ -633,14 +633,14 @@ test('CustomTimeInput allows and auto-completes h+digits pattern', t => {
 	t.is(submittedValue, '2h5m');
 });
 
-test('CustomTimeInput prevents invalid complex patterns like "2h.d.d."', t => {
+test('DurationInput prevents invalid complex patterns like "2h.d.d."', t => {
 	let changedValues: string[] = [];
 	const onChange = (value: string) => {
 		changedValues.push(value);
 	};
 
 	const {stdin} = render(
-		React.createElement(CustomTimeInput, {
+		React.createElement(DurationInput, {
 			...defaultProps,
 			value: '1h',
 			onChange,
@@ -661,14 +661,14 @@ test('CustomTimeInput prevents invalid complex patterns like "2h.d.d."', t => {
 	t.deepEqual(changedValues, ['2', '2h']);
 });
 
-test('CustomTimeInput prevents "2...." pattern', t => {
+test('DurationInput prevents "2...." pattern', t => {
 	let changedValues: string[] = [];
 	const onChange = (value: string) => {
 		changedValues.push(value);
 	};
 
 	const {stdin} = render(
-		React.createElement(CustomTimeInput, {
+		React.createElement(DurationInput, {
 			...defaultProps,
 			value: '1h',
 			onChange,
@@ -688,7 +688,7 @@ test('CustomTimeInput prevents "2...." pattern', t => {
 
 // === POSITIVE VALIDATION TESTS ===
 
-test('CustomTimeInput accepts valid hour formats', t => {
+test('DurationInput accepts valid hour formats', t => {
 	const validHourInputs = ['1h', '2h', '10h', '24h'];
 
 	validHourInputs.forEach(input => {
@@ -698,7 +698,7 @@ test('CustomTimeInput accepts valid hour formats', t => {
 		};
 
 		const {stdin} = render(
-			React.createElement(CustomTimeInput, {
+			React.createElement(DurationInput, {
 				...defaultProps,
 				value: '1h',
 				onChange,
@@ -715,7 +715,7 @@ test('CustomTimeInput accepts valid hour formats', t => {
 	});
 });
 
-test('CustomTimeInput accepts valid decimal hour formats', t => {
+test('DurationInput accepts valid decimal hour formats', t => {
 	const testCases = [
 		{input: '2.5h', expected: '2.5h'},
 		{input: '1,5h', expected: '1,5h'},
@@ -729,7 +729,7 @@ test('CustomTimeInput accepts valid decimal hour formats', t => {
 		};
 
 		const {stdin} = render(
-			React.createElement(CustomTimeInput, {
+			React.createElement(DurationInput, {
 				...defaultProps,
 				value: '1h',
 				onChange,
@@ -746,7 +746,7 @@ test('CustomTimeInput accepts valid decimal hour formats', t => {
 	});
 });
 
-test('CustomTimeInput accepts valid minute formats', t => {
+test('DurationInput accepts valid minute formats', t => {
 	const validMinuteInputs = ['15m', '30m', '45m', '90m'];
 
 	validMinuteInputs.forEach(input => {
@@ -756,7 +756,7 @@ test('CustomTimeInput accepts valid minute formats', t => {
 		};
 
 		const {stdin} = render(
-			React.createElement(CustomTimeInput, {
+			React.createElement(DurationInput, {
 				...defaultProps,
 				value: '1h',
 				onChange,
@@ -773,7 +773,7 @@ test('CustomTimeInput accepts valid minute formats', t => {
 	});
 });
 
-test('CustomTimeInput accepts valid day formats', t => {
+test('DurationInput accepts valid day formats', t => {
 	const testCases = [
 		{input: '1d', expected: '1d'},
 		{input: '2d', expected: '2d'},
@@ -788,7 +788,7 @@ test('CustomTimeInput accepts valid day formats', t => {
 		};
 
 		const {stdin} = render(
-			React.createElement(CustomTimeInput, {
+			React.createElement(DurationInput, {
 				...defaultProps,
 				value: '1h',
 				onChange,
@@ -805,7 +805,7 @@ test('CustomTimeInput accepts valid day formats', t => {
 	});
 });
 
-test('CustomTimeInput accepts numbers only (for auto-completion)', t => {
+test('DurationInput accepts numbers only (for auto-completion)', t => {
 	const testCases = [
 		{input: '2', expected: '2'},
 		{input: '8', expected: '8'},
@@ -820,7 +820,7 @@ test('CustomTimeInput accepts numbers only (for auto-completion)', t => {
 		};
 
 		const {stdin} = render(
-			React.createElement(CustomTimeInput, {
+			React.createElement(DurationInput, {
 				...defaultProps,
 				value: '1h',
 				onChange,
@@ -839,7 +839,7 @@ test('CustomTimeInput accepts numbers only (for auto-completion)', t => {
 
 // === COMPLEX NEGATIVE CASES ===
 
-test('CustomTimeInput rejects complex invalid patterns', t => {
+test('DurationInput rejects complex invalid patterns', t => {
 	const invalidPatterns = [
 		{input: 'abc', reason: 'letters only'},
 		{input: '2h3h', reason: 'multiple units'},
@@ -867,7 +867,7 @@ test('CustomTimeInput rejects complex invalid patterns', t => {
 		};
 
 		const {stdin} = render(
-			React.createElement(CustomTimeInput, {
+			React.createElement(DurationInput, {
 				...defaultProps,
 				value: '1h',
 				onChange,
@@ -890,7 +890,7 @@ test('CustomTimeInput rejects complex invalid patterns', t => {
 	});
 });
 
-test('CustomTimeInput accepts valid combined hour-minute formats', t => {
+test('DurationInput accepts valid combined hour-minute formats', t => {
 	const testCases = [
 		{input: '2h30m', expected: '2h30m'},
 		{input: '1h15m', expected: '1h15m'},
@@ -905,7 +905,7 @@ test('CustomTimeInput accepts valid combined hour-minute formats', t => {
 		};
 
 		const {stdin} = render(
-			React.createElement(CustomTimeInput, {
+			React.createElement(DurationInput, {
 				...defaultProps,
 				value: '1h',
 				onChange,
@@ -922,7 +922,7 @@ test('CustomTimeInput accepts valid combined hour-minute formats', t => {
 	});
 });
 
-test('CustomTimeInput rejects invalid patterns with dots after units', t => {
+test('DurationInput rejects invalid patterns with dots after units', t => {
 	const testCases = [
 		{input: '12h.', reason: 'dot after h'},
 		{input: '30m.', reason: 'dot after m'},
@@ -936,7 +936,7 @@ test('CustomTimeInput rejects invalid patterns with dots after units', t => {
 		};
 
 		const {stdin} = render(
-			React.createElement(CustomTimeInput, {
+			React.createElement(DurationInput, {
 				...defaultProps,
 				value: '1h',
 				onChange,
@@ -952,5 +952,209 @@ test('CustomTimeInput rejects invalid patterns with dots after units', t => {
 		// Should not end with dot
 		const finalValue = changedValues[changedValues.length - 1] || '';
 		t.false(finalValue.endsWith('.'), `Should reject ${reason}: ${input}`);
+	});
+});
+
+// === COMMA TO DOT CONVERSION TESTS ===
+
+test('DurationInput converts comma to dot with smart unit detection for decimals', t => {
+	let submittedValue = '';
+	const onSubmit = (value: string) => {
+		submittedValue = value;
+	};
+
+	const {stdin} = render(
+		React.createElement(DurationInput, {
+			...defaultProps,
+			value: '1h',
+			onSubmit,
+			compact: true,
+		}),
+	);
+
+	// Type "1,5" and press Enter - should convert to "1.5h"
+	stdin.write('1');
+	stdin.write(',');
+	stdin.write('5');
+	stdin.write('\r');
+
+	t.is(submittedValue, '1.5h');
+});
+
+test('DurationInput converts comma to dot with smart unit detection for minutes', t => {
+	let submittedValue = '';
+	const onSubmit = (value: string) => {
+		submittedValue = value;
+	};
+
+	const {stdin} = render(
+		React.createElement(DurationInput, {
+			...defaultProps,
+			value: '1h',
+			onSubmit,
+			compact: true,
+		}),
+	);
+
+	// Type "30,5" and press Enter - decimals are always hours, so should be "30.5h"
+	stdin.write('3');
+	stdin.write('0');
+	stdin.write(',');
+	stdin.write('5');
+	stdin.write('\r');
+
+	t.is(submittedValue, '30.5h');
+});
+
+test('DurationInput converts comma to dot when unit is already present', t => {
+	let submittedValue = '';
+	const onSubmit = (value: string) => {
+		submittedValue = value;
+	};
+
+	const {stdin} = render(
+		React.createElement(DurationInput, {
+			...defaultProps,
+			value: '1h',
+			onSubmit,
+			compact: true,
+		}),
+	);
+
+	// Type "2,5h" and press Enter - should convert to "2.5h"
+	stdin.write('2');
+	stdin.write(',');
+	stdin.write('5');
+	stdin.write('h');
+	stdin.write('\r');
+
+	t.is(submittedValue, '2.5h');
+});
+
+test('DurationInput converts comma to dot with Tab key', t => {
+	let submittedValue = '';
+	const onSubmit = (value: string) => {
+		submittedValue = value;
+	};
+
+	const {stdin} = render(
+		React.createElement(DurationInput, {
+			...defaultProps,
+			value: '1h',
+			onSubmit,
+			compact: true,
+		}),
+	);
+
+	// Type "1,5" and press Tab - should convert to "1.5h"
+	stdin.write('1');
+	stdin.write(',');
+	stdin.write('5');
+	stdin.write('\t');
+
+	t.is(submittedValue, '1.5h');
+});
+
+test('DurationInput handles multiple commas correctly', t => {
+	let changedValues: string[] = [];
+	let submittedValue = '';
+	const onChange = (value: string) => {
+		changedValues.push(value);
+	};
+	const onSubmit = (value: string) => {
+		submittedValue = value;
+	};
+
+	const {stdin} = render(
+		React.createElement(DurationInput, {
+			...defaultProps,
+			value: '1h',
+			onChange,
+			onSubmit,
+			compact: true,
+		}),
+	);
+
+	// Type "1,5,5" - second comma should be ignored, but "5" after comma might be accepted
+	stdin.write('1');
+	stdin.write(',');
+	stdin.write('5');
+	stdin.write(','); // This should be ignored
+	stdin.write('5'); // This might be accepted as another digit
+	stdin.write('\r');
+
+	// The actual behavior might accept "1,55" -> "1.55h" due to validation logic
+	// Check that comma is converted to dot in final result
+	t.true(submittedValue.includes('.'));
+	t.true(submittedValue.endsWith('h'));
+	t.false(submittedValue.includes(','));
+});
+
+test('DurationInput smart unit detection with comma - hours for decimals', t => {
+	let submittedValue = '';
+	const onSubmit = (value: string) => {
+		submittedValue = value;
+	};
+
+	const testCases = [
+		{input: '1,5', expected: '1.5h'},
+		{input: '2,25', expected: '2.25h'},
+		{input: '0,5', expected: '0.5h'},
+		{input: '3,75', expected: '3.75h'},
+	];
+
+	testCases.forEach(({input, expected}) => {
+		submittedValue = ''; // Reset
+
+		const {stdin} = render(
+			React.createElement(DurationInput, {
+				...defaultProps,
+				value: '1h',
+				onSubmit,
+				compact: true,
+			}),
+		);
+
+		// Type input and press Enter
+		for (const char of input) {
+			stdin.write(char);
+		}
+		stdin.write('\r');
+
+		t.is(submittedValue, expected, `Input "${input}" should become "${expected}"`);
+	});
+});
+
+test('DurationInput smart unit detection with comma - whole numbers for minutes', t => {
+	let submittedValue = '';
+	const onSubmit = (value: string) => {
+		submittedValue = value;
+	};
+
+	const testCases = [
+		{input: '15', expected: '15m'}, // No comma, >= 10 = minutes
+		{input: '30', expected: '30m'},
+		{input: '45', expected: '45m'},
+	];
+
+	testCases.forEach(({input, expected}) => {
+		submittedValue = ''; // Reset
+
+		const {stdin} = render(
+			React.createElement(DurationInput, {
+				...defaultProps,
+				value: '1h',
+				onSubmit,
+				compact: true,
+			}),
+		);
+
+		// Type input and press Enter
+		for (const char of input) {
+			stdin.write(char);
+		}
+		stdin.write('\r');
+
+		t.is(submittedValue, expected, `Input "${input}" should become "${expected}"`);
 	});
 });

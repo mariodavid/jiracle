@@ -8,6 +8,9 @@ import {TimetableGrid} from './TimetableGrid.js';
 import {InlineWorklogForm} from './InlineWorklogForm.js';
 import {DeleteWorklogConfirmation} from './DeleteWorklogConfirmation.js';
 import {TitleBar} from './TitleBar.js';
+import {AttendanceManager} from '../attendance/AttendanceManager.js';
+import {AttendanceEditForm} from './AttendanceEditForm.js';
+import type {Attendance} from '../attendance/types.js';
 import {useWeeklyWorklogSummary} from '../hooks/useWeeklyWorklogSummary.js';
 import {
 	JiraClient,
@@ -20,7 +23,7 @@ import {
 	getEndOfWeek,
 	formatLocalDateKey,
 } from '../utils/date.js';
-import {isBrowserOpenSupported} from '../utils/browser.js';
+import {isBrowserOpenSupported, openInBrowser, generateJiraIssueUrl} from '../utils/browser.js';
 
 interface WorklogFormData {
 	issueKey: string;
@@ -46,13 +49,11 @@ export function WeeklyTimetableView({
 }: WeeklyTimetableViewProps) {
 	const [currentWeek, setCurrentWeek] = useState(new Date());
 	const [activeArea, setActiveArea] = useState<
-		| 'prev-week'
 		| 'timetable'
-		| 'next-week'
 		| 'worklog-form'
 		| 'delete-confirmation'
+		| 'attendance-edit'
 	>('timetable');
-	const [shouldFocusCell, setShouldFocusCell] = useState(true);
 	const [worklogForm, setWorklogForm] = useState<WorklogFormData>({
 		issueKey: '',
 		date: new Date(),
@@ -72,6 +73,13 @@ export function WeeklyTimetableView({
 		count: number;
 	} | null>(null);
 	const [deleteError, setDeleteError] = useState<string | null>(null);
+	const [attendanceManager, setAttendanceManager] =
+		useState<AttendanceManager | null>(null);
+	const [attendanceRefreshKey, setAttendanceRefreshKey] = useState(0);
+	const [attendanceEdit, setAttendanceEdit] = useState<{
+		date: Date;
+		data?: Attendance;
+	} | null>(null);
 
 	// Format date for display
 	const formatDate = (date: Date) => {
@@ -119,6 +127,14 @@ export function WeeklyTimetableView({
 	const displayData = data;
 	const displayLoading = isLoading;
 
+	// Initialize attendance manager
+	useEffect(() => {
+		if (config.attendance?.enabled) {
+			const manager = new AttendanceManager(config.attendance);
+			setAttendanceManager(manager);
+		}
+	}, [config.attendance]);
+
 	// Refresh data when component mounts
 	useEffect(() => {
 		// Small delay to ensure component is fully mounted
@@ -137,7 +153,6 @@ export function WeeklyTimetableView({
 			activeArea === 'timetable' &&
 			!worklogForm.isVisible
 		) {
-			setShouldFocusCell(true);
 		}
 	}, [displayData, isLoading, activeArea, worklogForm.isVisible]);
 
@@ -147,7 +162,6 @@ export function WeeklyTimetableView({
 		setCurrentWeek(newWeek);
 		// Return focus to table after navigation
 		setActiveArea('timetable');
-		setShouldFocusCell(true);
 	};
 
 	const navigateToNextWeek = () => {
@@ -156,14 +170,12 @@ export function WeeklyTimetableView({
 		setCurrentWeek(newWeek);
 		// Return focus to table after navigation
 		setActiveArea('timetable');
-		setShouldFocusCell(true);
 	};
 
 	const handleCurrentWeek = () => {
 		setCurrentWeek(new Date());
 		// Return focus to table after navigation
 		setActiveArea('timetable');
-		setShouldFocusCell(true);
 	};
 
 	const handleCellWorklog = (data: {issueKey: string; date: Date}) => {
@@ -257,6 +269,64 @@ export function WeeklyTimetableView({
 		setActiveArea('delete-confirmation');
 	};
 
+	const handleAttendanceEdit = async (data: {date: Date}) => {
+		if (!attendanceManager) return;
+
+		try {
+			// Load existing attendance data for this date
+			// Use local date format to avoid timezone issues
+			const dateKey = formatLocalDateKey(data.date);
+			// Load attendance data directly for this specific date
+			const storage = (attendanceManager as any).storage;
+			const existingData = await storage.getByDate(dateKey);
+
+			setAttendanceEdit({
+				date: data.date,
+				data: existingData || undefined,
+			});
+			setActiveArea('attendance-edit');
+		} catch (error) {
+			console.error('Failed to load attendance data:', error);
+			// Still allow editing with defaults
+			setAttendanceEdit({
+				date: data.date,
+				data: undefined,
+			});
+			setActiveArea('attendance-edit');
+		}
+	};
+
+	const handleAttendanceSubmit = async (data: Attendance) => {
+		if (!attendanceManager) return;
+
+		try {
+			await attendanceManager.updateAttendance(data);
+			setAttendanceEdit(null);
+			setActiveArea('timetable');
+			// Refresh the data to show the updated attendance
+			refresh();
+			// Force attendance data refresh in TimetableGrid
+			setAttendanceRefreshKey(prev => prev + 1);
+		} catch (error) {
+			console.error('Failed to save attendance:', error);
+		}
+	};
+
+	const handleAttendanceCancel = () => {
+		setAttendanceEdit(null);
+		setActiveArea('timetable');
+	};
+
+	const handleOpenInBrowser = async (issueKey: string) => {
+		if (!config.jiraUrl) return;
+		try {
+			const url = generateJiraIssueUrl(config.jiraUrl, issueKey);
+			await openInBrowser(url);
+		} catch (error) {
+			console.error('Failed to open browser:', error);
+		}
+	};
+
 	const handleDeleteConfirm = async (confirmed: boolean) => {
 		if (!confirmed || !deleteCandidate) {
 			setDeleteCandidate(null);
@@ -338,52 +408,28 @@ export function WeeklyTimetableView({
 		return undefined;
 	}, [deleteError]);
 
-	useInput((input, key) => {
-		// Don't handle input if worklog form is visible or delete confirmation is active
-		if (worklogForm.isVisible || activeArea === 'delete-confirmation') {
+	useInput(input => {
+		// Don't handle input if forms are visible or delete confirmation is active
+		if (
+			worklogForm.isVisible ||
+			activeArea === 'delete-confirmation' ||
+			activeArea === 'attendance-edit'
+		) {
 			return;
 		}
 
-		// Handle Tab with highest priority to prevent default behavior
-		if (key.tab) {
-			// Check if table has data to decide if it should be focusable
-			const hasTableData = displayData && displayData.dailySummaries.length > 0;
-
-			// Tab navigation between focus areas
-			if (activeArea === 'prev-week') {
-				if (hasTableData) {
-					setActiveArea('timetable');
-					setShouldFocusCell(true);
-				} else {
-					// Skip table if no data, go directly to next-week
-					setActiveArea('next-week');
-					setShouldFocusCell(false);
-				}
-			} else if (activeArea === 'timetable') {
-				setActiveArea('next-week');
-				setShouldFocusCell(false);
-			} else {
-				setActiveArea('prev-week');
-				setShouldFocusCell(false);
-			}
-			return; // Prevent further processing
-		}
+		// Note: Tab navigation is now handled by normal Ink focus management
 
 		if (input === 'q') {
 			onBack();
 		} else if (input === 't') {
+			// Go to current week, but stay in the same mode (attendance or worklog)
 			handleCurrentWeek();
 		} else if (input === 'r') {
+			// Refresh data, but stay in the same mode
 			refresh();
 		} else if (input === 'l' && onLogWork) {
 			onLogWork();
-		} else if (key.return) {
-			// Handle Enter for navigation buttons
-			if (activeArea === 'prev-week') {
-				navigateToPreviousWeek();
-			} else if (activeArea === 'next-week') {
-				navigateToNextWeek();
-			}
 		}
 		// Note: ESC key is handled by App.tsx to avoid conflicts
 		// Note: Arrow keys are handled by TimetableGrid for cell navigation when table is active
@@ -407,12 +453,7 @@ export function WeeklyTimetableView({
 						onPreviousWeek={navigateToPreviousWeek}
 						onNextWeek={navigateToNextWeek}
 						onCurrentWeek={handleCurrentWeek}
-						activeArea={
-							activeArea === 'worklog-form' ||
-							(activeArea as string) === 'delete-confirmation'
-								? 'timetable'
-								: (activeArea as 'prev-week' | 'timetable' | 'next-week')
-						}
+						activeArea="timetable"
 					/>
 				)}
 
@@ -426,6 +467,8 @@ export function WeeklyTimetableView({
 						title={`Delete worklogs for ${deleteCandidate.issueKey}`}
 						color="red"
 					/>
+				) : activeArea === 'attendance-edit' && attendanceEdit ? (
+					<TitleBar title={`Anwesenheit - ${formatDate(attendanceEdit.date)}`} />
 				) : (
 					<TitleBar title={getWeekTitle(currentWeek)} />
 				)}
@@ -445,7 +488,7 @@ export function WeeklyTimetableView({
 					<Box paddingY={1} />
 				)}
 
-				{/* Conditional content: table, form, or delete confirmation */}
+				{/* Conditional content: table, form, delete confirmation, or attendance edit */}
 				{worklogForm.isVisible ? (
 					/* Inline Worklog Form - replaces table */
 					<Box justifyContent="center">
@@ -496,6 +539,25 @@ export function WeeklyTimetableView({
 							)}
 						</Box>
 					</Box>
+				) : activeArea === 'attendance-edit' && attendanceEdit ? (
+					/* Attendance Edit Form - replaces table */
+					<Box justifyContent="center">
+						<Box
+							width={50}
+							borderStyle="round"
+							borderColor="cyan"
+							paddingX={1}
+							paddingY={1}
+						>
+							<AttendanceEditForm
+								date={attendanceEdit.date}
+								initialData={attendanceEdit.data}
+								onSubmit={handleAttendanceSubmit}
+								onCancel={handleAttendanceCancel}
+								config={config}
+							/>
+						</Box>
+					</Box>
 				) : (
 					/* Timetable Grid */
 					<TimetableGrid
@@ -510,11 +572,13 @@ export function WeeklyTimetableView({
 						}}
 						onCellWorklog={handleCellWorklog}
 						onCellDelete={handleCellDelete}
-						isActive={activeArea === 'timetable'}
-						shouldFocusCell={shouldFocusCell}
-						onCellFocused={() => setShouldFocusCell(false)}
+						onAttendanceEdit={handleAttendanceEdit}
+						onOpenInBrowser={handleOpenInBrowser}
+						isActive={true}
 						favoriteIssues={config.favorites}
 						config={config}
+						attendanceManager={attendanceManager || undefined}
+						attendanceRefreshKey={attendanceRefreshKey}
 					/>
 				)}
 
@@ -557,8 +621,8 @@ export function WeeklyTimetableView({
 							[D] Delete Worklogs
 							{isBrowserOpenSupported() && config.jiraUrl
 								? ' [O] Open in Browser'
-								: ''}{' '}
-							[T] Today [R] Refresh [Q] Quit
+								: ''}
+							{' [T] Today [R] Refresh [Q] Quit'}
 						</Text>
 					</>
 				)}

@@ -8,15 +8,29 @@ import {readFileSync} from 'fs';
 import {homedir} from 'os';
 import {join} from 'path';
 import winston from 'winston';
+import {
+	executeCheckIn,
+	executeCheckOut,
+	executeStatus,
+	type CheckInParams,
+	type CheckOutParams,
+	type StatusParams,
+} from './cli/attendance-commands.js';
 
 const cli = meow(
 	`
 	Usage
 	  $ jiracle
 	  $ jiracle worklog add --issue <issue-key> --date <YYYY-MM-DD> --time <time> --comment <comment>
+	  $ jiracle checkin [--date <YYYY-MM-DD>] [--time <HH:MM>]
+	  $ jiracle checkout [--date <YYYY-MM-DD>] [--time <HH:MM>]
+	  $ jiracle status [--date <YYYY-MM-DD>]
 
 	Commands
 	  worklog add    Add a worklog entry to an issue
+	  checkin        Check in for attendance tracking
+	  checkout       Check out for attendance tracking  
+	  status         Show attendance status
 
 	Options for worklog add
 	  --issue      Issue key (e.g., JTS-2398)
@@ -24,9 +38,19 @@ const cli = meow(
 	  --time       Time spent (e.g., 5h, 30m, 2.5h)
 	  --comment    Worklog comment
 
+	Options for attendance commands
+	  --date       Date in YYYY-MM-DD format (defaults to today)
+	  --time       Time in HH:MM format (uses config defaults if not provided)
+
 	Examples
 	  $ jiracle
 	  $ jiracle worklog add --issue JTS-2398 --date 2025-08-01 --time 5h --comment "Did some work"
+	  $ jiracle checkin
+	  $ jiracle checkin --time 08:30
+	  $ jiracle checkout
+	  $ jiracle checkout --date 2025-07-11 --time 17:30
+	  $ jiracle status
+	  $ jiracle status --date 2025-07-11
 `,
 	{
 		importMeta: import.meta,
@@ -192,11 +216,103 @@ async function handleWorklogAdd() {
 	}
 }
 
+async function handleCheckIn() {
+	const {date, time} = cli.flags;
+
+	const params: CheckInParams = {};
+
+	if (date && typeof date === 'string') {
+		params.date = date;
+	}
+
+	if (time && typeof time === 'string') {
+		params.time = time;
+	}
+
+	try {
+		const result = await executeCheckIn(params);
+		if (result.success) {
+			console.log(result.message);
+			process.exit(0);
+		} else {
+			console.error(`Error: ${result.message}`);
+			process.exit(1);
+		}
+	} catch (error) {
+		console.error(
+			`Error: ${error instanceof Error ? error.message : String(error)}`,
+		);
+		process.exit(1);
+	}
+}
+
+async function handleCheckOut() {
+	const {date, time} = cli.flags;
+
+	const params: CheckOutParams = {};
+
+	if (date && typeof date === 'string') {
+		params.date = date;
+	}
+
+	if (time && typeof time === 'string') {
+		params.time = time;
+	}
+
+	try {
+		const result = await executeCheckOut(params);
+		if (result.success) {
+			console.log(result.message);
+			process.exit(0);
+		} else {
+			console.error(`Error: ${result.message}`);
+			process.exit(1);
+		}
+	} catch (error) {
+		console.error(
+			`Error: ${error instanceof Error ? error.message : String(error)}`,
+		);
+		process.exit(1);
+	}
+}
+
+async function handleStatus() {
+	const {date} = cli.flags;
+
+	const params: StatusParams = {};
+
+	if (date && typeof date === 'string') {
+		params.date = date;
+	}
+
+	try {
+		const result = await executeStatus(params);
+		if (result.success) {
+			console.log(result.message);
+			process.exit(0);
+		} else {
+			console.error(`Error: ${result.message}`);
+			process.exit(1);
+		}
+	} catch (error) {
+		console.error(
+			`Error: ${error instanceof Error ? error.message : String(error)}`,
+		);
+		process.exit(1);
+	}
+}
+
 if (cli.input.length > 0) {
 	const [command, subcommand] = cli.input;
 
 	if (command === 'worklog' && subcommand === 'add') {
 		await handleWorklogAdd();
+	} else if (command === 'checkin') {
+		await handleCheckIn();
+	} else if (command === 'checkout') {
+		await handleCheckOut();
+	} else if (command === 'status') {
+		await handleStatus();
 	} else {
 		console.error(`Unknown command: ${cli.input.join(' ')}`);
 		process.exit(1);

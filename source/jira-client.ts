@@ -36,6 +36,7 @@ export interface JiraConfig {
 	defaultTime?: string;
 	workingHoursPerWeek?: number;
 	reminders?: ReminderConfig;
+	attendance?: AttendanceConfig;
 }
 
 export interface JiraIssueField {
@@ -78,6 +79,7 @@ export interface JiraSearchResponse {
 import winston from 'winston';
 import {join} from 'path';
 import ms from 'ms';
+import type {AttendanceConfig} from './attendance/types.js';
 
 export interface WorklogRequest {
 	timeSpent: string;

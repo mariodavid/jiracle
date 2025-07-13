@@ -3,7 +3,7 @@ import {Text, Box, useInput} from 'ink';
 import type {JiraIssue, JiraConfig} from '../../jira-client.js';
 import {resolveDefaults} from '../../jira-client.js';
 
-type CustomTimeInputProps = {
+type DurationInputProps = {
 	selectedIssue?: JiraIssue;
 	value: string;
 	onChange: (value: string) => void;
@@ -11,9 +11,11 @@ type CustomTimeInputProps = {
 	compact?: boolean;
 	config?: JiraConfig;
 	issueSelectionMode?: 'favorites' | 'assigned' | 'other' | null;
+	allowedUnits?: ('h' | 'm' | 'd')[];
+	incrementMinutes?: number;
 };
 
-export default function CustomTimeInput({
+export default function DurationInput({
 	selectedIssue,
 	value,
 	onChange,
@@ -21,7 +23,9 @@ export default function CustomTimeInput({
 	compact = false,
 	config,
 	issueSelectionMode,
-}: CustomTimeInputProps) {
+	allowedUnits = ['h', 'm', 'd'],
+	incrementMinutes = 15,
+}: DurationInputProps) {
 	// Remove unused parameter warning
 	void issueSelectionMode;
 	// Determine default time based on issue and configuration
@@ -52,7 +56,10 @@ export default function CustomTimeInput({
 
 	// Helper function to check if a character is valid for the current input
 	const isValidInputChar = (char: string, currentValue: string): boolean => {
-		if (!/[0-9.,hdm]/.test(char)) return false;
+		// Create regex pattern based on allowed units
+		const unitsPattern = allowedUnits.join('');
+		const unitRegex = new RegExp(`[0-9.,${unitsPattern}]`);
+		if (!unitRegex.test(char)) return false;
 
 		const newValue = currentValue + char;
 
@@ -156,19 +163,31 @@ export default function CustomTimeInput({
 			normalizedValue = normalizedValue.replace(/,/g, '.');
 		}
 
-		// If user just entered numbers, add 'h' automatically
+		// If user just entered numbers, add unit based on smart logic
 		if (/^\d+([.,]\d+)?$/.test(normalizedValue)) {
-			normalizedValue = normalizedValue + 'h';
+			const hasDecimal = /[.,]/.test(normalizedValue);
+			const numericValue = parseFloat(normalizedValue.replace(',', '.'));
+			
+			// Smart unit selection:
+			// - If has decimal (1.5, 2,5): always hours
+			// - If >= 10: likely minutes
+			// - If < 10: likely hours
+			const smartUnit = hasDecimal ? 'h' : (numericValue >= 10 ? 'm' : 'h');
+			normalizedValue = normalizedValue + smartUnit;
 		}
 
 		// If user entered h+digits (like "2h5"), add 'm' automatically
 		if (/^\d+h\d+$/.test(normalizedValue)) {
 			normalizedValue = normalizedValue + 'm';
 		}
+		
+		// Final cleanup: ensure any remaining commas are converted to dots
+		normalizedValue = normalizedValue.replace(/,/g, '.');
 
 		// Update the display if normalization happened
 		if (normalizedValue !== inputValue) {
 			setTimeInputValue(normalizedValue);
+			timeInputValueRef.current = normalizedValue;
 			onChange(normalizedValue);
 		}
 
@@ -177,13 +196,40 @@ export default function CustomTimeInput({
 
 	const adjustTime = (direction: 'up' | 'down') => {
 		const currentHours = parseTimeToHours(timeInputValueRef.current);
-		const newHours =
-			direction === 'up'
-				? Math.min(currentHours + 1, 24)
-				: Math.max(currentHours - 1, 1);
-		// Round to integers for arrow key adjustments (always round down)
-		const roundedHours = Math.floor(newHours);
-		const timeString = `${roundedHours}h`;
+		const totalMinutes = Math.round(currentHours * 60);
+		
+		// Create marks based on incrementMinutes (e.g., every 15min, 36min, 60min, etc.)
+		const marks = [];
+		for (let min = 0; min <= 24 * 60; min += incrementMinutes) {
+			marks.push(min);
+		}
+		
+		let newTotalMinutes: number;
+		if (direction === 'up') {
+			// Find next mark that's greater than current
+			newTotalMinutes = marks.find(mark => mark > totalMinutes) || totalMinutes;
+		} else {
+			// Find previous mark that's less than current
+			newTotalMinutes = marks.reverse().find(mark => mark < totalMinutes) || incrementMinutes;
+			marks.reverse(); // Restore original order
+		}
+		
+		// Ensure minimum value
+		newTotalMinutes = Math.max(newTotalMinutes, incrementMinutes);
+		
+		// Convert back to appropriate format
+		const hours = Math.floor(newTotalMinutes / 60);
+		const minutes = newTotalMinutes % 60;
+		
+		let timeString: string;
+		if (hours > 0 && minutes > 0) {
+			timeString = `${hours}h${minutes}m`;
+		} else if (hours > 0) {
+			timeString = `${hours}h`;
+		} else {
+			timeString = `${minutes}m`;
+		}
+		
 		setTimeInputValue(timeString);
 		timeInputValueRef.current = timeString;
 		setCursorPosition(timeString.length);
@@ -267,9 +313,6 @@ export default function CustomTimeInput({
 		return (
 			<Box flexDirection="column">
 				{renderInput()}
-				<Box marginTop={1}>
-					<Text color="gray">↑/↓ adjust or type</Text>
-				</Box>
 			</Box>
 		);
 	}
@@ -292,9 +335,6 @@ export default function CustomTimeInput({
 			<Text key="spacer-2"> </Text>
 			<Text key="empty-space" color="redBright" wrap="wrap">
 				{' '}
-			</Text>
-			<Text key="help-text" color="gray">
-				Type or use ↑/↓ to adjust, Enter to continue, ESC to go back
 			</Text>
 		</Box>
 	);
