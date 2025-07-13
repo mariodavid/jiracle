@@ -1,0 +1,13 @@
+{
+	"jiraUrl": "https://test.atlassian.net",
+	"username": "test@example.com",
+	"apiToken": "test-token",
+	"attendance": {
+		"enabled": true,
+		"workingHours": 8,
+		"breakMinutes": 30,
+		"defaultCheckIn": "08:00",
+		"defaultCheckOut": "17:00",
+		"defaultBreakMinutes": 30
+	}
+}

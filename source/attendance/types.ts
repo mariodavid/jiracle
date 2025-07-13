@@ -14,6 +14,7 @@ export interface AttendanceConfig {
 	defaultCheckIn: string;
 	defaultCheckOut: string;
 	defaultBreakMinutes: number;
+	csvPath?: string;
 }
 
 export interface AttendanceStatus {

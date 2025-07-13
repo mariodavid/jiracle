@@ -183,6 +183,15 @@ export interface ResolvedDefaults {
 	};
 }
 
+export function loadConfigWithEnvVars(config: JiraConfig): JiraConfig {
+	return {
+		...config,
+		jiraUrl: process.env['JIRACLE_JIRA_URL'] || config.jiraUrl,
+		username: process.env['JIRACLE_USERNAME'] || config.username,
+		apiToken: process.env['JIRACLE_API_TOKEN'] || config.apiToken,
+	};
+}
+
 export function resolveDefaults(
 	config: JiraConfig,
 	issueKey: string,
@@ -293,8 +302,9 @@ export class JiraClient {
 	private readonly logger: winston.Logger;
 
 	constructor(config: JiraConfig, customLogger?: winston.Logger) {
-		this.jiraUrl = config.jiraUrl;
-		this.apiToken = config.apiToken;
+		// Support environment variables with fallback to config
+		this.jiraUrl = process.env['JIRACLE_JIRA_URL'] || config.jiraUrl;
+		this.apiToken = process.env['JIRACLE_API_TOKEN'] || config.apiToken;
 		this.baseUrl = `${this.jiraUrl}rest/api/2`;
 
 		// Use custom logger if provided, otherwise create default logger

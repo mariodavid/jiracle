@@ -105,6 +105,37 @@ Create a configuration file at `~/.config/jiracle.json`:
 | `defaultComment` | No       | Default comment for all worklogs when no specific comment is configured |
 | `reminders`      | No       | Daily reminder settings for desktop notifications                       |
 | `favorites`      | No       | Array of favorite issues with optional default comments                 |
+| `attendance`     | No       | Attendance tracking configuration                                       |
+
+### Attendance Configuration
+
+| Option                | Type    | Default   | Description                                         |
+| --------------------- | ------- | --------- | --------------------------------------------------- |
+| `enabled`             | boolean | `false`   | Enable attendance tracking features                 |
+| `workingHours`        | number  | `8`       | Expected working hours per day                      |
+| `breakMinutes`        | number  | `30`      | Default break duration in minutes                   |
+| `defaultCheckIn`      | string  | `"08:00"` | Default check-in time (not used with current time)  |
+| `defaultCheckOut`     | string  | `"17:00"` | Default check-out time (not used with current time) |
+| `defaultBreakMinutes` | number  | `30`      | Default break duration for new entries              |
+| `csvPath`             | string  | Auto      | Custom path for attendance CSV file                 |
+
+**Example attendance configuration:**
+
+```json
+{
+	"attendance": {
+		"enabled": true,
+		"workingHours": 8,
+		"breakMinutes": 30,
+		"defaultCheckIn": "08:00",
+		"defaultCheckOut": "17:00",
+		"defaultBreakMinutes": 30,
+		"csvPath": "/custom/path/attendance.csv"
+	}
+}
+```
+
+**Note**: By default, `jiracle checkin` and `jiracle checkout` use the current time, not the configured default times. The `defaultCheckIn` and `defaultCheckOut` values are only used by the UI components.
 
 ### Favorite Issues
 
@@ -179,12 +210,38 @@ Jiracle can automatically remind you to log time with desktop notifications. Whe
 - **Hourly check-ins**: Use `["09:00", "12:00", "15:00", "17:00"]` for regular reminders throughout the day
 - **Weekend work**: Set `weekdaysOnly: false` if you also work weekends and want reminders
 
+### Environment Variables
+
+You can override configuration values using environment variables. This is useful for CI/CD, different environments, or keeping sensitive data out of config files.
+
+| Environment Variable          | Description                         | Config Equivalent    |
+| ----------------------------- | ----------------------------------- | -------------------- |
+| `JIRACLE_JIRA_URL`            | Your Jira instance URL              | `jiraUrl`            |
+| `JIRACLE_USERNAME`            | Your Jira username/email            | `username`           |
+| `JIRACLE_API_TOKEN`           | Your Jira API token                 | `apiToken`           |
+| `JIRACLE_ATTENDANCE_CSV_PATH` | Custom path for attendance CSV file | `attendance.csvPath` |
+
+**Example usage:**
+
+```bash
+# Set environment variables
+export JIRACLE_JIRA_URL="https://company.atlassian.net"
+export JIRACLE_USERNAME="your-email@company.com"
+export JIRACLE_API_TOKEN="your-api-token"
+export JIRACLE_ATTENDANCE_CSV_PATH="/custom/attendance.csv"
+
+# Run jiracle (will use environment variables)
+jiracle
+```
+
+**Priority order:** Environment variables take precedence over configuration file values.
+
 ### Getting a Jira API Token
 
 1. Log in to [Atlassian Account Settings](https://id.atlassian.com/manage-profile/security/api-tokens)
 2. Click "Create API token"
 3. Give it a descriptive name (e.g., "Jiracle CLI")
-4. Copy the token and add it to your config
+4. Copy the token and add it to your config or set the `JIRACLE_API_TOKEN` environment variable
 
 ## Usage
 
@@ -199,6 +256,59 @@ jiracle --help
 
 # Show version
 jiracle --version
+```
+
+### Attendance Tracking Commands
+
+Jiracle includes built-in attendance tracking to monitor your working hours. These commands complement the main time tracking interface.
+
+```bash
+# Check in for work (uses current time)
+jiracle checkin
+
+# Check in at specific time
+jiracle checkin --time 08:30
+
+# Check in for specific date
+jiracle checkin --date 2025-07-15 --time 09:00
+
+# Check out from work (uses current time)
+jiracle checkout
+
+# Check out at specific time
+jiracle checkout --time 17:30
+
+# Check out for specific date
+jiracle checkout --date 2025-07-15 --time 16:45
+
+# Show attendance status for today
+jiracle status
+
+# Show attendance status for specific date
+jiracle status --date 2025-07-15
+```
+
+#### Attendance Features
+
+- **Current Time Default**: By default, `checkin` and `checkout` use the current time
+- **Retroactive Entries**: Use `--date` and `--time` to log attendance for past dates
+- **CSV Storage**: Attendance data is stored in Excel-compatible CSV format
+- **Working Hours Calculation**: Automatically calculates total hours worked (minus break time)
+
+#### Example Workflow
+
+```bash
+# Monday morning - quick check-in
+jiracle checkin
+# > ✅ Checked in at 08:45
+
+# End of day
+jiracle checkout
+# > ✅ Checked out at 17:30 (08:45-17:30, 8.25h total)
+
+# Check today's status
+jiracle status
+# > Today: 08:45-17:30 (8h 45m, Target: 8h) ✅
 ```
 
 ### Keyboard Shortcuts

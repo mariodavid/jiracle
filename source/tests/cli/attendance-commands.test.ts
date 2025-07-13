@@ -65,18 +65,35 @@ function cleanup(configPath: string, csvPath?: string) {
 	}
 }
 
-test.serial('should check in with default time', async t => {
+test.serial('should check in with current time', async t => {
 	const {configPath, csvPath} = createTestConfig();
 
 	const params: CheckInParams = {
 		date: '2025-07-11', // Use yesterday to test the "on date" functionality
 	};
 
+	const beforeCheckIn = new Date();
 	const result = await executeCheckIn(params, configPath, csvPath);
+	const afterCheckIn = new Date();
 
 	t.true(result.success);
-	t.true(result.message.includes('Checked in at 08:00'));
-	t.true(result.message.includes('on 2025-07-11'));
+	t.regex(result.message, /✅ Checked in at \d{2}:\d{2} on 2025-07-11/);
+
+	// Verify the time is within a reasonable range
+	const timeMatch = result.message.match(/Checked in at (\d{2}:\d{2})/);
+	t.truthy(timeMatch);
+
+	const checkedInTime = timeMatch![1]!;
+	const checkInDate = new Date(`2025-07-11T${checkedInTime}:00`);
+	const beforeTime = new Date(
+		`2025-07-11T${beforeCheckIn.toTimeString().substring(0, 5)}:00`,
+	);
+	const afterTime = new Date(
+		`2025-07-11T${afterCheckIn.toTimeString().substring(0, 5)}:00`,
+	);
+
+	t.true(checkInDate >= new Date(beforeTime.getTime() - 60000)); // -1 minute
+	t.true(checkInDate <= new Date(afterTime.getTime() + 60000)); // +1 minute
 
 	cleanup(configPath, csvPath);
 });
@@ -128,21 +145,45 @@ test.serial('should fail check in with invalid date', async t => {
 	cleanup(configPath, csvPath);
 });
 
-test.serial('should check out with default time', async t => {
+test.serial('should check out with current time', async t => {
 	const {configPath, csvPath} = createTestConfig();
 
-	// Check in first
-	await executeCheckIn({date: '2025-07-11'}, configPath, csvPath);
+	// Check in first with specific time
+	await executeCheckIn(
+		{date: '2025-07-11', time: '08:00'},
+		configPath,
+		csvPath,
+	);
 
 	const params: CheckOutParams = {
 		date: '2025-07-11',
 	};
 
+	const beforeCheckOut = new Date();
 	const result = await executeCheckOut(params, configPath, csvPath);
+	const afterCheckOut = new Date();
 
 	t.true(result.success);
-	t.true(result.message.includes('Checked out at 17:00'));
-	t.true(result.message.includes('8.5h total'));
+	t.regex(
+		result.message,
+		/✅ Checked out at \d{2}:\d{2} on 2025-07-11 \(08:00-\d{2}:\d{2}, [\d.]+h total\)/,
+	);
+
+	// Verify the time is within a reasonable range
+	const timeMatch = result.message.match(/Checked out at (\d{2}:\d{2})/);
+	t.truthy(timeMatch);
+
+	const checkedOutTime = timeMatch![1]!;
+	const checkOutDate = new Date(`2025-07-11T${checkedOutTime}:00`);
+	const beforeTime = new Date(
+		`2025-07-11T${beforeCheckOut.toTimeString().substring(0, 5)}:00`,
+	);
+	const afterTime = new Date(
+		`2025-07-11T${afterCheckOut.toTimeString().substring(0, 5)}:00`,
+	);
+
+	t.true(checkOutDate >= new Date(beforeTime.getTime() - 60000)); // -1 minute
+	t.true(checkOutDate <= new Date(afterTime.getTime() + 60000)); // +1 minute
 
 	cleanup(configPath, csvPath);
 });

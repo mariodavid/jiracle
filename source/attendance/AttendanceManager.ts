@@ -13,12 +13,14 @@ export class AttendanceManager {
 
 	constructor(config: AttendanceConfig, csvPath?: string) {
 		this.config = config;
-		this.storage = new AttendanceCSVStorage(csvPath);
+		const finalCsvPath =
+			csvPath || config.csvPath || process.env['JIRACLE_ATTENDANCE_CSV_PATH'];
+		this.storage = new AttendanceCSVStorage(finalCsvPath);
 	}
 
 	async checkIn(date?: string, time?: string): Promise<Attendance> {
 		const targetDate = date || this.getCurrentDate();
-		const checkInTime = time || this.config.defaultCheckIn;
+		const checkInTime = time || this.getCurrentTime();
 
 		if (!AttendanceCalculations.isValidTimeString(checkInTime)) {
 			throw new Error(`Invalid check-in time format: ${checkInTime}`);
@@ -47,7 +49,7 @@ export class AttendanceManager {
 
 	async checkOut(date?: string, time?: string): Promise<Attendance> {
 		const targetDate = date || this.getCurrentDate();
-		const checkOutTime = time || this.config.defaultCheckOut;
+		const checkOutTime = time || this.getCurrentTime();
 
 		if (!AttendanceCalculations.isValidTimeString(checkOutTime)) {
 			throw new Error(`Invalid check-out time format: ${checkOutTime}`);
@@ -216,6 +218,11 @@ export class AttendanceManager {
 
 	private getCurrentDate(): string {
 		return new Date().toISOString().split('T')[0]!;
+	}
+
+	private getCurrentTime(): string {
+		const now = new Date();
+		return now.toTimeString().substring(0, 5);
 	}
 
 	// Utility methods for UI

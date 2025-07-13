@@ -3,7 +3,11 @@ import React from 'react';
 import {render} from 'ink';
 import meow from 'meow';
 import App from './app.js';
-import {JiraClient, WorklogRequest} from './jira-client.js';
+import {
+	JiraClient,
+	WorklogRequest,
+	loadConfigWithEnvVars,
+} from './jira-client.js';
 import {readFileSync} from 'fs';
 import {homedir} from 'os';
 import {join} from 'path';
@@ -123,7 +127,8 @@ export async function executeWorklogAdd(
 		const configFilePath =
 			configPath || join(homedir(), '.config', 'jiracle.json');
 		const configData = readFileSync(configFilePath, 'utf8');
-		const config = JSON.parse(configData);
+		const baseConfig = JSON.parse(configData);
+		const config = loadConfigWithEnvVars(baseConfig);
 
 		// Create a silent logger for CLI usage to avoid debug output
 		const silentLogger = winston.createLogger({

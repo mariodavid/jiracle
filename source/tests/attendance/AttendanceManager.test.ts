@@ -29,16 +29,31 @@ const defaultConfig: AttendanceConfig = {
 	defaultBreakMinutes: 30,
 };
 
-test('should check in with default time', async t => {
+test('should check in with current time', async t => {
 	const csvPath = createTempCSVPath();
 	const manager = new AttendanceManager(defaultConfig, csvPath);
 
+	// Get current time before check-in
+	const beforeCheckIn = new Date();
 	const attendance = await manager.checkIn('2025-07-12');
+	const afterCheckIn = new Date();
 
 	t.is(attendance.date, '2025-07-12');
-	t.is(attendance.checkIn, '08:00');
+	t.regex(attendance.checkIn!, /^\d{2}:\d{2}$/);
 	t.is(attendance.breakMinutes, 30);
 	t.is(attendance.checkOut, undefined);
+
+	// Verify check-in time is within reasonable range (current time ±1 minute)
+	const checkInTime = new Date(`2025-07-12T${attendance.checkIn}:00`);
+	const beforeTime = new Date(
+		`2025-07-12T${beforeCheckIn.toTimeString().substring(0, 5)}:00`,
+	);
+	const afterTime = new Date(
+		`2025-07-12T${afterCheckIn.toTimeString().substring(0, 5)}:00`,
+	);
+
+	t.true(checkInTime >= new Date(beforeTime.getTime() - 60000)); // -1 minute
+	t.true(checkInTime <= new Date(afterTime.getTime() + 60000)); // +1 minute
 
 	cleanup(csvPath);
 });
@@ -67,20 +82,34 @@ test('should throw error for invalid check-in time', async t => {
 	cleanup(csvPath);
 });
 
-test('should check out with default time', async t => {
+test('should check out with current time', async t => {
 	const csvPath = createTempCSVPath();
 	const manager = new AttendanceManager(defaultConfig, csvPath);
 
-	// Check in first
-	await manager.checkIn('2025-07-12');
+	// Check in first with specific time
+	await manager.checkIn('2025-07-12', '08:00');
 
-	// Then check out
+	// Get current time before check-out
+	const beforeCheckOut = new Date();
 	const attendance = await manager.checkOut('2025-07-12');
+	const afterCheckOut = new Date();
 
 	t.is(attendance.date, '2025-07-12');
 	t.is(attendance.checkIn, '08:00');
-	t.is(attendance.checkOut, '17:00');
-	t.is(attendance.totalHours, 8.5); // 9 hours - 0.5 break
+	t.regex(attendance.checkOut!, /^\d{2}:\d{2}$/);
+	t.truthy(attendance.totalHours);
+
+	// Verify check-out time is within reasonable range (current time ±1 minute)
+	const checkOutTime = new Date(`2025-07-12T${attendance.checkOut}:00`);
+	const beforeTime = new Date(
+		`2025-07-12T${beforeCheckOut.toTimeString().substring(0, 5)}:00`,
+	);
+	const afterTime = new Date(
+		`2025-07-12T${afterCheckOut.toTimeString().substring(0, 5)}:00`,
+	);
+
+	t.true(checkOutTime >= new Date(beforeTime.getTime() - 60000)); // -1 minute
+	t.true(checkOutTime <= new Date(afterTime.getTime() + 60000)); // +1 minute
 
 	cleanup(csvPath);
 });
@@ -113,12 +142,13 @@ test('should get status for today', async t => {
 	const csvPath = createTempCSVPath();
 	const manager = new AttendanceManager(defaultConfig, csvPath);
 
-	await manager.checkIn('2025-07-12');
-	await manager.checkOut('2025-07-12');
+	// Use fixed times to get predictable status
+	await manager.checkIn('2025-07-12', '08:00');
+	await manager.checkOut('2025-07-12', '17:00');
 
 	const status = await manager.getStatus('2025-07-12');
 
-	t.is(status.totalHours, 8.5);
+	t.is(status.totalHours, 8.5); // 9 hours - 0.5 hour break
 	t.is(status.shouldHours, 8);
 	t.is(status.difference, 0.5);
 	t.true(status.hasCheckedIn);
