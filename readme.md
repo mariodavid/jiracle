@@ -1,5 +1,3 @@
-# Jiracle
-
 ![Jiracle Logo](assets/logo.png)
 
 A terminal-based Jira time tracking application that makes logging work effortless. Built with Ink (React for terminals) to provide a smooth, keyboard-driven interface for managing your Jira worklogs.
