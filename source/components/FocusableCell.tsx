@@ -10,6 +10,7 @@ export interface FocusableCellProps {
 	isActive?: boolean;
 	issueKey?: string;
 	columnIndex?: number;
+	rightAlign?: boolean;
 	onFocusChange?: (
 		issueKey: string,
 		columnIndex: number,
@@ -25,6 +26,7 @@ export function FocusableCell({
 	isActive = true,
 	issueKey,
 	columnIndex,
+	rightAlign = false,
 	onFocusChange,
 }: FocusableCellProps) {
 	const {isFocused} = useFocus({id: focusId, isActive});
@@ -41,13 +43,18 @@ export function FocusableCell({
 		}
 	}, [isFocused, issueKey, columnIndex, onFocusChange]);
 
-	// Create a right-aligned value with some padding for visual spacing
-	const displayValue = isFocused
+	// Handle display value differently for right-aligned cells
+	const displayValue = rightAlign
+		? value
+				.split('\n')
+				.map(line => line.padStart(width - 1))
+				.join('\n') // Right-align each line for multi-line content
+		: isFocused
 		? ` ${value} `.padStart(width) // Full width when focused
 		: value.padStart(width - 1) + ' '; // Normal spacing when not focused
 
 	return (
-		<Box width={width}>
+		<Box width={width} justifyContent={rightAlign ? 'flex-end' : 'flex-start'}>
 			<Text
 				bold={isTotal}
 				color={isFocused ? 'black' : isTotal ? 'yellow' : undefined}

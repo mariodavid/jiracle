@@ -78,7 +78,7 @@ export interface JiraSearchResponse {
 
 import winston from 'winston';
 import {join} from 'path';
-import ms from 'ms';
+import {Duration} from './utils/Duration.js';
 import type {AttendanceConfig} from './attendance/types.js';
 
 export interface WorklogRequest {
@@ -107,44 +107,34 @@ export interface WorklogEntry {
 }
 
 export function normalizeTimeFormat(timeString: string): string {
-	// Trim and convert to lowercase for consistent parsing
-	const input = timeString.trim().toLowerCase();
-
-	// First try to parse with ms library (supports formats like "2h", "30m", "1.5h", etc.)
 	try {
-		const milliseconds = (ms as any)(input);
-		if (typeof milliseconds === 'number' && milliseconds > 0) {
-			// Convert milliseconds back to Jira format
-			const totalMinutes = Math.round(milliseconds / (1000 * 60));
-			const hours = Math.floor(totalMinutes / 60);
-			const minutes = totalMinutes % 60;
+		// Handle decimal formats with comma - convert comma to dot but preserve decimal format
+		const decimalHourMatch = timeString.match(/^(\d+(?:[,]\d+)?)h$/i);
+		if (decimalHourMatch) {
+			return decimalHourMatch[1]!.replace(',', '.') + 'h';
+		}
 
-			if (hours > 0 && minutes > 0) {
-				return `${hours}h ${minutes}m`;
-			} else if (hours > 0) {
-				return `${hours}h`;
-			} else if (minutes > 0) {
-				return `${minutes}m`;
-			}
+		const duration = new Duration(timeString);
+		const minutes = duration.toMinutes();
+
+		if (minutes <= 0) {
+			return '';
+		}
+
+		// Convert to Jira format with space (e.g., "2h 30m")
+		const hours = Math.floor(minutes / 60);
+		const remainingMinutes = minutes % 60;
+
+		if (hours > 0 && remainingMinutes > 0) {
+			return `${hours}h ${remainingMinutes}m`;
+		} else if (hours > 0) {
+			return `${hours}h`;
+		} else {
+			return `${remainingMinutes}m`;
 		}
 	} catch {
-		// Fall through to legacy parsing if ms fails
+		return '';
 	}
-
-	// Legacy parsing for formats like "2h30m", "2,5h" (German decimal)
-	const normalized = input
-		.replace(/,/g, '.') // Convert German comma to English dot
-		.replace(/(\d+)([hm])/g, '$1$2 ') // Add space after h/m
-		.replace(/\s+/g, ' ') // Normalize multiple spaces
-		.trim();
-
-	// Validate the result - should match Jira format
-	if (/^\d+(\.\d+)?[hm](\s+\d+(\.\d+)?[hm])?$/.test(normalized)) {
-		return normalized;
-	}
-
-	// If all parsing fails, return empty string to indicate invalid input
-	return '';
 }
 
 export function getFavoriteKeys(favorites: FavoriteIssue[]): string[] {

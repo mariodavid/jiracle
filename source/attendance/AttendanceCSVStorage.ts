@@ -102,15 +102,25 @@ export class AttendanceCSVStorage {
 			throw new Error('Date is required in CSV line');
 		}
 
-		return {
+		const attendance: Attendance = {
 			date,
-			checkIn: checkIn && checkIn !== '' ? checkIn : undefined,
-			checkOut: checkOut && checkOut !== '' ? checkOut : undefined,
 			breakMinutes: Number(breakMinutes) || 30,
-			totalHours:
-				totalHours && totalHours !== '' ? Number(totalHours) : undefined,
-			notes: notes && notes !== '' ? notes : undefined,
 		};
+
+		if (checkIn && checkIn !== '') {
+			attendance.checkIn = checkIn;
+		}
+		if (checkOut && checkOut !== '') {
+			attendance.checkOut = checkOut;
+		}
+		if (totalHours && totalHours !== '' && !isNaN(Number(totalHours))) {
+			attendance.totalHours = Number(totalHours);
+		}
+		if (notes && notes !== '') {
+			attendance.notes = notes;
+		}
+
+		return attendance;
 	}
 
 	private toCSVLine(attendance: Attendance): string {

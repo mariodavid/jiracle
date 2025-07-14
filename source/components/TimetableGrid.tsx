@@ -9,6 +9,7 @@ import type {FavoriteIssue, JiraConfig, Group} from '../jira-client.js';
 import {resolveDefaults} from '../jira-client.js';
 import {AttendanceManager} from '../attendance/AttendanceManager.js';
 import type {WeeklyAttendance} from '../attendance/types.js';
+import {Duration} from '../utils/Duration.js';
 
 export interface TimetableGridProps {
 	data: WeeklyWorklogSummary | null;
@@ -225,12 +226,12 @@ export function TimetableGrid({
 			const desired = group.group.desiredAmount;
 			const actual = group.totalHours;
 			const status = actual >= desired ? '✓' : '⚠️';
-			return `${totalHours}/${desired}h ${status}`.padStart(7) + ' ';
+			return `${totalHours}/${desired}h ${status}`;
 		}
 
 		// Only append 'h' if totalHours is not '-'
 		const formattedTotal = totalHours === '-' ? '-' : `${totalHours}h`;
-		return formattedTotal.padStart(7) + ' ';
+		return formattedTotal;
 	};
 
 	const tableWidth = 2 + 20 + 5 * 12 + 8; // Group + Issue + 5 weekdays (wider) + Total = 90
@@ -382,7 +383,7 @@ export function TimetableGrid({
 	// Render attendance row (compact: shows time range like "8:00-17:00")
 	const renderAttendanceRows = () => {
 		const attendanceRows = [
-			{key: 'attendance', label: 'Anwesenheit', type: 'attendance' as const},
+			{key: 'attendance', label: 'Attendance', type: 'attendance' as const},
 		];
 
 		const getCellValue = (date: string): string => {
@@ -401,25 +402,18 @@ export function TimetableGrid({
 				return m === 0 ? h.toString() : `${h}:${minutes}`;
 			};
 
-			// Calculate working hours (total time - break time)
+			// Calculate working hours using Duration class
 			const calculateWorkingHours = (
 				checkIn: string,
 				checkOut: string,
-				breakTime: number,
+				breakMinutes: number,
 			): string => {
-				const [inHours, inMinutes] = checkIn.split(':').map(Number);
-				const [outHours, outMinutes] = checkOut.split(':').map(Number);
-
-				const inTotalMinutes = (inHours || 0) * 60 + (inMinutes || 0);
-				const outTotalMinutes = (outHours || 0) * 60 + (outMinutes || 0);
-
-				const totalMinutes = outTotalMinutes - inTotalMinutes;
-				const workingMinutes = totalMinutes - breakTime * 60;
-
-				const hours = Math.floor(workingMinutes / 60);
-				const minutes = workingMinutes % 60;
-
-				return minutes === 0 ? `${hours}h` : `${hours}h${minutes}m`;
+				const workingDuration = Duration.calculateWorkingDuration(
+					checkIn,
+					checkOut,
+					breakMinutes,
+				);
+				return workingDuration.toDecimalHours();
 			};
 
 			const checkIn = formatTime(attendance.checkIn || '08:00');
@@ -431,7 +425,7 @@ export function TimetableGrid({
 			const workingHours = calculateWorkingHours(
 				attendance.checkIn || '08:00',
 				attendance.checkOut || '17:00',
-				breakMinutes / 60,
+				breakMinutes,
 			);
 
 			return `${checkIn}-${checkOut}\n${workingHours}`;
@@ -464,13 +458,15 @@ export function TimetableGrid({
 										columnIndex={index}
 										onFocusChange={handleFocusChange}
 										width={12}
+										rightAlign={true}
 									/>
 								) : (
-									<Box key={`attendance-static-${row.key}-${date}`} width={12}>
-										<Text>
-											{getCellValue(formatLocalDateKey(date)).padStart(11) +
-												' '}
-										</Text>
+									<Box
+										key={`attendance-static-${row.key}-${date}`}
+										width={12}
+										justifyContent="flex-end"
+									>
+										<Text>{getCellValue(formatLocalDateKey(date))}</Text>
 									</Box>
 								),
 							)}
@@ -509,15 +505,15 @@ export function TimetableGrid({
 					</Text>
 				</Box>
 				{DAYS.map(day => (
-					<Box key={day} width={12}>
+					<Box key={day} width={12} justifyContent="flex-end">
 						<Text bold color="white">
-							{day.padStart(9) + ' '}
+							{day}
 						</Text>
 					</Box>
 				))}
-				<Box width={8}>
+				<Box width={8} justifyContent="flex-end">
 					<Text bold color="white">
-						{'Total'.padStart(7) + ' '}
+						Total
 					</Text>
 				</Box>
 			</Box>
@@ -566,19 +562,23 @@ export function TimetableGrid({
 												width={12}
 											/>
 										) : (
-											<Box key={`${issueKey}-static-cell-${index}`} width={12}>
+											<Box
+												key={`${issueKey}-static-cell-${index}`}
+												width={12}
+												justifyContent="flex-end"
+											>
 												<Text>
 													{formatHours(
 														issueData.dailyHours[formatLocalDateKey(date)] || 0,
-													).padStart(9) + ' '}
+													)}
 												</Text>
 											</Box>
 										),
 									)}
 									{/* Total column - always show individual issue total */}
-									<Box width={8}>
+									<Box width={8} justifyContent="flex-end">
 										<Text bold color="yellow">
-											{formatHours(issueData.weekTotal).padStart(7) + ' '}
+											{formatHours(issueData.weekTotal)}
 										</Text>
 									</Box>
 								</Box>
@@ -628,7 +628,7 @@ export function TimetableGrid({
 										<Text> </Text>
 									</Box>
 								))}
-								<Box width={8}>
+								<Box width={8} justifyContent="flex-end">
 									<Text bold color="green">
 										{formatGroupTotal(group)}
 									</Text>
@@ -659,15 +659,19 @@ export function TimetableGrid({
 					</Text>
 				</Box>
 				{dailyTotals.map((total, index) => (
-					<Box key={`daily-total-${index}`} width={12}>
+					<Box
+						key={`daily-total-${index}`}
+						width={12}
+						justifyContent="flex-end"
+					>
 						<Text bold color="yellow">
-							{formatHours(total).padStart(9) + ' '}
+							{formatHours(total)}
 						</Text>
 					</Box>
 				))}
-				<Box width={8}>
+				<Box width={8} justifyContent="flex-end">
 					<Text bold color="green">
-						{formatHours(data.weekTotal).padStart(7) + ' '}
+						{formatHours(data.weekTotal)}
 					</Text>
 				</Box>
 			</Box>

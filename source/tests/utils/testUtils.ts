@@ -195,3 +195,49 @@ export const testConstants = {
 	MOCK_USERNAME: 'test@example.com',
 	MOCK_API_TOKEN: 'test-token',
 };
+
+/**
+ * Hook testing utilities
+ */
+export const hookTestUtils = {
+	/**
+	 * Creates a mock JiraConfig for hook testing
+	 */
+	createHookTestConfig(overrides: Partial<JiraConfig> = {}): JiraConfig {
+		return createMockConfig({
+			jiraUrl: testConstants.MOCK_JIRA_URL,
+			username: testConstants.MOCK_USERNAME,
+			apiToken: testConstants.MOCK_API_TOKEN,
+			...overrides,
+		});
+	},
+
+	/**
+	 * Creates test date ranges for week-based hooks
+	 */
+	createTestWeekRange() {
+		const weekStart = new Date('2024-01-01'); // Monday
+		const weekEnd = new Date('2024-01-07'); // Sunday
+		return {weekStart, weekEnd};
+	},
+
+	/**
+	 * Creates mock favorites for testing
+	 */
+	createTestFavorites(): FavoriteIssue[] {
+		return [
+			createMockFavorite({key: 'TEST-1', defaultTime: '2h'}),
+			createMockFavorite({key: 'TEST-2', defaultTime: '4h'}),
+		];
+	},
+
+	/**
+	 * Mock implementation for async hook testing
+	 */
+	createMockAsyncOperation<T>(result: T, delay: number = 100) {
+		return () =>
+			new Promise<T>(resolve => {
+				setTimeout(() => resolve(result), delay);
+			});
+	},
+};

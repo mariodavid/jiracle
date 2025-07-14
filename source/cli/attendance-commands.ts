@@ -123,7 +123,7 @@ export async function executeCheckOut(
 			message += ` on ${date}`;
 		}
 
-		if (checkIn && attendance.totalHours) {
+		if (checkIn && attendance.totalHours !== undefined) {
 			message += ` (${checkIn}-${checkOut}, ${attendance.totalHours}h total)`;
 		}
 

@@ -8,6 +8,8 @@ import {TimetableGrid} from './TimetableGrid.js';
 import {InlineWorklogForm} from './InlineWorklogForm.js';
 import {DeleteWorklogConfirmation} from './DeleteWorklogConfirmation.js';
 import {DeleteAttendanceConfirmation} from './DeleteAttendanceConfirmation.js';
+import {CheckinConfirmation} from './CheckinConfirmation.js';
+import {CheckoutConfirmation} from './CheckoutConfirmation.js';
 import {TitleBar} from './TitleBar.js';
 import {AttendanceManager} from '../attendance/AttendanceManager.js';
 import {AttendanceEditForm} from './AttendanceEditForm.js';
@@ -60,6 +62,8 @@ export function WeeklyTimetableView({
 		| 'delete-confirmation'
 		| 'delete-attendance-confirmation'
 		| 'attendance-edit'
+		| 'checkin-confirmation'
+		| 'checkout-confirmation'
 	>('timetable');
 	const [worklogForm, setWorklogForm] = useState<WorklogFormData>({
 		issueKey: '',
@@ -435,6 +439,44 @@ export function WeeklyTimetableView({
 		}
 	};
 
+	const handleCheckinConfirm = async (confirmed: boolean) => {
+		if (!confirmed || !attendanceManager) {
+			setActiveArea('timetable');
+			return;
+		}
+
+		try {
+			await attendanceManager.checkIn();
+			setAttendanceRefreshKey(prev => prev + 1); // Trigger refresh
+			setActiveArea('timetable');
+		} catch (error) {
+			console.error('Error checking in:', error);
+			const errorMessage =
+				error instanceof Error ? error.message : 'Unknown error occurred';
+			setDeleteError(`Failed to check in: ${errorMessage}`);
+			setActiveArea('timetable');
+		}
+	};
+
+	const handleCheckoutConfirm = async (confirmed: boolean) => {
+		if (!confirmed || !attendanceManager) {
+			setActiveArea('timetable');
+			return;
+		}
+
+		try {
+			await attendanceManager.checkOut();
+			setAttendanceRefreshKey(prev => prev + 1); // Trigger refresh
+			setActiveArea('timetable');
+		} catch (error) {
+			console.error('Error checking out:', error);
+			const errorMessage =
+				error instanceof Error ? error.message : 'Unknown error occurred';
+			setDeleteError(`Failed to check out: ${errorMessage}`);
+			setActiveArea('timetable');
+		}
+	};
+
 	// Auto-hide delete success alert after 3 seconds
 	useEffect(() => {
 		if (deleteSuccess) {
@@ -463,7 +505,9 @@ export function WeeklyTimetableView({
 			worklogForm.isVisible ||
 			activeArea === 'delete-confirmation' ||
 			activeArea === 'delete-attendance-confirmation' ||
-			activeArea === 'attendance-edit'
+			activeArea === 'attendance-edit' ||
+			activeArea === 'checkin-confirmation' ||
+			activeArea === 'checkout-confirmation'
 		) {
 			return;
 		}
@@ -480,6 +524,12 @@ export function WeeklyTimetableView({
 			refresh();
 		} else if (input === 'l' && onLogWork) {
 			onLogWork();
+		} else if (input === 'i') {
+			// Start work (checkin)
+			setActiveArea('checkin-confirmation');
+		} else if (input === 'o') {
+			// End work (checkout)
+			setActiveArea('checkout-confirmation');
 		}
 		// Note: ESC key is handled by App.tsx to avoid conflicts
 		// Note: Arrow keys are handled by TimetableGrid for cell navigation when table is active
@@ -627,6 +677,32 @@ export function WeeklyTimetableView({
 							)}
 						</Box>
 					</Box>
+				) : activeArea === 'checkin-confirmation' ? (
+					/* Checkin Confirmation - replaces table */
+					<Box justifyContent="center">
+						<Box
+							width={50}
+							borderStyle="round"
+							borderColor="cyan"
+							paddingX={1}
+							paddingY={1}
+						>
+							<CheckinConfirmation onConfirm={handleCheckinConfirm} />
+						</Box>
+					</Box>
+				) : activeArea === 'checkout-confirmation' ? (
+					/* Checkout Confirmation - replaces table */
+					<Box justifyContent="center">
+						<Box
+							width={50}
+							borderStyle="round"
+							borderColor="yellow"
+							paddingX={1}
+							paddingY={1}
+						>
+							<CheckoutConfirmation onConfirm={handleCheckoutConfirm} />
+						</Box>
+					</Box>
 				) : activeArea === 'attendance-edit' && attendanceEdit ? (
 					/* Attendance Edit Form - replaces table */
 					<Box justifyContent="center">
@@ -707,12 +783,12 @@ export function WeeklyTimetableView({
 							[↑↓←→] Navigate Cells [Enter] Log Work [Shift+←→] Week Navigation
 						</Text>
 						<Text color="gray">
-							[D] Delete Worklogs
+							[D] Delete Worklogs [I] Check In [O] Check Out
 							{isBrowserOpenSupported() && config.jiraUrl
-								? ' [O] Open in Browser'
+								? ' [Shift+O] Open in Browser'
 								: ''}
-							{' [T] Today [R] Refresh [Q] Quit'}
 						</Text>
+						<Text color="gray">[T] Today [R] Refresh [Q] Quit</Text>
 					</>
 				)}
 			</Box>

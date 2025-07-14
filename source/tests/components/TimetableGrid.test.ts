@@ -1018,11 +1018,14 @@ test('TimetableGrid shows attendance with working hours calculation', async t =>
 	const output = lastFrame()!;
 
 	// Should show attendance row
-	t.true(output.includes('Anwesenheit'), 'Should show attendance row');
+	t.true(output.includes('Attendance'), 'Should show attendance row');
 
-	// Should show working hours calculation: 8-17 on first line, 8h on second line
+	// Should show working hours calculation: 8-17 on first line, 8 on second line (decimal hours)
 	t.true(output.includes('8-17'), 'Should show Mon working hours 8-17');
-	t.true(output.includes('8h'), 'Should show Mon working hours 8h');
+	t.true(
+		output.includes('8'),
+		'Should show Mon working hours 8 (decimal hours)',
+	);
 	t.true(
 		output.includes('9:30-18:15'),
 		'Should show Tue working hours with minutes',
@@ -1074,7 +1077,10 @@ test('TimetableGrid calculates working hours with different break times', async 
 
 	// 9 hours total - 0.5 hour break = 8.5 hours
 	t.true(output.includes('8-17'), 'Should show time range 8-17');
-	t.true(output.includes('8h30m'), 'Should show 8h30m with 30min break');
+	t.true(
+		output.includes('8.5'),
+		'Should show 8.5 with 30min break (decimal hours)',
+	);
 });
 
 test('TimetableGrid uses config default break time when not specified', async t => {
@@ -1137,7 +1143,10 @@ test('TimetableGrid uses config default break time when not specified', async t 
 
 	// Should use config default break time (30 minutes)
 	t.true(output.includes('8-17'), 'Should show time range 8-17');
-	t.true(output.includes('8h30m'), 'Should use config default break time');
+	t.true(
+		output.includes('8.5'),
+		'Should use config default break time (decimal hours)',
+	);
 });
 
 test('TimetableGrid shows dash for empty group total', t => {

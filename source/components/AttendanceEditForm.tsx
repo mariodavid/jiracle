@@ -191,13 +191,13 @@ export function AttendanceEditForm({
 					<Box gap={2}>
 						<Text
 							color={focusArea === 'submit' ? 'black' : 'blue'}
-							backgroundColor={focusArea === 'submit' ? 'blue' : undefined}
+							{...(focusArea === 'submit' ? {backgroundColor: 'blue'} : {})}
 						>
 							{' [Speichern] '}
 						</Text>
 						<Text
 							color={focusArea === 'cancel' ? 'black' : 'blue'}
-							backgroundColor={focusArea === 'cancel' ? 'blue' : undefined}
+							{...(focusArea === 'cancel' ? {backgroundColor: 'blue'} : {})}
 						>
 							{' [Abbrechen] '}
 						</Text>

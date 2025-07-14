@@ -39,8 +39,11 @@ export class AttendanceManager {
 
 		// Recalculate total hours if both checkIn and checkOut are present
 		if (attendance.checkOut) {
-			attendance.totalHours =
+			const calculatedHours =
 				AttendanceCalculations.calculateTotalHours(attendance);
+			if (calculatedHours !== undefined) {
+				attendance.totalHours = calculatedHours;
+			}
 		}
 
 		await this.storage.upsert(attendance);
@@ -68,8 +71,11 @@ export class AttendanceManager {
 
 		// Recalculate total hours if both checkIn and checkOut are present
 		if (attendance.checkIn) {
-			attendance.totalHours =
+			const calculatedHours =
 				AttendanceCalculations.calculateTotalHours(attendance);
+			if (calculatedHours !== undefined) {
+				attendance.totalHours = calculatedHours;
+			}
 		}
 
 		await this.storage.upsert(attendance);
@@ -103,8 +109,11 @@ export class AttendanceManager {
 		}
 
 		// Recalculate total hours
-		attendance.totalHours =
+		const calculatedHours =
 			AttendanceCalculations.calculateTotalHours(attendance);
+		if (calculatedHours !== undefined) {
+			attendance.totalHours = calculatedHours;
+		}
 
 		await this.storage.upsert(attendance);
 		return attendance;
@@ -175,14 +184,22 @@ export class AttendanceManager {
 			if (checkIn && !AttendanceCalculations.isValidTimeString(checkIn)) {
 				throw new Error(`Invalid check-in time format: ${checkIn}`);
 			}
-			attendance.checkIn = checkIn || undefined;
+			if (checkIn) {
+				attendance.checkIn = checkIn;
+			} else {
+				delete attendance.checkIn;
+			}
 		}
 
 		if (checkOut !== undefined) {
 			if (checkOut && !AttendanceCalculations.isValidTimeString(checkOut)) {
 				throw new Error(`Invalid check-out time format: ${checkOut}`);
 			}
-			attendance.checkOut = checkOut || undefined;
+			if (checkOut) {
+				attendance.checkOut = checkOut;
+			} else {
+				delete attendance.checkOut;
+			}
 		}
 
 		if (breakMinutes !== undefined) {
@@ -190,8 +207,13 @@ export class AttendanceManager {
 		}
 
 		// Recalculate total hours
-		attendance.totalHours =
+		const calculatedHours =
 			AttendanceCalculations.calculateTotalHours(attendance);
+		if (calculatedHours !== undefined) {
+			attendance.totalHours = calculatedHours;
+		} else {
+			delete attendance.totalHours;
+		}
 
 		await this.storage.upsert(attendance);
 		return attendance;

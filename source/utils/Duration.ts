@@ -17,10 +17,37 @@ export class Duration {
 			return input;
 		}
 
-		const timeStr = input.trim();
+		const timeStr = input.trim().toLowerCase();
 		if (!timeStr) return 0;
 
-		// Handle combined format (2h30m, 1h15m, etc.)
+		// Handle English words (2 hours, 45 minutes, etc.)
+		const englishWordsMatch = timeStr.match(
+			/^(\d+(?:[.,]\d+)?)\s+(hours?|h)$/i,
+		);
+		if (englishWordsMatch) {
+			const hours = parseFloat(englishWordsMatch[1]!.replace(',', '.'));
+			return Math.round(hours * 60);
+		}
+
+		const englishMinutesMatch = timeStr.match(
+			/^(\d+(?:[.,]\d+)?)\s+(minutes?|mins?|m)$/i,
+		);
+		if (englishMinutesMatch) {
+			const minutes = parseFloat(englishMinutesMatch[1]!.replace(',', '.'));
+			return Math.round(minutes);
+		}
+
+		// Handle combined format with space (2h 30m, 1h 15m, etc.)
+		const spacedCombinedMatch = timeStr.match(
+			/^(\d+(?:[.,]\d+)?)h\s+(\d+(?:[.,]\d+)?)m$/i,
+		);
+		if (spacedCombinedMatch) {
+			const hours = parseFloat(spacedCombinedMatch[1]!.replace(',', '.'));
+			const minutes = parseFloat(spacedCombinedMatch[2]!.replace(',', '.'));
+			return Math.round(hours * 60 + minutes);
+		}
+
+		// Handle combined format without space (2h30m, 1h15m, etc.)
 		const combinedMatch = timeStr.match(
 			/^(\d+(?:[.,]\d+)?)h(\d+(?:[.,]\d+)?)m$/i,
 		);
@@ -105,5 +132,38 @@ export class Duration {
 	 */
 	static fromHours(hours: number): Duration {
 		return new Duration(Math.round(hours * 60));
+	}
+
+	/**
+	 * Calculate working duration between check-in and check-out times, minus break time
+	 * @param checkIn Time in HH:MM format (e.g., "08:00")
+	 * @param checkOut Time in HH:MM format (e.g., "17:00")
+	 * @param breakMinutes Break time in minutes
+	 * @returns Duration object representing working time
+	 */
+	static calculateWorkingDuration(
+		checkIn: string,
+		checkOut: string,
+		breakMinutes: number = 0,
+	): Duration {
+		const parseTime = (time: string): number => {
+			const [hours, minutes] = time.split(':').map(Number);
+			return (hours || 0) * 60 + (minutes || 0);
+		};
+
+		const inMinutes = parseTime(checkIn);
+		const outMinutes = parseTime(checkOut);
+		const totalMinutes = outMinutes - inMinutes;
+		const workingMinutes = totalMinutes - breakMinutes;
+
+		return new Duration(Math.max(0, workingMinutes));
+	}
+
+	/**
+	 * Format as decimal hours string (e.g., "8.25", "7.5", "8")
+	 */
+	toDecimalHours(): string {
+		const decimalHours = this.minutes / 60;
+		return decimalHours.toFixed(2).replace(/\.?0+$/, ''); // Remove trailing zeros
 	}
 }

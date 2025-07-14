@@ -2,7 +2,7 @@
 
 A terminal-based Jira time tracking application that makes logging work effortless. Built with Ink (React for terminals) to provide a smooth, keyboard-driven interface for managing your Jira worklogs.
 
-![Node Version](https://img.shields.io/badge/node-%3E%3D16-brightgreen)
+![Node Version](https://img.shields.io/badge/node-%3E%3D18-brightgreen)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
@@ -342,7 +342,7 @@ Enter time in various formats:
 
 ### Prerequisites
 
-- Node.js 16 or higher
+- Node.js 18 or higher
 - npm or yarn
 
 ### Setup
