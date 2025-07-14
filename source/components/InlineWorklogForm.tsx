@@ -77,16 +77,32 @@ export function InlineWorklogForm({
 
 			// Tab navigation between areas
 			if (key.tab) {
-				if (focusArea === 'time') {
-					// Normalize time when leaving time field
-					normalizeTimeOnBlur(timeInputValue);
-					setFocusArea('comment');
-				} else if (focusArea === 'comment') {
-					setFocusArea('submit');
-				} else if (focusArea === 'submit') {
-					setFocusArea('cancel');
-				} else if (focusArea === 'cancel') {
-					setFocusArea('time');
+				if (key.shift) {
+					// Shift+Tab for reverse navigation
+					if (focusArea === 'time') {
+						setFocusArea('cancel');
+					} else if (focusArea === 'comment') {
+						// Normalize time when leaving time field
+						normalizeTimeOnBlur(timeInputValue);
+						setFocusArea('time');
+					} else if (focusArea === 'submit') {
+						setFocusArea('comment');
+					} else if (focusArea === 'cancel') {
+						setFocusArea('submit');
+					}
+				} else {
+					// Regular Tab for forward navigation
+					if (focusArea === 'time') {
+						// Normalize time when leaving time field
+						normalizeTimeOnBlur(timeInputValue);
+						setFocusArea('comment');
+					} else if (focusArea === 'comment') {
+						setFocusArea('submit');
+					} else if (focusArea === 'submit') {
+						setFocusArea('cancel');
+					} else if (focusArea === 'cancel') {
+						setFocusArea('time');
+					}
 				}
 				return;
 			}

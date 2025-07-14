@@ -386,6 +386,28 @@ export function TimetableGrid({
 		[focusedCell, getAllFocusableItems, focus],
 	);
 
+	// Handle reverse tab navigation (Shift+Tab)
+	const handleReverseTabNavigation = useCallback(() => {
+		if (!focusedCell) return;
+
+		const focusableItems = getAllFocusableItems();
+		const currentIndex = focusableItems.findIndex(
+			item =>
+				item.issueKey === focusedCell.issueKey &&
+				item.columnIndex === focusedCell.columnIndex,
+		);
+
+		if (currentIndex === -1) return;
+
+		// Move to previous item with wraparound
+		const newIndex =
+			currentIndex > 0 ? currentIndex - 1 : focusableItems.length - 1;
+		const targetItem = focusableItems[newIndex];
+		if (targetItem) {
+			focus(targetItem.focusId);
+		}
+	}, [focusedCell, getAllFocusableItems, focus]);
+
 	// Enhanced input handling with arrow key support
 	useInput((_input, key) => {
 		// Only handle input when table is active
@@ -422,6 +444,12 @@ export function TimetableGrid({
 
 		if (key.shift && key.rightArrow && onWeekChange) {
 			onWeekChange('next');
+			return;
+		}
+
+		// Shift+Tab for reverse tab navigation
+		if (key.shift && key.tab) {
+			handleReverseTabNavigation();
 			return;
 		}
 

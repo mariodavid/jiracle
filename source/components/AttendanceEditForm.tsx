@@ -96,16 +96,32 @@ export function AttendanceEditForm({
 
 			// Tab navigation between areas
 			if (key.tab) {
-				if (focusArea === 'checkIn') {
-					setFocusArea('checkOut');
-				} else if (focusArea === 'checkOut') {
-					setFocusArea('break');
-				} else if (focusArea === 'break') {
-					setFocusArea('submit');
-				} else if (focusArea === 'submit') {
-					setFocusArea('cancel');
-				} else if (focusArea === 'cancel') {
-					setFocusArea('checkIn');
+				if (key.shift) {
+					// Shift+Tab for reverse navigation
+					if (focusArea === 'checkIn') {
+						setFocusArea('cancel');
+					} else if (focusArea === 'checkOut') {
+						setFocusArea('checkIn');
+					} else if (focusArea === 'break') {
+						setFocusArea('checkOut');
+					} else if (focusArea === 'submit') {
+						setFocusArea('break');
+					} else if (focusArea === 'cancel') {
+						setFocusArea('submit');
+					}
+				} else {
+					// Regular Tab for forward navigation
+					if (focusArea === 'checkIn') {
+						setFocusArea('checkOut');
+					} else if (focusArea === 'checkOut') {
+						setFocusArea('break');
+					} else if (focusArea === 'break') {
+						setFocusArea('submit');
+					} else if (focusArea === 'submit') {
+						setFocusArea('cancel');
+					} else if (focusArea === 'cancel') {
+						setFocusArea('checkIn');
+					}
 				}
 				return;
 			}
@@ -207,7 +223,8 @@ export function AttendanceEditForm({
 
 			<Box marginTop={1}>
 				<Text color="gray">
-					[Tab] Feld wechseln [Enter] Speichern [Esc] Abbrechen
+					[Tab] Feld wechseln [Shift+Tab] Zurück [Enter] Speichern [Esc]
+					Abbrechen
 				</Text>
 			</Box>
 		</Box>
