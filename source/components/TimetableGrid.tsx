@@ -243,10 +243,174 @@ export function TimetableGrid({
 		}
 	}, [defaultFocusId, focus]);
 
-	// Simplified input handling - only week navigation and special keys
+	// Create a flat list of all focusable cells for arrow key navigation
+	const getAllFocusableItems = useCallback(() => {
+		const items: Array<{
+			focusId: string;
+			issueKey: string;
+			columnIndex: number;
+			isAttendance: boolean;
+		}> = [];
+
+		// Add attendance cells if attendance manager is available
+		if (attendanceManager) {
+			for (let columnIndex = 0; columnIndex < 5; columnIndex++) {
+				items.push({
+					focusId: `attendance-attendance-${columnIndex}`,
+					issueKey: 'attendance-attendance',
+					columnIndex,
+					isAttendance: true,
+				});
+			}
+		}
+
+		// Add issue cells
+		for (const group of issueGroups) {
+			for (const [issueKey] of group.issues) {
+				for (let columnIndex = 0; columnIndex < 5; columnIndex++) {
+					items.push({
+						focusId: `issue-${issueKey}-${columnIndex}`,
+						issueKey,
+						columnIndex,
+						isAttendance: false,
+					});
+				}
+			}
+		}
+
+		return items;
+	}, [attendanceManager, issueGroups]);
+
+	// Handle arrow key navigation
+	const handleArrowNavigation = useCallback(
+		(direction: 'up' | 'down' | 'left' | 'right') => {
+			if (!focusedCell) return;
+
+			const focusableItems = getAllFocusableItems();
+			const currentIndex = focusableItems.findIndex(
+				item =>
+					item.issueKey === focusedCell.issueKey &&
+					item.columnIndex === focusedCell.columnIndex,
+			);
+
+			if (currentIndex === -1) return;
+
+			let newIndex: number;
+
+			switch (direction) {
+				case 'up': {
+					// Move to previous row (same column) with wraparound
+					const currentColumnIndex = focusedCell.columnIndex;
+					const sameDayItems = focusableItems.filter(
+						item => item.columnIndex === currentColumnIndex,
+					);
+					const currentRowIndex = sameDayItems.findIndex(
+						item => item.issueKey === focusedCell.issueKey,
+					);
+
+					// Wrap to bottom if at top, otherwise go up
+					const targetRowIndex =
+						currentRowIndex > 0 ? currentRowIndex - 1 : sameDayItems.length - 1; // Wrap to bottom row
+
+					const targetItem = sameDayItems[targetRowIndex];
+					if (targetItem) {
+						newIndex = focusableItems.findIndex(
+							item =>
+								item.issueKey === targetItem.issueKey &&
+								item.columnIndex === targetItem.columnIndex,
+						);
+					} else {
+						return;
+					}
+					break;
+				}
+				case 'down': {
+					// Move to next row (same column) with wraparound
+					const currentColumnIndex = focusedCell.columnIndex;
+					const sameDayItems = focusableItems.filter(
+						item => item.columnIndex === currentColumnIndex,
+					);
+					const currentRowIndex = sameDayItems.findIndex(
+						item => item.issueKey === focusedCell.issueKey,
+					);
+
+					// Wrap to top if at bottom, otherwise go down
+					const targetRowIndex =
+						currentRowIndex < sameDayItems.length - 1 ? currentRowIndex + 1 : 0; // Wrap to top row
+
+					const targetItem = sameDayItems[targetRowIndex];
+					if (targetItem) {
+						newIndex = focusableItems.findIndex(
+							item =>
+								item.issueKey === targetItem.issueKey &&
+								item.columnIndex === targetItem.columnIndex,
+						);
+					} else {
+						return;
+					}
+					break;
+				}
+				case 'left': {
+					// Move to previous column (same row) with wraparound
+					const targetColumnIndex =
+						focusedCell.columnIndex > 0 ? focusedCell.columnIndex - 1 : 4; // Wrap to rightmost column
+
+					newIndex = focusableItems.findIndex(
+						item =>
+							item.issueKey === focusedCell.issueKey &&
+							item.columnIndex === targetColumnIndex,
+					);
+					break;
+				}
+				case 'right': {
+					// Move to next column (same row) with wraparound
+					const targetColumnIndex =
+						focusedCell.columnIndex < 4 ? focusedCell.columnIndex + 1 : 0; // Wrap to leftmost column
+
+					newIndex = focusableItems.findIndex(
+						item =>
+							item.issueKey === focusedCell.issueKey &&
+							item.columnIndex === targetColumnIndex,
+					);
+					break;
+				}
+			}
+
+			if (newIndex >= 0 && newIndex < focusableItems.length) {
+				const targetItem = focusableItems[newIndex];
+				if (targetItem) {
+					focus(targetItem.focusId);
+				}
+			}
+		},
+		[focusedCell, getAllFocusableItems, focus],
+	);
+
+	// Enhanced input handling with arrow key support
 	useInput((_input, key) => {
 		// Only handle input when table is active
 		if (!isActive) {
+			return;
+		}
+
+		// Arrow key navigation (without shift)
+		if (!key.shift && key.upArrow) {
+			handleArrowNavigation('up');
+			return;
+		}
+
+		if (!key.shift && key.downArrow) {
+			handleArrowNavigation('down');
+			return;
+		}
+
+		if (!key.shift && key.leftArrow) {
+			handleArrowNavigation('left');
+			return;
+		}
+
+		if (!key.shift && key.rightArrow) {
+			handleArrowNavigation('right');
 			return;
 		}
 
@@ -315,8 +479,7 @@ export function TimetableGrid({
 			return;
 		}
 
-		// Note: Regular arrow keys and tab are handled by Ink's default focus system
-		// TODO: Add 'o' for browser opening, Enter for attendance editing
+		// Note: Tab key is still handled by Ink's default focus system
 	});
 
 	// CONDITIONAL RENDERING AFTER ALL HOOKS
