@@ -305,11 +305,17 @@ test('should render with proper layout structure', async t => {
 test('should handle onSelect callback errors gracefully', async t => {
 	const mockIssues = createMockIssueList(1);
 	const title = 'Test Issues';
+
+	let callbackWasCalled = false;
+	let errorWasThrown = false;
+
 	const onSelect = (_key: string) => {
+		callbackWasCalled = true;
+		errorWasThrown = true;
 		throw new Error('Test error');
 	};
 
-	const {stdin, unmount} = render(
+	const {stdin, lastFrame, unmount} = render(
 		React.createElement(IssueList, {
 			issues: mockIssues,
 			title,
@@ -320,12 +326,34 @@ test('should handle onSelect callback errors gracefully', async t => {
 	// Wait for component to render
 	await new Promise(resolve => setTimeout(resolve, delays.SHORT));
 
-	// This should not crash the test
+	// Verify component is functional before error
+	const outputBefore = lastFrame();
+	t.true(
+		outputBefore!.includes(title),
+		'Component should render correctly before error',
+	);
+
+	// Trigger the callback that throws an error
 	t.notThrows(() => {
 		stdin.write('\r');
-	});
+	}, 'Component should not crash when onSelect throws');
 
 	await new Promise(resolve => setTimeout(resolve, delays.SHORT));
+
+	// Verify the callback was actually called and threw an error
+	t.true(callbackWasCalled, 'onSelect callback should have been called');
+	t.true(errorWasThrown, 'Error should have been thrown in callback');
+
+	// Verify component remains functional after error
+	const outputAfter = lastFrame();
+	t.true(
+		outputAfter!.includes(title),
+		'Component should remain functional after callback error',
+	);
+	t.false(
+		outputAfter!.includes('Error'),
+		'Component should not display error message in UI',
+	);
 
 	unmount();
 });
