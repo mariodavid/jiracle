@@ -3,6 +3,22 @@ import React from 'react';
 import {render} from 'ink-testing-library';
 import {WeeklyTimetableView} from '../../components/WeeklyTimetableView.js';
 
+// Simple waitFor utility for integration tests
+const waitFor = async (
+	condition: () => boolean,
+	timeout = 1000,
+	interval = 50,
+) => {
+	const start = Date.now();
+	while (Date.now() - start < timeout) {
+		if (condition()) {
+			return;
+		}
+		await new Promise(resolve => setTimeout(resolve, interval));
+	}
+	throw new Error('Condition not met within timeout');
+};
+
 // Mock fetch to simulate API calls
 let mockFetchCallCount = 0;
 let shouldFailWorklogSubmit = false;
@@ -97,8 +113,13 @@ test('Integration: Component renders without errors', async t => {
 
 	const {lastFrame} = render(React.createElement(WeeklyTimetableView, props));
 
-	// Wait for initial render
-	await new Promise(resolve => setTimeout(resolve, 100));
+	// Wait for component to render with expected content
+	await waitFor(() => {
+		const output = lastFrame();
+		return (
+			output != null && output.includes('Week') && output.includes('[Q] Quit')
+		);
+	});
 
 	// Verify component structure is rendered correctly
 	const output = lastFrame()!;
@@ -134,8 +155,11 @@ test('Integration: Component handles API errors gracefully', async t => {
 
 	const {lastFrame} = render(React.createElement(WeeklyTimetableView, props));
 
-	// Wait for component to stabilize
-	await new Promise(resolve => setTimeout(resolve, 100));
+	// Wait for component to stabilize despite API errors
+	await waitFor(() => {
+		const output = lastFrame();
+		return output != null && output.includes('Week');
+	});
 
 	// Verify component still renders correctly despite API errors
 	const output = lastFrame()!;
@@ -169,7 +193,10 @@ test('Integration: Component accepts different configurations', async t => {
 
 	const {lastFrame} = render(React.createElement(WeeklyTimetableView, props));
 
-	await new Promise(resolve => setTimeout(resolve, 100));
+	await waitFor(() => {
+		const output = lastFrame();
+		return output != null && output.includes('Week');
+	});
 
 	// Verify component renders correctly with different config
 	const output = lastFrame()!;
@@ -204,8 +231,11 @@ test('Integration: Component lifecycle completes', async t => {
 		React.createElement(WeeklyTimetableView, props),
 	);
 
-	// Wait for component lifecycle
-	await new Promise(resolve => setTimeout(resolve, 150));
+	// Wait for component lifecycle to complete
+	await waitFor(() => {
+		const output = lastFrame();
+		return output != null && output.includes('Week');
+	});
 
 	// Verify component is functional before unmounting
 	const output = lastFrame()!;

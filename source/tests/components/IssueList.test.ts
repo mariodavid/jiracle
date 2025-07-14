@@ -307,11 +307,10 @@ test('should handle onSelect callback errors gracefully', async t => {
 	const title = 'Test Issues';
 
 	let callbackWasCalled = false;
-	let errorWasThrown = false;
+	let caughtError: Error | null = null;
 
 	const onSelect = (_key: string) => {
 		callbackWasCalled = true;
-		errorWasThrown = true;
 		throw new Error('Test error');
 	};
 
@@ -334,15 +333,18 @@ test('should handle onSelect callback errors gracefully', async t => {
 	);
 
 	// Trigger the callback that throws an error
-	t.notThrows(() => {
+	try {
 		stdin.write('\r');
-	}, 'Component should not crash when onSelect throws');
+		await new Promise(resolve => setTimeout(resolve, delays.SHORT));
+	} catch (error) {
+		caughtError = error as Error;
+	}
 
-	await new Promise(resolve => setTimeout(resolve, delays.SHORT));
-
-	// Verify the callback was actually called and threw an error
+	// Verify the callback was actually called
 	t.true(callbackWasCalled, 'onSelect callback should have been called');
-	t.true(errorWasThrown, 'Error should have been thrown in callback');
+
+	// The component should handle the error gracefully (not propagate it)
+	t.is(caughtError, null, 'Component should handle callback errors gracefully');
 
 	// Verify component remains functional after error
 	const outputAfter = lastFrame();
