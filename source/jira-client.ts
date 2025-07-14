@@ -25,6 +25,29 @@ export interface ReminderConfig {
 	weekdaysOnly: boolean;
 }
 
+// Bidirectional sliding window configuration
+export interface SlidingWindowConfig {
+	past: number;
+	future: number;
+}
+
+// Utility function to normalize sliding window configuration
+export function normalizeSlidingWindowConfig(
+	config: JiraConfig,
+): SlidingWindowConfig {
+	const slidingWindow = config.slidingWindowDays;
+
+	if (!slidingWindow) {
+		return {past: 0, future: 0};
+	}
+
+	// Only object format supported
+	return {
+		past: slidingWindow.past,
+		future: slidingWindow.future,
+	};
+}
+
 export interface JiraConfig {
 	jiraUrl: string;
 	username: string;
@@ -37,6 +60,8 @@ export interface JiraConfig {
 	workingHoursPerWeek?: number;
 	reminders?: ReminderConfig;
 	attendance?: AttendanceConfig;
+	// Sliding window configuration - only bidirectional object format
+	slidingWindowDays?: SlidingWindowConfig;
 }
 
 export interface JiraIssueField {

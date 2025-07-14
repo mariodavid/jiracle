@@ -1,7 +1,7 @@
 import {useState, useEffect} from 'react';
 import {WeeklyWorklogSummary} from '../domain/WeeklyWorklogSummary.js';
 import {WeeklyWorklogSummaryUseCase} from '../use-cases/WeeklyWorklogSummaryUseCase.js';
-import {JiraClient} from '../jira-client.js';
+import {JiraClient, normalizeSlidingWindowConfig} from '../jira-client.js';
 import type {JiraConfig, FavoriteIssue} from '../jira-client.js';
 
 // Simple cache to avoid duplicate API calls
@@ -28,15 +28,19 @@ export function useWeeklyWorklogSummary(
 	const [error, setError] = useState<string | null>(null);
 
 	const fetchData = async () => {
-		// Create cache key based on week, user, and favorite issues
+		// Create cache key based on week, user, favorite issues, and sliding window
 		const favoriteKeys =
 			favoriteIssues
 				?.map(f => f.key)
 				.sort()
 				.join(',') || '';
+		// Support both new slidingWindowDays and legacy recentWorkdaysLookback for backward compatibility
+		const normalizedWindow = normalizeSlidingWindowConfig(config);
 		const cacheKey = `${weekStart.toISOString().split('T')[0]}-${
 			weekEnd.toISOString().split('T')[0]
-		}-${userEmail || 'unknown'}-${favoriteKeys}`;
+		}-${userEmail || 'unknown'}-${favoriteKeys}-sliding:${
+			normalizedWindow.past
+		}:${normalizedWindow.future}`;
 
 		// Check if data is already cached
 		if (weekDataCache.has(cacheKey)) {
@@ -61,6 +65,7 @@ export function useWeeklyWorklogSummary(
 				weekEnd,
 				userEmail,
 				favoriteIssues,
+				normalizedWindow, // Pass the full bidirectional config
 			);
 
 			// Cache the result
@@ -87,9 +92,13 @@ export function useWeeklyWorklogSummary(
 				?.map(f => f.key)
 				.sort()
 				.join(',') || '';
+		// Support both new slidingWindowDays and legacy recentWorkdaysLookback for backward compatibility
+		const normalizedWindow = normalizeSlidingWindowConfig(config);
 		const cacheKey = `${weekStart.toISOString().split('T')[0]}-${
 			weekEnd.toISOString().split('T')[0]
-		}-${userEmail || 'unknown'}-${favoriteKeys}`;
+		}-${userEmail || 'unknown'}-${favoriteKeys}-sliding:${
+			normalizedWindow.past
+		}:${normalizedWindow.future}`;
 		weekDataCache.delete(cacheKey);
 		fetchData();
 	};

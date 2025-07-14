@@ -1,5 +1,6 @@
 import {JiraClient, type FavoriteIssue} from '../jira-client.js';
 import {formatLocalDateKey} from '../utils/date.js';
+import {uiLogger} from '../utils/logger.js';
 import {
 	WeeklyWorklogSummary,
 	DailyWorklogSummary,
@@ -15,6 +16,7 @@ export class WeeklyWorklogSummaryUseCase {
 		weekEnd: Date,
 		userEmail?: string,
 		favoriteIssues?: FavoriteIssue[],
+		slidingWindowConfig?: {past: number; future: number},
 	): Promise<WeeklyWorklogSummary> {
 		// Build JQL query for issues with worklogs in the date range
 		const jql = this.buildJqlQuery(weekStart, weekEnd);
@@ -26,30 +28,104 @@ export class WeeklyWorklogSummaryUseCase {
 		// Search for issues with worklogs in the date range
 		const searchResult = await this.jiraClient.searchIssuesWithWorklogs(jql);
 
+		// If sliding window is configured, fetch additional issues from the window period
+		let slidingWindowSearchResult = {issues: [] as any[]};
+		if (
+			slidingWindowConfig &&
+			(slidingWindowConfig.past > 0 || slidingWindowConfig.future > 0)
+		) {
+			const pastDays = slidingWindowConfig.past;
+			const futureDays = slidingWindowConfig.future;
+
+			// Calculate window start from the week start (past sliding window)
+			const windowStart = new Date(weekStart);
+			windowStart.setDate(weekStart.getDate() - pastDays);
+
+			// Calculate window end from the week end (future sliding window)
+			const windowEnd = new Date(weekEnd);
+			windowEnd.setTime(weekEnd.getTime() + futureDays * 24 * 60 * 60 * 1000);
+
+			uiLogger.debug('Sliding window configured', {
+				pastDays,
+				futureDays,
+				windowStart: windowStart.toISOString().split('T')[0],
+				windowEnd: windowEnd.toISOString().split('T')[0],
+				weekStart: weekStart.toISOString().split('T')[0],
+				weekEnd: weekEnd.toISOString().split('T')[0],
+			});
+
+			// Search for issues in the extended sliding window, excluding the current week
+			const pastSearchResults =
+				pastDays > 0
+					? await this.fetchSlidingWindowIssues(
+							windowStart,
+							new Date(weekStart.getTime() - 1),
+					  )
+					: {issues: []};
+			const futureSearchResults =
+				futureDays > 0
+					? await this.fetchSlidingWindowIssues(
+							new Date(weekEnd.getTime() + 24 * 60 * 60 * 1000),
+							windowEnd,
+					  )
+					: {issues: []};
+
+			// Merge past and future results, avoiding duplicates
+			const allSlidingWindowIssues = [
+				...pastSearchResults.issues,
+				...futureSearchResults.issues.filter(
+					futureIssue =>
+						!pastSearchResults.issues.some(
+							pastIssue => pastIssue.key === futureIssue.key,
+						),
+				),
+			];
+
+			slidingWindowSearchResult = {issues: allSlidingWindowIssues};
+
+			uiLogger.debug('Sliding window search completed', {
+				foundPastIssues: pastSearchResults.issues.length,
+				foundFutureIssues: futureSearchResults.issues.length,
+				totalSlidingWindowIssues: slidingWindowSearchResult.issues.length,
+				issueKeys: slidingWindowSearchResult.issues.map(issue => issue.key),
+			});
+		}
+
 		// Fetch favorite issues details if provided
 		const favoriteIssuesData =
 			favoriteIssues && favoriteIssues.length > 0
 				? await this.jiraClient.fetchFavoriteIssues(favoriteIssues)
 				: [];
 
-		// Merge worklogged issues with favorite issues (avoid duplicates)
+		// Merge worklogged issues, sliding window issues, and favorite issues (avoid duplicates)
 		const allIssueKeys = new Set([
 			...searchResult.issues.map(issue => issue.key),
+			...slidingWindowSearchResult.issues.map(issue => issue.key),
 			...favoriteIssuesData.map(issue => issue.key),
 		]);
+
+		uiLogger.debug('Issue collection summary', {
+			currentWeekIssues: searchResult.issues.length,
+			slidingWindowIssues: slidingWindowSearchResult.issues.length,
+			favoriteIssues: favoriteIssuesData.length,
+			totalUniqueIssues: allIssueKeys.size,
+		});
 
 		// Fetch detailed worklogs for each issue
 		const issuesWithWorklogs: IssueWithWorklogs[] = await Promise.all(
 			Array.from(allIssueKeys).map(async issueKey => {
-				// Find issue data from either worklogs search or favorites
+				// Find issue data from either worklogs search, sliding window search, or favorites
 				const worklogIssue = searchResult.issues.find(
+					issue => issue.key === issueKey,
+				);
+				const slidingWindowIssue = slidingWindowSearchResult.issues.find(
 					issue => issue.key === issueKey,
 				);
 				const favoriteIssue = favoriteIssuesData.find(
 					issue => issue.key === issueKey,
 				);
 
-				const issueData = worklogIssue || favoriteIssue;
+				const issueData = worklogIssue || slidingWindowIssue || favoriteIssue;
 				if (!issueData) {
 					throw new Error(`Issue data not found for ${issueKey}`);
 				}
@@ -88,6 +164,17 @@ export class WeeklyWorklogSummaryUseCase {
 			);
 		}
 
+		// Add sliding window issues without current week worklogs to the first available day
+		if (slidingWindowSearchResult.issues.length > 0) {
+			this.addSlidingWindowIssuesWithoutWorklogs(
+				dailySummaries,
+				issuesWithWorklogs,
+				slidingWindowSearchResult.issues,
+				favoriteIssuesData,
+				weekStart,
+			);
+		}
+
 		// Calculate week total
 		const weekTotal = dailySummaries.reduce(
 			(sum, day) => sum + day.totalHours,
@@ -111,6 +198,21 @@ export class WeeklyWorklogSummaryUseCase {
 
 	private formatDateForJql(date: Date): string {
 		return date.toISOString().split('T')[0]!; // YYYY-MM-DD format
+	}
+
+	private async fetchSlidingWindowIssues(
+		startDate: Date,
+		endDate: Date,
+	): Promise<{issues: any[]}> {
+		const dateRange = {
+			from: startDate.toISOString().split('T')[0],
+			to: endDate.toISOString().split('T')[0],
+		};
+
+		uiLogger.debug('Searching for sliding window issues', {dateRange});
+
+		const windowJql = this.buildJqlQuery(startDate, endDate);
+		return await this.jiraClient.searchIssuesWithWorklogs(windowJql);
 	}
 
 	private aggregateWorklogsByDay(
@@ -173,19 +275,19 @@ export class WeeklyWorklogSummaryUseCase {
 
 	private addFavoriteIssuesWithoutWorklogs(
 		dailySummaries: DailyWorklogSummary[],
-		issuesWithWorklogs: IssueWithWorklogs[],
+		_issuesWithWorklogs: IssueWithWorklogs[],
 		favoriteIssuesData: any[],
 		weekStart: Date,
 	): void {
-		// Find favorite issues that have no worklogs
-		const issueKeysWithWorklogs = new Set(
-			issuesWithWorklogs
-				.filter(iwl => iwl.worklogs.length > 0)
-				.map(iwl => iwl.issue.key),
+		// Find favorite issues that have no worklogs in current week
+		const issueKeysWithCurrentWeekWorklogs = new Set(
+			dailySummaries.flatMap(summary =>
+				summary.issues.map(issue => issue.issueKey),
+			),
 		);
 
 		const favoriteIssuesWithoutWorklogs = favoriteIssuesData.filter(
-			favorite => !issueKeysWithWorklogs.has(favorite.key),
+			favorite => !issueKeysWithCurrentWeekWorklogs.has(favorite.key),
 		);
 
 		if (favoriteIssuesWithoutWorklogs.length === 0) {
@@ -208,6 +310,64 @@ export class WeeklyWorklogSummaryUseCase {
 			firstDay.issues.push({
 				issueKey: favorite.key,
 				issueSummary: favorite.fields.summary,
+				hours: 0,
+			});
+		});
+	}
+
+	private addSlidingWindowIssuesWithoutWorklogs(
+		dailySummaries: DailyWorklogSummary[],
+		_issuesWithWorklogs: IssueWithWorklogs[],
+		slidingWindowIssues: any[],
+		favoriteIssuesData: any[],
+		weekStart: Date,
+	): void {
+		// Find issues that have worklogs in current week or are already favorites
+		const issueKeysWithCurrentWeekWorklogs = new Set(
+			dailySummaries.flatMap(summary =>
+				summary.issues.map(issue => issue.issueKey),
+			),
+		);
+		const favoriteIssueKeys = new Set(favoriteIssuesData.map(fav => fav.key));
+
+		const slidingWindowIssuesWithoutCurrentWeekWorklogs =
+			slidingWindowIssues.filter(
+				issue =>
+					!issueKeysWithCurrentWeekWorklogs.has(issue.key) &&
+					!favoriteIssueKeys.has(issue.key),
+			);
+
+		uiLogger.debug('Adding sliding window issues to timetable', {
+			candidateSlidingWindowIssues: slidingWindowIssues.length,
+			issuesWithCurrentWorklogs: issueKeysWithCurrentWeekWorklogs.size,
+			favoriteIssuesCount: favoriteIssueKeys.size,
+			slidingWindowIssuesToAdd:
+				slidingWindowIssuesWithoutCurrentWeekWorklogs.length,
+			issueKeysToAdd: slidingWindowIssuesWithoutCurrentWeekWorklogs.map(
+				issue => issue.key,
+			),
+		});
+
+		if (slidingWindowIssuesWithoutCurrentWeekWorklogs.length === 0) {
+			return;
+		}
+
+		// Create or use first day to add sliding window issues with 0 hours
+		if (dailySummaries.length === 0) {
+			// No worklogs at all, create a summary for the first day of the week
+			dailySummaries.push({
+				date: new Date(weekStart),
+				totalHours: 0,
+				issues: [],
+			});
+		}
+
+		// Add sliding window issues with 0 hours to the first day
+		const firstDay = dailySummaries[0]!;
+		slidingWindowIssuesWithoutCurrentWeekWorklogs.forEach(issue => {
+			firstDay.issues.push({
+				issueKey: issue.key,
+				issueSummary: issue.fields.summary,
 				hours: 0,
 			});
 		});

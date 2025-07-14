@@ -127,7 +127,7 @@ test('AttendanceEditForm shows correct help text for navigation', t => {
 	t.true(output.includes('[Esc] Abbrechen'));
 });
 
-test('AttendanceEditForm Escape cancels from any focus area', t => {
+test('AttendanceEditForm Escape cancels from any focus area', async t => {
 	let cancelled = false;
 	const cancelProps = {
 		...mockProps,
@@ -136,22 +136,36 @@ test('AttendanceEditForm Escape cancels from any focus area', t => {
 		},
 	};
 
-	const {stdin} = render(React.createElement(AttendanceEditForm, cancelProps));
+	const {stdin, lastFrame} = render(
+		React.createElement(AttendanceEditForm, cancelProps),
+	);
 
-	// Start at checkIn field, press Escape
-	stdin.write('\u001b'); // Escape
+	// Allow component to fully initialize focus and input handling
+	await new Promise(resolve => setTimeout(resolve, 100));
+
+	// Verify tab works first
+	stdin.write('\t'); // checkIn -> checkOut
+	await new Promise(resolve => setTimeout(resolve, 50));
+	let output = lastFrame() || '';
+	t.true(output.includes('Ende:')); // Should be on checkOut field
+
+	// Now try escape
+	stdin.write('\x1B'); // Hex escape sequence
+	await new Promise(resolve => setTimeout(resolve, 100)); // Allow event processing
 	t.true(cancelled);
 
-	// Reset and test from different focus areas
+	// Reset and test from original position
 	cancelled = false;
-
-	// Tab to checkOut field and press Escape
-	stdin.write('\t'); // checkIn -> checkOut
-	stdin.write('\u001b'); // Escape
+	const {stdin: stdin2} = render(
+		React.createElement(AttendanceEditForm, cancelProps),
+	);
+	await new Promise(resolve => setTimeout(resolve, 100));
+	stdin2.write('\x1B'); // Escape from checkIn field
+	await new Promise(resolve => setTimeout(resolve, 100));
 	t.true(cancelled);
 });
 
-test('AttendanceEditForm Enter submits from submit button', t => {
+test('AttendanceEditForm Enter submits from submit button', async t => {
 	let submitted = false;
 	const submitProps = {
 		...mockProps,
@@ -162,12 +176,25 @@ test('AttendanceEditForm Enter submits from submit button', t => {
 
 	const {stdin} = render(React.createElement(AttendanceEditForm, submitProps));
 
-	// Tab to submit button
-	stdin.write('\t'); // checkIn -> checkOut
-	stdin.write('\t'); // checkOut -> break
-	stdin.write('\t'); // break -> submit
+	// Allow component to fully initialize focus and input handling
+	await new Promise(resolve => setTimeout(resolve, 100));
 
-	// Press Enter on submit button
-	stdin.write('\r'); // Enter
-	t.true(submitted);
+	// According to the component logic:
+	// - Enter from time fields moves focus to submit button
+	// - Enter when already on submit button actually submits
+	// So we need TWO enter presses!
+
+	// First enter: move focus to submit button
+	stdin.write('\r');
+	await new Promise(resolve => setTimeout(resolve, 100));
+
+	// Verify we haven't submitted yet (first enter just moves focus)
+	t.false(submitted, 'First enter should only move focus, not submit');
+
+	// Second enter: actually submit
+	stdin.write('\r');
+	await new Promise(resolve => setTimeout(resolve, 100));
+
+	// Now we should have submitted
+	t.true(submitted, 'Second enter should trigger submit');
 });

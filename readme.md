@@ -1,8 +1,10 @@
 # Jiracle
 
+![Jiracle Logo](assets/logo.png)
+
 A terminal-based Jira time tracking application that makes logging work effortless. Built with Ink (React for terminals) to provide a smooth, keyboard-driven interface for managing your Jira worklogs.
 
-![Node Version](https://img.shields.io/badge/node-%3E%3D18-brightgreen)
+![Node Version](https://img.shields.io/badge/node-%3E%3D16-brightgreen)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
@@ -21,14 +23,15 @@ The application presents your Jira issues in a calendar-like timetable where eac
 
 ## Features
 
-- **Weekly Timetable View** - See all your Jira issues in a week-at-a-glance grid
+- **Weekly Timetable View** - See all your Jira issues in a week-at-a-glance grid with attendance tracking
 - **Keyboard Navigation** - Navigate efficiently with arrow keys and shortcuts
 - **Quick Time Entry** - Log time directly in the grid cells with inline forms
-- **Smart Issue Selection** - Access favorites, assigned issues, or search by key
+- **Attendance Tracking** - Built-in check-in/check-out with working hours calculation
+- **Issue Organization** - Group issues and configure project-level defaults
 - **Daily Reminders** - Automatic desktop notifications to remind you to log time
-- **Default Comments** - Configure global and issue-specific default comments
-- **Favorite Issues** - Quick access to frequently used issues
-- **Inline Editing** - Edit worklogs without leaving the timetable view
+- **Smart Defaults** - Hierarchical configuration with group, project, and issue-specific defaults
+- **Favorite Issues** - Quick access to frequently used issues with aliases
+- **Recent Work Continuity** - Show recently worked issues across week boundaries
 - **Beautiful Terminal UI** - Clean, responsive interface built with Ink
 
 ### How It Works
@@ -48,13 +51,20 @@ The application presents your Jira issues in a calendar-like timetable where eac
 ### Workflow Example
 
 ```
-Monday    Tuesday   Wednesday Thursday  Friday
-PROJ-123  2h        -         4h        -         -
-PROJ-456  -         6h        2h        -         -
-PROJ-789  4h        -         -         8h        -
+                Monday    Tuesday   Wednesday Thursday  Friday
+Attendance      08:30-17:00  08:45-17:30  09:00-17:15  -      -
+PROJ-123        2h        -         4h        -         -
+PROJ-456        -         6h        2h        -         -
+PROJ-789        4h        -         -         8h        -
 ```
 
-Navigate to any cell, press Enter, type "2h 30m", add a comment, and you're done. The interface updates instantly, and your time is logged in Jira.
+Navigate to any cell, press Enter to edit:
+
+- **Worklog cells**: Enter time ("2h 30m"), add comment, submit to Jira
+- **Attendance cells**: Set check-in/check-out times, calculate working hours
+- Use `I`/`O` shortcuts for quick attendance tracking
+- Use `Shift+←→` to navigate between weeks, `T` to jump to current week
+- Visual feedback shows your progress and total hours
 
 ## Installation
 
@@ -83,29 +93,56 @@ Create a configuration file at `~/.config/jiracle.json`:
 		"times": ["11:30", "16:30"],
 		"weekdaysOnly": true
 	},
+	"workingHoursPerWeek": 40,
+	"groups": [
+		{
+			"id": "development",
+			"name": "Development Work",
+			"defaultComment": "Development and coding tasks",
+			"defaultTime": "2h",
+			"desiredAmount": 6
+		}
+	],
+	"projects": [
+		{
+			"key": "PROJ",
+			"groupId": "development"
+		}
+	],
 	"favorites": [
 		{
 			"key": "PROJ-123",
-			"defaultComment": "Development work on main project"
+			"alias": "Main Feature",
+			"defaultComment": "Development work on main project",
+			"groupId": "development"
 		},
 		{
 			"key": "PROJ-456"
 		}
-	]
+	],
+	"slidingWindowDays": {
+		"past": 14,
+		"future": 7
+	}
 }
 ```
 
 ### Configuration Options
 
-| Option           | Required | Description                                                             |
-| ---------------- | -------- | ----------------------------------------------------------------------- |
-| `jiraUrl`        | Yes      | Your Jira instance URL (e.g., `https://company.atlassian.net`)          |
-| `username`       | Yes      | Your Jira username/email                                                |
-| `apiToken`       | Yes      | Your Jira API token                                                     |
-| `defaultComment` | No       | Default comment for all worklogs when no specific comment is configured |
-| `reminders`      | No       | Daily reminder settings for desktop notifications                       |
-| `favorites`      | No       | Array of favorite issues with optional default comments                 |
-| `attendance`     | No       | Attendance tracking configuration                                       |
+| Option                | Required | Description                                                                  |
+| --------------------- | -------- | ---------------------------------------------------------------------------- |
+| `jiraUrl`             | Yes      | Your Jira instance URL (e.g., `https://company.atlassian.net`)               |
+| `username`            | Yes      | Your Jira username/email                                                     |
+| `apiToken`            | Yes      | Your Jira API token                                                          |
+| `defaultComment`      | No       | Global default comment for all worklogs                                      |
+| `defaultTime`         | No       | Global default time (e.g., "1h", "2h")                                       |
+| `workingHoursPerWeek` | No       | Expected working hours per week for tracking purposes                        |
+| `reminders`           | No       | Daily reminder settings for desktop notifications                            |
+| `groups`              | No       | Issue groups with shared defaults and organization                           |
+| `projects`            | No       | Project-level defaults and group assignments                                 |
+| `favorites`           | No       | Array of favorite issues with optional aliases and defaults                  |
+| `attendance`          | No       | Attendance tracking configuration                                            |
+| `slidingWindowDays`   | No       | Show issues worked on around the current week (object with past/future days) |
 
 ### Attendance Configuration
 
@@ -137,6 +174,115 @@ Create a configuration file at `~/.config/jiracle.json`:
 
 **Note**: By default, `jiracle checkin` and `jiracle checkout` use the current time, not the configured default times. The `defaultCheckIn` and `defaultCheckOut` values are only used by the UI components.
 
+### Sliding Window
+
+The `slidingWindowDays` feature improves the weekly timetable view by showing issues you've worked on around the current week, even if they don't have any worklogs in the current week. This sliding window moves with whatever week you're currently viewing, preventing your timetable from becoming sparse when navigating between weeks.
+
+**How it works:**
+
+- When viewing the weekly timetable, Jiracle includes:
+  1. **Favorite issues** (always shown)
+  2. **Issues with worklogs in the current week**
+  3. **Issues worked on in the sliding window period** (if `slidingWindowDays` is configured)
+
+**Configuration example:**
+
+```json
+{
+	"slidingWindowDays": {
+		"past": 14,
+		"future": 7
+	}
+}
+```
+
+**Benefits:**
+
+- **Improved continuity**: Recent and upcoming work remains visible when navigating between weeks
+- **Better context**: See what you worked on recently and plan to work on relative to the week you're viewing
+- **Flexible window size**: Configure how many days back and forward to include (7, 14, 30, etc.)
+- **Smart deduplication**: Issues are only shown once, even if they qualify through multiple criteria
+- **Week-relative**: The window slides with the week you're viewing, not fixed to today's date
+- **Bidirectional support**: Look both backward (past work) and forward (planned work)
+
+**Example scenario:**
+
+When viewing the week of Oct 7-13 with `{past: 14, future: 7}`, you'll see:
+
+- Issues worked on from Sep 23 to Oct 6 (past window)
+- Issues with worklogs in Oct 7-13 (current week)
+- Issues worked on from Oct 14-20 (future window)
+
+**Performance notes:**
+
+- Makes additional API calls for the sliding window period when configured
+- Results are cached for efficient performance
+- Set past/future to `0` to disable those directions
+- Omit `slidingWindowDays` entirely to disable the feature
+
+### Issue Groups and Organization
+
+Jiracle supports organizing your work into groups with shared defaults and visual organization. This helps manage different types of work with appropriate time allocations and comments.
+
+**Groups Configuration:**
+
+```json
+{
+	"groups": [
+		{
+			"id": "development",
+			"name": "Development Work",
+			"defaultComment": "Development and coding tasks",
+			"defaultTime": "2h",
+			"desiredAmount": 6
+		},
+		{
+			"id": "meetings",
+			"name": "Meetings & Communication",
+			"defaultComment": "Team meetings and stakeholder communication",
+			"defaultTime": "1h",
+			"desiredAmount": 2
+		}
+	]
+}
+```
+
+**Project-Level Configuration:**
+
+```json
+{
+	"projects": [
+		{
+			"key": "PROJ",
+			"groupId": "development"
+		},
+		{
+			"key": "MEET",
+			"groupId": "meetings"
+		}
+	]
+}
+```
+
+**Group Options:**
+
+| Option           | Type   | Description                              |
+| ---------------- | ------ | ---------------------------------------- |
+| `id`             | string | Unique identifier for the group          |
+| `name`           | string | Display name for the group               |
+| `defaultComment` | string | Default comment for issues in this group |
+| `defaultTime`    | string | Default time allocation (e.g., "2h")     |
+| `desiredAmount`  | number | Target hours per day/week for this group |
+
+**Configuration Priority:**
+
+When determining defaults for an issue, Jiracle uses this hierarchy:
+
+1. **Issue-specific** defaults (from favorites configuration)
+2. **Group defaults** (if the issue/project belongs to a group)
+3. **Global defaults** (from main configuration)
+4. **Built-in fallbacks** (1h time, empty comment)
+
 ### Favorite Issues
 
 Favorite issues can be configured in two ways:
@@ -147,20 +293,35 @@ Favorite issues can be configured in two ways:
 "favorites": ["PROJ-123", "PROJ-456"]
 ```
 
-**Advanced format** (with default comments):
+**Advanced format** (with aliases, defaults, and group assignment):
 
 ```json
 "favorites": [
 	{
 		"key": "PROJ-123",
-		"defaultComment": "Development work on main project"
+		"alias": "Main Feature Development",
+		"defaultComment": "Development work on main project",
+		"defaultTime": "3h",
+		"groupId": "development"
 	},
 	{
 		"key": "PROJ-456",
-		"defaultComment": "Bug fixes and maintenance"
+		"alias": "Bug Fixes",
+		"defaultComment": "Bug fixes and maintenance",
+		"defaultTime": "1h"
 	}
 ]
 ```
+
+**Favorite Issue Options:**
+
+| Option           | Type   | Description                                 |
+| ---------------- | ------ | ------------------------------------------- |
+| `key`            | string | Jira issue key (required)                   |
+| `alias`          | string | Display name for the issue in the timetable |
+| `defaultComment` | string | Default comment for this specific issue     |
+| `defaultTime`    | string | Default time allocation (e.g., "2h")        |
+| `groupId`        | string | ID of the group this issue belongs to       |
 
 ### Comment Priority
 
@@ -315,12 +476,18 @@ jiracle status
 
 #### Weekly Timetable View
 
-- `↑↓←→` - Navigate between cells
-- `Enter` - Edit selected cell
-- `i` - Add new issue
-- `r` - Refresh data
-- `q` - Quit
-- `?` - Show help
+- `↑↓←→` - Navigate between cells (issues and days)
+- `Enter` - Edit selected cell (worklog or attendance entry)
+- `Shift+←→` - Navigate between weeks (previous/next week)
+- `Tab` / `Shift+Tab` - Navigate between focusable elements
+- `D` - Delete worklogs/attendance for focused cell
+- `I` - Check in (attendance tracking)
+- `O` - Check out (attendance tracking)
+- `Shift+O` - Open focused issue in browser (when supported)
+- `T` - Go to current week
+- `R` - Refresh data from Jira
+- `Q` - Quit application
+- `L` - Add new issue (when in worklog mode)
 
 #### Worklog Form
 
@@ -342,7 +509,7 @@ Enter time in various formats:
 
 ### Prerequisites
 
-- Node.js 18 or higher
+- Node.js 16 or higher
 - npm or yarn
 
 ### Setup
@@ -377,8 +544,11 @@ npx ava dist/**/*.test.js -m "*pattern*"
 # Check code formatting
 npm run test:prettier
 
-# Run linter
+# Run XO linter
 npm run test:xo
+
+# Build and start application
+npm start
 ```
 
 ### Project Structure

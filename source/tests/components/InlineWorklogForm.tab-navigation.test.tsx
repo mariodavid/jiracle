@@ -108,26 +108,48 @@ test('InlineWorklogForm Tab and Shift+Tab navigation cycles correctly', t => {
 	t.true(output.includes('[Submit]'));
 });
 
-test('InlineWorklogForm Escape cancels from any focus area', t => {
+test('InlineWorklogForm Escape cancels from any focus area', async t => {
 	let cancelled = false;
 	const cancelProps = {
-		...mockProps,
+		issueKey: 'TEST-123',
+		date: new Date('2025-07-10T00:00:00.000Z'),
+		defaultTimeSpent: '1h',
+		defaultComment: '',
+		onSubmit: () => {},
 		onCancel: () => {
 			cancelled = true;
 		},
 	};
 
-	const {stdin} = render(React.createElement(InlineWorklogForm, cancelProps));
+	const {stdin, lastFrame} = render(
+		React.createElement(InlineWorklogForm, cancelProps),
+	);
 
-	// Start at time field, press Escape
-	stdin.write('\u001b'); // Escape
+	// Let the component fully initialize
+	await new Promise(resolve => setTimeout(resolve, 100));
+
+	// Tab should work
+	stdin.write('\t');
+	await new Promise(resolve => setTimeout(resolve, 50));
+
+	let output = lastFrame() || '';
+	// Verify tab worked (should be on comment field now)
+	t.true(output.includes('Comment:'));
+
+	// Now try escape
+	stdin.write('\x1B');
+	await new Promise(resolve => setTimeout(resolve, 100));
+
+	// Should have cancelled
 	t.true(cancelled);
 
-	// Reset and test from different focus areas
+	// Reset and test from original position
 	cancelled = false;
-
-	// Tab to comment field and press Escape
-	stdin.write('\t'); // time -> comment
-	stdin.write('\u001b'); // Escape
+	const {stdin: stdin2} = render(
+		React.createElement(InlineWorklogForm, cancelProps),
+	);
+	await new Promise(resolve => setTimeout(resolve, 100));
+	stdin2.write('\x1B');
+	await new Promise(resolve => setTimeout(resolve, 100));
 	t.true(cancelled);
 });
