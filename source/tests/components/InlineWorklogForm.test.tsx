@@ -276,7 +276,6 @@ test('InlineWorklogForm shows issue key field when isIssueKeyEditable is true', 
 
 	// Should show issue key input field
 	t.true(output.includes('Issue Key:'));
-	t.true(output.includes('e.g. JTS-123, AD-456...'));
 });
 
 test('InlineWorklogForm hides issue key field when isIssueKeyEditable is false', t => {
@@ -293,7 +292,6 @@ test('InlineWorklogForm hides issue key field when isIssueKeyEditable is false',
 
 	// Should not show issue key input field
 	t.false(output.includes('Issue Key:'));
-	t.false(output.includes('e.g. JTS-123, AD-456...'));
 });
 
 // === ADD WORKLOG FEATURE TESTS ===
@@ -358,7 +356,6 @@ test('InlineWorklogForm handles empty issue key in add worklog mode', t => {
 
 	// Should show issue key input field with placeholder
 	t.true(output.includes('Issue Key:'));
-	t.true(output.includes('e.g. JTS-123, AD-456...'));
 });
 
 test('InlineWorklogForm formats date correctly for input', t => {

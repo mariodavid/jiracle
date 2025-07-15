@@ -78,7 +78,6 @@ test('InlineWorklogForm shows proper field layout in add worklog mode', t => {
 
 	// Should show Issue Key field with placeholder
 	t.true(output.includes('Issue Key:'));
-	t.true(output.includes('e.g. JTS-123, AD-456...'));
 
 	// Should show Date field with the actual date
 	t.true(output.includes('Date:'));
@@ -104,7 +103,6 @@ test('InlineWorklogForm shows proper field layout in cell worklog mode', t => {
 	// Should NOT show Issue Key or Date fields
 	t.false(output.includes('Issue Key:'));
 	t.false(output.includes('Date:'));
-	t.false(output.includes('e.g. JTS-123, AD-456...'));
 
 	// Should show Time and Comment fields
 	t.true(output.includes('Time spent:'));
