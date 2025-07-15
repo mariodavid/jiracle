@@ -57,7 +57,7 @@ export function InlineWorklogForm({
 	const [currentIssueKey, setCurrentIssueKey] = useState(issueKey);
 	const [currentDate, setCurrentDate] = useState(date);
 	const [dateInputValue, setDateInputValue] = useState(
-		date.toISOString().split('T')[0] // YYYY-MM-DD format
+		date.toISOString().split('T')[0], // YYYY-MM-DD format
 	);
 	const [selectedTime, setSelectedTime] = useState(() => {
 		return getDefaultTime();
@@ -223,7 +223,7 @@ export function InlineWorklogForm({
 					}
 				}
 			},
-			{isActive}
+			{isActive},
 		);
 
 		return (
@@ -236,7 +236,7 @@ export function InlineWorklogForm({
 
 	const handleDateChange = (value: string) => {
 		setDateInputValue(value);
-		
+
 		// Only update the date state if it's a valid date format
 		if (value.match(/^\d{4}-\d{2}-\d{2}$/)) {
 			try {

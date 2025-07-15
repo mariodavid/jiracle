@@ -305,7 +305,12 @@ test('should render with proper layout structure', async t => {
 test('should handle onSelect callback errors gracefully', async t => {
 	const mockIssues = createMockIssueList(1);
 	const title = 'Test Issues';
+
+	let callbackWasCalled = false;
+	let caughtError: Error | null = null;
+
 	const onSelect = (_key: string) => {
+		callbackWasCalled = true;
 		throw new Error('Test error');
 	};
 
@@ -325,31 +330,40 @@ test('should handle onSelect callback errors gracefully', async t => {
 	t.true(output!.includes('TEST-123'), 'Should show first issue initially');
 	t.true(output!.length > 0, 'Should render initial content');
 
-	// Trigger error by pressing Enter - should not crash the test
-	t.notThrows(() => {
+	// Trigger the callback that throws an error
+	try {
 		stdin.write('\r');
-	}, 'Enter key should not throw even when onSelect throws');
+		await new Promise(resolve => setTimeout(resolve, delays.SHORT));
+	} catch (error) {
+		caughtError = error as Error;
+	}
 
-	await new Promise(resolve => setTimeout(resolve, delays.SHORT));
+	// Verify the callback was actually called
+	t.true(callbackWasCalled, 'onSelect callback should have been called');
 
-	// Verify that component is still functional after error
-	output = lastFrame();
-	t.true(output !== null, 'Component should still render after error');
+	// The component should handle the error gracefully (not propagate it)
+	t.is(caughtError, null, 'Component should handle callback errors gracefully');
+
+	// Verify component remains functional after error
+	const outputAfter = lastFrame();
 	t.true(
-		output !== undefined,
-		'Component should not return undefined after error',
+		outputAfter!.includes(title),
+		'Component should remain functional after callback error',
 	);
-	t.true(output!.includes('TEST-123'), 'Should still show issue after error');
+	t.false(
+		outputAfter!.includes('Error'),
+		'Component should not display error message in UI',
+	);
 
 	// Verify the component didn't crash completely by checking it still has content
 	t.true(
-		output!.length > 10,
+		outputAfter!.length > 10,
 		'Component should still have substantial content after error',
 	);
 
 	// The component should maintain its basic structure even after error
 	const maintainsStructure =
-		output!.includes('Test Issues') || output!.includes('TEST-123');
+		outputAfter!.includes('Test Issues') || outputAfter!.includes('TEST-123');
 	t.true(
 		maintainsStructure,
 		'Component should maintain basic structure after error handling',
