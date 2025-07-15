@@ -79,7 +79,6 @@ test('useWeeklyWorklogSummary - cache and state management functionality', t => 
 	t.truthy(mockConfig.jiraUrl, 'Config should have jiraUrl');
 	t.truthy(mockConfig.username, 'Config should have username');
 	t.truthy(mockConfig.apiToken, 'Config should have apiToken');
-
 });
 
 test('useWeeklyWorklogSummary - error handling structure', t => {

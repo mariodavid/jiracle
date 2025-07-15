@@ -369,6 +369,5 @@ test('should handle onSelect callback errors gracefully', async t => {
 		'Component should maintain basic structure after error handling',
 	);
 
-
 	unmount();
 });
