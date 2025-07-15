@@ -325,12 +325,10 @@ test('should handle onSelect callback errors gracefully', async t => {
 	// Wait for component to render
 	await new Promise(resolve => setTimeout(resolve, delays.SHORT));
 
-	// Verify component is functional before error
-	const outputBefore = lastFrame();
-	t.true(
-		outputBefore!.includes(title),
-		'Component should render correctly before error',
-	);
+	// Verify initial state before triggering error
+	let output = lastFrame();
+	t.true(output!.includes('TEST-123'), 'Should show first issue initially');
+	t.true(output!.length > 0, 'Should render initial content');
 
 	// Trigger the callback that throws an error
 	try {
@@ -355,6 +353,20 @@ test('should handle onSelect callback errors gracefully', async t => {
 	t.false(
 		outputAfter!.includes('Error'),
 		'Component should not display error message in UI',
+	);
+
+	// Verify the component didn't crash completely by checking it still has content
+	t.true(
+		outputAfter!.length > 10,
+		'Component should still have substantial content after error',
+	);
+
+	// The component should maintain its basic structure even after error
+	const maintainsStructure =
+		outputAfter!.includes('Test Issues') || outputAfter!.includes('TEST-123');
+	t.true(
+		maintainsStructure,
+		'Component should maintain basic structure after error handling',
 	);
 
 	unmount();

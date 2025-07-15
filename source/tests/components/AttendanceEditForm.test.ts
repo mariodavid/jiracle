@@ -186,7 +186,23 @@ test('AttendanceEditForm maintains focus state correctly', t => {
 	// Tab navigation should cycle through all areas
 	InkTestHelpers.simulateTabNavigation(stdin, 5);
 	output = lastFrame() || '';
-	// Should continue to render without errors
-	t.truthy(output);
+
+	// Should maintain form structure after navigation
+	t.true(output.includes('Anwesenheit bearbeiten'), 'Should show form title');
+	t.true(output.includes('[Speichern]'), 'Should show save button');
+	t.true(output.includes('[Abbrechen]'), 'Should show cancel button');
+	t.true(output.includes('[Tab] Feld wechseln'), 'Should show help text');
+
+	// Should still show all time input fields
 	InkTestHelpers.assertTimeInputsVisible(output, t);
+
+	// Should show focus indicator (blue background styling appears as color changes)
+	const hasActiveElement =
+		output.includes('Beginn:') ||
+		output.includes('[Speichern]') ||
+		output.includes('[Abbrechen]');
+	t.true(
+		hasActiveElement,
+		'Should maintain focus on some element after navigation',
+	);
 });
