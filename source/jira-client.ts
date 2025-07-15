@@ -291,7 +291,7 @@ export function extractIssueKeyFromInput(input: string): string | null {
 
 	// Check if it's a URL
 	if (trimmed.includes('/browse/')) {
-		// Extract issue key from URL like https://jira.convista.com/browse/JTS-2457
+		// Extract issue key from URL like https://jira.example.com/browse/JTS-2457
 		const match = trimmed.match(/\/browse\/([A-Z]+-\d+)/);
 		if (match && match[1]) {
 			return match[1];

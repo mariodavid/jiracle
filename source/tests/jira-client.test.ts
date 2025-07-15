@@ -182,7 +182,7 @@ test('extractIssueKeyFromInput extracts issue keys from URLs correctly', t => {
 
 	// Test URL extraction
 	t.is(
-		extractIssueKeyFromInput('https://jira.convista.com/browse/JTS-2457'),
+		extractIssueKeyFromInput('https://jira.example.com/browse/JTS-2457'),
 		'JTS-2457',
 	);
 	t.is(
@@ -204,7 +204,7 @@ test('extractIssueKeyFromInput extracts issue keys from URLs correctly', t => {
 	// Test whitespace trimming
 	t.is(extractIssueKeyFromInput('  JTS-1234  '), 'JTS-1234');
 	t.is(
-		extractIssueKeyFromInput('  https://jira.convista.com/browse/JTS-2457  '),
+		extractIssueKeyFromInput('  https://jira.example.com/browse/JTS-2457  '),
 		'JTS-2457',
 	);
 
@@ -215,7 +215,7 @@ test('extractIssueKeyFromInput extracts issue keys from URLs correctly', t => {
 	t.is(extractIssueKeyFromInput(''), null);
 
 	// Test edge cases
-	t.is(extractIssueKeyFromInput('https://jira.convista.com/browse/'), null);
+	t.is(extractIssueKeyFromInput('https://jira.example.com/browse/'), null);
 	t.is(extractIssueKeyFromInput('browse/JTS-1234'), null); // Missing slash
 	t.is(extractIssueKeyFromInput('https://google.com/'), null); // Invalid URL
 });
