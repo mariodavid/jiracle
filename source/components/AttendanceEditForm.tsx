@@ -1,9 +1,10 @@
 import React, {useState} from 'react';
-import {Box, Text, useInput, useFocus} from 'ink';
+import {Box, Text} from 'ink';
 import TimeInputField from './TimeInputField.js';
 import DurationInput from './WorklogForm/DurationInput.js';
 import {Duration} from '../utils/Duration.js';
 import type {Attendance} from '../attendance/types.js';
+import {useFormNavigation} from '../hooks/useFormNavigation.js';
 
 interface AttendanceEditFormProps {
 	date: Date;
@@ -36,11 +37,70 @@ export function AttendanceEditForm({
 	const [breakMinutes, setBreakMinutes] = useState(
 		initialData?.breakMinutes ? `${initialData.breakMinutes}m` : '30m',
 	);
-	const [focusArea, setFocusArea] = useState<
-		'checkIn' | 'checkOut' | 'break' | 'submit' | 'cancel'
-	>('checkIn');
 
-	const {isFocused} = useFocus({autoFocus: true});
+	const formNavigation = useFormNavigation({
+		focusAreas: ['checkIn', 'checkOut', 'break', 'submit', 'cancel'] as const,
+		initialFocus: 'checkIn',
+		globalHandlers: {
+			onEscape: onCancel,
+		},
+		handlers: {
+			checkIn: {
+				onEnter: () => void 0,
+			},
+			checkOut: {
+				onEnter: () => void 0,
+			},
+			break: {
+				onEnter: () => void 0,
+			},
+			submit: {
+				onEnter: () => {
+					// Use local date format to avoid timezone issues
+					const year = date.getFullYear();
+					const month = String(date.getMonth() + 1).padStart(2, '0');
+					const day = String(date.getDate()).padStart(2, '0');
+					const localDateString = `${year}-${month}-${day}`;
+
+					// Parse break minutes using Duration class
+					const parseBreakMinutes = (timeStr: string): number => {
+						return new Duration(timeStr).toMinutes();
+					};
+
+					const attendanceData: Attendance = {
+						date: localDateString,
+						checkIn: checkIn || undefined,
+						checkOut: checkOut || undefined,
+						breakMinutes: parseBreakMinutes(breakMinutes),
+					};
+					onSubmit(attendanceData);
+				},
+			},
+			cancel: {
+				onEnter: onCancel,
+			},
+		},
+	});
+
+	const {currentFocus: focusArea, navigateToArea} = formNavigation;
+
+	// Configure navigation handlers after destructuring
+	const originalHandlers = formNavigation as any;
+	originalHandlers.config = {
+		...originalHandlers.config,
+		handlers: {
+			...originalHandlers.config.handlers,
+			checkIn: {
+				onEnter: () => navigateToArea('checkOut' as any),
+			},
+			checkOut: {
+				onEnter: () => navigateToArea('break' as any),
+			},
+			break: {
+				onEnter: () => navigateToArea('submit' as any),
+			},
+		},
+	};
 
 	const formatDate = (date: Date) => {
 		const days = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'];
@@ -63,87 +123,6 @@ export function AttendanceEditForm({
 		}`;
 	};
 
-	const handleSubmit = () => {
-		// Use local date format to avoid timezone issues
-		const year = date.getFullYear();
-		const month = String(date.getMonth() + 1).padStart(2, '0');
-		const day = String(date.getDate()).padStart(2, '0');
-		const localDateString = `${year}-${month}-${day}`;
-
-		// Parse break minutes using Duration class
-		const parseBreakMinutes = (timeStr: string): number => {
-			return new Duration(timeStr).toMinutes();
-		};
-
-		const attendanceData: Attendance = {
-			date: localDateString,
-			checkIn: checkIn || undefined,
-			checkOut: checkOut || undefined,
-			breakMinutes: parseBreakMinutes(breakMinutes),
-		};
-		onSubmit(attendanceData);
-	};
-
-	useInput(
-		(_, key) => {
-			if (!isFocused) return;
-
-			// Escape to cancel
-			if (key.escape) {
-				onCancel();
-				return;
-			}
-
-			// Tab navigation between areas
-			if (key.tab) {
-				if (key.shift) {
-					// Shift+Tab for reverse navigation
-					if (focusArea === 'checkIn') {
-						setFocusArea('cancel');
-					} else if (focusArea === 'checkOut') {
-						setFocusArea('checkIn');
-					} else if (focusArea === 'break') {
-						setFocusArea('checkOut');
-					} else if (focusArea === 'submit') {
-						setFocusArea('break');
-					} else if (focusArea === 'cancel') {
-						setFocusArea('submit');
-					}
-				} else {
-					// Regular Tab for forward navigation
-					if (focusArea === 'checkIn') {
-						setFocusArea('checkOut');
-					} else if (focusArea === 'checkOut') {
-						setFocusArea('break');
-					} else if (focusArea === 'break') {
-						setFocusArea('submit');
-					} else if (focusArea === 'submit') {
-						setFocusArea('cancel');
-					} else if (focusArea === 'cancel') {
-						setFocusArea('checkIn');
-					}
-				}
-				return;
-			}
-
-			// Handle enter in specific areas
-			if (key.return) {
-				if (focusArea === 'submit') {
-					handleSubmit();
-				} else if (focusArea === 'cancel') {
-					onCancel();
-				} else {
-					// From time fields, move to submit
-					setFocusArea('submit');
-				}
-				return;
-			}
-
-			// Break field input is handled by CustomTimeInput
-		},
-		{isActive: isFocused},
-	);
-
 	return (
 		<Box flexDirection="column" padding={1}>
 			<Box marginBottom={1}>
@@ -161,7 +140,7 @@ export function AttendanceEditForm({
 							label=""
 							value={checkIn}
 							onChange={setCheckIn}
-							onSubmit={() => setFocusArea('checkOut')}
+							onSubmit={() => navigateToArea('checkOut' as any)}
 							compact={true}
 						/>
 					) : (
@@ -177,7 +156,7 @@ export function AttendanceEditForm({
 							label=""
 							value={checkOut}
 							onChange={setCheckOut}
-							onSubmit={() => setFocusArea('break')}
+							onSubmit={() => navigateToArea('break' as any)}
 							compact={true}
 						/>
 					) : (
@@ -192,7 +171,7 @@ export function AttendanceEditForm({
 						<DurationInput
 							value={breakMinutes}
 							onChange={setBreakMinutes}
-							onSubmit={() => setFocusArea('submit')}
+							onSubmit={() => navigateToArea('submit' as any)}
 							compact={true}
 							allowedUnits={['h', 'm']}
 							incrementMinutes={15}
