@@ -1,11 +1,10 @@
 import React, {useState, useEffect, useCallback, useRef} from 'react';
-import {Box, Text, useInput} from 'ink';
+import {Box, Text, useInput, useFocus} from 'ink';
 import {TextInput, Spinner} from '@inkjs/ui';
 import DurationInput from './WorklogForm/DurationInput.js';
 import type {JiraConfig} from '../jira-client.js';
 import {resolveDefaults} from '../jira-client.js';
 import {uiLogger} from '../utils/logger.js';
-import {useFormNavigation} from '../hooks/useFormNavigation.js';
 
 interface InlineWorklogFormProps {
 	issueKey: string;
@@ -67,88 +66,12 @@ export function InlineWorklogForm({
 		return getDefaultTime();
 	});
 	const [comment, setComment] = useState(defaultComment);
+	const [focusArea, setFocusArea] = useState<FocusArea>(
+		isIssueKeyEditable ? 'issueKey' : 'time',
+	);
 	const submittingRef = useRef(false);
 
-	const handleSubmit = useCallback(() => {
-		uiLogger.debug('InlineWorklogForm: handleSubmit called', {
-			isSubmitting,
-			submittingRef: submittingRef.current,
-			selectedTime,
-			comment,
-			timestamp: new Date().toISOString(),
-		});
-
-		// Immediate synchronous check with ref
-		if (isSubmitting || submittingRef.current) {
-			uiLogger.debug('InlineWorklogForm: Blocked duplicate submission');
-			return; // Don't submit if already submitting
-		}
-
-		// Set ref immediately (synchronous)
-		submittingRef.current = true;
-		const timeSpent = selectedTime;
-		onSubmit({
-			issueKey: currentIssueKey,
-			timeSpent,
-			comment,
-			date: currentDate,
-		});
-	}, [
-		isSubmitting,
-		selectedTime,
-		comment,
-		currentIssueKey,
-		currentDate,
-		onSubmit,
-	]);
-
-	const getFocusAreas = (): FocusArea[] => {
-		if (isIssueKeyEditable) {
-			return ['issueKey', 'date', 'time', 'comment', 'submit', 'cancel'];
-		}
-		return ['time', 'comment', 'submit', 'cancel'];
-	};
-
-	const getInitialFocus = (): FocusArea => {
-		return isIssueKeyEditable ? 'issueKey' : 'time';
-	};
-
-	const formNavigation = useFormNavigation({
-		focusAreas: getFocusAreas() as any,
-		initialFocus: getInitialFocus(),
-		globalHandlers: {
-			onEscape: onCancel,
-			onCtrlEnter: handleSubmit,
-		},
-		handlers: {
-			issueKey: {
-				onEnter: () => void 0,
-			},
-			date: {
-				onEnter: () => void 0,
-			},
-			time: {
-				onEnter: () => void 0,
-				onTab: () => {
-					normalizeTimeOnBlur(timeInputValue);
-				},
-				onShiftTab: () => {
-					normalizeTimeOnBlur(timeInputValue);
-				},
-			},
-			comment: {
-				onEnter: handleSubmit,
-			},
-			submit: {
-				onEnter: handleSubmit,
-			},
-			cancel: {
-				onEnter: onCancel,
-			},
-		},
-	});
-
-	const {currentFocus: focusArea, navigateToArea} = formNavigation;
+	const {isFocused} = useFocus({autoFocus: true});
 
 	// Reset submitting ref when parent submission completes
 	useEffect(() => {
@@ -156,6 +79,91 @@ export function InlineWorklogForm({
 			submittingRef.current = false;
 		}
 	}, [isSubmitting]);
+
+	useInput(
+		(_, key) => {
+			if (!isFocused) return;
+
+			// Escape to cancel
+			if (key.escape) {
+				onCancel();
+				return;
+			}
+
+			// Tab navigation between areas
+			if (key.tab) {
+				if (key.shift) {
+					// Shift+Tab for reverse navigation
+					if (focusArea === 'issueKey') {
+						setFocusArea('cancel');
+					} else if (focusArea === 'date') {
+						if (isIssueKeyEditable) {
+							setFocusArea('issueKey');
+						} else {
+							setFocusArea('cancel');
+						}
+					} else if (focusArea === 'time') {
+						if (isIssueKeyEditable) {
+							setFocusArea('date');
+						} else {
+							setFocusArea('cancel');
+						}
+					} else if (focusArea === 'comment') {
+						// Normalize time when leaving time field
+						normalizeTimeOnBlur(timeInputValue);
+						setFocusArea('time');
+					} else if (focusArea === 'submit') {
+						setFocusArea('comment');
+					} else if (focusArea === 'cancel') {
+						setFocusArea('submit');
+					}
+				} else {
+					// Regular Tab for forward navigation
+					if (focusArea === 'issueKey') {
+						if (isIssueKeyEditable) {
+							setFocusArea('date');
+						} else {
+							setFocusArea('time');
+						}
+					} else if (focusArea === 'date') {
+						setFocusArea('time');
+					} else if (focusArea === 'time') {
+						// Normalize time when leaving time field
+						normalizeTimeOnBlur(timeInputValue);
+						setFocusArea('comment');
+					} else if (focusArea === 'comment') {
+						setFocusArea('submit');
+					} else if (focusArea === 'submit') {
+						setFocusArea('cancel');
+					} else if (focusArea === 'cancel') {
+						if (isIssueKeyEditable) {
+							setFocusArea('issueKey');
+						} else {
+							setFocusArea('time');
+						}
+					}
+				}
+				return;
+			}
+
+			// Ctrl+Enter submits from anywhere
+			if (key.ctrl && key.return) {
+				handleSubmit();
+			}
+
+			// Handle enter in specific areas
+			if (key.return) {
+				if (focusArea === 'submit') {
+					handleSubmit();
+				} else if (focusArea === 'cancel') {
+					onCancel();
+				} else if (focusArea === 'comment') {
+					handleSubmit();
+				}
+			}
+		},
+		{isActive: isFocused},
+	);
 
 	const handleTimeInputChange = (value: string) => {
 		setTimeInputValue(value);
@@ -242,6 +250,39 @@ export function InlineWorklogForm({
 		}
 	};
 
+	const handleSubmit = useCallback(() => {
+		uiLogger.debug('InlineWorklogForm: handleSubmit called', {
+			isSubmitting,
+			submittingRef: submittingRef.current,
+			selectedTime,
+			comment,
+			timestamp: new Date().toISOString(),
+		});
+
+		// Immediate synchronous check with ref
+		if (isSubmitting || submittingRef.current) {
+			uiLogger.debug('InlineWorklogForm: Blocked duplicate submission');
+			return; // Don't submit if already submitting
+		}
+
+		// Set ref immediately (synchronous)
+		submittingRef.current = true;
+		const timeSpent = selectedTime;
+		onSubmit({
+			issueKey: currentIssueKey,
+			timeSpent,
+			comment,
+			date: currentDate,
+		});
+	}, [
+		isSubmitting,
+		selectedTime,
+		comment,
+		currentIssueKey,
+		currentDate,
+		onSubmit,
+	]);
+
 	const renderButtons = () => {
 		return (
 			<Box gap={2}>
@@ -297,7 +338,7 @@ export function InlineWorklogForm({
 							onChange={setCurrentIssueKey}
 							onSubmit={value => {
 								setCurrentIssueKey(value);
-								navigateToArea('date' as any);
+								setFocusArea('date');
 							}}
 							placeholder="e.g. JTS-123, AD-456..."
 							isDisabled={focusArea !== 'issueKey'}
@@ -314,7 +355,7 @@ export function InlineWorklogForm({
 						<SimpleDateInput
 							value={dateInputValue || ''}
 							onChange={handleDateChange}
-							onSubmit={() => navigateToArea('time' as any)}
+							onSubmit={() => setFocusArea('time')}
 							isActive={focusArea === 'date'}
 						/>
 					</Box>
@@ -331,7 +372,7 @@ export function InlineWorklogForm({
 							<DurationInput
 								value={timeInputValue}
 								onChange={handleTimeInputChange}
-								onSubmit={() => navigateToArea('comment' as any)}
+								onSubmit={() => setFocusArea('comment')}
 								compact={true}
 								config={config}
 								issueSelectionMode={isFavorite ? 'favorites' : null}
