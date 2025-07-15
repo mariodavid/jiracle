@@ -320,7 +320,11 @@ export class JiraClient {
 		// Support environment variables with fallback to config
 		this.jiraUrl = process.env['JIRACLE_JIRA_URL'] || config.jiraUrl;
 		this.apiToken = process.env['JIRACLE_API_TOKEN'] || config.apiToken;
-		this.baseUrl = `${this.jiraUrl}rest/api/2`;
+		// Ensure jiraUrl ends with a slash to avoid double slashes or missing slashes
+		const normalizedJiraUrl = this.jiraUrl.endsWith('/')
+			? this.jiraUrl
+			: `${this.jiraUrl}/`;
+		this.baseUrl = `${normalizedJiraUrl}rest/api/2`;
 
 		// Use custom logger if provided, otherwise create default logger
 		if (customLogger) {
@@ -358,6 +362,43 @@ export class JiraClient {
 				],
 			});
 		}
+	}
+
+	/**
+	 * Validates the Jira URL configuration and provides helpful error messages
+	 */
+	validateConfiguration(): {isValid: boolean; errors: string[]} {
+		const errors: string[] = [];
+
+		if (!this.jiraUrl) {
+			errors.push('Jira URL is not configured');
+		} else {
+			// Check if URL looks like a web UI URL instead of API base
+			if (
+				this.jiraUrl.includes('/browse/') ||
+				this.jiraUrl.includes('/projects/')
+			) {
+				errors.push(
+					`Jira URL appears to be a web UI URL instead of the base URL. Expected: https://your-jira-instance.com/, Got: ${this.jiraUrl}`,
+				);
+			}
+
+			// Check for common URL formatting issues
+			if (!this.jiraUrl.startsWith('http')) {
+				errors.push(
+					`Jira URL must start with http:// or https://. Got: ${this.jiraUrl}`,
+				);
+			}
+		}
+
+		if (!this.apiToken) {
+			errors.push('API token is not configured');
+		}
+
+		return {
+			isValid: errors.length === 0,
+			errors,
+		};
 	}
 
 	async fetchAssignedIssues(): Promise<JiraIssue[]> {
@@ -556,12 +597,41 @@ export class JiraClient {
 		issueKey: string,
 		worklogData: WorklogRequest,
 	): Promise<void> {
-		const worklogUrl = `${this.baseUrl}/issue/${issueKey}/worklog`;
+		// Validate configuration before making the request
+		const validation = this.validateConfiguration();
+		if (!validation.isValid) {
+			const errorMessage = `Configuration errors:\n${validation.errors.join(
+				'\n',
+			)}`;
+			this.logger.error('Invalid configuration for addWorklog', {
+				errors: validation.errors,
+				jiraUrl: this.jiraUrl,
+				baseUrl: this.baseUrl,
+			});
+			throw new Error(errorMessage);
+		}
+
+		// Validate issue key
+		if (!issueKey || typeof issueKey !== 'string' || issueKey.trim() === '') {
+			throw new Error('Issue key is required and cannot be empty');
+		}
+
+		const trimmedIssueKey = issueKey.trim();
+		if (!/^[A-Z]+-\d+$/i.test(trimmedIssueKey)) {
+			throw new Error(
+				`Invalid issue key format: "${trimmedIssueKey}". Expected format: PROJECT-123 (e.g., JTS-123, GVV-456)`,
+			);
+		}
+
+		const worklogUrl = `${this.baseUrl}/issue/${trimmedIssueKey}/worklog`;
 
 		this.logger.info('Adding worklog', {
 			method: 'POST',
 			url: worklogUrl,
-			issueKey,
+			baseUrl: this.baseUrl,
+			jiraUrl: this.jiraUrl,
+			issueKey: trimmedIssueKey,
+			originalIssueKey: issueKey,
 			worklogData,
 			timestamp: new Date().toISOString(),
 		});
@@ -582,18 +652,39 @@ export class JiraClient {
 				this.logger.error('Failed to add worklog', {
 					method: 'POST',
 					url: worklogUrl,
-					issueKey,
+					baseUrl: this.baseUrl,
+					jiraUrl: this.jiraUrl,
+					issueKey: trimmedIssueKey,
+					originalIssueKey: issueKey,
 					worklogData,
 					status: response.status,
+					statusText: response.statusText,
 					error: errorText,
+					headers: Object.fromEntries(response.headers.entries()),
 				});
+
+				if (response.status === 405) {
+					throw new Error(
+						`HTTP 405 Method Not Allowed - Check your Jira URL configuration.\n` +
+							`Expected URL format: https://your-jira-instance.com/\n` +
+							`Current URL: ${worklogUrl}\n` +
+							`Base URL: ${this.baseUrl}\n` +
+							`This error often occurs when:\n` +
+							`1. The jiraUrl points to the web UI instead of the API endpoint\n` +
+							`2. The Jira instance doesn't support REST API v2\n` +
+							`3. The URL has incorrect formatting\n\n` +
+							`Server response: ${errorText}`,
+					);
+				}
+
 				throw new Error(`Jira API error: ${response.status} - ${errorText}`);
 			}
 
 			this.logger.info('Successfully added worklog', {
 				method: 'POST',
 				url: worklogUrl,
-				issueKey,
+				issueKey: trimmedIssueKey,
+				originalIssueKey: issueKey,
 				worklogData,
 				status: response.status,
 				timestamp: new Date().toISOString(),
@@ -602,7 +693,8 @@ export class JiraClient {
 			this.logger.error('Error adding worklog', {
 				method: 'POST',
 				url: worklogUrl,
-				issueKey,
+				issueKey: trimmedIssueKey,
+				originalIssueKey: issueKey,
 				worklogData,
 				error: error instanceof Error ? error.message : 'Unknown error',
 			});

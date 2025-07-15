@@ -39,6 +39,7 @@ interface WorklogFormData {
 	timeSpent: string;
 	comment: string;
 	isVisible: boolean;
+	isIssueKeyEditable: boolean;
 }
 
 export interface WeeklyTimetableViewProps {
@@ -71,6 +72,7 @@ export function WeeklyTimetableView({
 		timeSpent: '1h',
 		comment: '',
 		isVisible: false,
+		isIssueKeyEditable: false,
 	});
 	const [worklogSubmitting, setWorklogSubmitting] = useState(false);
 	const [worklogError, setWorklogError] = useState<string | null>(null);
@@ -203,13 +205,35 @@ export function WeeklyTimetableView({
 			timeSpent: defaults.time,
 			comment: defaults.comment,
 			isVisible: true,
+			isIssueKeyEditable: false,
+		});
+		setWorklogError(null); // Clear any previous error
+		setActiveArea('worklog-form');
+	};
+
+	const handleAddWorklog = () => {
+		// Use global defaults for time and comment
+		const defaults = resolveDefaults(config, '');
+
+		setWorklogForm({
+			issueKey: '',
+			date: new Date(), // Default to today
+			timeSpent: defaults.time,
+			comment: defaults.comment,
+			isVisible: true,
+			isIssueKeyEditable: true,
 		});
 		setWorklogError(null); // Clear any previous error
 		setActiveArea('worklog-form');
 	};
 
 	const handleWorklogSubmit = useCallback(
-		async (data: {timeSpent: string; comment: string}) => {
+		async (data: {
+			issueKey: string;
+			timeSpent: string;
+			comment: string;
+			date: Date;
+		}) => {
 			// Immediate guard against double submission
 			if (worklogSubmitting) {
 				uiLogger.debug('WeeklyTimetableView: Blocked duplicate submission');
@@ -217,11 +241,27 @@ export function WeeklyTimetableView({
 			}
 
 			uiLogger.debug('WeeklyTimetableView: handleWorklogSubmit called', {
-				issueKey: worklogForm.issueKey,
+				issueKey: data.issueKey,
 				timeSpent: data.timeSpent,
 				comment: data.comment,
 				timestamp: new Date().toISOString(),
 			});
+
+			// Validate issue key before submitting
+			if (!data.issueKey || data.issueKey.trim() === '') {
+				setWorklogError(
+					'Issue key is required. Please enter a valid Jira issue key (e.g., JTS-123).',
+				);
+				return;
+			}
+
+			// Validate issue key format (basic check)
+			if (!/^[A-Z]+-\d+$/i.test(data.issueKey.trim())) {
+				setWorklogError(
+					'Invalid issue key format. Expected format: PROJECT-123 (e.g., JTS-123, GVV-456).',
+				);
+				return;
+			}
 
 			setWorklogSubmitting(true);
 			setWorklogError(null);
@@ -231,7 +271,8 @@ export function WeeklyTimetableView({
 				const client = new JiraClient(config);
 
 				// Format the date to match Jira's expected format
-				const selectedDateTime = new Date(worklogForm.date);
+				// Use the date from the form data (which may be different from worklogForm.date)
+				const selectedDateTime = new Date(data.date);
 				// Set time to 9:00 AM for worklog start time
 				selectedDateTime.setHours(9, 0, 0, 0);
 				const formattedStarted = selectedDateTime
@@ -244,10 +285,12 @@ export function WeeklyTimetableView({
 					started: formattedStarted,
 				};
 
-				await client.addWorklog(worklogForm.issueKey, worklogData);
+				// Use trimmed issue key
+				const trimmedIssueKey = data.issueKey.trim();
+				await client.addWorklog(trimmedIssueKey, worklogData);
 
 				uiLogger.debug('WeeklyTimetableView: Worklog submitted successfully', {
-					issueKey: worklogForm.issueKey,
+					issueKey: trimmedIssueKey,
 					timestamp: new Date().toISOString(),
 				});
 
@@ -265,13 +308,7 @@ export function WeeklyTimetableView({
 				setWorklogSubmitting(false);
 			}
 		},
-		[
-			worklogForm.issueKey,
-			worklogForm.date,
-			config,
-			worklogSubmitting,
-			refresh,
-		],
+		[config, worklogSubmitting, refresh],
 	);
 
 	const handleWorklogCancel = () => {
@@ -530,6 +567,9 @@ export function WeeklyTimetableView({
 		} else if (input === 'o') {
 			// End work (checkout)
 			setActiveArea('checkout-confirmation');
+		} else if (input === 'a') {
+			// Add worklog for arbitrary issue
+			handleAddWorklog();
 		}
 		// Note: ESC key is handled by App.tsx to avoid conflicts
 		// Note: Arrow keys are handled by TimetableGrid for cell navigation when table is active
@@ -626,6 +666,7 @@ export function WeeklyTimetableView({
 								isFavorite={config?.favorites?.some(
 									fav => fav.key === worklogForm.issueKey,
 								)}
+								isIssueKeyEditable={worklogForm.isIssueKeyEditable}
 							/>
 						</Box>
 					</Box>
@@ -780,7 +821,8 @@ export function WeeklyTimetableView({
 				) : (
 					<>
 						<Text color="gray">
-							[↑↓←→] Navigate Cells [Enter] Log Work [Shift+←→] Week Navigation
+							[↑↓←→] Navigate Cells [Enter] Log Work [A] Add Worklog [Shift+←→]
+							Week Navigation
 						</Text>
 						<Text color="gray">
 							[D] Delete Worklogs [I] Check In [O] Check Out

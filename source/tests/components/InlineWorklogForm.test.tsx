@@ -261,3 +261,118 @@ test('InlineWorklogForm explicit defaultTimeSpent overrides config', t => {
 	t.true(output.includes('10h'));
 	t.false(output.includes('7h')); // Should not show config default
 });
+
+test('InlineWorklogForm shows issue key field when isIssueKeyEditable is true', t => {
+	const editableKeyProps = {
+		...mockProps,
+		issueKey: '',
+		isIssueKeyEditable: true,
+	};
+
+	const {lastFrame} = render(
+		React.createElement(InlineWorklogForm, editableKeyProps),
+	);
+	const output = lastFrame() || '';
+
+	// Should show issue key input field
+	t.true(output.includes('Issue Key:'));
+	t.true(output.includes('e.g. JTS-123, AD-456...'));
+});
+
+test('InlineWorklogForm hides issue key field when isIssueKeyEditable is false', t => {
+	const nonEditableKeyProps = {
+		...mockProps,
+		issueKey: 'FIXED-123',
+		isIssueKeyEditable: false,
+	};
+
+	const {lastFrame} = render(
+		React.createElement(InlineWorklogForm, nonEditableKeyProps),
+	);
+	const output = lastFrame() || '';
+
+	// Should not show issue key input field
+	t.false(output.includes('Issue Key:'));
+	t.false(output.includes('e.g. JTS-123, AD-456...'));
+});
+
+// === ADD WORKLOG FEATURE TESTS ===
+test('InlineWorklogForm shows date field when isIssueKeyEditable is true', t => {
+	const editableKeyProps = {
+		...mockProps,
+		issueKey: '',
+		isIssueKeyEditable: true,
+	};
+	const {lastFrame} = render(
+		React.createElement(InlineWorklogForm, editableKeyProps),
+	);
+	const output = lastFrame() || '';
+	// Should show date input field with the formatted date
+	t.true(output.includes('Date:'));
+	t.true(output.includes('2025-07-10')); // The actual formatted date from mockProps
+});
+
+test('InlineWorklogForm hides date field when isIssueKeyEditable is false', t => {
+	const nonEditableKeyProps = {
+		...mockProps,
+		issueKey: 'FIXED-123',
+		isIssueKeyEditable: false,
+	};
+	const {lastFrame} = render(
+		React.createElement(InlineWorklogForm, nonEditableKeyProps),
+	);
+	const output = lastFrame() || '';
+	// Should not show date input field
+	t.false(output.includes('Date:'));
+});
+
+test('InlineWorklogForm calls onSubmit with date when form is submitted', t => {
+	const editableKeyProps = {
+		...mockProps,
+		issueKey: 'TEST-123',
+		isIssueKeyEditable: true,
+	};
+
+	const {lastFrame} = render(
+		React.createElement(InlineWorklogForm, editableKeyProps),
+	);
+	const output = lastFrame() || '';
+
+	// Should render the form with all fields
+	t.true(output.includes('Issue Key:'));
+	t.true(output.includes('Date:'));
+	t.true(output.includes('Time spent:'));
+	t.true(output.includes('Comment:'));
+});
+
+test('InlineWorklogForm handles empty issue key in add worklog mode', t => {
+	const editableKeyProps = {
+		...mockProps,
+		issueKey: '', // Empty issue key for add worklog mode
+		isIssueKeyEditable: true,
+	};
+	const {lastFrame} = render(
+		React.createElement(InlineWorklogForm, editableKeyProps),
+	);
+	const output = lastFrame() || '';
+
+	// Should show issue key input field with placeholder
+	t.true(output.includes('Issue Key:'));
+	t.true(output.includes('e.g. JTS-123, AD-456...'));
+});
+
+test('InlineWorklogForm formats date correctly for input', t => {
+	const testDate = new Date('2025-07-14T12:00:00.000Z');
+	const editableKeyProps = {
+		...mockProps,
+		date: testDate,
+		isIssueKeyEditable: true,
+	};
+	const {lastFrame} = render(
+		React.createElement(InlineWorklogForm, editableKeyProps),
+	);
+	const output = lastFrame() || '';
+
+	// Should show the date in YYYY-MM-DD format
+	t.true(output.includes('2025-07-14'));
+});

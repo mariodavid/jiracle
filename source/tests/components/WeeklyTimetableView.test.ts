@@ -34,6 +34,7 @@ test('WeeklyTimetableView renders basic structure', t => {
 
 	// Should render keyboard shortcuts (updated for new navigation)
 	t.true(output.includes('[↑↓←→] Navigate Cells'));
+	t.true(output.includes('[A] Add Worklog'));
 	t.true(output.includes('[Shift+←→] Week Navigation'));
 	t.true(output.includes('[T] Today'));
 	t.true(output.includes('[R] Refresh'));

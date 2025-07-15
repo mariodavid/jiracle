@@ -18,55 +18,46 @@ test('useWeeklyWorklogSummary - types and interfaces exist', t => {
 });
 
 test('useWeeklyWorklogSummary - hook structure', t => {
-	// Test the hook's interface without actually running it
-	// This ensures the TypeScript types are correct
-	const expectedInterface = {
-		data: 'should be WeeklyWorklogSummary | null',
-		isLoading: 'should be boolean',
-		error: 'should be string | null',
-		refresh: 'should be function',
-	};
+	// Test basic hook functionality without mocking complex dependencies
+	const mockConfig = hookTestUtils.createHookTestConfig();
+	const {weekStart, weekEnd} = hookTestUtils.createTestWeekRange();
 
-	// Since we can't easily mock React hooks in this test environment,
-	// we just test that the types are correctly defined
-	t.is(typeof expectedInterface, 'object');
-	t.pass('Hook types are correctly defined');
+	// Verify hook can be called with basic parameters
+	t.is(typeof useWeeklyWorklogSummary, 'function');
+	t.true(weekStart instanceof Date);
+	t.true(weekEnd instanceof Date);
+	t.is(typeof mockConfig, 'object');
 });
 
 test('useWeeklyWorklogSummary - cache key logic validation', t => {
+	// Test that cache keys would be constructed properly
+	const mockConfig = hookTestUtils.createHookTestConfig();
 	const mockFavorites = hookTestUtils.createTestFavorites();
 	const {weekStart, weekEnd} = hookTestUtils.createTestWeekRange();
-
-	// Test the cache key generation logic components
 	const userEmail = 'test@example.com';
-	const favoriteKeys = mockFavorites
-		.map(f => f.key)
-		.sort()
-		.join(',');
-	const expectedCacheKeyPattern = `${weekStart.toISOString().split('T')[0]}-${
-		weekEnd.toISOString().split('T')[0]
-	}-${userEmail}-${favoriteKeys}`;
+	const skipAutoLoad = false;
 
-	t.is(typeof expectedCacheKeyPattern, 'string');
-	t.true(expectedCacheKeyPattern.includes('2024-01-01'));
-	t.true(expectedCacheKeyPattern.includes('test@example.com'));
-	t.true(expectedCacheKeyPattern.includes('TEST-1,TEST-2'));
+	// Verify all parameters for cache key generation are valid
+	t.is(typeof mockConfig.jiraUrl, 'string');
+	t.true(weekStart instanceof Date);
+	t.true(weekEnd instanceof Date);
+	t.is(typeof userEmail, 'string');
+	t.is(typeof skipAutoLoad, 'boolean');
+	t.is(Array.isArray(mockFavorites), true);
 });
 
 test('useWeeklyWorklogSummary - error handling structure', t => {
-	// Test that error states are properly typed
-	const errorTestCases = [
-		{type: 'string', value: 'API Error'},
-		{type: 'null', value: null},
-	];
+	// Test error handling scenarios
+	const mockConfig = hookTestUtils.createHookTestConfig();
 
-	errorTestCases.forEach(testCase => {
-		if (testCase.type === 'string') {
-			t.is(typeof testCase.value, 'string');
-		} else {
-			t.is(testCase.value, null);
-		}
-	});
+	// Verify config structure for error handling
+	t.true(mockConfig.hasOwnProperty('jiraUrl'));
+	t.true(mockConfig.hasOwnProperty('username'));
+	t.true(mockConfig.hasOwnProperty('apiToken'));
+
+	// Test with invalid dates
+	const invalidDate = new Date('invalid');
+	t.true(isNaN(invalidDate.getTime()));
 });
 
 test('useWeeklyWorklogSummary - parameter validation', t => {
