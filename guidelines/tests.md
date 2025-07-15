@@ -392,4 +392,290 @@ npx ava --watch
 npx ava dist/tests/cli/attendance-commands.test.js
 ```
 
+## Avoiding Lazy Test Assertions
+
+### What Are Lazy Assertions?
+
+Lazy assertions are test assertions that provide little to no actual verification value. They often pass regardless of whether the code being tested actually works correctly.
+
+### Common Lazy Assertion Patterns to Avoid
+
+#### 1. Generic t.pass() Without Verification
+
+```typescript
+// ❌ Bad - Lazy fallback assertion
+test('integration flow', t => {
+	// Complex setup...
+	t.pass(); // Tells us nothing about whether integration actually works
+});
+
+// ✅ Good - Verify actual behavior
+test('integration flow', async t => {
+	const {lastFrame, stdin} = render(<App />);
+
+	// Navigate and interact
+	stdin.write(' '); // Open form
+	stdin.write('2h'); // Enter time
+	stdin.write('\r'); // Submit
+
+	// Wait for and verify success state
+	await waitFor(() => {
+		const output = lastFrame();
+		return output != null && output.includes('Success');
+	});
+
+	const finalOutput = lastFrame();
+	t.true(finalOutput!.includes('Success'), 'Should show success message');
+	t.true(mockJiraClient.addWorklog.calledOnce, 'Should call Jira API');
+});
+```
+
+#### 2. Meaningless Type Checks
+
+```typescript
+// ❌ Bad - Useless type assertion
+test('hook interface', t => {
+	const expectedInterface = {
+		data: 'should be WeeklyWorklogSummary | null',
+		isLoading: 'should be boolean',
+	};
+	t.is(typeof expectedInterface, 'object'); // Tells us nothing
+});
+
+// ✅ Good - Test actual hook behavior
+test('hook returns correct interface', async t => {
+	const mockClient = createMockJiraClient();
+	const mockConfig = ConfigFactory.createValidConfig();
+
+	const hook = renderHook(() =>
+		useWeeklyWorklogSummary(mockClient, mockConfig),
+	);
+
+	// Test initial state
+	t.is(hook.result.current.data, null, 'Initial data should be null');
+	t.is(hook.result.current.isLoading, true, 'Should be loading initially');
+	t.is(
+		typeof hook.result.current.refresh,
+		'function',
+		'Should provide refresh function',
+	);
+
+	// Wait for data load and verify
+	await waitFor(() => {
+		t.is(hook.result.current.isLoading, false, 'Should finish loading');
+		t.truthy(hook.result.current.data, 'Should have loaded data');
+	});
+});
+```
+
+#### 3. Weak t.truthy() for Existence Only
+
+```typescript
+// ❌ Bad - Only checks existence
+test('component renders', t => {
+	const {lastFrame} = render(<Component />);
+	const output = lastFrame();
+	t.truthy(output); // Only confirms something rendered
+});
+
+// ✅ Good - Verify meaningful content
+test('component renders with correct structure', t => {
+	const {lastFrame} = render(<WeeklyTimetableView {...props} />);
+	const output = lastFrame();
+
+	// Verify specific UI elements
+	t.true(output!.includes('Weekly Timetable'), 'Should show page title');
+	t.true(output!.includes('Mon'), 'Should show Monday column');
+	t.true(output!.includes('Tue'), 'Should show Tuesday column');
+	t.true(output!.includes('Space: Add worklog'), 'Should show help text');
+	t.true(output!.includes('█'), 'Should show focus indicator');
+});
+```
+
+#### 4. Incomplete t.notThrows() Tests
+
+```typescript
+// ❌ Bad - Only tests that no error is thrown
+test('handles keyboard input', t => {
+	const {stdin} = render(<IssueList {...props} />);
+	t.notThrows(() => {
+		stdin.write('\r');
+	});
+});
+
+// ✅ Good - Verify the actual behavior
+test('handles enter key to select issue', t => {
+	const mockOnSelect = sinon.stub();
+	const {lastFrame, stdin} = render(
+		<IssueList onSelect={mockOnSelect} {...props} />,
+	);
+
+	// Verify initial state
+	let output = lastFrame();
+	t.true(output!.includes('TEST-1'), 'Should show first issue');
+
+	// Test the action AND its result
+	t.notThrows(() => {
+		stdin.write('\r');
+	}, 'Enter key should not throw');
+
+	// Verify the expected side effect
+	t.true(mockOnSelect.calledOnce, 'Should call onSelect when enter is pressed');
+	t.is(
+		mockOnSelect.getCall(0).args[0].key,
+		'TEST-1',
+		'Should select the focused issue',
+	);
+});
+```
+
+#### 5. Cache Key Tests Without Hook Integration
+
+```typescript
+// ❌ Bad - Only tests string manipulation
+test('cache key logic', t => {
+	const expectedCacheKeyPattern = 'some-cache-key-2024-01-01';
+	t.is(typeof expectedCacheKeyPattern, 'string'); // Meaningless
+	t.true(expectedCacheKeyPattern.includes('2024-01-01')); // Weak
+});
+
+// ✅ Good - Test cache behavior functionally
+test('cache key affects hook behavior', async t => {
+	const mockClient = createMockJiraClient();
+	const cacheGetSpy = sinon.spy();
+
+	// Test with different configurations
+	const config1 = ConfigFactory.createValidConfig({
+		slidingWindowDays: {past: 7, future: 3},
+	});
+	const config2 = ConfigFactory.createValidConfig({
+		slidingWindowDays: {past: 14, future: 7},
+	});
+
+	// Test that different configs use different cache keys
+	const hook1 = renderHook(() => useWeeklyWorklogSummary(mockClient, config1));
+	const hook2 = renderHook(() => useWeeklyWorklogSummary(mockClient, config2));
+
+	await waitFor(() => {
+		t.true(
+			cacheGetSpy.calledTwice,
+			'Should call cache twice for different configs',
+		);
+	});
+
+	const cacheKey1 = cacheGetSpy.getCall(0).args[0];
+	const cacheKey2 = cacheGetSpy.getCall(1).args[0];
+	t.not(
+		cacheKey1,
+		cacheKey2,
+		'Different configs should generate different cache keys',
+	);
+});
+```
+
+### Guidelines for Meaningful Tests
+
+#### 1. Test Behavior, Not Implementation
+
+```typescript
+// Focus on what the user/system experiences
+test('form submission saves worklog', async t => {
+	// Setup
+	const mockSubmit = sinon.stub();
+	const {stdin} = render(<WorklogForm onSubmit={mockSubmit} />);
+
+	// User interaction
+	stdin.write('4h'); // Time input
+	stdin.write('\t'); // Tab to comment
+	stdin.write('Development work'); // Comment
+	stdin.write('\r'); // Submit
+
+	// Verify outcome
+	t.true(mockSubmit.calledOnce, 'Should submit form');
+	const submitData = mockSubmit.getCall(0).args[0];
+	t.is(submitData.timeSpent, '4h', 'Should submit correct time');
+	t.is(submitData.comment, 'Development work', 'Should submit correct comment');
+});
+```
+
+#### 2. Use waitFor for Async UI Changes
+
+```typescript
+// Always wait for async state changes in UI tests
+test('shows loading then success state', async t => {
+	const {lastFrame} = render(<Component />);
+
+	// Initial loading state
+	let output = lastFrame();
+	t.true(output!.includes('Loading'), 'Should show loading initially');
+
+	// Wait for success state
+	await waitFor(() => {
+		output = lastFrame();
+		return output != null && output.includes('Success');
+	});
+
+	t.true(output!.includes('Success'), 'Should show success message');
+	t.false(output!.includes('Loading'), 'Should hide loading indicator');
+});
+```
+
+#### 3. Test Error Handling Completely
+
+```typescript
+// Don't just test that errors don't crash - test error handling behavior
+test('handles callback errors gracefully', async t => {
+	let callbackWasCalled = false;
+	let caughtError: Error | null = null;
+
+	const onSelect = (_key: string) => {
+		callbackWasCalled = true;
+		throw new Error('Test error');
+	};
+
+	const {stdin, lastFrame} = render(
+		<IssueList onSelect={onSelect} {...props} />,
+	);
+
+	// Trigger the error
+	try {
+		stdin.write('\r');
+		await new Promise(resolve => setTimeout(resolve, 50));
+	} catch (error) {
+		caughtError = error as Error;
+	}
+
+	// Verify error handling
+	t.true(callbackWasCalled, 'Callback should have been called');
+	t.is(caughtError, null, 'Component should handle callback errors gracefully');
+
+	// Verify component remains functional
+	const output = lastFrame();
+	t.true(output!.includes('TEST-123'), 'Should still show content after error');
+	t.false(output!.includes('Error'), 'Should not display error in UI');
+});
+```
+
+### Red Flags in Tests
+
+Watch out for these patterns that often indicate lazy testing:
+
+- Tests that only use `t.pass()` or `t.truthy(output)` without specific assertions
+- Tests that check `typeof` for basic JavaScript types
+- Tests that use `t.notThrows()` without verifying the expected outcome
+- Integration tests that don't verify integration actually happened
+- Component tests that only check for rendering without verifying content
+- Tests with names like "should work" or "renders without crashing"
+
+### Converting Lazy Tests
+
+When you find lazy tests, ask:
+
+1. **What behavior is this supposed to verify?**
+2. **What would a user/consumer actually care about?**
+3. **What could go wrong that this test should catch?**
+4. **What specific outcome should this code produce?**
+
+Then write assertions that verify those specific outcomes and behaviors.
+
 These utilities and patterns ensure consistent, maintainable tests that are easy to read and extend.

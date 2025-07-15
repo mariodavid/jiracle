@@ -191,12 +191,16 @@ test('Integration: Component accepts different configurations', async t => {
 		userEmail: 'different@example.com',
 	};
 
+	const startingCallCount = mockFetchCallCount;
 	const {lastFrame} = render(React.createElement(WeeklyTimetableView, props));
 
 	await waitFor(() => {
 		const output = lastFrame();
 		return output != null && output.includes('Week');
 	});
+
+	// Wait for potential API calls
+	await new Promise(resolve => setTimeout(resolve, 200));
 
 	// Verify component renders correctly with different config
 	const output = lastFrame()!;
@@ -207,8 +211,8 @@ test('Integration: Component accepts different configurations', async t => {
 	);
 	// API calls should be made to the different URL (mocked)
 	t.true(
-		mockFetchCallCount >= 1,
-		'Should make API calls with different config',
+		mockFetchCallCount > startingCallCount,
+		`Should make API calls with different config. Started with ${startingCallCount}, ended with ${mockFetchCallCount}`,
 	);
 });
 

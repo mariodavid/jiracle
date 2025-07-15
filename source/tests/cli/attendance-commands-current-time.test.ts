@@ -48,7 +48,7 @@ testWithContext('checkin uses current time when no time specified', async t => {
 	const afterCheckIn = new Date();
 
 	t.true(result.success);
-	t.regex(result.message, /✅ Checked in at \d{2}:\d{2} on 2025-07-15/);
+	t.regex(result.message, /✅ Checked in at \d{2}:\d{2}/);
 
 	// Verify CSV content
 	const csvPath = t.context.testCsvPath as string;
@@ -105,7 +105,7 @@ testWithContext(
 		t.true(result.success);
 		t.regex(
 			result.message,
-			/✅ Checked out at \d{2}:\d{2} on 2025-07-15 \(08:30-\d{2}:\d{2}, [\d.]+h total\)/,
+			/✅ Checked out at \d{2}:\d{2} \(08:30-\d{2}:\d{2}, [\d.]+h total\)/,
 		);
 
 		// Verify CSV content
@@ -150,7 +150,7 @@ testWithContext('explicit time overrides current time', async t => {
 	);
 
 	t.true(result.success);
-	t.is(result.message, `✅ Checked in at ${explicitTime} on ${testDate}`);
+	t.is(result.message, `✅ Checked in at ${explicitTime}`);
 
 	// Verify CSV content shows explicit time, not current time
 	const csvPath = t.context.testCsvPath as string;
