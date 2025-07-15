@@ -369,5 +369,28 @@ test('should handle onSelect callback errors gracefully', async t => {
 		'Component should maintain basic structure after error handling',
 	);
 
+	// Verify that component is still functional after error
+	output = lastFrame();
+	t.true(output !== null, 'Component should still render after error');
+	t.true(
+		output !== undefined,
+		'Component should not return undefined after error',
+	);
+	t.true(output!.includes('TEST-123'), 'Should still show issue after error');
+
+	// Verify the component didn't crash completely by checking it still has content
+	t.true(
+		output!.length > 10,
+		'Component should still have substantial content after error',
+	);
+
+	// The component should maintain its basic structure even after error
+	const maintainsStructure =
+		output!.includes('Test Issues') || output!.includes('TEST-123');
+	t.true(
+		maintainsStructure,
+		'Component should maintain basic structure after error handling',
+	);
+
 	unmount();
 });
