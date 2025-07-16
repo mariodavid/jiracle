@@ -37,7 +37,7 @@ const cli = meow(
 	  status         Show attendance status
 
 	Options for worklog add
-	  --issue      Issue key (e.g., JTS-2398)
+	  --issue      Issue key (e.g., DEF-2398)
 	  --date       Work date in YYYY-MM-DD format
 	  --time       Time spent (e.g., 5h, 30m, 2.5h)
 	  --comment    Worklog comment
@@ -48,7 +48,7 @@ const cli = meow(
 
 	Examples
 	  $ jiracle
-	  $ jiracle worklog add --issue JTS-2398 --date 2025-08-01 --time 5h --comment "Did some work"
+	  $ jiracle worklog add --issue DEF-2398 --date 2025-08-01 --time 5h --comment "Did some work"
 	  $ jiracle checkin
 	  $ jiracle checkin --time 08:30
 	  $ jiracle checkout

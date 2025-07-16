@@ -132,7 +132,7 @@ test('InlineWorklogForm handles form validation for add worklog mode', t => {
 		issueKey: '', // Empty issue key should show validation
 		isIssueKeyEditable: true,
 		error:
-			'Issue key is required. Please enter a valid Jira issue key (e.g., JTS-123).',
+			'Issue key is required. Please enter a valid Jira issue key (e.g., DEF-123).',
 	};
 
 	const {lastFrame} = render(

@@ -730,28 +730,28 @@ test('TimetableGrid sorts issues by project prefix and number', t => {
 				totalHours: 12.0,
 				issues: [
 					{
-						issueKey: 'JTS-2457',
-						issueSummary: 'JTS issue 2457',
+						issueKey: 'DEF-2457',
+						issueSummary: 'DEF issue 2457',
 						hours: 2.0,
 					},
 					{
-						issueKey: 'GVV-5417',
-						issueSummary: 'GVV issue 5417',
+						issueKey: 'ABC-5417',
+						issueSummary: 'ABC issue 5417',
 						hours: 3.0,
 					},
 					{
-						issueKey: 'JTS-2456',
-						issueSummary: 'JTS issue 2456',
+						issueKey: 'DEF-2456',
+						issueSummary: 'DEF issue 2456',
 						hours: 1.0,
 					},
 					{
-						issueKey: 'GVV-5420',
-						issueSummary: 'GVV issue 5420',
+						issueKey: 'ABC-5420',
+						issueSummary: 'ABC issue 5420',
 						hours: 4.0,
 					},
 					{
-						issueKey: 'GVV-5419',
-						issueSummary: 'GVV issue 5419',
+						issueKey: 'ABC-5419',
+						issueSummary: 'ABC issue 5419',
 						hours: 2.0,
 					},
 				],
@@ -771,27 +771,27 @@ test('TimetableGrid sorts issues by project prefix and number', t => {
 	// Split output into lines to analyze order
 	const lines = output.split('\n');
 	const issueLines = lines.filter(
-		line => line.includes('GVV-') || line.includes('JTS-'),
+		line => line.includes('ABC-') || line.includes('DEF-'),
 	);
 
-	// Should be sorted: GVV-5417, GVV-5419, GVV-5420, JTS-2456, JTS-2457
+	// Should be sorted: ABC-5417, ABC-5419, ABC-5420, DEF-2456, DEF-2457
 	t.true(issueLines.length >= 5, 'Should have at least 5 issue lines');
 
 	// Find the indices of each issue in the output (with fixed width padding)
-	const gvv5417Index = issueLines.findIndex(line => line.includes('GVV-5417'));
-	const gvv5419Index = issueLines.findIndex(line => line.includes('GVV-5419'));
-	const gvv5420Index = issueLines.findIndex(line => line.includes('GVV-5420'));
-	const jts2456Index = issueLines.findIndex(line => line.includes('JTS-2456'));
-	const jts2457Index = issueLines.findIndex(line => line.includes('JTS-2457'));
+	const gvv5417Index = issueLines.findIndex(line => line.includes('ABC-5417'));
+	const gvv5419Index = issueLines.findIndex(line => line.includes('ABC-5419'));
+	const gvv5420Index = issueLines.findIndex(line => line.includes('ABC-5420'));
+	const jts2456Index = issueLines.findIndex(line => line.includes('DEF-2456'));
+	const jts2457Index = issueLines.findIndex(line => line.includes('DEF-2457'));
 
-	// Verify sorting order: GVV issues come first (sorted by number), then JTS issues (sorted by number)
-	t.true(gvv5417Index < gvv5419Index, 'GVV-5417 should come before GVV-5419');
-	t.true(gvv5419Index < gvv5420Index, 'GVV-5419 should come before GVV-5420');
+	// Verify sorting order: ABC issues come first (sorted by number), then DEF issues (sorted by number)
+	t.true(gvv5417Index < gvv5419Index, 'ABC-5417 should come before ABC-5419');
+	t.true(gvv5419Index < gvv5420Index, 'ABC-5419 should come before ABC-5420');
 	t.true(
 		gvv5420Index < jts2456Index,
-		'GVV issues should come before JTS issues',
+		'ABC issues should come before DEF issues',
 	);
-	t.true(jts2456Index < jts2457Index, 'JTS-2456 should come before JTS-2457');
+	t.true(jts2456Index < jts2457Index, 'DEF-2456 should come before DEF-2457');
 });
 
 test('TimetableGrid sorts issues with different project prefixes correctly', t => {
@@ -857,12 +857,12 @@ test('TimetableGrid sorts issues numerically within same project (124 before 102
 				totalHours: 6.0,
 				issues: [
 					{
-						issueKey: 'GVV-1029',
+						issueKey: 'ABC-1029',
 						issueSummary: 'Higher number issue',
 						hours: 3.0,
 					},
 					{
-						issueKey: 'GVV-124',
+						issueKey: 'ABC-124',
 						issueSummary: 'Lower number issue',
 						hours: 3.0,
 					},
@@ -881,15 +881,15 @@ test('TimetableGrid sorts issues numerically within same project (124 before 102
 	const output = lastFrame()!;
 
 	const lines = output.split('\n');
-	const issueLines = lines.filter(line => line.includes('GVV-'));
+	const issueLines = lines.filter(line => line.includes('ABC-'));
 
-	const gvv124Index = issueLines.findIndex(line => line.includes('GVV-124'));
-	const gvv1029Index = issueLines.findIndex(line => line.includes('GVV-1029'));
+	const gvv124Index = issueLines.findIndex(line => line.includes('ABC-124'));
+	const gvv1029Index = issueLines.findIndex(line => line.includes('ABC-1029'));
 
 	// 124 should come before 1029 (numeric sort, not string sort)
-	t.true(gvv124Index < gvv1029Index, 'GVV-124 should come before GVV-1029');
-	t.true(gvv124Index !== -1, 'GVV-124 should be found in output');
-	t.true(gvv1029Index !== -1, 'GVV-1029 should be found in output');
+	t.true(gvv124Index < gvv1029Index, 'ABC-124 should come before ABC-1029');
+	t.true(gvv124Index !== -1, 'ABC-124 should be found in output');
+	t.true(gvv1029Index !== -1, 'ABC-1029 should be found in output');
 });
 
 test('TimetableGrid shows favorite issues with asterisk marker', t => {
@@ -902,12 +902,12 @@ test('TimetableGrid shows favorite issues with asterisk marker', t => {
 				totalHours: 6.0,
 				issues: [
 					{
-						issueKey: 'GVV-5417',
+						issueKey: 'ABC-5417',
 						issueSummary: 'Favorite issue',
 						hours: 3.0,
 					},
 					{
-						issueKey: 'JTS-2456',
+						issueKey: 'DEF-2456',
 						issueSummary: 'Regular issue',
 						hours: 3.0,
 					},
@@ -919,7 +919,7 @@ test('TimetableGrid shows favorite issues with asterisk marker', t => {
 
 	const favoriteIssues = [
 		{
-			key: 'GVV-5417',
+			key: 'ABC-5417',
 			defaultTime: '4h',
 			defaultComment: 'Favorite work',
 		},
@@ -936,17 +936,17 @@ test('TimetableGrid shows favorite issues with asterisk marker', t => {
 
 	// Favorite issue should have star suffix with fixed width padding
 	t.true(
-		output.includes(`GVV-5417     ${figures.star}`),
+		output.includes(`ABC-5417     ${figures.star}`),
 		'Favorite issue should be marked with star',
 	);
 
 	// Non-favorite issue should not have star but should be padded to fixed width
 	t.true(
-		output.includes('JTS-2456    '),
+		output.includes('DEF-2456    '),
 		'Regular issue should be shown with fixed width padding',
 	);
 	t.false(
-		output.includes(`JTS-2456     ${figures.star}`),
+		output.includes(`DEF-2456     ${figures.star}`),
 		'Regular issue should not have star',
 	);
 });
@@ -963,7 +963,7 @@ test('TimetableGrid handles favorite issues without worklogs', t => {
 				totalHours: 3.0,
 				issues: [
 					{
-						issueKey: 'JTS-2456',
+						issueKey: 'DEF-2456',
 						issueSummary: 'Issue with worklog',
 						hours: 3.0,
 					},
@@ -977,12 +977,12 @@ test('TimetableGrid handles favorite issues without worklogs', t => {
 	// but has no worklogs, so it would appear with 0 hours
 	const favoriteIssues = [
 		{
-			key: 'GVV-5417',
+			key: 'ABC-5417',
 			defaultTime: '4h',
 			defaultComment: 'Favorite without worklog',
 		},
 		{
-			key: 'JTS-2456',
+			key: 'DEF-2456',
 			defaultTime: '2h',
 			defaultComment: 'Favorite with worklog',
 		},
@@ -999,15 +999,15 @@ test('TimetableGrid handles favorite issues without worklogs', t => {
 
 	// Both issues should appear (one with worklog, one is configured favorite)
 	t.true(
-		output.includes(`JTS-2456     ${figures.star}`),
+		output.includes(`DEF-2456     ${figures.star}`),
 		'Favorite with worklog should have star',
 	);
 	t.true(
-		output.includes('JTS-2456    '),
+		output.includes('DEF-2456    '),
 		'Issue with worklog should be present',
 	);
 
-	// Note: GVV-5417 won't appear in this test because it's not in the worklog data
+	// Note: ABC-5417 won't appear in this test because it's not in the worklog data
 	// The WeeklyWorklogSummaryUseCase would need to include it in the data
 	// This test validates the visual marking works correctly for favorites that do appear
 });
@@ -1023,12 +1023,12 @@ test('TimetableGrid shows favorite issues even when no worklogs exist', t => {
 
 	const favoriteIssues = [
 		{
-			key: 'GVV-5417',
+			key: 'ABC-5417',
 			defaultTime: '4h',
 			defaultComment: 'Favorite work',
 		},
 		{
-			key: 'JTS-2456',
+			key: 'DEF-2456',
 			defaultTime: '2h',
 			defaultComment: 'Other favorite',
 		},
@@ -1045,12 +1045,12 @@ test('TimetableGrid shows favorite issues even when no worklogs exist', t => {
 
 	// Both favorite issues should appear even without worklogs
 	t.true(
-		output.includes(`GVV-5417     ${figures.star}`),
-		'Favorite GVV-5417 should be shown with star',
+		output.includes(`ABC-5417     ${figures.star}`),
+		'Favorite ABC-5417 should be shown with star',
 	);
 	t.true(
-		output.includes(`JTS-2456     ${figures.star}`),
-		'Favorite JTS-2456 should be shown with star',
+		output.includes(`DEF-2456     ${figures.star}`),
+		'Favorite DEF-2456 should be shown with star',
 	);
 
 	// Should show dashes for all days (no worklogs)
@@ -1073,12 +1073,12 @@ test('TimetableGrid displays aliases for favorite issues', t => {
 				totalHours: 6.0,
 				issues: [
 					{
-						issueKey: 'JTS-2456',
+						issueKey: 'DEF-2456',
 						issueSummary: 'Dev work issue',
 						hours: 4.0,
 					},
 					{
-						issueKey: 'GVV-5419',
+						issueKey: 'ABC-5419',
 						issueSummary: 'Monitoring issue',
 						hours: 2.0,
 					},
@@ -1090,13 +1090,13 @@ test('TimetableGrid displays aliases for favorite issues', t => {
 
 	const favoriteIssues = [
 		{
-			key: 'JTS-2456',
+			key: 'DEF-2456',
 			alias: 'Dev Work',
 			defaultTime: '8h',
 			defaultComment: 'Development work',
 		},
 		{
-			key: 'GVV-5419',
+			key: 'ABC-5419',
 			alias: 'Monitoring API',
 			defaultTime: '4h',
 		},
@@ -1114,21 +1114,21 @@ test('TimetableGrid displays aliases for favorite issues', t => {
 	// Should display aliases instead of issue keys
 	t.true(
 		output.includes(`Dev Work     ${figures.star}`),
-		'Should display alias "Dev Work" for JTS-2456',
+		'Should display alias "Dev Work" for DEF-2456',
 	);
 	t.true(
 		output.includes(`Monitoring API ${figures.star}`),
-		'Should display alias "Monitoring API" for GVV-5419',
+		'Should display alias "Monitoring API" for ABC-5419',
 	);
 
 	// Should NOT display the original issue keys in the issue column
 	t.false(
-		output.includes(`JTS-2456     ${figures.star}`),
-		'Should not display original key JTS-2456 when alias is set',
+		output.includes(`DEF-2456     ${figures.star}`),
+		'Should not display original key DEF-2456 when alias is set',
 	);
 	t.false(
-		output.includes(`GVV-5419     ${figures.star}`),
-		'Should not display original key GVV-5419 when alias is set',
+		output.includes(`ABC-5419     ${figures.star}`),
+		'Should not display original key ABC-5419 when alias is set',
 	);
 });
 
@@ -1142,7 +1142,7 @@ test('TimetableGrid shows original key when no alias is configured', t => {
 				totalHours: 4.0,
 				issues: [
 					{
-						issueKey: 'JTS-2456',
+						issueKey: 'DEF-2456',
 						issueSummary: 'Issue without alias',
 						hours: 4.0,
 					},
@@ -1154,7 +1154,7 @@ test('TimetableGrid shows original key when no alias is configured', t => {
 
 	const favoriteIssues = [
 		{
-			key: 'JTS-2456',
+			key: 'DEF-2456',
 			// No alias property set
 			defaultTime: '8h',
 			defaultComment: 'Development work',
@@ -1172,8 +1172,8 @@ test('TimetableGrid shows original key when no alias is configured', t => {
 
 	// Should display original issue key when no alias
 	t.true(
-		output.includes(`JTS-2456     ${figures.star}`),
-		'Should display original key JTS-2456 when no alias is set',
+		output.includes(`DEF-2456     ${figures.star}`),
+		'Should display original key DEF-2456 when no alias is set',
 	);
 });
 
@@ -1187,12 +1187,12 @@ test('TimetableGrid handles mixed alias and non-alias favorites', t => {
 				totalHours: 6.0,
 				issues: [
 					{
-						issueKey: 'JTS-2456',
+						issueKey: 'DEF-2456',
 						issueSummary: 'Dev work',
 						hours: 3.0,
 					},
 					{
-						issueKey: 'GVV-5419',
+						issueKey: 'ABC-5419',
 						issueSummary: 'Regular work',
 						hours: 3.0,
 					},
@@ -1204,12 +1204,12 @@ test('TimetableGrid handles mixed alias and non-alias favorites', t => {
 
 	const favoriteIssues = [
 		{
-			key: 'JTS-2456',
+			key: 'DEF-2456',
 			alias: 'Dev Work',
 			defaultTime: '8h',
 		},
 		{
-			key: 'GVV-5419',
+			key: 'ABC-5419',
 			// No alias - should show original key
 			defaultTime: '4h',
 		},
@@ -1227,15 +1227,15 @@ test('TimetableGrid handles mixed alias and non-alias favorites', t => {
 	// One with alias, one without
 	t.true(
 		output.includes(`Dev Work     ${figures.star}`),
-		'Should display alias for JTS-2456',
+		'Should display alias for DEF-2456',
 	);
 	t.true(
-		output.includes(`GVV-5419     ${figures.star}`),
-		'Should display original key for GVV-5419 when no alias',
+		output.includes(`ABC-5419     ${figures.star}`),
+		'Should display original key for ABC-5419 when no alias',
 	);
 	t.false(
-		output.includes(`JTS-2456     ${figures.star}`),
-		'Should not display original JTS-2456 when alias is set',
+		output.includes(`DEF-2456     ${figures.star}`),
+		'Should not display original DEF-2456 when alias is set',
 	);
 });
 
@@ -1249,12 +1249,12 @@ test('TimetableGrid displays aliases with proper padding', t => {
 
 	const favoriteIssues = [
 		{
-			key: 'JTS-2456',
+			key: 'DEF-2456',
 			alias: 'A', // Very short alias
 			defaultTime: '8h',
 		},
 		{
-			key: 'GVV-5419',
+			key: 'ABC-5419',
 			alias: 'Very Long Alias Name', // Long alias (longer than 12 chars)
 			defaultTime: '4h',
 		},

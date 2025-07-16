@@ -235,7 +235,7 @@ export function WeeklyTimetableView({
 			// Validate issue key before submitting
 			if (!data.issueKey || data.issueKey.trim() === '') {
 				setWorklogError(
-					'Issue key is required. Please enter a valid Jira issue key (e.g., JTS-123).',
+					'Issue key is required. Please enter a valid Jira issue key (e.g., DEF-123).',
 				);
 				return;
 			}
@@ -243,7 +243,7 @@ export function WeeklyTimetableView({
 			// Validate issue key format (basic check)
 			if (!/^[A-Z]+-\d+$/i.test(data.issueKey.trim())) {
 				setWorklogError(
-					'Invalid issue key format. Expected format: PROJECT-123 (e.g., JTS-123, GVV-456).',
+					'Invalid issue key format. Expected format: PROJECT-123 (e.g., DEF-123, ABC-456).',
 				);
 				return;
 			}

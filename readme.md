@@ -636,7 +636,7 @@ Example debug output:
 ```
 2025-07-13T19:00:00.000Z [debug]: InlineWorklogForm: handleSubmit called
 2025-07-13T19:00:01.000Z [debug]: WeeklyTimetableView: Worklog submitted successfully
-2025-07-13T19:00:02.000Z [debug]: Found 2 worklogs to delete for JTS-2457 on 2025-07-16
+2025-07-13T19:00:02.000Z [debug]: Found 2 worklogs to delete for DEF-2457 on 2025-07-16
 ```
 
 ## License

@@ -183,7 +183,7 @@ export function getFavoriteDefaultTime(
 }
 
 export function extractProjectKey(issueKey: string): string | null {
-	// Extract project key from issue key (e.g., "JTS-2457" → "JTS")
+	// Extract project key from issue key (e.g., "DEF-2457" → "DEF")
 	const match = issueKey.match(/^([A-Z]+)-\d+$/);
 	return match ? match[1] ?? null : null;
 }
@@ -291,7 +291,7 @@ export function extractIssueKeyFromInput(input: string): string | null {
 
 	// Check if it's a URL
 	if (trimmed.includes('/browse/')) {
-		// Extract issue key from URL like https://jira.example.com/browse/JTS-2457
+		// Extract issue key from URL like https://jira.example.com/browse/DEF-2457
 		const match = trimmed.match(/\/browse\/([A-Z]+-\d+)/);
 		if (match && match[1]) {
 			return match[1];
@@ -619,7 +619,7 @@ export class JiraClient {
 		const trimmedIssueKey = issueKey.trim();
 		if (!/^[A-Z]+-\d+$/i.test(trimmedIssueKey)) {
 			throw new Error(
-				`Invalid issue key format: "${trimmedIssueKey}". Expected format: PROJECT-123 (e.g., JTS-123, GVV-456)`,
+				`Invalid issue key format: "${trimmedIssueKey}". Expected format: PROJECT-123 (e.g., DEF-123, ABC-456)`,
 			);
 		}
 

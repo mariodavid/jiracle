@@ -337,7 +337,7 @@ export function InlineWorklogForm({
 								setCurrentIssueKey(value);
 								setFocusArea('date');
 							}}
-							placeholder="e.g. JTS-123, AD-456..."
+							placeholder="e.g. DEF-123, AD-456..."
 							isDisabled={focusArea !== 'issueKey'}
 						/>
 					</Box>

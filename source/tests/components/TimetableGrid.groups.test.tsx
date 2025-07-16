@@ -36,7 +36,7 @@ const baseConfig: JiraConfig = {
 	],
 	projects: [
 		{
-			key: 'JTS',
+			key: 'DEF',
 			groupId: 'dev',
 		},
 		{
@@ -46,7 +46,7 @@ const baseConfig: JiraConfig = {
 	],
 	favorites: [
 		{
-			key: 'GVV-5417',
+			key: 'ABC-5417',
 			groupId: 'dev',
 		},
 	],
@@ -62,7 +62,7 @@ const testData: WeeklyWorklogSummary = {
 			date: createTestDate(0), // Monday
 			totalHours: 8,
 			issues: [
-				{issueKey: 'JTS-2456', issueSummary: 'Development task', hours: 6},
+				{issueKey: 'DEF-2456', issueSummary: 'Development task', hours: 6},
 				{issueKey: 'MON-1001', issueSummary: 'Monitoring task', hours: 2},
 			],
 		},
@@ -70,15 +70,15 @@ const testData: WeeklyWorklogSummary = {
 			date: createTestDate(1), // Tuesday
 			totalHours: 10,
 			issues: [
-				{issueKey: 'JTS-2456', issueSummary: 'Development task', hours: 8},
-				{issueKey: 'GVV-5417', issueSummary: 'Another dev task', hours: 2},
+				{issueKey: 'DEF-2456', issueSummary: 'Development task', hours: 8},
+				{issueKey: 'ABC-5417', issueSummary: 'Another dev task', hours: 2},
 			],
 		},
 		{
 			date: createTestDate(2), // Wednesday
 			totalHours: 12,
 			issues: [
-				{issueKey: 'GVV-5417', issueSummary: 'Another dev task', hours: 8},
+				{issueKey: 'ABC-5417', issueSummary: 'Another dev task', hours: 8},
 				{issueKey: 'MON-1001', issueSummary: 'Monitoring task', hours: 4},
 			],
 		},
@@ -91,7 +91,7 @@ test('TimetableGrid groups issues by resolved groups', t => {
 			data={testData}
 			isLoading={false}
 			isActive={false}
-			favoriteIssues={[{key: 'GVV-5417'}]}
+			favoriteIssues={[{key: 'ABC-5417'}]}
 			config={baseConfig}
 		/>,
 	);
@@ -103,8 +103,8 @@ test('TimetableGrid groups issues by resolved groups', t => {
 	t.true(output.includes('M'), 'Should show first letter of Monitoring group');
 
 	// Should show issues grouped together
-	t.true(output.includes('GVV-5417'), 'Should show dev group issue');
-	t.true(output.includes('JTS-2456'), 'Should show project-assigned dev issue');
+	t.true(output.includes('ABC-5417'), 'Should show dev group issue');
+	t.true(output.includes('DEF-2456'), 'Should show project-assigned dev issue');
 	t.true(output.includes('MON-1001'), 'Should show monitoring group issue');
 });
 
@@ -114,14 +114,14 @@ test('TimetableGrid shows group totals with desiredAmount comparison', t => {
 			data={testData}
 			isLoading={false}
 			isActive={false}
-			favoriteIssues={[{key: 'GVV-5417'}]}
+			favoriteIssues={[{key: 'ABC-5417'}]}
 			config={baseConfig}
 		/>,
 	);
 
 	const output = lastFrame()!;
 
-	// Dev group total: JTS-2456 (14h) + GVV-5417 (10h) = 24h vs 20h desired
+	// Dev group total: DEF-2456 (14h) + ABC-5417 (10h) = 24h vs 20h desired
 	t.true(
 		output.includes('24.0/20'),
 		'Should show dev group total with desired amount',
@@ -160,16 +160,16 @@ test('TimetableGrid handles ungrouped issues correctly', t => {
 	const lines = output.split('\n');
 
 	// Should still show all issues, but ungrouped
-	t.true(output.includes('GVV-5417'), 'Should show issue without group');
-	t.true(output.includes('JTS-2456'), 'Should show issue without group');
+	t.true(output.includes('ABC-5417'), 'Should show issue without group');
+	t.true(output.includes('DEF-2456'), 'Should show issue without group');
 	t.true(output.includes('MON-1001'), 'Should show issue without group');
 
 	// Should not show group indicators at the start of issue lines
 	let hasGroupIndicators = false;
 	for (const line of lines) {
 		if (
-			line.includes('GVV-5417') ||
-			line.includes('JTS-2456') ||
+			line.includes('ABC-5417') ||
+			line.includes('DEF-2456') ||
 			line.includes('MON-1001')
 		) {
 			// Check if line starts with a letter followed by a space (group indicator)
@@ -192,7 +192,7 @@ test('TimetableGrid sorts groups by name and issues within groups by key', t => 
 			data={testData}
 			isLoading={false}
 			isActive={false}
-			favoriteIssues={[{key: 'GVV-5417'}]}
+			favoriteIssues={[{key: 'ABC-5417'}]}
 			config={baseConfig}
 		/>,
 	);
@@ -201,37 +201,37 @@ test('TimetableGrid sorts groups by name and issues within groups by key', t => 
 	const lines = output.split('\n');
 
 	// Find the order of issues in the output
-	let gvvIndex = -1;
-	let jtsIndex = -1;
+	let abcIndex = -1;
+	let defIndex = -1;
 	let monIndex = -1;
 
 	for (let i = 0; i < lines.length; i++) {
 		const line = lines[i];
-		if (line && line.includes('GVV-5417')) {
-			gvvIndex = i;
-		} else if (line && line.includes('JTS-2456')) {
-			jtsIndex = i;
+		if (line && line.includes('ABC-5417')) {
+			abcIndex = i;
+		} else if (line && line.includes('DEF-2456')) {
+			defIndex = i;
 		} else if (line && line.includes('MON-1001')) {
 			monIndex = i;
 		}
 	}
 
-	t.true(gvvIndex > 0, 'Should find GVV issue');
-	t.true(jtsIndex > 0, 'Should find JTS issue');
+	t.true(abcIndex > 0, 'Should find ABC issue');
+	t.true(defIndex > 0, 'Should find DEF issue');
 	t.true(monIndex > 0, 'Should find MON issue');
 
-	// Dev Team (GVV, JTS) should come before Monitoring (MON)
+	// Dev Team (ABC, DEF) should come before Monitoring (MON)
 	t.true(
-		gvvIndex < monIndex,
+		abcIndex < monIndex,
 		'Dev group issues should appear before Monitoring',
 	);
 	t.true(
-		jtsIndex < monIndex,
+		defIndex < monIndex,
 		'Dev group issues should appear before Monitoring',
 	);
 
-	// Within Dev group, GVV should come before JTS alphabetically
-	t.true(gvvIndex < jtsIndex, 'GVV should appear before JTS within group');
+	// Within Dev group, ABC should come before DEF alphabetically
+	t.true(abcIndex < defIndex, 'ABC should appear before DEF within group');
 });
 
 test('TimetableGrid handles groups without desiredAmount', t => {
@@ -253,7 +253,7 @@ test('TimetableGrid handles groups without desiredAmount', t => {
 			data={testData}
 			isLoading={false}
 			isActive={false}
-			favoriteIssues={[{key: 'GVV-5417'}]}
+			favoriteIssues={[{key: 'ABC-5417'}]}
 			config={configNoDesired}
 		/>,
 	);
@@ -277,7 +277,7 @@ test('TimetableGrid shows group total rows with separators', t => {
 			data={testData}
 			isLoading={false}
 			isActive={false}
-			favoriteIssues={[{key: 'GVV-5417'}]}
+			favoriteIssues={[{key: 'ABC-5417'}]}
 			config={baseConfig}
 		/>,
 	);
@@ -300,7 +300,7 @@ test('TimetableGrid handles mixed group assignments correctly', t => {
 		...baseConfig,
 		favorites: [
 			{
-				key: 'GVV-5417',
+				key: 'ABC-5417',
 				groupId: 'monitoring', // Override project group with issue group
 			},
 		],
@@ -311,7 +311,7 @@ test('TimetableGrid handles mixed group assignments correctly', t => {
 			data={testData}
 			isLoading={false}
 			isActive={false}
-			favoriteIssues={[{key: 'GVV-5417'}]}
+			favoriteIssues={[{key: 'ABC-5417'}]}
 			config={mixedConfig}
 		/>,
 	);
@@ -319,32 +319,32 @@ test('TimetableGrid handles mixed group assignments correctly', t => {
 	const output = lastFrame()!;
 	const lines = output.split('\n');
 
-	// GVV should now appear in monitoring group instead of dev group
-	// Find the order of issues to verify GVV is in monitoring group
-	let gvvIndex = -1;
-	let jtsIndex = -1;
+	// ABC should now appear in monitoring group instead of dev group
+	// Find the order of issues to verify ABC is in monitoring group
+	let abcIndex = -1;
+	let defIndex = -1;
 	let monIndex = -1;
 
 	for (let i = 0; i < lines.length; i++) {
 		const line = lines[i];
-		if (line && line.includes('GVV-5417')) {
-			gvvIndex = i;
-		} else if (line && line.includes('JTS-2456')) {
-			jtsIndex = i;
+		if (line && line.includes('ABC-5417')) {
+			abcIndex = i;
+		} else if (line && line.includes('DEF-2456')) {
+			defIndex = i;
 		} else if (line && line.includes('MON-1001')) {
 			monIndex = i;
 		}
 	}
 
-	// GVV should now be closer to MON (both in monitoring group) than to JTS (dev group)
-	t.true(gvvIndex > 0, 'Should find GVV issue');
-	t.true(jtsIndex > 0, 'Should find JTS issue');
+	// ABC should now be closer to MON (both in monitoring group) than to DEF (dev group)
+	t.true(abcIndex > 0, 'Should find ABC issue');
+	t.true(defIndex > 0, 'Should find DEF issue');
 	t.true(monIndex > 0, 'Should find MON issue');
 
-	// Since groups are sorted by name, and within monitoring group GVV should come before MON
+	// Since groups are sorted by name, and within monitoring group ABC should come before MON
 	t.true(
-		Math.abs(gvvIndex - monIndex) < Math.abs(gvvIndex - jtsIndex),
-		'GVV should be closer to MON (same group) than to JTS (different group)',
+		Math.abs(abcIndex - monIndex) < Math.abs(abcIndex - defIndex),
+		'ABC should be closer to MON (same group) than to DEF (different group)',
 	);
 });
 
