@@ -121,10 +121,9 @@ test('WeeklyWorklogSummaryUseCase aggregates worklogs by day', async t => {
 	// Check first day (Oct 19)
 	const firstDay = result.dailySummaries[0]!;
 	t.is(firstDay.totalHours, 5.0); // 4 + 1 hours
-	t.is(firstDay.issues.length, 2); // 2 worklog entries
+	t.is(firstDay.issues.length, 1); // Aggregated into single entry
 	t.is(firstDay.issues[0]!.issueKey, 'TEST-117');
-	t.is(firstDay.issues[0]!.hours, 4.0);
-	t.is(firstDay.issues[1]!.hours, 1.0);
+	t.is(firstDay.issues[0]!.hours, 5.0); // Combined hours
 
 	// Check second day (Oct 22)
 	const secondDay = result.dailySummaries[1]!;
@@ -404,10 +403,8 @@ test('WeeklyWorklogSummaryUseCase converts time correctly', async t => {
 
 	t.is(result.dailySummaries.length, 1);
 	t.is(result.dailySummaries[0]!.totalHours, 4.0); // 1 + 0.5 + 2.5
-	t.is(result.dailySummaries[0]!.issues.length, 3);
-	t.is(result.dailySummaries[0]!.issues[0]!.hours, 1.0);
-	t.is(result.dailySummaries[0]!.issues[1]!.hours, 0.5);
-	t.is(result.dailySummaries[0]!.issues[2]!.hours, 2.5);
+	t.is(result.dailySummaries[0]!.issues.length, 1); // Aggregated into single entry
+	t.is(result.dailySummaries[0]!.issues[0]!.hours, 4.0); // Combined hours
 	t.is(result.weekTotal, 4.0);
 });
 
