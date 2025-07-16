@@ -78,14 +78,11 @@ export async function executeCheckIn(
 		const manager = getAttendanceManager(configPath, csvPath);
 		const attendance = await manager.checkIn(params.date, params.time);
 
-		const date = attendance.date;
 		const time = attendance.checkIn!;
 
 		return {
 			success: true,
-			message: `✅ Checked in at ${time}${
-				date !== new Date().toISOString().split('T')[0] ? ` on ${date}` : ''
-			}`,
+			message: `✅ Checked in at ${time}`,
 		};
 	} catch (error) {
 		return {
@@ -113,15 +110,10 @@ export async function executeCheckOut(
 		const manager = getAttendanceManager(configPath, csvPath);
 		const attendance = await manager.checkOut(params.date, params.time);
 
-		const date = attendance.date;
 		const checkIn = attendance.checkIn;
 		const checkOut = attendance.checkOut!;
 
 		let message = `✅ Checked out at ${checkOut}`;
-
-		if (date !== new Date().toISOString().split('T')[0]) {
-			message += ` on ${date}`;
-		}
 
 		if (checkIn && attendance.totalHours !== undefined) {
 			message += ` (${checkIn}-${checkOut}, ${attendance.totalHours}h total)`;

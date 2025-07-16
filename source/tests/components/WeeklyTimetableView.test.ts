@@ -27,9 +27,7 @@ test('WeeklyTimetableView renders basic structure', t => {
 	// Should render header (BigText renders as ASCII art, so we check for basic structure)
 	t.true(output.includes('Week'));
 
-	// Should render week navigation elements
-	t.true(output.includes('← Previous Week'));
-	t.true(output.includes('Next Week →'));
+	// Should render week title in header
 	t.true(output.includes('Week'));
 
 	// Should render keyboard shortcuts (updated for new navigation)

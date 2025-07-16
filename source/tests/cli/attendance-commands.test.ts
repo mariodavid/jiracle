@@ -26,7 +26,7 @@ test.serial('should check in with current time', async t => {
 		const afterCheckIn = new Date();
 
 		AssertionHelpers.assertSuccess(result, t);
-		t.regex(result.message, /✅ Checked in at \d{2}:\d{2} on 2025-07-11/);
+		t.regex(result.message, /✅ Checked in at \d{2}:\d{2}/);
 
 		// Verify the time is within a reasonable range
 		const timeMatch = result.message.match(/Checked in at (\d{2}:\d{2})/);
@@ -99,7 +99,7 @@ test.serial('should check out with current time', async t => {
 		AssertionHelpers.assertSuccess(result, t);
 		t.regex(
 			result.message,
-			/✅ Checked out at \d{2}:\d{2} on 2025-07-11 \(08:00-\d{2}:\d{2}, [\d.]+h total\)/,
+			/✅ Checked out at \d{2}:\d{2} \(08:00-\d{2}:\d{2}, [\d.]+h total\)/,
 		);
 
 		// Verify the time is within a reasonable range

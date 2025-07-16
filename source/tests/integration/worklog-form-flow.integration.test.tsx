@@ -124,7 +124,6 @@ test('Integration: Component renders without errors', async t => {
 	// Verify component structure is rendered correctly
 	const output = lastFrame()!;
 	t.true(output.includes('Week'), 'Should render week header');
-	t.true(output.includes('← Previous Week'), 'Should render week navigation');
 	t.true(output.includes('[Q] Quit'), 'Should render keyboard shortcuts');
 });
 

@@ -3,7 +3,7 @@ import {Box, Text, useInput} from 'ink';
 import {Alert, Spinner} from '@inkjs/ui';
 import Gradient from 'ink-gradient';
 import BigText from 'ink-big-text';
-import {WeekNavigator, getWeekTitle} from './WeekNavigator.js';
+import {getWeekTitle} from './WeekNavigator.js';
 import {TimetableGrid} from './TimetableGrid.js';
 import {InlineWorklogForm} from './InlineWorklogForm.js';
 import {DeleteWorklogConfirmation} from './DeleteWorklogConfirmation.js';
@@ -85,10 +85,6 @@ export function WeeklyTimetableView({
 	} | null>(null);
 	const [isDeleting, setIsDeleting] = useState(false);
 	const [isDeletingAttendance, setIsDeletingAttendance] = useState(false);
-	const [deleteSuccess, setDeleteSuccess] = useState<{
-		issueKey: string;
-		count: number;
-	} | null>(null);
 	const [deleteError, setDeleteError] = useState<string | null>(null);
 	const [attendanceManager, setAttendanceManager] =
 		useState<AttendanceManager | null>(null);
@@ -161,17 +157,6 @@ export function WeeklyTimetableView({
 
 		return () => clearTimeout(timer);
 	}, []); // Empty dependency array means this runs only on mount
-
-	// Auto-focus cell when data is loaded
-	useEffect(() => {
-		if (
-			displayData &&
-			!isLoading &&
-			activeArea === 'timetable' &&
-			!worklogForm.isVisible
-		) {
-		}
-	}, [displayData, isLoading, activeArea, worklogForm.isVisible]);
 
 	const navigateToPreviousWeek = () => {
 		const newWeek = new Date(currentWeek);
@@ -425,12 +410,6 @@ export function WeeklyTimetableView({
 
 			// Refresh the data
 			refresh();
-
-			// Show success alert
-			setDeleteSuccess({
-				issueKey: deleteCandidate.issueKey,
-				count: worklogsToDelete.length,
-			});
 		} catch (error) {
 			console.error('Error deleting worklogs:', error);
 			const errorMessage =
@@ -514,17 +493,6 @@ export function WeeklyTimetableView({
 		}
 	};
 
-	// Auto-hide delete success alert after 3 seconds
-	useEffect(() => {
-		if (deleteSuccess) {
-			const timer = setTimeout(() => {
-				setDeleteSuccess(null);
-			}, 3000);
-			return () => clearTimeout(timer);
-		}
-		return undefined;
-	}, [deleteSuccess]);
-
 	// Auto-hide delete error alert after 5 seconds
 	useEffect(() => {
 		if (deleteError) {
@@ -586,19 +554,6 @@ export function WeeklyTimetableView({
 					</Gradient>
 				</Box>
 
-				{/* Week Navigator - only when not in form or delete mode */}
-				{!worklogForm.isVisible &&
-					activeArea !== 'delete-confirmation' &&
-					activeArea !== 'delete-attendance-confirmation' && (
-						<WeekNavigator
-							currentWeek={currentWeek}
-							onPreviousWeek={navigateToPreviousWeek}
-							onNextWeek={navigateToNextWeek}
-							onCurrentWeek={handleCurrentWeek}
-							activeArea="timetable"
-						/>
-					)}
-
 				{/* Show title based on current mode */}
 				{worklogForm.isVisible ? (
 					<TitleBar
@@ -648,8 +603,10 @@ export function WeeklyTimetableView({
 					<Box justifyContent="center">
 						<Box
 							width={68}
-							borderStyle="round"
-							borderColor="cyan"
+							{...(!worklogSubmitting && {
+								borderStyle: 'round',
+								borderColor: 'cyan',
+							})}
 							paddingX={1}
 							paddingY={1}
 						>
@@ -780,23 +737,12 @@ export function WeeklyTimetableView({
 						onAttendanceEdit={handleAttendanceEdit}
 						onAttendanceDelete={handleDeleteAttendance}
 						onOpenInBrowser={handleOpenInBrowser}
-						isActive={true}
+						isActive={activeArea === 'timetable'}
 						favoriteIssues={config.favorites}
 						config={config}
 						attendanceManager={attendanceManager || undefined}
 						attendanceRefreshKey={attendanceRefreshKey}
 					/>
-				)}
-
-				{/* Delete success alert */}
-				{deleteSuccess && (
-					<Alert variant="success" title="Worklogs deleted">
-						{deleteSuccess.count > 0
-							? `Successfully deleted ${deleteSuccess.count} worklog${
-									deleteSuccess.count === 1 ? '' : 's'
-							  } for ${deleteSuccess.issueKey}`
-							: `No worklogs found to delete for ${deleteSuccess.issueKey}`}
-					</Alert>
 				)}
 
 				{/* Delete error alert */}

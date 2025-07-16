@@ -98,10 +98,6 @@ export function TimetableGrid({
 			? buildIssueMap(data)
 			: buildIssueMapFromFavorites(favoriteIssues);
 	const dailyTotals = data ? calculateDailyTotals(data, weekDates) : [];
-	const defaultFocusId =
-		data || Object.keys(issueMap).length > 0
-			? getDefaultFocusId(issueMap)
-			: null;
 
 	// Group issues by their resolved groups
 	interface IssueGroup {
@@ -235,13 +231,6 @@ export function TimetableGrid({
 	};
 
 	const tableWidth = 2 + 20 + 5 * 12 + 8; // Group + Issue + 5 weekdays (wider) + Total = 90
-
-	// Set default focus when component mounts (simplified)
-	useEffect(() => {
-		if (defaultFocusId) {
-			focus(defaultFocusId);
-		}
-	}, [defaultFocusId, focus]);
 
 	// Create a flat list of all focusable cells for arrow key navigation
 	const getAllFocusableItems = useCallback(() => {
@@ -962,22 +951,4 @@ function truncateText(text: string, maxLength: number): string {
 	}
 
 	return text.substring(0, maxLength - 3) + '...';
-}
-
-function getCurrentDayIndex(): number {
-	const today = new Date();
-	const dayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, ...
-	return dayOfWeek === 0 ? 6 : dayOfWeek - 1; // Convert to Monday = 0
-}
-
-function getDefaultFocusId(issueMap: Record<string, IssueData>): string {
-	const currentDayIndex = getCurrentDayIndex();
-	const firstIssueKey = Object.keys(issueMap)[0];
-
-	if (firstIssueKey) {
-		return `issue-${firstIssueKey}-${currentDayIndex}`;
-	}
-
-	// If no issues, return first issue's first day as fallback
-	return `issue-placeholder-0`;
 }

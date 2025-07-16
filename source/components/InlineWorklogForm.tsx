@@ -307,19 +307,16 @@ export function InlineWorklogForm({
 	// Show loading screen when submitting
 	if (isSubmitting) {
 		return (
-			<Box flexDirection="column" minHeight={10}>
-				{/* Loading content */}
-				<Box
-					marginTop={3}
-					justifyContent="center"
-					alignItems="center"
-					minHeight={8}
-				>
-					<Box flexDirection="row" alignItems="center">
-						<Spinner type="dots" />
-						<Box marginLeft={1}>
-							<Text color="yellow">Submitting Worklog</Text>
-						</Box>
+			<Box
+				width="100%"
+				justifyContent="center"
+				alignItems="center"
+				paddingY={5}
+			>
+				<Box flexDirection="row" alignItems="center">
+					<Spinner type="dots" />
+					<Box marginLeft={1}>
+						<Text>Submitting Worklog</Text>
 					</Box>
 				</Box>
 			</Box>
@@ -362,51 +359,45 @@ export function InlineWorklogForm({
 				</Box>
 			)}
 
-			{/* Main Content */}
-			<Box marginTop={1} flexDirection="row" minHeight={8}>
-				{/* Left Column: Time Selection */}
-				<Box flexDirection="column" width={25} minHeight={8}>
-					<Text color="yellow">Time spent:</Text>
-					<Box marginTop={1}>
-						{focusArea === 'time' ? (
-							<DurationInput
-								value={timeInputValue}
-								onChange={handleTimeInputChange}
-								onSubmit={() => setFocusArea('comment')}
-								compact={true}
-								config={config}
-								issueSelectionMode={isFavorite ? 'favorites' : null}
-								incrementMinutes={60}
-							/>
-						) : (
-							<Box>
-								<Text color="gray">{timeInputValue}</Text>
-							</Box>
-						)}
-					</Box>
-				</Box>
-
-				{/* Separator */}
-				<Box marginX={2}>
-					<Text color="gray">│</Text>
-				</Box>
-
-				{/* Right Column: Comment */}
-				<Box flexDirection="column" flexGrow={1} minHeight={8}>
-					<Text color="yellow">Comment:</Text>
-					<Box marginTop={1} height={4}>
-						<TextInput
-							defaultValue={comment}
-							onChange={setComment}
-							onSubmit={handleSubmit}
-							placeholder="Enter work description..."
-							isDisabled={focusArea !== 'comment'}
+			{/* Time Input */}
+			<Box marginTop={1} flexDirection="column">
+				<Text color="yellow">Time spent:</Text>
+				<Box marginTop={1}>
+					{focusArea === 'time' ? (
+						<DurationInput
+							value={timeInputValue}
+							onChange={handleTimeInputChange}
+							onSubmit={() => setFocusArea('comment')}
+							compact={true}
+							config={config}
+							issueSelectionMode={isFavorite ? 'favorites' : null}
+							incrementMinutes={60}
 						/>
-					</Box>
-					<Box marginTop={2} justifyContent="flex-end">
-						{renderButtons()}
-					</Box>
+					) : (
+						<Box>
+							<Text color="gray">{timeInputValue}</Text>
+						</Box>
+					)}
 				</Box>
+			</Box>
+
+			{/* Comment Input */}
+			<Box marginTop={1} flexDirection="column">
+				<Text color="yellow">Comment:</Text>
+				<Box marginTop={1}>
+					<TextInput
+						defaultValue={comment}
+						onChange={setComment}
+						onSubmit={handleSubmit}
+						placeholder="Enter work description..."
+						isDisabled={focusArea !== 'comment'}
+					/>
+				</Box>
+			</Box>
+
+			{/* Buttons */}
+			<Box marginTop={2} justifyContent="flex-start">
+				{renderButtons()}
 			</Box>
 
 			{/* Error Display */}
