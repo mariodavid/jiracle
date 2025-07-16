@@ -348,3 +348,145 @@ test('searchIssuesWithWorklogs parses response correctly', async t => {
 		global.fetch = originalFetch;
 	}
 });
+
+test('updateWorklog builds correct request', async t => {
+	const client = new JiraClient(mockConfig);
+	const issueKey = 'TEST-123';
+	const worklogId = '111111';
+	const worklogData = {
+		timeSpent: '2h',
+		comment: 'Updated work description',
+		started: '2024-10-19T08:00:00.000+0200',
+	};
+
+	// Mock fetch to capture the request
+	const originalFetch = global.fetch;
+	let capturedRequest: {url: string; options: RequestInit} | undefined;
+
+	global.fetch = async (url, options) => {
+		capturedRequest = {url: url as string, options: options!};
+		return {
+			ok: true,
+			json: async () => ({}),
+		} as Response;
+	};
+
+	try {
+		await client.updateWorklog(issueKey, worklogId, worklogData);
+
+		t.truthy(capturedRequest);
+		t.is(
+			capturedRequest!.url,
+			'https://jira.example.com/rest/api/2/issue/TEST-123/worklog/111111',
+		);
+		t.is(capturedRequest!.options.method, 'PUT');
+
+		const headers = capturedRequest!.options.headers as Record<string, string>;
+		t.is(headers['Authorization'], 'Bearer test-token-123');
+		t.is(headers['Accept'], 'application/json');
+		t.is(headers['Content-Type'], 'application/json');
+
+		const body = JSON.parse(capturedRequest!.options.body as string);
+		t.deepEqual(body, worklogData);
+	} finally {
+		global.fetch = originalFetch;
+	}
+});
+
+test('updateWorklog handles API errors', async t => {
+	const client = new JiraClient(mockConfig);
+	const issueKey = 'TEST-123';
+	const worklogId = '111111';
+	const worklogData = {
+		timeSpent: '2h',
+		comment: 'Updated work description',
+		started: '2024-10-19T08:00:00.000+0200',
+	};
+
+	// Mock fetch to return error
+	const originalFetch = global.fetch;
+	global.fetch = async () => {
+		return new Response('Worklog not found', {
+			status: 404,
+			statusText: 'Not Found',
+		});
+	};
+
+	try {
+		const error = await t.throwsAsync(
+			client.updateWorklog(issueKey, worklogId, worklogData),
+		);
+		t.is(error?.message, 'Jira API error: 404 - Worklog not found');
+	} finally {
+		global.fetch = originalFetch;
+	}
+});
+
+test('updateWorklog validates issue key', async t => {
+	const client = new JiraClient(mockConfig);
+	const worklogId = '111111';
+	const worklogData = {
+		timeSpent: '2h',
+		comment: 'Updated work description',
+		started: '2024-10-19T08:00:00.000+0200',
+	};
+
+	// Test empty issue key
+	const error1 = await t.throwsAsync(
+		client.updateWorklog('', worklogId, worklogData),
+	);
+	t.is(error1?.message, 'Issue key is required and cannot be empty');
+
+	// Test invalid issue key format
+	const error2 = await t.throwsAsync(
+		client.updateWorklog('invalid-key', worklogId, worklogData),
+	);
+	t.true(error2?.message.includes('Invalid issue key format'));
+});
+
+test('updateWorklog validates worklog ID', async t => {
+	const client = new JiraClient(mockConfig);
+	const issueKey = 'TEST-123';
+	const worklogData = {
+		timeSpent: '2h',
+		comment: 'Updated work description',
+		started: '2024-10-19T08:00:00.000+0200',
+	};
+
+	// Test empty worklog ID
+	const error = await t.throwsAsync(
+		client.updateWorklog(issueKey, '', worklogData),
+	);
+	t.is(error?.message, 'Worklog ID is required and cannot be empty');
+});
+
+test('updateWorklog handles 405 error with helpful message', async t => {
+	const client = new JiraClient(mockConfig);
+	const issueKey = 'TEST-123';
+	const worklogId = '111111';
+	const worklogData = {
+		timeSpent: '2h',
+		comment: 'Updated work description',
+		started: '2024-10-19T08:00:00.000+0200',
+	};
+
+	// Mock fetch to return 405 error
+	const originalFetch = global.fetch;
+	global.fetch = async () => {
+		return new Response('Method Not Allowed', {
+			status: 405,
+			statusText: 'Method Not Allowed',
+		});
+	};
+
+	try {
+		const error = await t.throwsAsync(
+			client.updateWorklog(issueKey, worklogId, worklogData),
+		);
+		t.true(error?.message.includes('HTTP 405 Method Not Allowed'));
+		t.true(error?.message.includes('Check your Jira URL configuration'));
+		t.true(error?.message.includes('https://your-jira-instance.com/'));
+	} finally {
+		global.fetch = originalFetch;
+	}
+});

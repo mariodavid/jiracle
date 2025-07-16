@@ -803,6 +803,129 @@ export class JiraClient {
 		}
 	}
 
+	async updateWorklog(
+		issueKey: string,
+		worklogId: string,
+		worklogData: WorklogRequest,
+	): Promise<void> {
+		// Validate configuration before making the request
+		const validation = this.validateConfiguration();
+		if (!validation.isValid) {
+			const errorMessage = `Configuration errors:\n${validation.errors.join(
+				'\n',
+			)}`;
+			this.logger.error('Invalid configuration for updateWorklog', {
+				errors: validation.errors,
+				jiraUrl: this.jiraUrl,
+				baseUrl: this.baseUrl,
+			});
+			throw new Error(errorMessage);
+		}
+
+		// Validate issue key
+		if (!issueKey || typeof issueKey !== 'string' || issueKey.trim() === '') {
+			throw new Error('Issue key is required and cannot be empty');
+		}
+
+		// Validate worklog ID
+		if (
+			!worklogId ||
+			typeof worklogId !== 'string' ||
+			worklogId.trim() === ''
+		) {
+			throw new Error('Worklog ID is required and cannot be empty');
+		}
+
+		const trimmedIssueKey = issueKey.trim();
+		if (!/^[A-Z]+-\d+$/i.test(trimmedIssueKey)) {
+			throw new Error(
+				`Invalid issue key format: "${trimmedIssueKey}". Expected format: PROJECT-123 (e.g., DEF-123, ABC-456)`,
+			);
+		}
+
+		const updateUrl = `${this.baseUrl}/issue/${trimmedIssueKey}/worklog/${worklogId}`;
+
+		this.logger.info('Updating worklog', {
+			method: 'PUT',
+			url: updateUrl,
+			baseUrl: this.baseUrl,
+			jiraUrl: this.jiraUrl,
+			issueKey: trimmedIssueKey,
+			originalIssueKey: issueKey,
+			worklogId,
+			worklogData,
+			timestamp: new Date().toISOString(),
+		});
+
+		try {
+			const response = await fetch(updateUrl, {
+				method: 'PUT',
+				headers: {
+					Authorization: `Bearer ${this.apiToken}`,
+					Accept: 'application/json',
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify(worklogData),
+			});
+
+			if (!response.ok) {
+				const errorText = await response.text();
+				this.logger.error('Failed to update worklog', {
+					method: 'PUT',
+					url: updateUrl,
+					baseUrl: this.baseUrl,
+					jiraUrl: this.jiraUrl,
+					issueKey: trimmedIssueKey,
+					originalIssueKey: issueKey,
+					worklogId,
+					worklogData,
+					status: response.status,
+					statusText: response.statusText,
+					error: errorText,
+					headers: Object.fromEntries(response.headers.entries()),
+				});
+
+				if (response.status === 405) {
+					throw new Error(
+						`HTTP 405 Method Not Allowed - Check your Jira URL configuration.\n` +
+							`Expected URL format: https://your-jira-instance.com/\n` +
+							`Current URL: ${updateUrl}\n` +
+							`Base URL: ${this.baseUrl}\n` +
+							`This error often occurs when:\n` +
+							`1. The jiraUrl points to the web UI instead of the API endpoint\n` +
+							`2. The Jira instance doesn't support REST API v2\n` +
+							`3. The URL has incorrect formatting\n\n` +
+							`Server response: ${errorText}`,
+					);
+				}
+
+				throw new Error(`Jira API error: ${response.status} - ${errorText}`);
+			}
+
+			this.logger.info('Successfully updated worklog', {
+				method: 'PUT',
+				url: updateUrl,
+				issueKey: trimmedIssueKey,
+				originalIssueKey: issueKey,
+				worklogId,
+				worklogData,
+				status: response.status,
+				timestamp: new Date().toISOString(),
+			});
+		} catch (error) {
+			this.logger.error('Error updating worklog', {
+				method: 'PUT',
+				url: updateUrl,
+				issueKey: trimmedIssueKey,
+				originalIssueKey: issueKey,
+				worklogId,
+				worklogData,
+				error: error instanceof Error ? error.message : 'Unknown error',
+			});
+			throw error;
+		}
+	}
+
 	async searchIssuesWithWorklogs(jql: string): Promise<JiraSearchResponse> {
 		const searchUrl = `${this.baseUrl}/search`;
 		const requestData = {
