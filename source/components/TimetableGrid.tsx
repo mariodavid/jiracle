@@ -222,12 +222,11 @@ export function TimetableGrid({
 			const desired = group.group.desiredAmount;
 			const actual = group.totalHours;
 			const status = actual >= desired ? '✓' : '⚠️';
-			return `${totalHours}/${desired}h ${status}`;
+			return `${totalHours}/${desired} ${status}`;
 		}
 
-		// Only append 'h' if totalHours is not '-'
-		const formattedTotal = totalHours === '-' ? '-' : `${totalHours}h`;
-		return formattedTotal;
+		// Return hours without 'h' suffix for group totals
+		return totalHours;
 	};
 
 	const tableWidth = 2 + 20 + 5 * 12 + 8; // Group + Issue + 5 weekdays (wider) + Total = 90
@@ -269,6 +268,41 @@ export function TimetableGrid({
 
 		return items;
 	}, [attendanceManager, issueGroups]);
+
+	// Set initial focus to first row and current day when component loads
+	useEffect(() => {
+		if (focusedCell === null && isActive) {
+			const focusableItems = getAllFocusableItems();
+			if (focusableItems.length > 0) {
+				// Find current day column index (0=Monday, 1=Tuesday, ..., 4=Friday)
+				const today = new Date();
+				const todayDayOfWeek = today.getDay(); // 0=Sunday, 1=Monday, ..., 6=Saturday
+
+				// Convert to our week format (0=Monday, 1=Tuesday, ..., 4=Friday)
+				// Monday=1->0, Tuesday=2->1, Wednesday=3->2, Thursday=4->3, Friday=5->4
+				// For weekend days (Saturday=6, Sunday=0), default to Monday (0)
+				let todayColumnIndex = 0; // Default to Monday
+				if (todayDayOfWeek >= 1 && todayDayOfWeek <= 5) {
+					todayColumnIndex = todayDayOfWeek - 1; // Convert to 0-based weekday index
+				}
+
+				// Find the first item for today's column
+				const todayFirstItem = focusableItems.find(
+					item => item.columnIndex === todayColumnIndex,
+				);
+
+				if (todayFirstItem) {
+					focus(todayFirstItem.focusId);
+				} else {
+					// Fallback to first item if today's column is not found
+					const firstItem = focusableItems[0];
+					if (firstItem) {
+						focus(firstItem.focusId);
+					}
+				}
+			}
+		}
+	}, [focusedCell, isActive, getAllFocusableItems, focus]);
 
 	// Handle arrow key navigation
 	const handleArrowNavigation = useCallback(

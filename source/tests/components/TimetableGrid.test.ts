@@ -293,6 +293,327 @@ test('TimetableGrid shows dash for zero hours', t => {
 	t.true(dashCount >= 6); // At least 6 dashes for days without work
 });
 
+// Tests for initial focus behavior
+test.serial(
+	'TimetableGrid sets initial focus to first row and current day on component load',
+	async t => {
+		// Mock the current date to be a Tuesday (day index 1)
+		const originalDate = Date;
+		const mockDate = new Date('2024-10-15T10:00:00.000Z'); // Tuesday
+
+		// Simple Date constructor override
+		const MockDate = function (this: any, ...args: any[]): any {
+			if (args.length === 0) {
+				return mockDate;
+			}
+			return new originalDate(...(args as []));
+		} as any;
+
+		MockDate.now = () => mockDate.getTime();
+		MockDate.UTC = originalDate.UTC;
+		MockDate.parse = originalDate.parse;
+		MockDate.prototype = originalDate.prototype;
+
+		global.Date = MockDate;
+
+		const sampleData: WeeklyWorklogSummary = {
+			weekStart: new Date('2024-10-14T00:00:00.000Z'), // Monday
+			weekEnd: new Date('2024-10-20T23:59:59.999Z'),
+			dailySummaries: [
+				{
+					date: new Date('2024-10-14T00:00:00.000Z'),
+					totalHours: 4.0,
+					issues: [
+						{
+							issueKey: 'TEST-117',
+							issueSummary: 'First Issue',
+							hours: 4.0,
+						},
+					],
+				},
+			],
+			weekTotal: 4.0,
+		};
+
+		const favoriteIssues = [
+			{
+				key: 'TEST-117',
+				defaultTime: '4h',
+				defaultComment: 'Test work',
+			},
+		];
+
+		let focusedCells: Array<{issueKey: string; date: Date}> = [];
+		const handleCellWorklog = (data: {issueKey: string; date: Date}) => {
+			focusedCells.push(data);
+		};
+
+		const props = {
+			data: sampleData,
+			isLoading: false,
+			favoriteIssues,
+			onCellWorklog: handleCellWorklog,
+			isActive: true,
+		};
+
+		const {stdin, rerender} = render(React.createElement(TimetableGrid, props));
+
+		// Wait for component to mount and initial focus to be set
+		await new Promise(resolve => setTimeout(resolve, 10));
+		rerender(React.createElement(TimetableGrid, props));
+
+		// Simulate pressing Enter to trigger cell worklog (tests that focus is set)
+		stdin.write('\r');
+
+		// Should have focused on Tuesday (column index 1) for the first issue
+		t.is(focusedCells.length, 1, 'Should have triggered cell worklog');
+		t.is(focusedCells[0]?.issueKey, 'TEST-117', 'Should focus on first issue');
+
+		// Check that the focused date is Tuesday (2024-10-15)
+		const focusedDate = focusedCells[0]?.date;
+		t.is(focusedDate?.getDate(), 15, 'Should focus on Tuesday (15th)');
+		t.is(focusedDate?.getMonth(), 9, 'Should focus on October (month 9)');
+
+		// Restore original Date constructor
+		global.Date = originalDate;
+	},
+);
+
+test.serial(
+	'TimetableGrid sets initial focus to Monday when current day is weekend',
+	async t => {
+		// Mock the current date to be a Sunday (day index 0)
+		const originalDate = Date;
+		const mockDate = new Date('2024-10-13T10:00:00.000Z'); // Sunday
+
+		// Simple Date constructor override
+		const MockDate = function (this: any, ...args: any[]): any {
+			if (args.length === 0) {
+				return mockDate;
+			}
+			return new originalDate(...(args as []));
+		} as any;
+
+		MockDate.now = () => mockDate.getTime();
+		MockDate.UTC = originalDate.UTC;
+		MockDate.parse = originalDate.parse;
+		MockDate.prototype = originalDate.prototype;
+
+		global.Date = MockDate;
+
+		const sampleData: WeeklyWorklogSummary = {
+			weekStart: new Date('2024-10-14T00:00:00.000Z'), // Monday
+			weekEnd: new Date('2024-10-20T23:59:59.999Z'),
+			dailySummaries: [
+				{
+					date: new Date('2024-10-14T00:00:00.000Z'),
+					totalHours: 4.0,
+					issues: [
+						{
+							issueKey: 'TEST-117',
+							issueSummary: 'First Issue',
+							hours: 4.0,
+						},
+					],
+				},
+			],
+			weekTotal: 4.0,
+		};
+
+		const favoriteIssues = [
+			{
+				key: 'TEST-117',
+				defaultTime: '4h',
+				defaultComment: 'Test work',
+			},
+		];
+
+		let focusedCells: Array<{issueKey: string; date: Date}> = [];
+		const handleCellWorklog = (data: {issueKey: string; date: Date}) => {
+			focusedCells.push(data);
+		};
+
+		const props = {
+			data: sampleData,
+			isLoading: false,
+			favoriteIssues,
+			onCellWorklog: handleCellWorklog,
+			isActive: true,
+		};
+
+		const {stdin, rerender} = render(React.createElement(TimetableGrid, props));
+
+		// Wait for component to mount and initial focus to be set
+		await new Promise(resolve => setTimeout(resolve, 10));
+		rerender(React.createElement(TimetableGrid, props));
+
+		// Simulate pressing Enter to trigger cell worklog
+		stdin.write('\r');
+
+		// Should have focused on Monday (column index 0) for the first issue
+		t.is(focusedCells.length, 1, 'Should have triggered cell worklog');
+		t.is(focusedCells[0]?.issueKey, 'TEST-117', 'Should focus on first issue');
+
+		// Check that the focused date is Monday (2024-10-14)
+		const focusedDate = focusedCells[0]?.date;
+		t.is(
+			focusedDate?.getDate(),
+			14,
+			'Should focus on Monday (14th) when current day is weekend',
+		);
+		t.is(focusedDate?.getMonth(), 9, 'Should focus on October (month 9)');
+
+		// Restore original Date constructor
+		global.Date = originalDate;
+	},
+);
+
+test.serial(
+	'TimetableGrid sets initial focus to Friday when current day is Friday',
+	async t => {
+		// Mock the current date to be a Friday (day index 5)
+		const originalDate = Date;
+		const mockDate = new Date('2024-10-18T10:00:00.000Z'); // Friday
+
+		// Simple Date constructor override
+		const MockDate = function (this: any, ...args: any[]): any {
+			if (args.length === 0) {
+				return mockDate;
+			}
+			return new originalDate(...(args as []));
+		} as any;
+
+		MockDate.now = () => mockDate.getTime();
+		MockDate.UTC = originalDate.UTC;
+		MockDate.parse = originalDate.parse;
+		MockDate.prototype = originalDate.prototype;
+
+		global.Date = MockDate;
+
+		const sampleData: WeeklyWorklogSummary = {
+			weekStart: new Date('2024-10-14T00:00:00.000Z'), // Monday
+			weekEnd: new Date('2024-10-20T23:59:59.999Z'),
+			dailySummaries: [
+				{
+					date: new Date('2024-10-18T00:00:00.000Z'), // Friday data
+					totalHours: 4.0,
+					issues: [
+						{
+							issueKey: 'TEST-117',
+							issueSummary: 'First Issue',
+							hours: 4.0,
+						},
+					],
+				},
+			],
+			weekTotal: 4.0,
+		};
+
+		const favoriteIssues = [
+			{
+				key: 'TEST-117',
+				defaultTime: '4h',
+				defaultComment: 'Test work',
+			},
+		];
+
+		let focusedCells: Array<{issueKey: string; date: Date}> = [];
+		const handleCellWorklog = (data: {issueKey: string; date: Date}) => {
+			focusedCells.push(data);
+		};
+
+		const props = {
+			data: sampleData,
+			isLoading: false,
+			favoriteIssues,
+			onCellWorklog: handleCellWorklog,
+			isActive: true,
+		};
+
+		const {stdin, rerender} = render(React.createElement(TimetableGrid, props));
+
+		// Wait for component to mount and initial focus to be set
+		await new Promise(resolve => setTimeout(resolve, 50));
+		rerender(React.createElement(TimetableGrid, props));
+
+		// Simulate pressing Enter to trigger cell worklog
+		stdin.write('\r');
+
+		// Should have focused on Friday (column index 4) for the first issue
+		t.is(focusedCells.length, 1, 'Should have triggered cell worklog');
+		t.is(focusedCells[0]?.issueKey, 'TEST-117', 'Should focus on first issue');
+
+		// Check that the focused date is Friday (2024-10-18)
+		const focusedDate = focusedCells[0]?.date;
+		t.is(focusedDate?.getDate(), 18, 'Should focus on Friday (18th)');
+		t.is(focusedDate?.getMonth(), 9, 'Should focus on October (month 9)');
+
+		// Restore original Date constructor
+		global.Date = originalDate;
+	},
+);
+
+test.serial(
+	'TimetableGrid does not set initial focus when component is not active',
+	async t => {
+		const sampleData: WeeklyWorklogSummary = {
+			weekStart: new Date('2024-10-14T00:00:00.000Z'),
+			weekEnd: new Date('2024-10-20T23:59:59.999Z'),
+			dailySummaries: [
+				{
+					date: new Date('2024-10-14T00:00:00.000Z'),
+					totalHours: 4.0,
+					issues: [
+						{
+							issueKey: 'TEST-117',
+							issueSummary: 'First Issue',
+							hours: 4.0,
+						},
+					],
+				},
+			],
+			weekTotal: 4.0,
+		};
+
+		const favoriteIssues = [
+			{
+				key: 'TEST-117',
+				defaultTime: '4h',
+				defaultComment: 'Test work',
+			},
+		];
+
+		let focusedCells: Array<{issueKey: string; date: Date}> = [];
+		const handleCellWorklog = (data: {issueKey: string; date: Date}) => {
+			focusedCells.push(data);
+		};
+
+		const props = {
+			data: sampleData,
+			isLoading: false,
+			favoriteIssues,
+			onCellWorklog: handleCellWorklog,
+			isActive: false, // Component is not active
+		};
+
+		const {stdin, rerender} = render(React.createElement(TimetableGrid, props));
+
+		// Wait for component to mount
+		await new Promise(resolve => setTimeout(resolve, 10));
+		rerender(React.createElement(TimetableGrid, props));
+
+		// Simulate pressing Enter - should not trigger cell worklog since no focus is set
+		stdin.write('\r');
+
+		// Should not have focused anything when component is not active
+		t.is(
+			focusedCells.length,
+			0,
+			'Should not have triggered cell worklog when component is not active',
+		);
+	},
+);
+
 // Navigation Tests - Testing the fix for empty week navigation bug
 test('TimetableGrid allows week navigation even with empty data', t => {
 	const navigationCalls: Array<'prev' | 'next'> = [];

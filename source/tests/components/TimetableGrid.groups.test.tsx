@@ -123,14 +123,14 @@ test('TimetableGrid shows group totals with desiredAmount comparison', t => {
 
 	// Dev group total: JTS-2456 (14h) + GVV-5417 (10h) = 24h vs 20h desired
 	t.true(
-		output.includes('24.0/20h'),
+		output.includes('24.0/20'),
 		'Should show dev group total with desired amount',
 	);
 	t.true(output.includes('✓'), 'Should show success indicator for dev group');
 
 	// Monitoring group total: MON-1001 (6h) vs 10h desired
 	t.true(
-		output.includes('6.0/10h'),
+		output.includes('6.0/10'),
 		'Should show monitoring group total with desired amount',
 	);
 	t.true(
@@ -262,7 +262,7 @@ test('TimetableGrid handles groups without desiredAmount', t => {
 
 	// Should show simple total without comparison
 	t.true(
-		output.includes('24.0h'),
+		output.includes('24.0'),
 		'Should show group total without desired amount comparison',
 	);
 	t.false(
