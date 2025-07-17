@@ -615,13 +615,18 @@ export function TimetableGrid({
 		);
 	}
 
-	// Render attendance row (compact: shows time range like "8:00-17:00")
+	// Render attendance rows (time range + separate working hours row)
 	const renderAttendanceRows = () => {
 		const attendanceRows = [
 			{key: 'attendance', label: 'Attendance', type: 'attendance' as const},
+			{
+				key: 'attendance-hours',
+				label: 'Hours',
+				type: 'attendance-hours' as const,
+			},
 		];
 
-		const getCellValue = (date: string): string => {
+		const getTimeRangeCellValue = (date: string): string => {
 			const attendance = weeklyAttendance[date];
 
 			if (!attendance || (!attendance.checkIn && !attendance.checkOut)) {
@@ -637,6 +642,19 @@ export function TimetableGrid({
 				return m === 0 ? h.toString() : `${h}:${minutes}`;
 			};
 
+			const checkIn = formatTime(attendance.checkIn || '08:00');
+			const checkOut = formatTime(attendance.checkOut || '17:00');
+
+			return `${checkIn}-${checkOut}`;
+		};
+
+		const getWorkingHoursCellValue = (date: string): string => {
+			const attendance = weeklyAttendance[date];
+
+			if (!attendance || (!attendance.checkIn && !attendance.checkOut)) {
+				return '-'; // Show dash when no data exists
+			}
+
 			// Calculate working hours using Duration class
 			const calculateWorkingHours = (
 				checkIn: string,
@@ -651,8 +669,6 @@ export function TimetableGrid({
 				return workingDuration.toDecimalHours();
 			};
 
-			const checkIn = formatTime(attendance.checkIn || '08:00');
-			const checkOut = formatTime(attendance.checkOut || '17:00');
 			const breakMinutes =
 				attendance.breakMinutes ||
 				config?.attendance?.defaultBreakMinutes ||
@@ -663,7 +679,7 @@ export function TimetableGrid({
 				breakMinutes,
 			);
 
-			return `${checkIn}-${checkOut}\n${workingHours}`;
+			return workingHours;
 		};
 
 		return (
@@ -678,15 +694,20 @@ export function TimetableGrid({
 							{/* Row label */}
 							<Box width={20}>
 								<Text bold color="yellow">
-									Attendance
+									{row.label}
 								</Text>
 							</Box>
 							{/* Day columns */}
-							{weekDates.map((date, index) =>
-								isActive ? (
+							{weekDates.map((date, index) => {
+								const cellValue =
+									row.type === 'attendance'
+										? getTimeRangeCellValue(formatLocalDateKey(date))
+										: getWorkingHoursCellValue(formatLocalDateKey(date));
+
+								return isActive ? (
 									<FocusableCell
 										key={`attendance-${row.key}-${index}`}
-										value={getCellValue(formatLocalDateKey(date))}
+										value={cellValue}
 										focusId={`attendance-${row.key}-${index}`}
 										isActive={true}
 										issueKey={`attendance-${row.key}`}
@@ -701,10 +722,10 @@ export function TimetableGrid({
 										width={12}
 										justifyContent="flex-end"
 									>
-										<Text>{getCellValue(formatLocalDateKey(date))}</Text>
+										<Text>{cellValue}</Text>
 									</Box>
-								),
-							)}
+								);
+							})}
 							{/* Total column - empty for attendance rows */}
 							<Box width={8}>
 								<Text> </Text>
