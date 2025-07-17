@@ -754,7 +754,7 @@ export function TimetableGrid({
 					{/* Row label */}
 					<Box width={20}>
 						<Text bold color="yellow">
-							Hours
+							Attendance
 						</Text>
 					</Box>
 					{/* Day columns */}
@@ -1021,7 +1021,7 @@ export function TimetableGrid({
 				</Box>
 				<Box width={20}>
 					<Text bold color="yellow">
-						Daily Total
+						Worklog
 					</Text>
 				</Box>
 				{dailyTotals.map((total, index) => (

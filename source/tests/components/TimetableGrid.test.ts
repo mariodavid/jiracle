@@ -186,7 +186,7 @@ test('TimetableGrid shows daily totals', t => {
 	const {lastFrame} = render(React.createElement(TimetableGrid, props));
 
 	const output = lastFrame()!;
-	t.true(output.includes('Daily Total'));
+	t.true(output.includes('Worklog'));
 	t.true(output.includes('8')); // Daily total for Friday
 });
 
@@ -1909,24 +1909,34 @@ test('TimetableGrid shows attendance and delta rows at bottom after daily total'
 	const lines = output.split('\n');
 
 	// Find the indices of different rows
-	const dailyTotalIndex = lines.findIndex(line => line.includes('Daily Total'));
+	const worklogIndex = lines.findIndex(line => line.includes('Worklog'));
 	const deltaIndex = lines.findIndex(line => line.includes('Delta'));
-	const attendanceIndex = lines.findIndex(line => line.includes('Attendance'));
+	const attendanceTimeIndex = lines.findIndex(
+		(line, index) => line.includes('Attendance') && index < worklogIndex,
+	); // First Attendance row (time ranges)
 
-	// Verify row order: Attendance should come first, then Issues, then Daily Total, then Hours, then Delta
-	const hoursIndex = lines.findIndex(line => line.includes('Hours'));
+	// Verify row order: Attendance should come first, then Issues, then Worklog, then Attendance (hours), then Delta
+	const attendanceHoursIndex = lines.findIndex(
+		(line, index) => line.includes('Attendance') && index > worklogIndex,
+	); // Second Attendance row (hours)
 
-	t.true(attendanceIndex !== -1, 'Should find Attendance row');
-	t.true(dailyTotalIndex !== -1, 'Should find Daily Total row');
-	t.true(hoursIndex !== -1, 'Should find Hours row');
+	t.true(attendanceTimeIndex !== -1, 'Should find Attendance time row');
+	t.true(worklogIndex !== -1, 'Should find Worklog row');
+	t.true(attendanceHoursIndex !== -1, 'Should find Attendance hours row');
 	t.true(deltaIndex !== -1, 'Should find Delta row');
 
 	t.true(
-		attendanceIndex < dailyTotalIndex,
-		'Attendance should come before Daily Total',
+		attendanceTimeIndex < worklogIndex,
+		'Attendance time row should come before Worklog',
 	);
-	t.true(dailyTotalIndex < hoursIndex, 'Daily Total should come before Hours');
-	t.true(hoursIndex < deltaIndex, 'Hours should come before Delta');
+	t.true(
+		worklogIndex < attendanceHoursIndex,
+		'Worklog should come before Attendance hours',
+	);
+	t.true(
+		attendanceHoursIndex < deltaIndex,
+		'Attendance hours should come before Delta',
+	);
 });
 
 test('TimetableGrid does not show delta row when no attendance manager', t => {
@@ -1972,6 +1982,6 @@ test('TimetableGrid does not show delta row when no attendance manager', t => {
 		'Should not show Delta row without attendance manager',
 	);
 
-	// Should still show Daily Total
-	t.true(output.includes('Daily Total'), 'Should still show Daily Total row');
+	// Should still show Worklog
+	t.true(output.includes('Worklog'), 'Should still show Worklog row');
 });
