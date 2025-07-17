@@ -809,13 +809,11 @@ export function TimetableGrid({
 			if (delta === null || delta === undefined) {
 				return 'yellow';
 			}
-			if (delta > 0) {
+			if (delta === 0) {
 				return 'green';
 			}
-			if (delta < 0) {
-				return 'red';
-			}
-			return 'yellow';
+			// Any deviation from 0 is problematic
+			return 'red';
 		};
 
 		return (

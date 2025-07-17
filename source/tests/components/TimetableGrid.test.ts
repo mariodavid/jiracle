@@ -1662,7 +1662,7 @@ test('TimetableGrid shows group total with desired amount and status', t => {
 });
 
 // Tests for new Delta row functionality
-test('TimetableGrid shows delta row with positive values in green', async t => {
+test('TimetableGrid shows delta row with positive values in red', async t => {
 	const mockAttendanceManager = {
 		getWeeklyAttendance: async () => ({
 			'2024-10-14': {
@@ -1723,6 +1723,70 @@ test('TimetableGrid shows delta row with positive values in green', async t => {
 
 	// Should show positive delta with + prefix (8.0 - 7.5 = +0.5)
 	t.true(output.includes('+0.5'), 'Should show positive delta with + prefix');
+});
+
+test('TimetableGrid shows delta row with zero values in green', async t => {
+	const mockAttendanceManager = {
+		getWeeklyAttendance: async () => ({
+			'2024-10-14': {
+				date: '2024-10-14',
+				checkIn: '08:00',
+				checkOut: '17:00', // 8.5 hours worked
+				breakMinutes: 30,
+				totalHours: 8.5,
+			},
+		}),
+	};
+
+	const sampleData: WeeklyWorklogSummary = {
+		weekStart: new Date('2024-10-14T00:00:00.000Z'),
+		weekEnd: new Date('2024-10-20T23:59:59.999Z'),
+		dailySummaries: [
+			{
+				date: new Date('2024-10-14T00:00:00.000Z'),
+				totalHours: 8.5, // Logged exactly same as attended
+				issues: [
+					{
+						issueKey: 'TEST-123',
+						issueSummary: 'Test work',
+						hours: 8.5,
+					},
+				],
+			},
+		],
+		weekTotal: 8.5,
+	};
+
+	const favoriteIssues = [
+		{
+			key: 'TEST-123',
+			defaultTime: '4h',
+		},
+	];
+
+	const props = {
+		data: sampleData,
+		isLoading: false,
+		attendanceManager: mockAttendanceManager as any,
+		attendanceRefreshKey: 1,
+		favoriteIssues,
+	};
+
+	const {lastFrame, rerender} = render(
+		React.createElement(TimetableGrid, props),
+	);
+
+	await new Promise(resolve => setImmediate(resolve));
+	rerender(React.createElement(TimetableGrid, props));
+	await new Promise(resolve => setImmediate(resolve));
+
+	const output = lastFrame()!;
+
+	// Should show Delta row
+	t.true(output.includes('Delta'), 'Should show Delta row');
+
+	// Should show zero delta (8.5 - 8.5 = 0.0)
+	t.true(output.includes('0.0'), 'Should show zero delta');
 });
 
 test('TimetableGrid shows delta row with negative values in red', async t => {
