@@ -16,7 +16,7 @@ export default function LoadingScreen({
 			flexDirection="column"
 			alignItems="center"
 			justifyContent="center"
-			height={40}
+			height={50}
 		>
 			<Text key="spacer-1"> </Text>
 			<Gradient key="loading-gradient" name="rainbow">

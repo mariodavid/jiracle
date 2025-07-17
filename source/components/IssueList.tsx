@@ -16,7 +16,7 @@ export default function IssueList({issues, title, onSelect}: IssueListProps) {
 	}));
 
 	return (
-		<Box flexDirection="column" height={40}>
+		<Box flexDirection="column" height={50}>
 			<Text key="title" color="cyan">
 				{title}
 			</Text>

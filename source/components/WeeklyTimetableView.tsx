@@ -596,7 +596,7 @@ export function WeeklyTimetableView({
 	});
 
 	return (
-		<Box flexDirection="column" height={40}>
+		<Box flexDirection="column" height={50}>
 			{/* Header Area - Fixed Height */}
 			<Box height={8} flexDirection="column">
 				{/* JIRACLE Rainbow Banner */}
@@ -641,7 +641,7 @@ export function WeeklyTimetableView({
 			</Box>
 
 			{/* Main Content Area - Fixed Height */}
-			<Box height={25} flexDirection="column">
+			<Box height={35} flexDirection="column">
 				{/* Extra spacing between week navigator and table - only when not in form or delete mode */}
 				{!worklogForm.isVisible &&
 					activeArea !== 'delete-confirmation' &&
