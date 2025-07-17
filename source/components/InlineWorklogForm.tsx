@@ -16,6 +16,7 @@ interface InlineWorklogFormProps {
 		timeSpent: string;
 		comment: string;
 		date: Date;
+		worklogId?: string; // For edit mode
 	}) => void;
 	onCancel: () => void;
 	isSubmitting?: boolean;
@@ -23,6 +24,9 @@ interface InlineWorklogFormProps {
 	config?: JiraConfig;
 	isFavorite?: boolean;
 	isIssueKeyEditable?: boolean;
+	// Edit mode props
+	isEditMode?: boolean;
+	worklogId?: string;
 }
 
 type FocusArea = 'issueKey' | 'date' | 'time' | 'comment' | 'submit' | 'cancel';
@@ -39,6 +43,8 @@ export function InlineWorklogForm({
 	config,
 	isFavorite = false,
 	isIssueKeyEditable = false,
+	isEditMode = false,
+	worklogId,
 }: InlineWorklogFormProps) {
 	// Determine default time based on configuration
 	const getDefaultTime = () => {
@@ -273,6 +279,7 @@ export function InlineWorklogForm({
 			timeSpent,
 			comment,
 			date: currentDate,
+			...(isEditMode && worklogId && {worklogId}),
 		});
 	}, [
 		isSubmitting,
@@ -281,6 +288,8 @@ export function InlineWorklogForm({
 		currentIssueKey,
 		currentDate,
 		onSubmit,
+		isEditMode,
+		worklogId,
 	]);
 
 	const renderButtons = () => {
