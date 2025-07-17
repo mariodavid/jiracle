@@ -264,12 +264,7 @@ export function TimetableGrid({
 					columnIndex,
 					isAttendance: true,
 				});
-				items.push({
-					focusId: `attendance-attendance-hours-${columnIndex}`,
-					issueKey: 'attendance-attendance-hours',
-					columnIndex,
-					isAttendance: true,
-				});
+				// Note: attendance-hours row is not focusable, so we don't add it here
 			}
 		}
 
@@ -287,17 +282,7 @@ export function TimetableGrid({
 			}
 		}
 
-		// Add hours cells after issues (they appear after Daily Total)
-		if (attendanceManager) {
-			for (let columnIndex = 0; columnIndex < 5; columnIndex++) {
-				items.push({
-					focusId: `attendance-attendance-hours-${columnIndex}`,
-					issueKey: 'attendance-attendance-hours',
-					columnIndex,
-					isAttendance: true,
-				});
-			}
-		}
+		// Note: attendance-hours row is not focusable, so we don't add it here
 
 		return items;
 	}, [attendanceManager, issueGroups]);
@@ -763,19 +748,8 @@ export function TimetableGrid({
 							formatLocalDateKey(date),
 						);
 
-						return isActive ? (
-							<FocusableCell
-								key={`hours-${index}`}
-								value={cellValue}
-								focusId={`attendance-attendance-hours-${index}`}
-								isActive={true}
-								issueKey={`attendance-attendance-hours`}
-								columnIndex={index}
-								onFocusChange={handleFocusChange}
-								width={12}
-								rightAlign={true}
-							/>
-						) : (
+						// Hours row is not focusable - always render as static text
+						return (
 							<Box
 								key={`hours-static-${index}`}
 								width={12}
@@ -883,7 +857,50 @@ export function TimetableGrid({
 			</Box>
 
 			{/* Attendance row - only show if attendanceManager is available */}
-			{attendanceManager && renderAttendanceRow()}
+			{attendanceManager && (
+				<Box flexDirection="column">
+					{/* Extra spacing above attendance section */}
+					<Box>
+						<Text> </Text>
+					</Box>
+					{/* Double line separator above attendance */}
+					<Box flexDirection="row">
+						<Box width={2}>
+							<Text color="gray">{'═'.repeat(2)}</Text>
+						</Box>
+						<Box width={20}>
+							<Text color="gray">{'═'.repeat(20)}</Text>
+						</Box>
+						{weekDates.map((_, index) => (
+							<Box key={`attendance-double-line-${index}`} width={12}>
+								<Text color="gray">{'═'.repeat(12)}</Text>
+							</Box>
+						))}
+						<Box width={8}>
+							<Text color="gray">{'═'.repeat(8)}</Text>
+						</Box>
+					</Box>
+					{/* Single line separator below double line */}
+					<Box flexDirection="row">
+						<Box width={2}>
+							<Text color="gray">{'─'.repeat(2)}</Text>
+						</Box>
+						<Box width={20}>
+							<Text color="gray">{'─'.repeat(20)}</Text>
+						</Box>
+						{weekDates.map((_, index) => (
+							<Box key={`attendance-single-line-${index}`} width={12}>
+								<Text color="gray">{'─'.repeat(12)}</Text>
+							</Box>
+						))}
+						<Box width={8}>
+							<Text color="gray">{'─'.repeat(8)}</Text>
+						</Box>
+					</Box>
+					{/* Render the attendance row */}
+					{renderAttendanceRow()}
+				</Box>
+			)}
 
 			{/* Separator */}
 			<Box width={tableWidth}>
