@@ -893,6 +893,51 @@ export function TimetableGrid({
 			{/* Issue rows grouped by resolved groups */}
 			{issueGroups.map(group => (
 				<Box key={group.group?.id || 'ungrouped'} flexDirection="column">
+					{/* Group header row */}
+					{group.group && (
+						<Box flexDirection="column">
+							{/* Extra spacing before group header */}
+							<Box>
+								<Text> </Text>
+							</Box>
+							{/* Group header with name */}
+							<Box flexDirection="row">
+								<Box width={2}>
+									<Text> </Text>
+								</Box>
+								<Box width={20}>
+									<Text bold color="yellow">
+										{group.group.name}
+									</Text>
+								</Box>
+								{weekDates.map((_, index) => (
+									<Box key={`header-${group.group?.id}-${index}`} width={12}>
+										<Text> </Text>
+									</Box>
+								))}
+								<Box width={8}>
+									<Text> </Text>
+								</Box>
+							</Box>
+							{/* Underline below group header */}
+							<Box flexDirection="row">
+								<Box width={2}>
+									<Text color="yellow">{'─'.repeat(2)}</Text>
+								</Box>
+								<Box width={20}>
+									<Text color="yellow">{'─'.repeat(20)}</Text>
+								</Box>
+								{weekDates.map((_, index) => (
+									<Box key={`underline-${group.group?.id}-${index}`} width={12}>
+										<Text color="yellow">{'─'.repeat(12)}</Text>
+									</Box>
+								))}
+								<Box width={8}>
+									<Text color="yellow">{'─'.repeat(8)}</Text>
+								</Box>
+							</Box>
+						</Box>
+					)}
 					{group.issues.map(([issueKey, issueData]) => {
 						const isRowHighlighted = focusedCell?.issueKey === issueKey;
 						return (
@@ -999,6 +1044,9 @@ export function TimetableGrid({
 								</Box>
 							</Box>
 							{/* Additional spacing after group total */}
+							<Box>
+								<Text> </Text>
+							</Box>
 							<Box>
 								<Text> </Text>
 							</Box>
