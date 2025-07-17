@@ -32,6 +32,10 @@ import {
 	generateJiraIssueUrl,
 } from '../utils/browser.js';
 import {uiLogger} from '../utils/logger.js';
+import {
+	detectWorklogForEdit,
+	findWorklogEntryForIssue,
+} from '../utils/worklog-detection.js';
 
 interface WorklogFormData {
 	issueKey: string;
@@ -40,6 +44,9 @@ interface WorklogFormData {
 	comment: string;
 	isVisible: boolean;
 	isIssueKeyEditable: boolean;
+	// Edit mode fields
+	isEditMode?: boolean;
+	worklogId?: string;
 }
 
 export interface WeeklyTimetableViewProps {
@@ -180,17 +187,45 @@ export function WeeklyTimetableView({
 		setActiveArea('timetable');
 	};
 
-	const handleCellWorklog = (data: {issueKey: string; date: Date}) => {
-		// Resolve defaults using the new hierarchical system
-		const defaults = resolveDefaults(config, data.issueKey);
+	const handleCellWorklog = (cellData: {issueKey: string; date: Date}) => {
+		// Find the specific daily summary for this date
+		const targetDateKey = formatLocalDateKey(cellData.date);
+		const dailySummary = data?.dailySummaries.find(
+			(summary: any) => formatLocalDateKey(summary.date) === targetDateKey,
+		);
+
+		// Find the worklog entry for this issue on this date
+		const worklogEntry = dailySummary
+			? findWorklogEntryForIssue(cellData.issueKey, dailySummary.issues)
+			: undefined;
+
+		// Detect if this is an edit scenario
+		const detectionResult = detectWorklogForEdit(worklogEntry);
+
+		// Resolve defaults for new entries or use existing data for edits
+		let timeSpent: string;
+		let comment: string;
+
+		if (detectionResult.isEditable) {
+			// Edit mode: use existing data
+			timeSpent = detectionResult.timeSpent!;
+			comment = detectionResult.comment!;
+		} else {
+			// Create mode: use defaults
+			const defaults = resolveDefaults(config, cellData.issueKey);
+			timeSpent = defaults.time;
+			comment = defaults.comment;
+		}
 
 		setWorklogForm({
-			issueKey: data.issueKey,
-			date: data.date,
-			timeSpent: defaults.time,
-			comment: defaults.comment,
+			issueKey: cellData.issueKey,
+			date: cellData.date,
+			timeSpent,
+			comment,
 			isVisible: true,
 			isIssueKeyEditable: false,
+			isEditMode: detectionResult.isEditable,
+			worklogId: detectionResult.worklogId,
 		});
 		setWorklogError(null); // Clear any previous error
 		setActiveArea('worklog-form');
@@ -218,6 +253,7 @@ export function WeeklyTimetableView({
 			timeSpent: string;
 			comment: string;
 			date: Date;
+			worklogId?: string;
 		}) => {
 			// Immediate guard against double submission
 			if (worklogSubmitting) {
@@ -272,12 +308,28 @@ export function WeeklyTimetableView({
 
 				// Use trimmed issue key
 				const trimmedIssueKey = data.issueKey.trim();
-				await client.addWorklog(trimmedIssueKey, worklogData);
 
-				uiLogger.debug('WeeklyTimetableView: Worklog submitted successfully', {
-					issueKey: trimmedIssueKey,
-					timestamp: new Date().toISOString(),
-				});
+				// Determine whether to update or create
+				if (data.worklogId) {
+					// Edit mode: update existing worklog
+					await client.updateWorklog(
+						trimmedIssueKey,
+						data.worklogId,
+						worklogData,
+					);
+					uiLogger.debug('WeeklyTimetableView: Worklog updated successfully', {
+						issueKey: trimmedIssueKey,
+						worklogId: data.worklogId,
+						timestamp: new Date().toISOString(),
+					});
+				} else {
+					// Create mode: add new worklog
+					await client.addWorklog(trimmedIssueKey, worklogData);
+					uiLogger.debug('WeeklyTimetableView: Worklog created successfully', {
+						issueKey: trimmedIssueKey,
+						timestamp: new Date().toISOString(),
+					});
+				}
 
 				// Close form and return to table
 				setWorklogForm(prev => ({...prev, isVisible: false}));
@@ -624,6 +676,8 @@ export function WeeklyTimetableView({
 									fav => fav.key === worklogForm.issueKey,
 								)}
 								isIssueKeyEditable={worklogForm.isIssueKeyEditable}
+								isEditMode={worklogForm.isEditMode}
+								worklogId={worklogForm.worklogId}
 							/>
 						</Box>
 					</Box>
