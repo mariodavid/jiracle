@@ -10,6 +10,7 @@ import {resolveDefaults} from '../jira-client.js';
 import {AttendanceManager} from '../attendance/AttendanceManager.js';
 import type {WeeklyAttendance} from '../attendance/types.js';
 import {Duration} from '../utils/Duration.js';
+import {AttendanceCalculations} from '../attendance/AttendanceCalculations.js';
 
 export interface TimetableGridProps {
 	data: WeeklyWorklogSummary | null;

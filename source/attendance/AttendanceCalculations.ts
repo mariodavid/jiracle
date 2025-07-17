@@ -176,6 +176,30 @@ export class AttendanceCalculations {
 		};
 	}
 
+	static calculateDailyDeltas(
+		weeklyAttendance: WeeklyAttendance,
+		dailyLoggedHours: Record<string, number>,
+		weekDates: string[],
+	): Record<string, number | null> {
+		const deltas: Record<string, number | null> = {};
+
+		for (const date of weekDates) {
+			const attendance = weeklyAttendance[date];
+			const loggedHours = dailyLoggedHours[date] || 0;
+
+			if (!attendance || !attendance.checkIn || !attendance.checkOut) {
+				// No attendance data available or incomplete
+				deltas[date] = null;
+			} else {
+				const attendanceHours =
+					attendance.totalHours || this.calculateTotalHours(attendance) || 0;
+				deltas[date] = loggedHours - attendanceHours;
+			}
+		}
+
+		return deltas;
+	}
+
 	static isValidTimeString(time: string): boolean {
 		return this.parseTime(time) !== null;
 	}
