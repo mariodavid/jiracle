@@ -1024,19 +1024,12 @@ export function TimetableGrid({
 								<Box width={2}>
 									<Text> </Text>
 								</Box>
-								<Box width={20}>
+								{/* Extended width for group total text - spans across issue and weekday columns */}
+								<Box width={20 + 5 * 12}>
 									<Text bold color="green">
-										{truncateText(`${group.group.name} Total`, 20)}
+										{group.group.name} Total
 									</Text>
 								</Box>
-								{weekDates.map((_, index) => (
-									<Box
-										key={`group-total-${group.group?.id}-${index}`}
-										width={12}
-									>
-										<Text> </Text>
-									</Box>
-								))}
 								<Box width={8} justifyContent="flex-end">
 									<Text bold color="green">
 										{formatGroupTotal(group)}
