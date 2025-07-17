@@ -255,7 +255,25 @@ export function TimetableGrid({
 			isAttendance: boolean;
 		}> = [];
 
-		// Add issue cells first (they appear at the top)
+		// Add attendance cells first (they appear at the top)
+		if (attendanceManager) {
+			for (let columnIndex = 0; columnIndex < 5; columnIndex++) {
+				items.push({
+					focusId: `attendance-attendance-${columnIndex}`,
+					issueKey: 'attendance-attendance',
+					columnIndex,
+					isAttendance: true,
+				});
+				items.push({
+					focusId: `attendance-attendance-hours-${columnIndex}`,
+					issueKey: 'attendance-attendance-hours',
+					columnIndex,
+					isAttendance: true,
+				});
+			}
+		}
+
+		// Add issue cells after attendance rows
 		for (const group of issueGroups) {
 			for (const [issueKey] of group.issues) {
 				for (let columnIndex = 0; columnIndex < 5; columnIndex++) {
@@ -266,18 +284,6 @@ export function TimetableGrid({
 						isAttendance: false,
 					});
 				}
-			}
-		}
-
-		// Add attendance cells last (they appear at the bottom after delta row)
-		if (attendanceManager) {
-			for (let columnIndex = 0; columnIndex < 5; columnIndex++) {
-				items.push({
-					focusId: `attendance-attendance-${columnIndex}`,
-					issueKey: 'attendance-attendance',
-					columnIndex,
-					isAttendance: true,
-				});
 			}
 		}
 
@@ -800,6 +806,9 @@ export function TimetableGrid({
 				</Box>
 			</Box>
 
+			{/* Attendance rows - only show if attendanceManager is available */}
+			{attendanceManager && renderAttendanceRows()}
+
 			{/* Separator */}
 			<Box width={tableWidth}>
 				<Text color="gray">{'─'.repeat(tableWidth)}</Text>
@@ -957,9 +966,6 @@ export function TimetableGrid({
 
 			{/* Delta row - only show if attendanceManager is available */}
 			{attendanceManager && renderDeltaRow()}
-
-			{/* Attendance rows - only show if attendanceManager is available */}
-			{attendanceManager && renderAttendanceRows()}
 		</Box>
 	);
 }
