@@ -100,6 +100,20 @@ export function TimetableGrid({
 			: buildIssueMapFromFavorites(favoriteIssues);
 	const dailyTotals = data ? calculateDailyTotals(data, weekDates) : [];
 
+	// Calculate daily deltas (logged hours - attendance hours)
+	const dailyLoggedHours: Record<string, number> = {};
+	weekDates.forEach((date, index) => {
+		const dateKey = formatLocalDateKey(date);
+		dailyLoggedHours[dateKey] = dailyTotals[index] || 0;
+	});
+
+	const weekDateKeys = weekDates.map(date => formatLocalDateKey(date));
+	const dailyDeltas = AttendanceCalculations.calculateDailyDeltas(
+		weeklyAttendance,
+		dailyLoggedHours,
+		weekDateKeys,
+	);
+
 	// Group issues by their resolved groups
 	interface IssueGroup {
 		group: Group | null;
@@ -241,19 +255,7 @@ export function TimetableGrid({
 			isAttendance: boolean;
 		}> = [];
 
-		// Add attendance cells if attendance manager is available
-		if (attendanceManager) {
-			for (let columnIndex = 0; columnIndex < 5; columnIndex++) {
-				items.push({
-					focusId: `attendance-attendance-${columnIndex}`,
-					issueKey: 'attendance-attendance',
-					columnIndex,
-					isAttendance: true,
-				});
-			}
-		}
-
-		// Add issue cells
+		// Add issue cells first (they appear at the top)
 		for (const group of issueGroups) {
 			for (const [issueKey] of group.issues) {
 				for (let columnIndex = 0; columnIndex < 5; columnIndex++) {
@@ -264,6 +266,18 @@ export function TimetableGrid({
 						isAttendance: false,
 					});
 				}
+			}
+		}
+
+		// Add attendance cells last (they appear at the bottom after delta row)
+		if (attendanceManager) {
+			for (let columnIndex = 0; columnIndex < 5; columnIndex++) {
+				items.push({
+					focusId: `attendance-attendance-${columnIndex}`,
+					issueKey: 'attendance-attendance',
+					columnIndex,
+					isAttendance: true,
+				});
 			}
 		}
 
@@ -658,7 +672,7 @@ export function TimetableGrid({
 							{/* Row label */}
 							<Box width={20}>
 								<Text bold color="yellow">
-									{row.label.padEnd(12, ' ')}
+									Attendance
 								</Text>
 							</Box>
 							{/* Day columns */}
@@ -692,11 +706,64 @@ export function TimetableGrid({
 						</Box>
 					</Box>
 				))}
-				{/* Separator after attendance rows */}
-				<Box width={tableWidth}>
-					<Text color="gray">{'─'.repeat(tableWidth)}</Text>
-				</Box>
 			</>
+		);
+	};
+
+	// Render delta row (difference between logged and attendance hours)
+	const renderDeltaRow = () => {
+		const getDeltaCellValue = (date: string): string => {
+			const delta = dailyDeltas[date];
+			if (delta === null || delta === undefined) {
+				return '-';
+			}
+			return delta >= 0 ? `+${delta.toFixed(1)}` : delta.toFixed(1);
+		};
+
+		const getDeltaCellColor = (date: string): string => {
+			const delta = dailyDeltas[date];
+			if (delta === null || delta === undefined) {
+				return 'yellow';
+			}
+			if (delta > 0) {
+				return 'green';
+			}
+			if (delta < 0) {
+				return 'red';
+			}
+			return 'yellow';
+		};
+
+		return (
+			<Box flexDirection="column">
+				<Box flexDirection="row">
+					{/* Arrow indicator - empty for delta row */}
+					<Box width={2}>
+						<Text> </Text>
+					</Box>
+					{/* Row label */}
+					<Box width={20}>
+						<Text bold color="yellow">
+							Delta
+						</Text>
+					</Box>
+					{/* Day columns */}
+					{weekDates.map((date, index) => {
+						const dateKey = formatLocalDateKey(date);
+						return (
+							<Box key={`delta-${index}`} width={12} justifyContent="flex-end">
+								<Text color={getDeltaCellColor(dateKey)}>
+									{getDeltaCellValue(dateKey)}
+								</Text>
+							</Box>
+						);
+					})}
+					{/* Total column - empty for delta row */}
+					<Box width={8}>
+						<Text> </Text>
+					</Box>
+				</Box>
+			</Box>
 		);
 	};
 
@@ -737,9 +804,6 @@ export function TimetableGrid({
 			<Box width={tableWidth}>
 				<Text color="gray">{'─'.repeat(tableWidth)}</Text>
 			</Box>
-
-			{/* Attendance rows - only show if attendanceManager is available */}
-			{attendanceManager && renderAttendanceRows()}
 
 			{/* Issue rows grouped by resolved groups */}
 			{issueGroups.map(group => (
@@ -890,6 +954,12 @@ export function TimetableGrid({
 					</Text>
 				</Box>
 			</Box>
+
+			{/* Delta row - only show if attendanceManager is available */}
+			{attendanceManager && renderDeltaRow()}
+
+			{/* Attendance rows - only show if attendanceManager is available */}
+			{attendanceManager && renderAttendanceRows()}
 		</Box>
 	);
 }
