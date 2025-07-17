@@ -72,7 +72,6 @@ test('TimetableGrid renders and handles horizontal wraparound navigation', t => 
 	t.true(initialFrame!.includes('PROJ-2'), 'Should show PROJ-2 issue');
 	t.true(initialFrame!.includes('Mon'), 'Should show Monday column');
 	t.true(initialFrame!.includes('Fri'), 'Should show Friday column');
-	t.true(initialFrame!.includes('Issue'), 'Should show Issue column header');
 	t.true(initialFrame!.includes('Total'), 'Should show Total column');
 	// Check for proper grid structure with separators
 	t.true(initialFrame!.includes('─'), 'Should show grid separators');
@@ -102,7 +101,6 @@ test('TimetableGrid renders and handles horizontal wraparound navigation', t => 
 	t.true(finalFrame!.includes('─'), 'Should maintain grid separators');
 
 	// Navigation should not break the table structure
-	t.true(finalFrame!.includes('Issue'), 'Should maintain Issue header');
 	t.true(finalFrame!.includes('Total'), 'Should maintain Total column');
 
 	// Should be able to perform navigation without crashing
@@ -124,7 +122,6 @@ test('TimetableGrid renders and handles vertical wraparound navigation', t => {
 	const initialFrame = lastFrame();
 	t.true(initialFrame!.includes('PROJ-1'), 'Should show PROJ-1 issue');
 	t.true(initialFrame!.includes('PROJ-2'), 'Should show PROJ-2 issue');
-	t.true(initialFrame!.includes('Issue'), 'Should show Issue column header');
 
 	// Test vertical navigation without throwing errors
 	// Move down to test wraparound
@@ -144,7 +141,6 @@ test('TimetableGrid renders and handles vertical wraparound navigation', t => {
 		finalFrame!.includes('PROJ-2'),
 		'Should still show PROJ-2 after navigation',
 	);
-	t.true(finalFrame!.includes('Issue'), 'Should maintain Issue header');
 	t.true(finalFrame!.includes('─'), 'Should maintain grid separators');
 
 	// Verify that navigation doesn't break the grid structure
@@ -189,7 +185,6 @@ test('TimetableGrid navigation works with attendance rows', t => {
 	t.true(initialFrame!.includes('PROJ-1'), 'Should show PROJ-1 issue');
 	t.true(initialFrame!.includes('PROJ-2'), 'Should show PROJ-2 issue');
 	t.true(initialFrame!.includes('Attendance'), 'Should show Attendance row');
-	t.true(initialFrame!.includes('Issue'), 'Should show Issue header');
 
 	// Test navigation with attendance rows - should work without errors
 	stdin.write('\u001B[A'); // Up arrow
@@ -211,7 +206,6 @@ test('TimetableGrid navigation works with attendance rows', t => {
 		finalFrame!.includes('Attendance'),
 		'Should still show Attendance row after navigation',
 	);
-	t.true(finalFrame!.includes('Issue'), 'Should maintain Issue header');
 	t.true(finalFrame!.includes('─'), 'Should maintain grid separators');
 
 	// Verify navigation worked with attendance rows without breaking structure
@@ -248,7 +242,7 @@ test('TimetableGrid navigation respects isActive prop', t => {
 	t.true(initialFrame!.includes('PROJ-1'), 'Should show PROJ-1 issue');
 	t.true(initialFrame!.includes('PROJ-2'), 'Should show PROJ-2 issue');
 	// When inactive, table should render normally without special indicators
-	t.true(initialFrame!.includes('Issue'), 'Should show basic table structure');
+	t.true(initialFrame!.includes('Total'), 'Should show basic table structure');
 
 	// Test navigation when inactive - should not respond to arrow keys
 	stdin.write('\u001B[A'); // Up arrow
@@ -267,7 +261,7 @@ test('TimetableGrid navigation respects isActive prop', t => {
 		'Should still show PROJ-2 after navigation attempts',
 	);
 	t.true(
-		finalFrame!.includes('Issue'),
+		finalFrame!.includes('Total'),
 		'Should maintain basic table structure',
 	);
 

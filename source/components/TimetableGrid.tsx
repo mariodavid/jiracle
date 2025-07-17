@@ -839,7 +839,7 @@ export function TimetableGrid({
 				</Box>
 				<Box width={20}>
 					<Text bold color="white">
-						Issue
+						{' '}
 					</Text>
 				</Box>
 				{DAYS.map(day => (
@@ -859,28 +859,7 @@ export function TimetableGrid({
 			{/* Attendance row - only show if attendanceManager is available */}
 			{attendanceManager && (
 				<Box flexDirection="column">
-					{/* Extra spacing above attendance section */}
-					<Box>
-						<Text> </Text>
-					</Box>
-					{/* Double line separator above attendance */}
-					<Box flexDirection="row">
-						<Box width={2}>
-							<Text color="gray">{'═'.repeat(2)}</Text>
-						</Box>
-						<Box width={20}>
-							<Text color="gray">{'═'.repeat(20)}</Text>
-						</Box>
-						{weekDates.map((_, index) => (
-							<Box key={`attendance-double-line-${index}`} width={12}>
-								<Text color="gray">{'═'.repeat(12)}</Text>
-							</Box>
-						))}
-						<Box width={8}>
-							<Text color="gray">{'═'.repeat(8)}</Text>
-						</Box>
-					</Box>
-					{/* Single line separator below double line */}
+					{/* Separator line above attendance */}
 					<Box flexDirection="row">
 						<Box width={2}>
 							<Text color="gray">{'─'.repeat(2)}</Text>
@@ -889,13 +868,17 @@ export function TimetableGrid({
 							<Text color="gray">{'─'.repeat(20)}</Text>
 						</Box>
 						{weekDates.map((_, index) => (
-							<Box key={`attendance-single-line-${index}`} width={12}>
+							<Box key={`attendance-separator-${index}`} width={12}>
 								<Text color="gray">{'─'.repeat(12)}</Text>
 							</Box>
 						))}
 						<Box width={8}>
 							<Text color="gray">{'─'.repeat(8)}</Text>
 						</Box>
+					</Box>
+					{/* Spacing after separator */}
+					<Box>
+						<Text> </Text>
 					</Box>
 					{/* Render the attendance row */}
 					{renderAttendanceRow()}
@@ -1043,7 +1026,7 @@ export function TimetableGrid({
 								</Box>
 								<Box width={20}>
 									<Text bold color="green">
-										{group.group.name} Total
+										{truncateText(`${group.group.name} Total`, 20)}
 									</Text>
 								</Box>
 								{weekDates.map((_, index) => (
