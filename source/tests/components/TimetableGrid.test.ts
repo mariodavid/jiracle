@@ -1913,16 +1913,20 @@ test('TimetableGrid shows attendance and delta rows at bottom after daily total'
 	const deltaIndex = lines.findIndex(line => line.includes('Delta'));
 	const attendanceIndex = lines.findIndex(line => line.includes('Attendance'));
 
-	// Verify row order: Attendance should come first, then Issues, then Daily Total, then Delta
+	// Verify row order: Attendance should come first, then Issues, then Daily Total, then Hours, then Delta
+	const hoursIndex = lines.findIndex(line => line.includes('Hours'));
+
 	t.true(attendanceIndex !== -1, 'Should find Attendance row');
 	t.true(dailyTotalIndex !== -1, 'Should find Daily Total row');
+	t.true(hoursIndex !== -1, 'Should find Hours row');
 	t.true(deltaIndex !== -1, 'Should find Delta row');
 
 	t.true(
 		attendanceIndex < dailyTotalIndex,
 		'Attendance should come before Daily Total',
 	);
-	t.true(dailyTotalIndex < deltaIndex, 'Daily Total should come before Delta');
+	t.true(dailyTotalIndex < hoursIndex, 'Daily Total should come before Hours');
+	t.true(hoursIndex < deltaIndex, 'Hours should come before Delta');
 });
 
 test('TimetableGrid does not show delta row when no attendance manager', t => {

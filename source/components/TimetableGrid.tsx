@@ -287,6 +287,18 @@ export function TimetableGrid({
 			}
 		}
 
+		// Add hours cells after issues (they appear after Daily Total)
+		if (attendanceManager) {
+			for (let columnIndex = 0; columnIndex < 5; columnIndex++) {
+				items.push({
+					focusId: `attendance-attendance-hours-${columnIndex}`,
+					issueKey: 'attendance-attendance-hours',
+					columnIndex,
+					isAttendance: true,
+				});
+			}
+		}
+
 		return items;
 	}, [attendanceManager, issueGroups]);
 
@@ -615,15 +627,43 @@ export function TimetableGrid({
 		);
 	}
 
-	// Render attendance rows (time range + separate working hours row)
-	const renderAttendanceRows = () => {
+	// Helper function to calculate working hours cell value
+	const getWorkingHoursCellValue = (date: string): string => {
+		const attendance = weeklyAttendance[date];
+
+		if (!attendance || (!attendance.checkIn && !attendance.checkOut)) {
+			return '-'; // Show dash when no data exists
+		}
+
+		// Calculate working hours using Duration class
+		const calculateWorkingHours = (
+			checkIn: string,
+			checkOut: string,
+			breakMinutes: number,
+		): string => {
+			const workingDuration = Duration.calculateWorkingDuration(
+				checkIn,
+				checkOut,
+				breakMinutes,
+			);
+			return workingDuration.toDecimalHours();
+		};
+
+		const breakMinutes =
+			attendance.breakMinutes || config?.attendance?.defaultBreakMinutes || 60; // Use configured break time or default to 60 minutes
+		const workingHours = calculateWorkingHours(
+			attendance.checkIn || '08:00',
+			attendance.checkOut || '17:00',
+			breakMinutes,
+		);
+
+		return workingHours;
+	};
+
+	// Render attendance row (time range only)
+	const renderAttendanceRow = () => {
 		const attendanceRows = [
 			{key: 'attendance', label: 'Attendance', type: 'attendance' as const},
-			{
-				key: 'attendance-hours',
-				label: 'Hours',
-				type: 'attendance-hours' as const,
-			},
 		];
 
 		const getTimeRangeCellValue = (date: string): string => {
@@ -648,40 +688,6 @@ export function TimetableGrid({
 			return `${checkIn}-${checkOut}`;
 		};
 
-		const getWorkingHoursCellValue = (date: string): string => {
-			const attendance = weeklyAttendance[date];
-
-			if (!attendance || (!attendance.checkIn && !attendance.checkOut)) {
-				return '-'; // Show dash when no data exists
-			}
-
-			// Calculate working hours using Duration class
-			const calculateWorkingHours = (
-				checkIn: string,
-				checkOut: string,
-				breakMinutes: number,
-			): string => {
-				const workingDuration = Duration.calculateWorkingDuration(
-					checkIn,
-					checkOut,
-					breakMinutes,
-				);
-				return workingDuration.toDecimalHours();
-			};
-
-			const breakMinutes =
-				attendance.breakMinutes ||
-				config?.attendance?.defaultBreakMinutes ||
-				60; // Use configured break time or default to 60 minutes
-			const workingHours = calculateWorkingHours(
-				attendance.checkIn || '08:00',
-				attendance.checkOut || '17:00',
-				breakMinutes,
-			);
-
-			return workingHours;
-		};
-
 		return (
 			<>
 				{attendanceRows.map(row => (
@@ -699,10 +705,9 @@ export function TimetableGrid({
 							</Box>
 							{/* Day columns */}
 							{weekDates.map((date, index) => {
-								const cellValue =
-									row.type === 'attendance'
-										? getTimeRangeCellValue(formatLocalDateKey(date))
-										: getWorkingHoursCellValue(formatLocalDateKey(date));
+								const cellValue = getTimeRangeCellValue(
+									formatLocalDateKey(date),
+								);
 
 								return isActive ? (
 									<FocusableCell
@@ -734,6 +739,58 @@ export function TimetableGrid({
 					</Box>
 				))}
 			</>
+		);
+	};
+
+	// Render hours row (working hours from attendance data)
+	const renderHoursRow = () => {
+		return (
+			<Box flexDirection="column">
+				<Box flexDirection="row">
+					{/* Arrow indicator - empty for hours row */}
+					<Box width={2}>
+						<Text> </Text>
+					</Box>
+					{/* Row label */}
+					<Box width={20}>
+						<Text bold color="yellow">
+							Hours
+						</Text>
+					</Box>
+					{/* Day columns */}
+					{weekDates.map((date, index) => {
+						const cellValue = getWorkingHoursCellValue(
+							formatLocalDateKey(date),
+						);
+
+						return isActive ? (
+							<FocusableCell
+								key={`hours-${index}`}
+								value={cellValue}
+								focusId={`attendance-attendance-hours-${index}`}
+								isActive={true}
+								issueKey={`attendance-attendance-hours`}
+								columnIndex={index}
+								onFocusChange={handleFocusChange}
+								width={12}
+								rightAlign={true}
+							/>
+						) : (
+							<Box
+								key={`hours-static-${index}`}
+								width={12}
+								justifyContent="flex-end"
+							>
+								<Text>{cellValue}</Text>
+							</Box>
+						);
+					})}
+					{/* Total column - empty for hours row */}
+					<Box width={8}>
+						<Text> </Text>
+					</Box>
+				</Box>
+			</Box>
 		);
 	};
 
@@ -827,8 +884,8 @@ export function TimetableGrid({
 				</Box>
 			</Box>
 
-			{/* Attendance rows - only show if attendanceManager is available */}
-			{attendanceManager && renderAttendanceRows()}
+			{/* Attendance row - only show if attendanceManager is available */}
+			{attendanceManager && renderAttendanceRow()}
 
 			{/* Separator */}
 			<Box width={tableWidth}>
@@ -984,6 +1041,9 @@ export function TimetableGrid({
 					</Text>
 				</Box>
 			</Box>
+
+			{/* Hours row - only show if attendanceManager is available */}
+			{attendanceManager && renderHoursRow()}
 
 			{/* Delta row - only show if attendanceManager is available */}
 			{attendanceManager && renderDeltaRow()}
