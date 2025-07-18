@@ -20,15 +20,15 @@ test('WeekNavigator renders navigation buttons', t => {
 });
 
 test('getWeekTitle renders week spanning different months', t => {
-	const currentWeek = new Date('2024-10-01T12:00:00.000Z'); // Tuesday in week Sep 30 - Oct 6
+	const currentWeek = new Date('2024-10-01T12:00:00.000Z'); // Tuesday in week Sep 30 - Oct 7
 	const title = getWeekTitle(currentWeek);
-	t.true(title.includes('Sep 30 - Oct 6, 2024'));
+	t.true(title.includes('Sep 30 - Oct 7, 2024'));
 });
 
 test('getWeekTitle renders week spanning different years', t => {
-	const currentWeek = new Date('2025-01-01T12:00:00.000Z'); // Wednesday in week Dec 30, 2024 - Jan 5, 2025
+	const currentWeek = new Date('2025-01-01T12:00:00.000Z'); // Wednesday in week Dec 30, 2024 - Jan 6, 2025
 	const title = getWeekTitle(currentWeek);
-	t.true(title.includes('Dec 30, 2024 - Jan 5, 2025'));
+	t.true(title.includes('Dec 30, 2024 - Jan 6, 2025'));
 });
 
 test('getWeekTitle calculates correct week number', t => {
@@ -38,14 +38,14 @@ test('getWeekTitle calculates correct week number', t => {
 });
 
 test('getWeekTitle handles Monday start of week correctly', t => {
-	const currentWeek = new Date('2024-10-20T12:00:00.000Z'); // Sunday, should be part of Oct 14-20 week
+	const currentWeek = new Date('2024-10-20T12:00:00.000Z'); // Sunday, should be part of Oct 14-21 week
 	const title = getWeekTitle(currentWeek);
-	t.true(title.includes('Oct 14-20, 2024'));
+	t.true(title.includes('Oct 14-21, 2024'));
 });
 
 test('getWeekTitle handles first week of year', t => {
 	const currentWeek = new Date('2024-01-03T12:00:00.000Z'); // Wednesday of first week
 	const title = getWeekTitle(currentWeek);
 	t.true(title.includes('Week 1'));
-	t.true(title.includes('Jan 1-7, 2024'));
+	t.true(title.includes('Jan 1-8, 2024'));
 });
