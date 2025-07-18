@@ -374,33 +374,35 @@ test('useWorklogForm formats date correctly for Jira API compatibility', t => {
 	// Test the date formatting logic independently to ensure Jira API compatibility
 	const testDate = new Date('2024-01-15T10:30:00.000Z');
 	testDate.setHours(9, 0, 0, 0);
-	
+
 	// This is the critical format transformation that prevents Jira API 500 errors
 	const jiraFormattedDate = testDate.toISOString().replace('Z', '+0000');
-	
+
 	// CRITICAL: This format MUST remain "+0000" not "Z"
 	// Jira API returns 500 Internal Server Error with "Z" format
 	t.true(
 		jiraFormattedDate.endsWith('+0000'),
 		`Date format must end with "+0000" for Jira API compatibility, got: ${jiraFormattedDate}`,
 	);
-	
+
 	// Verify it's not using the ISO "Z" format which breaks Jira
 	t.false(
 		jiraFormattedDate.endsWith('Z'),
 		'Date format must NOT end with "Z" as it causes Jira API 500 errors',
 	);
-	
+
 	// Verify the date has the correct structure (time may vary based on timezone)
 	t.regex(
 		jiraFormattedDate,
 		/^\d{4}-\d{2}-\d{2}T\d{2}:00:00\.000\+0000$/,
 		'Date format must match YYYY-MM-DDTHH:00:00.000+0000 pattern',
 	);
-	
+
 	// Document why this specific format is required
 	t.log('This test ensures the date format remains compatible with Jira API');
-	t.log('Changing .replace("Z", "+0000") to just .toISOString() causes 500 errors');
+	t.log(
+		'Changing .replace("Z", "+0000") to just .toISOString() causes 500 errors',
+	);
 	t.log('The useWorklogForm hook MUST maintain this exact formatting');
 	t.log(`Example formatted date: ${jiraFormattedDate}`);
 });
