@@ -38,9 +38,11 @@ This project follows modern React and software engineering best practices:
 - **Separation of concerns**: Keep UI rendering separate from business logic and state management
 
 #### **State Management Philosophy**
-- **Custom Hooks**: Use custom hooks (e.g., `useWorklogForm`, `useWeeklyWorklogSummary`) to encapsulate state logic
+- **Custom Hooks**: Use custom hooks (e.g., `useWorklogForm`, `useDeleteOperations`, `useWeeklyWorklogSummary`) to encapsulate feature-specific state logic
 - **Hook-first approach**: Prefer extracting state into hooks rather than managing it directly in components
 - **Incremental refactoring**: Break down massive components systematically, one state concern at a time
+- **Domain-driven hooks**: Group related state variables and handlers by business domain (worklog, delete, attendance, navigation)
+- **Consistent interfaces**: All hooks should follow similar patterns for options, return values, and error handling
 
 #### **Testing Strategy**
 - **Hook testing**: Every custom hook must have comprehensive test coverage
@@ -66,25 +68,58 @@ loading → weekly-timetable (default view)
 
 1. **State Management**: 
    - Application flow managed in `app.tsx`
-   - Feature-specific state extracted into custom hooks
-   - State colocated with the components that use it most
+   - Complex component state extracted into domain-specific custom hooks
+   - State grouped by business concerns (worklog, delete, attendance, navigation)
+   - Hooks provide consistent interfaces for options and return values
 2. **Component Structure**: 
    - Presentational components in `source/components/`
-   - Business logic in `source/hooks/` and `source/use-cases/`
+   - State management hooks in `source/hooks/`
+   - Business logic in `source/use-cases/`
    - Shared types in `source/types/index.ts`
 3. **Testing Strategy**:
    - Component tests use ink-testing-library for UI testing
-   - Hook tests verify state management and business logic
+   - Hook tests verify state management and business logic (10+ tests per hook)
    - Integration tests verify complete workflows
+   - API compatibility tests prevent external service integration issues
    - All tests must be compiled before running
 
 ### Core Components
 
-- `WeeklyTimetableView`: Main grid view showing issues × days for the week
+- `WeeklyTimetableView`: Main grid view showing issues × days for the week (progressively refactored into domain-specific hooks)
 - `TimetableGrid`: The actual grid component with keyboard navigation
 - `FocusableCell`: Individual cells in the grid that can be selected
 - `InlineWorklogForm`: Form for quick time entry directly in cells
 - `WorklogForm/*`: Multi-step form components for detailed time logging
+
+### Custom Hooks Architecture
+
+The application uses domain-specific custom hooks to manage complex state:
+
+- `useWorklogForm`: Manages worklog form state, submission, and validation
+- `useDeleteOperations`: Handles worklog and attendance deletion workflows with confirmation dialogs
+- `useWeeklyWorklogSummary`: Fetches and caches weekly worklog data
+- `useConfirmation`: Manages reusable confirmation dialog state for various operations
+
+Each hook follows a consistent pattern:
+```typescript
+export interface UseFeatureOptions {
+  config: JiraConfig;
+  onRefresh: () => void;
+  onActiveAreaChange: (area: string) => void;
+  // feature-specific options
+}
+
+export interface UseFeatureReturn {
+  // State
+  featureState: FeatureState;
+  isLoading: boolean;
+  error: string | null;
+  
+  // Actions  
+  handleFeatureAction: (data: ActionData) => void;
+  clearError: () => void;
+}
+```
 
 ### Development Flow
 
@@ -160,9 +195,31 @@ function TestHookComponent({ options, onStateChange }) {
 When refactoring components:
 
 1. **Existing tests first**: Ensure all existing component tests pass before and after refactoring
-2. **Hook tests**: Write comprehensive tests for extracted hooks
+2. **Hook tests**: Write comprehensive tests for extracted hooks (10+ tests per hook)
 3. **Incremental approach**: Extract one state concern at a time, testing each step
 4. **Behavior preservation**: Verify that user-facing behavior remains unchanged
+5. **Test completeness**: Each hook should test initial state, all handlers, error conditions, and edge cases
+
+#### **Hook Development Workflow**
+
+When extracting state into custom hooks:
+
+1. **Identify domain boundaries**: Group related state variables and handlers by business concern
+2. **Extract incrementally**: Move one logical state group at a time, not entire components
+3. **Create hook with TypeScript interfaces**: Define clear input/output contracts
+4. **Write comprehensive tests**: Cover all state transitions and error scenarios
+5. **Update component to use hook**: Replace direct state management with hook usage
+6. **Verify existing tests pass**: Ensure no regression in component behavior
+7. **Document API compatibility concerns**: Note any Jira API quirks or format requirements
+
+#### **Critical API Compatibility Notes**
+
+When working with external APIs (especially Jira):
+
+- **Date formats matter**: Jira API requires `+0000` timezone format, not ISO `Z` format
+- **Test API integrations**: Always add tests that verify exact data formats sent to APIs  
+- **Document breaking changes**: Any format changes that could cause API 500 errors must be documented
+- **Error format preservation**: Maintain consistent error message formats across hooks
 
 These utilities ensure tests are consistent, maintainable, and provide clear feedback when they fail.
 
