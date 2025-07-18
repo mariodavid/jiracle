@@ -15,7 +15,6 @@ import {
 	calculateDailyTotals,
 	formatHours,
 	truncateText,
-	getDefaultFocusId,
 } from '../utils/TimetableCalculations.js';
 import {AttendanceCalculations} from '../attendance/AttendanceCalculations.js';
 
