@@ -1,6 +1,6 @@
 import React, {useState, useEffect, useCallback} from 'react';
 import {Box, Text, useInput} from 'ink';
-import {Alert, Spinner} from '@inkjs/ui';
+import {Alert} from '@inkjs/ui';
 import Gradient from 'ink-gradient';
 import BigText from 'ink-big-text';
 import {getWeekTitle} from './WeekNavigator.js';
@@ -10,6 +10,7 @@ import {DeleteWorklogConfirmation} from './DeleteWorklogConfirmation.js';
 import {DeleteAttendanceConfirmation} from './DeleteAttendanceConfirmation.js';
 import {CheckinConfirmation} from './CheckinConfirmation.js';
 import {CheckoutConfirmation} from './CheckoutConfirmation.js';
+import {ConfirmationDialog} from './ConfirmationDialog.js';
 import {TitleBar} from './TitleBar.js';
 import {AttendanceManager} from '../attendance/AttendanceManager.js';
 import {AttendanceEditForm} from './AttendanceEditForm.js';
@@ -683,78 +684,43 @@ export function WeeklyTimetableView({
 					</Box>
 				) : activeArea === 'delete-confirmation' && deleteCandidate ? (
 					/* Delete Confirmation - replaces table */
-					<Box justifyContent="center">
-						<Box
-							width={68}
-							borderStyle="round"
-							borderColor="red"
-							paddingX={1}
-							paddingY={1}
-						>
-							{isDeleting ? (
-								<Box flexDirection="row" alignItems="center">
-									<Spinner />
-									<Text> Deleting worklogs...</Text>
-								</Box>
-							) : (
-								<DeleteWorklogConfirmation
-									issueKey={deleteCandidate.issueKey}
-									dayLabel={formatDate(deleteCandidate.date)}
-									onConfirm={handleDeleteConfirm}
-								/>
-							)}
-						</Box>
-					</Box>
+					<ConfirmationDialog
+						width={68}
+						borderColor="red"
+						isLoading={isDeleting}
+						loadingText="Deleting worklogs..."
+					>
+						<DeleteWorklogConfirmation
+							issueKey={deleteCandidate.issueKey}
+							dayLabel={formatDate(deleteCandidate.date)}
+							onConfirm={handleDeleteConfirm}
+						/>
+					</ConfirmationDialog>
 				) : activeArea === 'delete-attendance-confirmation' &&
 				  deleteAttendanceCandidate ? (
 					/* Delete Attendance Confirmation - replaces table */
-					<Box justifyContent="center">
-						<Box
-							width={68}
-							borderStyle="round"
-							borderColor="red"
-							paddingX={2}
-							paddingY={1}
-						>
-							{isDeletingAttendance ? (
-								<Box flexDirection="row" alignItems="center">
-									<Spinner />
-									<Text> Deleting attendance...</Text>
-								</Box>
-							) : (
-								<DeleteAttendanceConfirmation
-									dayLabel={formatDate(deleteAttendanceCandidate.date)}
-									onConfirm={handleDeleteAttendanceConfirm}
-								/>
-							)}
-						</Box>
-					</Box>
+					<ConfirmationDialog
+						width={68}
+						borderColor="red"
+						paddingX={2}
+						isLoading={isDeletingAttendance}
+						loadingText="Deleting attendance..."
+					>
+						<DeleteAttendanceConfirmation
+							dayLabel={formatDate(deleteAttendanceCandidate.date)}
+							onConfirm={handleDeleteAttendanceConfirm}
+						/>
+					</ConfirmationDialog>
 				) : activeArea === 'checkin-confirmation' ? (
 					/* Checkin Confirmation - replaces table */
-					<Box justifyContent="center">
-						<Box
-							width={50}
-							borderStyle="round"
-							borderColor="cyan"
-							paddingX={1}
-							paddingY={1}
-						>
-							<CheckinConfirmation onConfirm={handleCheckinConfirm} />
-						</Box>
-					</Box>
+					<ConfirmationDialog width={50} borderColor="cyan">
+						<CheckinConfirmation onConfirm={handleCheckinConfirm} />
+					</ConfirmationDialog>
 				) : activeArea === 'checkout-confirmation' ? (
 					/* Checkout Confirmation - replaces table */
-					<Box justifyContent="center">
-						<Box
-							width={50}
-							borderStyle="round"
-							borderColor="yellow"
-							paddingX={1}
-							paddingY={1}
-						>
-							<CheckoutConfirmation onConfirm={handleCheckoutConfirm} />
-						</Box>
-					</Box>
+					<ConfirmationDialog width={50} borderColor="yellow">
+						<CheckoutConfirmation onConfirm={handleCheckoutConfirm} />
+					</ConfirmationDialog>
 				) : activeArea === 'attendance-edit' && attendanceEdit ? (
 					/* Attendance Edit Form - replaces table */
 					<Box justifyContent="center">
