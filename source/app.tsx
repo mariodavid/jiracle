@@ -22,14 +22,6 @@ export default function App({config}: Props) {
 		return (
 			<WeeklyTimetableView
 				onBack={exit}
-				onLogWork={() => {
-					// Log work is now handled inline only
-				}}
-				onCellWorklog={async (data: {issueKey: string; date: Date}) => {
-					// This function is called but the actual worklog is handled
-					// by the inline form in the timetable cells
-					console.log('Cell worklog requested for:', data.issueKey, data.date);
-				}}
 				config={currentConfig}
 				userEmail={userEmail}
 			/>
