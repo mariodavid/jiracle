@@ -185,7 +185,7 @@ export function useWorklogForm(
 				const worklogData: WorklogRequest = {
 					timeSpent: data.timeSpent,
 					comment: data.comment || 'Work logged via Jiracle',
-					started: selectedDateTime.toISOString(),
+					started: selectedDateTime.toISOString().replace('Z', '+0000'),
 				};
 
 				if (data.worklogId) {
