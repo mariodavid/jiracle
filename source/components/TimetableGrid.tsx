@@ -1092,11 +1092,18 @@ export function TimetableGrid({
 
 function generateWeekDates(weekStart: Date): Date[] {
 	const dates: Date[] = [];
+	const current = new Date(weekStart);
+
+	// Get Monday of the week (same logic as AttendanceCalculations.getWeekDates)
+	const day = current.getDay();
+	const diff = current.getDate() - day + (day === 0 ? -6 : 1);
+	current.setDate(diff);
+
 	// Only generate weekdays (Monday to Friday)
 	for (let i = 0; i < 5; i++) {
-		const date = new Date(weekStart);
-		date.setDate(weekStart.getDate() + i);
+		const date = new Date(current);
 		dates.push(date);
+		current.setDate(current.getDate() + 1);
 	}
 	return dates;
 }

@@ -11,7 +11,7 @@ export function getStartOfWeek(date: Date): Date {
 	const day = d.getDay();
 	const diff = d.getDate() - day + (day === 0 ? -6 : 1); // Monday as start of week
 	d.setDate(diff);
-	d.setHours(0, 0, 0, 0);
+	d.setUTCHours(0, 0, 0, 0); // Use UTC to avoid timezone issues
 	return d;
 }
 
@@ -19,6 +19,6 @@ export function getEndOfWeek(date: Date): Date {
 	const start = getStartOfWeek(date);
 	const end = new Date(start);
 	end.setDate(start.getDate() + 6);
-	end.setHours(23, 59, 59, 999);
+	end.setUTCHours(23, 59, 59, 999); // Use UTC to avoid timezone issues
 	return end;
 }
