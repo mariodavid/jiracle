@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useCallback} from 'react';
+import React, {useState, useEffect} from 'react';
 import {Box, Text, useInput} from 'ink';
 import {Alert} from '@inkjs/ui';
 import Gradient from 'ink-gradient';
@@ -16,12 +16,8 @@ import {AttendanceManager} from '../attendance/AttendanceManager.js';
 import {AttendanceEditForm} from './AttendanceEditForm.js';
 import type {Attendance} from '../attendance/types.js';
 import {useWeeklyWorklogSummary} from '../hooks/useWeeklyWorklogSummary.js';
-import {
-	JiraClient,
-	type JiraConfig,
-	type WorklogRequest,
-	resolveDefaults,
-} from '../jira-client.js';
+import {useWorklogForm} from '../hooks/useWorklogForm.js';
+import {JiraClient, type JiraConfig} from '../jira-client.js';
 import {
 	getStartOfWeek,
 	getEndOfWeek,
@@ -33,34 +29,15 @@ import {
 	generateJiraIssueUrl,
 } from '../utils/browser.js';
 import {uiLogger} from '../utils/logger.js';
-import {
-	detectWorklogForEdit,
-	findWorklogEntryForIssue,
-} from '../utils/worklog-detection.js';
-
-interface WorklogFormData {
-	issueKey: string;
-	date: Date;
-	timeSpent: string;
-	comment: string;
-	isVisible: boolean;
-	isIssueKeyEditable: boolean;
-	// Edit mode fields
-	isEditMode?: boolean;
-	worklogId?: string;
-}
 
 export interface WeeklyTimetableViewProps {
 	onBack: () => void;
-	onLogWork?: () => void;
-	onCellWorklog?: (data: {issueKey: string; date: Date}) => void;
 	config: JiraConfig;
 	userEmail?: string | null;
 }
 
 export function WeeklyTimetableView({
 	onBack,
-	onLogWork,
 	config,
 	userEmail,
 }: WeeklyTimetableViewProps) {
@@ -74,16 +51,6 @@ export function WeeklyTimetableView({
 		| 'checkin-confirmation'
 		| 'checkout-confirmation'
 	>('timetable');
-	const [worklogForm, setWorklogForm] = useState<WorklogFormData>({
-		issueKey: '',
-		date: new Date(),
-		timeSpent: '1h',
-		comment: '',
-		isVisible: false,
-		isIssueKeyEditable: false,
-	});
-	const [worklogSubmitting, setWorklogSubmitting] = useState(false);
-	const [worklogError, setWorklogError] = useState<string | null>(null);
 	const [deleteCandidate, setDeleteCandidate] = useState<{
 		issueKey: string;
 		date: Date;
@@ -144,6 +111,23 @@ export function WeeklyTimetableView({
 		config.favorites, // Pass favorite issues to include them in the table
 	);
 
+	// Worklog form state management
+	const {
+		worklogForm,
+		worklogSubmitting,
+		worklogError,
+		handleCellWorklog,
+		handleAddWorklog,
+		handleWorklogSubmit,
+		handleWorklogCancel,
+	} = useWorklogForm({
+		config,
+		userEmail,
+		onRefresh: refresh,
+		onActiveAreaChange: (area: string) => setActiveArea(area as any),
+		data,
+	});
+
 	// Always use fresh data from the hook
 	const displayData = data;
 	const displayLoading = isLoading;
@@ -185,172 +169,6 @@ export function WeeklyTimetableView({
 	const handleCurrentWeek = () => {
 		setCurrentWeek(new Date());
 		// Return focus to table after navigation
-		setActiveArea('timetable');
-	};
-
-	const handleCellWorklog = (cellData: {issueKey: string; date: Date}) => {
-		// Find the specific daily summary for this date
-		const targetDateKey = formatLocalDateKey(cellData.date);
-		const dailySummary = data?.dailySummaries.find(
-			(summary: any) => formatLocalDateKey(summary.date) === targetDateKey,
-		);
-
-		// Find the worklog entry for this issue on this date
-		const worklogEntry = dailySummary
-			? findWorklogEntryForIssue(cellData.issueKey, dailySummary.issues)
-			: undefined;
-
-		// Detect if this is an edit scenario
-		const detectionResult = detectWorklogForEdit(worklogEntry);
-
-		// Resolve defaults for new entries or use existing data for edits
-		let timeSpent: string;
-		let comment: string;
-
-		if (detectionResult.isEditable) {
-			// Edit mode: use existing data
-			timeSpent = detectionResult.timeSpent!;
-			comment = detectionResult.comment!;
-		} else {
-			// Create mode: use defaults
-			const defaults = resolveDefaults(config, cellData.issueKey);
-			timeSpent = defaults.time;
-			comment = defaults.comment;
-		}
-
-		setWorklogForm({
-			issueKey: cellData.issueKey,
-			date: cellData.date,
-			timeSpent,
-			comment,
-			isVisible: true,
-			isIssueKeyEditable: false,
-			isEditMode: detectionResult.isEditable,
-			worklogId: detectionResult.worklogId,
-		});
-		setWorklogError(null); // Clear any previous error
-		setActiveArea('worklog-form');
-	};
-
-	const handleAddWorklog = () => {
-		// Use global defaults for time and comment
-		const defaults = resolveDefaults(config, '');
-
-		setWorklogForm({
-			issueKey: '',
-			date: new Date(), // Default to today
-			timeSpent: defaults.time,
-			comment: defaults.comment,
-			isVisible: true,
-			isIssueKeyEditable: true,
-		});
-		setWorklogError(null); // Clear any previous error
-		setActiveArea('worklog-form');
-	};
-
-	const handleWorklogSubmit = useCallback(
-		async (data: {
-			issueKey: string;
-			timeSpent: string;
-			comment: string;
-			date: Date;
-			worklogId?: string;
-		}) => {
-			// Immediate guard against double submission
-			if (worklogSubmitting) {
-				uiLogger.debug('WeeklyTimetableView: Blocked duplicate submission');
-				return;
-			}
-
-			uiLogger.debug('WeeklyTimetableView: handleWorklogSubmit called', {
-				issueKey: data.issueKey,
-				timeSpent: data.timeSpent,
-				comment: data.comment,
-				timestamp: new Date().toISOString(),
-			});
-
-			// Validate issue key before submitting
-			if (!data.issueKey || data.issueKey.trim() === '') {
-				setWorklogError(
-					'Issue key is required. Please enter a valid Jira issue key (e.g., DEF-123).',
-				);
-				return;
-			}
-
-			// Validate issue key format (basic check)
-			if (!/^[A-Z]+-\d+$/i.test(data.issueKey.trim())) {
-				setWorklogError(
-					'Invalid issue key format. Expected format: PROJECT-123 (e.g., DEF-123, ABC-456).',
-				);
-				return;
-			}
-
-			setWorklogSubmitting(true);
-			setWorklogError(null);
-
-			try {
-				// Create Jira client
-				const client = new JiraClient(config);
-
-				// Format the date to match Jira's expected format
-				// Use the date from the form data (which may be different from worklogForm.date)
-				const selectedDateTime = new Date(data.date);
-				// Set time to 9:00 AM for worklog start time
-				selectedDateTime.setHours(9, 0, 0, 0);
-				const formattedStarted = selectedDateTime
-					.toISOString()
-					.replace('Z', '+0000');
-
-				const worklogData: WorklogRequest = {
-					timeSpent: data.timeSpent,
-					comment: data.comment || 'Work logged via Jiracle',
-					started: formattedStarted,
-				};
-
-				// Use trimmed issue key
-				const trimmedIssueKey = data.issueKey.trim();
-
-				// Determine whether to update or create
-				if (data.worklogId) {
-					// Edit mode: update existing worklog
-					await client.updateWorklog(
-						trimmedIssueKey,
-						data.worklogId,
-						worklogData,
-					);
-					uiLogger.debug('WeeklyTimetableView: Worklog updated successfully', {
-						issueKey: trimmedIssueKey,
-						worklogId: data.worklogId,
-						timestamp: new Date().toISOString(),
-					});
-				} else {
-					// Create mode: add new worklog
-					await client.addWorklog(trimmedIssueKey, worklogData);
-					uiLogger.debug('WeeklyTimetableView: Worklog created successfully', {
-						issueKey: trimmedIssueKey,
-						timestamp: new Date().toISOString(),
-					});
-				}
-
-				// Close form and return to table
-				setWorklogForm(prev => ({...prev, isVisible: false}));
-				setActiveArea('timetable');
-
-				// Refresh the data to show the new worklog
-				refresh();
-			} catch (err) {
-				setWorklogError(
-					err instanceof Error ? err.message : 'Failed to submit worklog',
-				);
-			} finally {
-				setWorklogSubmitting(false);
-			}
-		},
-		[config, worklogSubmitting, refresh],
-	);
-
-	const handleWorklogCancel = () => {
-		setWorklogForm(prev => ({...prev, isVisible: false}));
 		setActiveArea('timetable');
 	};
 
@@ -580,8 +398,8 @@ export function WeeklyTimetableView({
 		} else if (input === 'r') {
 			// Refresh data, but stay in the same mode
 			refresh();
-		} else if (input === 'l' && onLogWork) {
-			onLogWork();
+		} else if (input === 'l') {
+			handleAddWorklog();
 		} else if (input === 'i') {
 			// Start work (checkin)
 			setActiveArea('checkin-confirmation');
