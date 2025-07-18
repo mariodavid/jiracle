@@ -5,11 +5,17 @@ import figures from 'figures';
 import {WeeklyWorklogSummary} from '../domain/WeeklyWorklogSummary.js';
 import {FocusableCell} from './FocusableCell.js';
 import {formatLocalDateKey} from '../utils/date.js';
-import type {FavoriteIssue, JiraConfig, Group} from '../jira-client.js';
-import {resolveDefaults} from '../jira-client.js';
+import type {FavoriteIssue, JiraConfig} from '../jira-client.js';
 import {AttendanceManager} from '../attendance/AttendanceManager.js';
 import type {WeeklyAttendance} from '../attendance/types.js';
 import {Duration} from '../utils/Duration.js';
+import {useIssueGroups} from '../hooks/useIssueGroups.js';
+import type {IssueGroup} from '../services/IssueGroupManager.js';
+import {
+	calculateDailyTotals,
+	formatHours,
+	truncateText,
+} from '../utils/TimetableCalculations.js';
 import {AttendanceCalculations} from '../attendance/AttendanceCalculations.js';
 
 export interface TimetableGridProps {
@@ -46,7 +52,7 @@ export function TimetableGrid({
 	attendanceRefreshKey = 0,
 }: TimetableGridProps) {
 	// Fixed minimum height container for all states
-	const MIN_HEIGHT = 15;
+	const MIN_HEIGHT = 25;
 
 	// Track focused cell for row/column highlighting and Enter handling
 	const [focusedCell, setFocusedCell] = useState<{
@@ -114,101 +120,9 @@ export function TimetableGrid({
 		weekDateKeys,
 	);
 
-	// Group issues by their resolved groups
-	interface IssueGroup {
-		group: Group | null;
-		issues: Array<[string, any]>;
-		totalHours: number;
-	}
+	// Group issues by their resolved groups using the extracted service
 
-	const groupIssuesByResolvedGroup = (
-		issues: Array<[string, any]>,
-	): IssueGroup[] => {
-		if (!config) {
-			// Fallback: treat all issues as ungrouped
-			return [
-				{
-					group: null,
-					issues: sortIssuesByKey(issues),
-					totalHours: issues.reduce(
-						(sum, [, issueData]) => sum + issueData.weekTotal,
-						0,
-					),
-				},
-			];
-		}
-
-		const groupMap = new Map<string, IssueGroup>();
-		const ungroupedIssues: Array<[string, any]> = [];
-
-		for (const [issueKey, issueData] of issues) {
-			const resolved = resolveDefaults(config, issueKey);
-			const group = resolved.group;
-
-			if (group) {
-				const groupId = group.id;
-				if (!groupMap.has(groupId)) {
-					groupMap.set(groupId, {
-						group,
-						issues: [],
-						totalHours: 0,
-					});
-				}
-				groupMap.get(groupId)!.issues.push([issueKey, issueData]);
-				groupMap.get(groupId)!.totalHours += issueData.weekTotal;
-			} else {
-				ungroupedIssues.push([issueKey, issueData]);
-			}
-		}
-
-		const groups = Array.from(groupMap.values());
-
-		// Sort issues within each group by issue key
-		for (const group of groups) {
-			group.issues = sortIssuesByKey(group.issues);
-		}
-
-		// Sort groups by group name
-		groups.sort((a, b) => {
-			if (!a.group || !b.group) return 0;
-			return a.group.name.localeCompare(b.group.name);
-		});
-
-		// Add ungrouped issues at the end if any
-		if (ungroupedIssues.length > 0) {
-			groups.push({
-				group: null,
-				issues: sortIssuesByKey(ungroupedIssues),
-				totalHours: ungroupedIssues.reduce(
-					(sum, [, issueData]) => sum + issueData.weekTotal,
-					0,
-				),
-			});
-		}
-
-		return groups;
-	};
-
-	// Sort issues by project prefix and number (helper function)
-	const sortIssuesByKey = (issues: Array<[string, any]>) => {
-		return issues.sort(([aKey], [bKey]) => {
-			const aParts = aKey.split('-');
-			const bParts = bKey.split('-');
-
-			const aProject = aParts[0] || '';
-			const bProject = bParts[0] || '';
-			const aNumber = aParts[1] || '0';
-			const bNumber = bParts[1] || '0';
-
-			if (aProject !== bProject) {
-				return aProject.localeCompare(bProject);
-			}
-
-			return parseInt(aNumber, 10) - parseInt(bNumber, 10);
-		});
-	};
-
-	const issueGroups = groupIssuesByResolvedGroup(Object.entries(issueMap));
+	const issueGroups = useIssueGroups(Object.entries(issueMap), config || null);
 
 	// Helper function to check if an issue is a favorite
 	const isFavoriteIssue = (issueKey: string): boolean => {
@@ -1153,40 +1067,4 @@ function buildIssueMapFromFavorites(
 	});
 
 	return issueMap;
-}
-
-function calculateDailyTotals(
-	data: WeeklyWorklogSummary,
-	weekDates: Date[],
-): number[] {
-	const totals: number[] = new Array(5).fill(0);
-
-	data.dailySummaries.forEach(dailySummary => {
-		const dateKey = formatLocalDateKey(dailySummary.date);
-		const dayIndex = weekDates.findIndex(
-			date => formatLocalDateKey(date) === dateKey,
-		);
-
-		if (dayIndex >= 0) {
-			totals[dayIndex] = dailySummary.totalHours;
-		}
-	});
-
-	return totals;
-}
-
-function formatHours(hours: number): string {
-	if (hours === 0) {
-		return '-';
-	}
-
-	return hours.toFixed(1);
-}
-
-function truncateText(text: string, maxLength: number): string {
-	if (text.length <= maxLength) {
-		return text;
-	}
-
-	return text.substring(0, maxLength - 3) + '...';
 }
