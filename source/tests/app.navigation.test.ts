@@ -116,7 +116,7 @@ test('should show weekly timetable after loading', async t => {
 	unmount();
 });
 
-test('should stay on weekly timetable when log work key is pressed', async t => {
+test('should open worklog form when log work key is pressed', async t => {
 	const {lastFrame, stdin, unmount} = render(
 		React.createElement(App, {config: testConfig}),
 	);
@@ -124,7 +124,7 @@ test('should stay on weekly timetable when log work key is pressed', async t => 
 	// Wait for weekly timetable
 	await new Promise(resolve => setTimeout(resolve, 3000));
 
-	// Simulate pressing "L" - this should no longer trigger manual flow
+	// Simulate pressing "L" - this should open the worklog form
 	stdin.write('l');
 
 	// Wait a bit
@@ -132,9 +132,11 @@ test('should stay on weekly timetable when log work key is pressed', async t => 
 
 	const output = lastFrame();
 
-	// Should still show weekly timetable (inline form is the only way to log now)
-	t.true(output?.includes('Week') ?? false);
-	t.true(output?.includes('[T] Today') ?? false);
+	// Should show the worklog form (inline form is opened)
+	t.true(output?.includes('Issue Key:') ?? false);
+	t.true(output?.includes('Time spent:') ?? false);
+	t.true(output?.includes('[Submit]') ?? false);
+	t.true(output?.includes('[Cancel]') ?? false);
 
 	unmount();
 });
