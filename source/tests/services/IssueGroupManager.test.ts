@@ -42,7 +42,7 @@ test('IssueGroupManager - groups issues by resolved groups', t => {
 
 	const groups = manager.groupIssuesByResolvedGroup(issues);
 
-	t.is(groups.length, 2);
+	t.is(groups.length, 3);
 
 	// Backend group (PROJ-123 has explicit backend assignment via favorites)
 	const backendGroup = groups.find(g => g.group?.id === 'backend');

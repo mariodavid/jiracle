@@ -112,7 +112,7 @@ test('formatHours - handles edge cases', t => {
 
 test('truncateText - truncates long text', t => {
 	t.is(truncateText('Short', 10), 'Short');
-	t.is(truncateText('Exactly ten', 10), 'Exactly ten');
+	t.is(truncateText('Exactly10!', 10), 'Exactly10!');
 	t.is(truncateText('This is a very long text', 10), 'This is...');
 	t.is(truncateText('12345678901', 10), '1234567...');
 });
@@ -144,7 +144,7 @@ test('getDefaultFocusId - returns correct focus ID', t => {
 	const focusId = getDefaultFocusId(issueMap);
 	t.true(focusId.startsWith('issue-'));
 	t.true(focusId.includes('PROJ-123')); // Should use first issue key
-	t.true(focusId.match(/-\d+$/)); // Should end with day index
+	t.true(/-\d+$/.test(focusId)); // Should end with day index
 });
 
 test('getDefaultFocusId - handles empty issue map', t => {

@@ -34,6 +34,10 @@ export function truncateText(text: string, maxLength: number): string {
 		return text;
 	}
 
+	if (maxLength <= 3) {
+		return '...';
+	}
+
 	return text.substring(0, maxLength - 3) + '...';
 }
 
