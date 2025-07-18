@@ -17,7 +17,8 @@ import {AttendanceEditForm} from './AttendanceEditForm.js';
 import type {Attendance} from '../attendance/types.js';
 import {useWeeklyWorklogSummary} from '../hooks/useWeeklyWorklogSummary.js';
 import {useWorklogForm} from '../hooks/useWorklogForm.js';
-import {JiraClient, type JiraConfig} from '../jira-client.js';
+import {useDeleteOperations} from '../hooks/useDeleteOperations.js';
+import type {JiraConfig} from '../jira-client.js';
 import {
 	getStartOfWeek,
 	getEndOfWeek,
@@ -28,7 +29,6 @@ import {
 	openInBrowser,
 	generateJiraIssueUrl,
 } from '../utils/browser.js';
-import {uiLogger} from '../utils/logger.js';
 
 export interface WeeklyTimetableViewProps {
 	onBack: () => void;
@@ -51,16 +51,6 @@ export function WeeklyTimetableView({
 		| 'checkin-confirmation'
 		| 'checkout-confirmation'
 	>('timetable');
-	const [deleteCandidate, setDeleteCandidate] = useState<{
-		issueKey: string;
-		date: Date;
-	} | null>(null);
-	const [deleteAttendanceCandidate, setDeleteAttendanceCandidate] = useState<{
-		date: Date;
-	} | null>(null);
-	const [isDeleting, setIsDeleting] = useState(false);
-	const [isDeletingAttendance, setIsDeletingAttendance] = useState(false);
-	const [deleteError, setDeleteError] = useState<string | null>(null);
 	const [attendanceManager, setAttendanceManager] =
 		useState<AttendanceManager | null>(null);
 	const [attendanceRefreshKey, setAttendanceRefreshKey] = useState(0);
@@ -128,6 +118,26 @@ export function WeeklyTimetableView({
 		data,
 	});
 
+	// Delete operations state management
+	const {
+		deleteCandidate,
+		deleteAttendanceCandidate,
+		isDeleting,
+		isDeletingAttendance,
+		deleteError,
+		handleCellDelete,
+		handleDeleteAttendance,
+		handleDeleteConfirm,
+		handleDeleteAttendanceConfirm,
+	} = useDeleteOperations({
+		config,
+		userEmail,
+		onRefresh: refresh,
+		onActiveAreaChange: (area: string) => setActiveArea(area as any),
+		attendanceManager,
+		onAttendanceRefresh: () => setAttendanceRefreshKey(prev => prev + 1),
+	});
+
 	// Always use fresh data from the hook
 	const displayData = data;
 	const displayLoading = isLoading;
@@ -170,11 +180,6 @@ export function WeeklyTimetableView({
 		setCurrentWeek(new Date());
 		// Return focus to table after navigation
 		setActiveArea('timetable');
-	};
-
-	const handleCellDelete = (data: {issueKey: string; date: Date}) => {
-		setDeleteCandidate(data);
-		setActiveArea('delete-confirmation');
 	};
 
 	const handleAttendanceEdit = async (data: {date: Date}) => {
@@ -225,11 +230,6 @@ export function WeeklyTimetableView({
 		setActiveArea('timetable');
 	};
 
-	const handleDeleteAttendance = (data: {date: Date}) => {
-		setDeleteAttendanceCandidate(data);
-		setActiveArea('delete-attendance-confirmation');
-	};
-
 	const handleOpenInBrowser = async (issueKey: string) => {
 		if (!config.jiraUrl) return;
 		try {
@@ -237,92 +237,6 @@ export function WeeklyTimetableView({
 			await openInBrowser(url);
 		} catch (error) {
 			console.error('Failed to open browser:', error);
-		}
-	};
-
-	const handleDeleteConfirm = async (confirmed: boolean) => {
-		if (!confirmed || !deleteCandidate) {
-			setDeleteCandidate(null);
-			setActiveArea('timetable');
-			return;
-		}
-
-		setIsDeleting(true);
-		try {
-			const jiraClient = new JiraClient(config);
-			const worklogResponse = await jiraClient.getIssueWorklogs(
-				deleteCandidate.issueKey,
-			);
-
-			// Filter worklogs for the selected date and current user only
-			const targetDateString = formatLocalDateKey(deleteCandidate.date);
-			const worklogsToDelete = worklogResponse.worklogs.filter(worklog => {
-				if (!worklog.started) return false;
-				const worklogDate = new Date(worklog.started);
-				const worklogDateString = formatLocalDateKey(worklogDate);
-				const matchesDate = worklogDateString === targetDateString;
-				const isCurrentUser = userEmail
-					? worklog.author.emailAddress === userEmail
-					: true;
-				return matchesDate && isCurrentUser;
-			});
-
-			uiLogger.debug(
-				`Found ${worklogsToDelete.length} worklogs to delete for ${deleteCandidate.issueKey} on ${targetDateString}`,
-			);
-
-			// Delete each matching worklog
-			for (const worklog of worklogsToDelete) {
-				uiLogger.debug(
-					`Deleting worklog ${worklog.id} (${worklog.timeSpentSeconds}s)`,
-				);
-				await jiraClient.deleteWorklog(deleteCandidate.issueKey, worklog.id);
-			}
-
-			// Refresh the data
-			refresh();
-		} catch (error) {
-			console.error('Error deleting worklogs:', error);
-			const errorMessage =
-				error instanceof Error ? error.message : 'Unknown error occurred';
-			setDeleteError(`Failed to delete worklogs: ${errorMessage}`);
-		} finally {
-			setIsDeleting(false);
-			setDeleteCandidate(null);
-			setActiveArea('timetable');
-		}
-	};
-
-	const handleDeleteAttendanceConfirm = async (confirmed: boolean) => {
-		if (!confirmed || !deleteAttendanceCandidate || !attendanceManager) {
-			setDeleteAttendanceCandidate(null);
-			setActiveArea('timetable');
-			return;
-		}
-		setIsDeletingAttendance(true);
-		try {
-			const targetDateString = formatLocalDateKey(
-				deleteAttendanceCandidate.date,
-			);
-			const deleted = await attendanceManager.deleteAttendance(
-				targetDateString,
-			);
-
-			if (deleted) {
-				// Refresh the data
-				refresh();
-				// Force attendance data refresh in TimetableGrid
-				setAttendanceRefreshKey(prev => prev + 1);
-			}
-		} catch (error) {
-			console.error('Error deleting attendance:', error);
-			const errorMessage =
-				error instanceof Error ? error.message : 'Unknown error occurred';
-			setDeleteError(`Failed to delete attendance: ${errorMessage}`);
-		} finally {
-			setIsDeletingAttendance(false);
-			setDeleteAttendanceCandidate(null);
-			setActiveArea('timetable');
 		}
 	};
 
@@ -338,9 +252,6 @@ export function WeeklyTimetableView({
 			setActiveArea('timetable');
 		} catch (error) {
 			console.error('Error checking in:', error);
-			const errorMessage =
-				error instanceof Error ? error.message : 'Unknown error occurred';
-			setDeleteError(`Failed to check in: ${errorMessage}`);
 			setActiveArea('timetable');
 		}
 	};
@@ -357,23 +268,9 @@ export function WeeklyTimetableView({
 			setActiveArea('timetable');
 		} catch (error) {
 			console.error('Error checking out:', error);
-			const errorMessage =
-				error instanceof Error ? error.message : 'Unknown error occurred';
-			setDeleteError(`Failed to check out: ${errorMessage}`);
 			setActiveArea('timetable');
 		}
 	};
-
-	// Auto-hide delete error alert after 5 seconds
-	useEffect(() => {
-		if (deleteError) {
-			const timer = setTimeout(() => {
-				setDeleteError(null);
-			}, 5000);
-			return () => clearTimeout(timer);
-		}
-		return undefined;
-	}, [deleteError]);
 
 	useInput(input => {
 		// Don't handle input if forms are visible or delete confirmation is active
