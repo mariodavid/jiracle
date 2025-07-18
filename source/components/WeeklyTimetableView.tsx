@@ -3,7 +3,6 @@ import {Box, Text, useInput} from 'ink';
 import {Alert} from '@inkjs/ui';
 import Gradient from 'ink-gradient';
 import BigText from 'ink-big-text';
-import {getWeekTitle} from './WeekNavigator.js';
 import {TimetableGrid} from './TimetableGrid.js';
 import {InlineWorklogForm} from './InlineWorklogForm.js';
 import {DeleteWorklogConfirmation} from './DeleteWorklogConfirmation.js';
@@ -18,6 +17,7 @@ import {useWorklogForm} from '../hooks/useWorklogForm.js';
 import {useDeleteOperations} from '../hooks/useDeleteOperations.js';
 import {useAttendanceManagement} from '../hooks/useAttendanceManagement.js';
 import {useNavigationState} from '../hooks/useNavigationState.js';
+import {useTitleResolver} from '../hooks/useTitleResolver.js';
 import type {JiraConfig} from '../jira-client.js';
 import {getStartOfWeek, getEndOfWeek} from '../utils/date.js';
 import {
@@ -143,6 +143,16 @@ export function WeeklyTimetableView({
 		onAttendanceRefresh: refreshAttendance,
 	});
 
+	// Title resolution
+	const {title: resolvedTitle, titleColor} = useTitleResolver({
+		currentWeek,
+		worklogForm,
+		deleteCandidate,
+		deleteAttendanceCandidate,
+		attendanceEdit,
+		activeArea,
+	});
+
 	// Always use fresh data from the hook
 	const displayData = data;
 	const displayLoading = isLoading;
@@ -218,30 +228,7 @@ export function WeeklyTimetableView({
 				</Box>
 
 				{/* Show title based on current mode */}
-				{worklogForm.isVisible ? (
-					<TitleBar
-						title={`${worklogForm.issueKey} on ${formatDate(worklogForm.date)}`}
-					/>
-				) : activeArea === 'delete-confirmation' && deleteCandidate ? (
-					<TitleBar
-						title={`Delete worklogs for ${deleteCandidate.issueKey}`}
-						color="red"
-					/>
-				) : activeArea === 'delete-attendance-confirmation' &&
-				  deleteAttendanceCandidate ? (
-					<TitleBar
-						title={`Delete attendance for ${formatDate(
-							deleteAttendanceCandidate.date,
-						)}`}
-						color="red"
-					/>
-				) : activeArea === 'attendance-edit' && attendanceEdit ? (
-					<TitleBar
-						title={`Anwesenheit - ${formatDate(attendanceEdit.date)}`}
-					/>
-				) : (
-					<TitleBar title={getWeekTitle(currentWeek)} />
-				)}
+				<TitleBar title={resolvedTitle} color={titleColor} />
 
 				{/* Error Display */}
 				{error && (
