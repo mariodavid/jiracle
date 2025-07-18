@@ -1,6 +1,6 @@
 {
 	"name": "jiracle",
-	"version": "0.0.0",
+	"version": "0.0.1",
 	"license": "MIT",
 	"bin": "dist/cli.js",
 	"type": "module",
@@ -12,7 +12,8 @@
 		"dev": "tsc --watch",
 		"dev:watch": "nodemon --watch dist --exec \"node dist/cli.js\"",
 		"start": "npm run build && node dist/cli.js",
-		"test": "npm run build && prettier --check . && ava"
+		"test": "npm run build && prettier --check . && ava",
+		"release": "release-it"
 	},
 	"files": [
 		"dist"
@@ -44,6 +45,7 @@
 		"ink-testing-library": "^4.0.0",
 		"prettier": "^2.8.7",
 		"react-devtools-core": "^4.28.5",
+		"release-it": "^19.0.4",
 		"ts-node": "^10.9.1",
 		"typescript": "^5.0.3",
 		"xo": "^0.53.1"
@@ -62,5 +64,11 @@
 			"react/prop-types": "off"
 		}
 	},
-	"prettier": "@vdemedes/prettier-config"
+	"prettier": "@vdemedes/prettier-config",
+	"release-it": {
+		"$schema": "https://unpkg.com/release-it/schema/release-it.json",
+		"github": {
+			"release": true
+		}
+	}
 }

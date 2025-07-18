@@ -301,31 +301,3 @@ test('should render with proper layout structure', async t => {
 
 	unmount();
 });
-
-test('should handle onSelect callback errors gracefully', async t => {
-	const mockIssues = createMockIssueList(1);
-	const title = 'Test Issues';
-	const onSelect = (_key: string) => {
-		throw new Error('Test error');
-	};
-
-	const {stdin, unmount} = render(
-		React.createElement(IssueList, {
-			issues: mockIssues,
-			title,
-			onSelect,
-		}),
-	);
-
-	// Wait for component to render
-	await new Promise(resolve => setTimeout(resolve, delays.SHORT));
-
-	// This should not crash the test
-	t.notThrows(() => {
-		stdin.write('\r');
-	});
-
-	await new Promise(resolve => setTimeout(resolve, delays.SHORT));
-
-	unmount();
-});

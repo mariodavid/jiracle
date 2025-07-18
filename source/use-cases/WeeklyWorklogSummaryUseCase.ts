@@ -223,39 +223,69 @@ export class WeeklyWorklogSummaryUseCase {
 	): DailyWorklogSummary[] {
 		const dailyWorklogMap = new Map<string, DailyWorklogSummary>();
 
+		// Track worklogs by issue/date for aggregation logic
+		const worklogsByIssueDate = new Map<string, any[]>();
+
 		issuesWithWorklogs.forEach(({issue, worklogs}) => {
-			worklogs
+			const filteredWorklogs = worklogs
 				.filter(worklog =>
 					this.isWorklogInDateRange(worklog.started, weekStart, weekEnd),
 				)
-				.filter(worklog => worklog.author.emailAddress === currentUserEmail)
-				.forEach(worklog => {
-					const worklogDate = new Date(worklog.started);
-					// Use local date instead of UTC date for consistency with week calculation
-					const localDateKey = formatLocalDateKey(worklogDate);
-					const hours = worklog.timeSpentSeconds / 3600; // Convert seconds to hours
+				.filter(worklog => worklog.author.emailAddress === currentUserEmail);
 
-					const issueEntry: IssueWorklogEntry = {
-						issueKey: issue.key,
-						issueSummary: issue.fields.summary,
-						hours,
-					};
+			filteredWorklogs.forEach(worklog => {
+				const worklogDate = new Date(worklog.started);
+				const localDateKey = formatLocalDateKey(worklogDate);
+				const issueWorklogKey = `${issue.key}|${localDateKey}`;
 
-					const existingSummary = dailyWorklogMap.get(localDateKey);
-					if (existingSummary) {
-						existingSummary.issues.push(issueEntry);
-						dailyWorklogMap.set(localDateKey, {
-							...existingSummary,
-							totalHours: existingSummary.totalHours + hours,
-						});
-					} else {
-						dailyWorklogMap.set(localDateKey, {
-							date: worklogDate,
-							totalHours: hours,
-							issues: [issueEntry],
-						});
-					}
+				// Track worklogs for this issue/date combination
+				if (!worklogsByIssueDate.has(issueWorklogKey)) {
+					worklogsByIssueDate.set(issueWorklogKey, []);
+				}
+				worklogsByIssueDate.get(issueWorklogKey)!.push(worklog);
+			});
+		});
+
+		// Now aggregate by issue/date
+		worklogsByIssueDate.forEach((worklogs, issueWorklogKey) => {
+			// Split by pipe character to separate issue key from date
+			const [issueKey, localDateKey] = issueWorklogKey.split('|');
+			const issue = issuesWithWorklogs.find(
+				iwl => iwl.issue.key === issueKey,
+			)!.issue;
+			const totalHours = worklogs.reduce(
+				(sum, wl) => sum + wl.timeSpentSeconds / 3600,
+				0,
+			);
+
+			// Create issue entry with optional worklog ID and comment if there's exactly one worklog
+			const issueEntry: IssueWorklogEntry = {
+				issueKey: issue.key,
+				issueSummary: issue.fields.summary,
+				hours: totalHours,
+				// Only include worklog ID and comment if there's exactly one worklog for this issue/date
+				...(worklogs.length === 1 && {
+					worklogId: worklogs[0].id,
+					comment: worklogs[0].comment,
+				}),
+			};
+
+			const existingSummary = dailyWorklogMap.get(localDateKey!);
+			if (existingSummary) {
+				existingSummary.issues.push(issueEntry);
+				dailyWorklogMap.set(localDateKey!, {
+					...existingSummary,
+					totalHours: existingSummary.totalHours + totalHours,
 				});
+			} else {
+				// Get date from the first worklog
+				const worklogDate = new Date(worklogs[0].started);
+				dailyWorklogMap.set(localDateKey!, {
+					date: worklogDate,
+					totalHours: totalHours,
+					issues: [issueEntry],
+				});
+			}
 		});
 
 		// Convert map to sorted array

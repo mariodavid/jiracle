@@ -42,8 +42,8 @@ test('generateJiraIssueUrl handles different issue key formats', t => {
 
 	// Standard format
 	t.is(
-		generateJiraIssueUrl(baseUrl, 'JTS-2457'),
-		'https://company.atlassian.net/browse/JTS-2457',
+		generateJiraIssueUrl(baseUrl, 'DEF-2457'),
+		'https://company.atlassian.net/browse/DEF-2457',
 	);
 
 	// Longer project key

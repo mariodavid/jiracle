@@ -24,9 +24,7 @@ test('Integration: WeeklyTimetableView renders complete UI structure', t => {
 	// Verify main header (BigText renders as ASCII art, so we check for basic structure)
 	t.true(output.includes('Week'));
 
-	// Verify week navigation elements are present
-	t.true(output.includes('← Previous Week'));
-	t.true(output.includes('Next Week →'));
+	// Verify week title is present in header
 	t.true(output.includes('Week'));
 
 	// Verify keyboard shortcuts are displayed (updated for new navigation)
@@ -151,10 +149,9 @@ test('Integration: Week calculations work correctly', t => {
 	// Should display week information
 	t.true(output.includes('Week'));
 
-	// Should handle Monday as start of week (based on our WeekNavigator implementation)
+	// Should handle Monday as start of week (based on our week calculations)
 	// The exact week number will depend on current date, but structure should be present
-	t.true(output.includes('← Previous Week'));
-	t.true(output.includes('Next Week →'));
+	// Week navigation is now handled via keyboard shortcuts only
 });
 
 test('Integration: TimetableGrid displays correct structure when loading', t => {

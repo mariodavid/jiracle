@@ -179,22 +179,21 @@ test('AttendanceEditForm Enter submits from submit button', async t => {
 	// Allow component to fully initialize focus and input handling
 	await new Promise(resolve => setTimeout(resolve, 100));
 
-	// According to the component logic:
-	// - Enter from time fields moves focus to submit button
-	// - Enter when already on submit button actually submits
-	// So we need TWO enter presses!
+	// Navigate to submit button using Tab (checkIn -> checkOut -> break -> submit)
+	stdin.write('\t'); // checkIn -> checkOut
+	await new Promise(resolve => setTimeout(resolve, 50));
+	stdin.write('\t'); // checkOut -> break
+	await new Promise(resolve => setTimeout(resolve, 50));
+	stdin.write('\t'); // break -> submit
+	await new Promise(resolve => setTimeout(resolve, 50));
 
-	// First enter: move focus to submit button
-	stdin.write('\r');
-	await new Promise(resolve => setTimeout(resolve, 100));
+	// Verify we haven't submitted yet
+	t.false(submitted, 'Should not submit before Enter key');
 
-	// Verify we haven't submitted yet (first enter just moves focus)
-	t.false(submitted, 'First enter should only move focus, not submit');
-
-	// Second enter: actually submit
+	// Now press Enter to submit
 	stdin.write('\r');
 	await new Promise(resolve => setTimeout(resolve, 100));
 
 	// Now we should have submitted
-	t.true(submitted, 'Second enter should trigger submit');
+	t.true(submitted, 'Enter on submit button should trigger submit');
 });

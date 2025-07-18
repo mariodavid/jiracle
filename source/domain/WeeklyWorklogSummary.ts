@@ -18,6 +18,10 @@ export interface IssueWorklogEntry {
 	issueKey: string;
 	issueSummary: string;
 	hours: number;
+	// Optional worklog ID - only set when there's exactly one worklog for this issue/date
+	worklogId?: string;
+	// Optional comment - only set when there's exactly one worklog for this issue/date
+	comment?: string;
 }
 
 // Additional interfaces for worklog API responses

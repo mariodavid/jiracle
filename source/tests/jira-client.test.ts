@@ -176,14 +176,14 @@ test('normalizeTimeFormat converts time formats correctly', t => {
 
 test('extractIssueKeyFromInput extracts issue keys from URLs correctly', t => {
 	// Test direct issue key input
-	t.is(extractIssueKeyFromInput('JTS-1234'), 'JTS-1234');
+	t.is(extractIssueKeyFromInput('DEF-1234'), 'DEF-1234');
 	t.is(extractIssueKeyFromInput('ABC-999'), 'ABC-999');
 	t.is(extractIssueKeyFromInput('TEST-42'), 'TEST-42');
 
 	// Test URL extraction
 	t.is(
-		extractIssueKeyFromInput('https://jira.convista.com/browse/JTS-2457'),
-		'JTS-2457',
+		extractIssueKeyFromInput('https://jira.example.com/browse/DEF-2457'),
+		'DEF-2457',
 	);
 	t.is(
 		extractIssueKeyFromInput('https://jira.example.com/browse/ABC-999'),
@@ -202,10 +202,10 @@ test('extractIssueKeyFromInput extracts issue keys from URLs correctly', t => {
 	t.is(extractIssueKeyFromInput('/browse/LOCAL-789'), 'LOCAL-789');
 
 	// Test whitespace trimming
-	t.is(extractIssueKeyFromInput('  JTS-1234  '), 'JTS-1234');
+	t.is(extractIssueKeyFromInput('  DEF-1234  '), 'DEF-1234');
 	t.is(
-		extractIssueKeyFromInput('  https://jira.convista.com/browse/JTS-2457  '),
-		'JTS-2457',
+		extractIssueKeyFromInput('  https://jira.example.com/browse/DEF-2457  '),
+		'DEF-2457',
 	);
 
 	// Test invalid inputs (should return null)
@@ -215,7 +215,7 @@ test('extractIssueKeyFromInput extracts issue keys from URLs correctly', t => {
 	t.is(extractIssueKeyFromInput(''), null);
 
 	// Test edge cases
-	t.is(extractIssueKeyFromInput('https://jira.convista.com/browse/'), null);
-	t.is(extractIssueKeyFromInput('browse/JTS-1234'), null); // Missing slash
+	t.is(extractIssueKeyFromInput('https://jira.example.com/browse/'), null);
+	t.is(extractIssueKeyFromInput('browse/DEF-1234'), null); // Missing slash
 	t.is(extractIssueKeyFromInput('https://google.com/'), null); // Invalid URL
 });

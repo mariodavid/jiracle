@@ -3,6 +3,22 @@ import React from 'react';
 import {render} from 'ink-testing-library';
 import {WeeklyTimetableView} from '../../components/WeeklyTimetableView.js';
 
+// Simple waitFor utility for integration tests
+const waitFor = async (
+	condition: () => boolean,
+	timeout = 1000,
+	interval = 50,
+) => {
+	const start = Date.now();
+	while (Date.now() - start < timeout) {
+		if (condition()) {
+			return;
+		}
+		await new Promise(resolve => setTimeout(resolve, interval));
+	}
+	throw new Error('Condition not met within timeout');
+};
+
 // Mock fetch to simulate API calls
 let mockFetchCallCount = 0;
 let shouldFailWorklogSubmit = false;
@@ -95,13 +111,20 @@ test('Integration: Component renders without errors', async t => {
 		userEmail: 'test@example.com',
 	};
 
-	render(React.createElement(WeeklyTimetableView, props));
+	const {lastFrame} = render(React.createElement(WeeklyTimetableView, props));
 
-	// Wait for initial render
-	await new Promise(resolve => setTimeout(resolve, 100));
+	// Wait for component to render with expected content
+	await waitFor(() => {
+		const output = lastFrame();
+		return (
+			output != null && output.includes('Week') && output.includes('[Q] Quit')
+		);
+	});
 
-	// Component should not crash
-	t.pass();
+	// Verify component structure is rendered correctly
+	const output = lastFrame()!;
+	t.true(output.includes('Week'), 'Should render week header');
+	t.true(output.includes('[Q] Quit'), 'Should render keyboard shortcuts');
 });
 
 test('Integration: API calls are made', async t => {
@@ -129,32 +152,67 @@ test('Integration: Component handles API errors gracefully', async t => {
 		userEmail: 'test@example.com',
 	};
 
-	render(React.createElement(WeeklyTimetableView, props));
+	const {lastFrame} = render(React.createElement(WeeklyTimetableView, props));
 
-	// Wait for component to stabilize
-	await new Promise(resolve => setTimeout(resolve, 100));
+	// Wait for component to stabilize despite API errors
+	await waitFor(() => {
+		const output = lastFrame();
+		return output != null && output.includes('Week');
+	});
 
-	// Component should not crash even with API errors
-	t.pass();
+	// Verify component still renders correctly despite API errors
+	const output = lastFrame()!;
+	t.true(
+		output.includes('Week'),
+		'Should still render week header despite API errors',
+	);
+	t.true(
+		output.includes('[Q] Quit'),
+		'Should still render controls despite API errors',
+	);
+	// Component should not show error in UI for initial load failures
+	t.false(
+		output.includes('Error'),
+		'Should not show error message in UI for API failures',
+	);
 });
 
 test('Integration: Component accepts different configurations', async t => {
+	const differentConfig = {
+		jiraUrl: 'https://different.example.com/',
+		username: 'different@example.com',
+		apiToken: 'different-token',
+	};
+
 	const props = {
 		onBack: () => {},
-		config: {
-			jiraUrl: 'https://different.example.com/',
-			username: 'different@example.com',
-			apiToken: 'different-token',
-		},
+		config: differentConfig,
 		userEmail: 'different@example.com',
 	};
 
-	render(React.createElement(WeeklyTimetableView, props));
+	const startingCallCount = mockFetchCallCount;
+	const {lastFrame} = render(React.createElement(WeeklyTimetableView, props));
 
-	await new Promise(resolve => setTimeout(resolve, 100));
+	await waitFor(() => {
+		const output = lastFrame();
+		return output != null && output.includes('Week');
+	});
 
-	// Should handle different configs without error
-	t.pass();
+	// Wait for potential API calls
+	await new Promise(resolve => setTimeout(resolve, 200));
+
+	// Verify component renders correctly with different config
+	const output = lastFrame()!;
+	t.true(output.includes('Week'), 'Should render with different config');
+	t.true(
+		output.includes('[Q] Quit'),
+		'Should render controls with different config',
+	);
+	// API calls should be made to the different URL (mocked)
+	t.true(
+		mockFetchCallCount > startingCallCount,
+		`Should make API calls with different config. Started with ${startingCallCount}, ended with ${mockFetchCallCount}`,
+	);
 });
 
 test('Integration: Mock fetch setup works correctly', t => {
@@ -172,12 +230,22 @@ test('Integration: Component lifecycle completes', async t => {
 		userEmail: 'test@example.com',
 	};
 
-	const {unmount} = render(React.createElement(WeeklyTimetableView, props));
+	const {lastFrame, unmount} = render(
+		React.createElement(WeeklyTimetableView, props),
+	);
 
-	// Wait for component lifecycle
-	await new Promise(resolve => setTimeout(resolve, 150));
+	// Wait for component lifecycle to complete
+	await waitFor(() => {
+		const output = lastFrame();
+		return output != null && output.includes('Week');
+	});
 
-	// Should complete lifecycle without errors
-	unmount();
-	t.pass();
+	// Verify component is functional before unmounting
+	const output = lastFrame()!;
+	t.true(output.includes('Week'), 'Should be functional during lifecycle');
+
+	// Verify unmount completes without errors
+	t.notThrows(() => {
+		unmount();
+	}, 'Should unmount without throwing errors');
 });

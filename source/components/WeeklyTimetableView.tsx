@@ -3,7 +3,7 @@ import {Box, Text, useInput} from 'ink';
 import {Alert, Spinner} from '@inkjs/ui';
 import Gradient from 'ink-gradient';
 import BigText from 'ink-big-text';
-import {WeekNavigator, getWeekTitle} from './WeekNavigator.js';
+import {getWeekTitle} from './WeekNavigator.js';
 import {TimetableGrid} from './TimetableGrid.js';
 import {InlineWorklogForm} from './InlineWorklogForm.js';
 import {DeleteWorklogConfirmation} from './DeleteWorklogConfirmation.js';
@@ -32,6 +32,10 @@ import {
 	generateJiraIssueUrl,
 } from '../utils/browser.js';
 import {uiLogger} from '../utils/logger.js';
+import {
+	detectWorklogForEdit,
+	findWorklogEntryForIssue,
+} from '../utils/worklog-detection.js';
 
 interface WorklogFormData {
 	issueKey: string;
@@ -39,6 +43,10 @@ interface WorklogFormData {
 	timeSpent: string;
 	comment: string;
 	isVisible: boolean;
+	isIssueKeyEditable: boolean;
+	// Edit mode fields
+	isEditMode?: boolean;
+	worklogId?: string;
 }
 
 export interface WeeklyTimetableViewProps {
@@ -71,6 +79,7 @@ export function WeeklyTimetableView({
 		timeSpent: '1h',
 		comment: '',
 		isVisible: false,
+		isIssueKeyEditable: false,
 	});
 	const [worklogSubmitting, setWorklogSubmitting] = useState(false);
 	const [worklogError, setWorklogError] = useState<string | null>(null);
@@ -83,10 +92,6 @@ export function WeeklyTimetableView({
 	} | null>(null);
 	const [isDeleting, setIsDeleting] = useState(false);
 	const [isDeletingAttendance, setIsDeletingAttendance] = useState(false);
-	const [deleteSuccess, setDeleteSuccess] = useState<{
-		issueKey: string;
-		count: number;
-	} | null>(null);
 	const [deleteError, setDeleteError] = useState<string | null>(null);
 	const [attendanceManager, setAttendanceManager] =
 		useState<AttendanceManager | null>(null);
@@ -160,17 +165,6 @@ export function WeeklyTimetableView({
 		return () => clearTimeout(timer);
 	}, []); // Empty dependency array means this runs only on mount
 
-	// Auto-focus cell when data is loaded
-	useEffect(() => {
-		if (
-			displayData &&
-			!isLoading &&
-			activeArea === 'timetable' &&
-			!worklogForm.isVisible
-		) {
-		}
-	}, [displayData, isLoading, activeArea, worklogForm.isVisible]);
-
 	const navigateToPreviousWeek = () => {
 		const newWeek = new Date(currentWeek);
 		newWeek.setDate(currentWeek.getDate() - 7);
@@ -193,23 +187,74 @@ export function WeeklyTimetableView({
 		setActiveArea('timetable');
 	};
 
-	const handleCellWorklog = (data: {issueKey: string; date: Date}) => {
-		// Resolve defaults using the new hierarchical system
-		const defaults = resolveDefaults(config, data.issueKey);
+	const handleCellWorklog = (cellData: {issueKey: string; date: Date}) => {
+		// Find the specific daily summary for this date
+		const targetDateKey = formatLocalDateKey(cellData.date);
+		const dailySummary = data?.dailySummaries.find(
+			(summary: any) => formatLocalDateKey(summary.date) === targetDateKey,
+		);
+
+		// Find the worklog entry for this issue on this date
+		const worklogEntry = dailySummary
+			? findWorklogEntryForIssue(cellData.issueKey, dailySummary.issues)
+			: undefined;
+
+		// Detect if this is an edit scenario
+		const detectionResult = detectWorklogForEdit(worklogEntry);
+
+		// Resolve defaults for new entries or use existing data for edits
+		let timeSpent: string;
+		let comment: string;
+
+		if (detectionResult.isEditable) {
+			// Edit mode: use existing data
+			timeSpent = detectionResult.timeSpent!;
+			comment = detectionResult.comment!;
+		} else {
+			// Create mode: use defaults
+			const defaults = resolveDefaults(config, cellData.issueKey);
+			timeSpent = defaults.time;
+			comment = defaults.comment;
+		}
 
 		setWorklogForm({
-			issueKey: data.issueKey,
-			date: data.date,
+			issueKey: cellData.issueKey,
+			date: cellData.date,
+			timeSpent,
+			comment,
+			isVisible: true,
+			isIssueKeyEditable: false,
+			isEditMode: detectionResult.isEditable,
+			worklogId: detectionResult.worklogId,
+		});
+		setWorklogError(null); // Clear any previous error
+		setActiveArea('worklog-form');
+	};
+
+	const handleAddWorklog = () => {
+		// Use global defaults for time and comment
+		const defaults = resolveDefaults(config, '');
+
+		setWorklogForm({
+			issueKey: '',
+			date: new Date(), // Default to today
 			timeSpent: defaults.time,
 			comment: defaults.comment,
 			isVisible: true,
+			isIssueKeyEditable: true,
 		});
 		setWorklogError(null); // Clear any previous error
 		setActiveArea('worklog-form');
 	};
 
 	const handleWorklogSubmit = useCallback(
-		async (data: {timeSpent: string; comment: string}) => {
+		async (data: {
+			issueKey: string;
+			timeSpent: string;
+			comment: string;
+			date: Date;
+			worklogId?: string;
+		}) => {
 			// Immediate guard against double submission
 			if (worklogSubmitting) {
 				uiLogger.debug('WeeklyTimetableView: Blocked duplicate submission');
@@ -217,11 +262,27 @@ export function WeeklyTimetableView({
 			}
 
 			uiLogger.debug('WeeklyTimetableView: handleWorklogSubmit called', {
-				issueKey: worklogForm.issueKey,
+				issueKey: data.issueKey,
 				timeSpent: data.timeSpent,
 				comment: data.comment,
 				timestamp: new Date().toISOString(),
 			});
+
+			// Validate issue key before submitting
+			if (!data.issueKey || data.issueKey.trim() === '') {
+				setWorklogError(
+					'Issue key is required. Please enter a valid Jira issue key (e.g., DEF-123).',
+				);
+				return;
+			}
+
+			// Validate issue key format (basic check)
+			if (!/^[A-Z]+-\d+$/i.test(data.issueKey.trim())) {
+				setWorklogError(
+					'Invalid issue key format. Expected format: PROJECT-123 (e.g., DEF-123, ABC-456).',
+				);
+				return;
+			}
 
 			setWorklogSubmitting(true);
 			setWorklogError(null);
@@ -231,7 +292,8 @@ export function WeeklyTimetableView({
 				const client = new JiraClient(config);
 
 				// Format the date to match Jira's expected format
-				const selectedDateTime = new Date(worklogForm.date);
+				// Use the date from the form data (which may be different from worklogForm.date)
+				const selectedDateTime = new Date(data.date);
 				// Set time to 9:00 AM for worklog start time
 				selectedDateTime.setHours(9, 0, 0, 0);
 				const formattedStarted = selectedDateTime
@@ -244,12 +306,30 @@ export function WeeklyTimetableView({
 					started: formattedStarted,
 				};
 
-				await client.addWorklog(worklogForm.issueKey, worklogData);
+				// Use trimmed issue key
+				const trimmedIssueKey = data.issueKey.trim();
 
-				uiLogger.debug('WeeklyTimetableView: Worklog submitted successfully', {
-					issueKey: worklogForm.issueKey,
-					timestamp: new Date().toISOString(),
-				});
+				// Determine whether to update or create
+				if (data.worklogId) {
+					// Edit mode: update existing worklog
+					await client.updateWorklog(
+						trimmedIssueKey,
+						data.worklogId,
+						worklogData,
+					);
+					uiLogger.debug('WeeklyTimetableView: Worklog updated successfully', {
+						issueKey: trimmedIssueKey,
+						worklogId: data.worklogId,
+						timestamp: new Date().toISOString(),
+					});
+				} else {
+					// Create mode: add new worklog
+					await client.addWorklog(trimmedIssueKey, worklogData);
+					uiLogger.debug('WeeklyTimetableView: Worklog created successfully', {
+						issueKey: trimmedIssueKey,
+						timestamp: new Date().toISOString(),
+					});
+				}
 
 				// Close form and return to table
 				setWorklogForm(prev => ({...prev, isVisible: false}));
@@ -265,13 +345,7 @@ export function WeeklyTimetableView({
 				setWorklogSubmitting(false);
 			}
 		},
-		[
-			worklogForm.issueKey,
-			worklogForm.date,
-			config,
-			worklogSubmitting,
-			refresh,
-		],
+		[config, worklogSubmitting, refresh],
 	);
 
 	const handleWorklogCancel = () => {
@@ -388,12 +462,6 @@ export function WeeklyTimetableView({
 
 			// Refresh the data
 			refresh();
-
-			// Show success alert
-			setDeleteSuccess({
-				issueKey: deleteCandidate.issueKey,
-				count: worklogsToDelete.length,
-			});
 		} catch (error) {
 			console.error('Error deleting worklogs:', error);
 			const errorMessage =
@@ -477,17 +545,6 @@ export function WeeklyTimetableView({
 		}
 	};
 
-	// Auto-hide delete success alert after 3 seconds
-	useEffect(() => {
-		if (deleteSuccess) {
-			const timer = setTimeout(() => {
-				setDeleteSuccess(null);
-			}, 3000);
-			return () => clearTimeout(timer);
-		}
-		return undefined;
-	}, [deleteSuccess]);
-
 	// Auto-hide delete error alert after 5 seconds
 	useEffect(() => {
 		if (deleteError) {
@@ -530,13 +587,16 @@ export function WeeklyTimetableView({
 		} else if (input === 'o') {
 			// End work (checkout)
 			setActiveArea('checkout-confirmation');
+		} else if (input === 'a') {
+			// Add worklog for arbitrary issue
+			handleAddWorklog();
 		}
 		// Note: ESC key is handled by App.tsx to avoid conflicts
 		// Note: Arrow keys are handled by TimetableGrid for cell navigation when table is active
 	});
 
 	return (
-		<Box flexDirection="column" height={40}>
+		<Box flexDirection="column" height={55}>
 			{/* Header Area - Fixed Height */}
 			<Box height={8} flexDirection="column">
 				{/* JIRACLE Rainbow Banner */}
@@ -545,19 +605,6 @@ export function WeeklyTimetableView({
 						<BigText text="JIRACLE" font="tiny" />
 					</Gradient>
 				</Box>
-
-				{/* Week Navigator - only when not in form or delete mode */}
-				{!worklogForm.isVisible &&
-					activeArea !== 'delete-confirmation' &&
-					activeArea !== 'delete-attendance-confirmation' && (
-						<WeekNavigator
-							currentWeek={currentWeek}
-							onPreviousWeek={navigateToPreviousWeek}
-							onNextWeek={navigateToNextWeek}
-							onCurrentWeek={handleCurrentWeek}
-							activeArea="timetable"
-						/>
-					)}
 
 				{/* Show title based on current mode */}
 				{worklogForm.isVisible ? (
@@ -594,7 +641,7 @@ export function WeeklyTimetableView({
 			</Box>
 
 			{/* Main Content Area - Fixed Height */}
-			<Box height={25} flexDirection="column">
+			<Box height={40} flexDirection="column">
 				{/* Extra spacing between week navigator and table - only when not in form or delete mode */}
 				{!worklogForm.isVisible &&
 					activeArea !== 'delete-confirmation' &&
@@ -608,8 +655,10 @@ export function WeeklyTimetableView({
 					<Box justifyContent="center">
 						<Box
 							width={68}
-							borderStyle="round"
-							borderColor="cyan"
+							{...(!worklogSubmitting && {
+								borderStyle: 'round',
+								borderColor: 'cyan',
+							})}
 							paddingX={1}
 							paddingY={1}
 						>
@@ -626,6 +675,9 @@ export function WeeklyTimetableView({
 								isFavorite={config?.favorites?.some(
 									fav => fav.key === worklogForm.issueKey,
 								)}
+								isIssueKeyEditable={worklogForm.isIssueKeyEditable}
+								isEditMode={worklogForm.isEditMode}
+								worklogId={worklogForm.worklogId}
 							/>
 						</Box>
 					</Box>
@@ -739,23 +791,12 @@ export function WeeklyTimetableView({
 						onAttendanceEdit={handleAttendanceEdit}
 						onAttendanceDelete={handleDeleteAttendance}
 						onOpenInBrowser={handleOpenInBrowser}
-						isActive={true}
+						isActive={activeArea === 'timetable'}
 						favoriteIssues={config.favorites}
 						config={config}
 						attendanceManager={attendanceManager || undefined}
 						attendanceRefreshKey={attendanceRefreshKey}
 					/>
-				)}
-
-				{/* Delete success alert */}
-				{deleteSuccess && (
-					<Alert variant="success" title="Worklogs deleted">
-						{deleteSuccess.count > 0
-							? `Successfully deleted ${deleteSuccess.count} worklog${
-									deleteSuccess.count === 1 ? '' : 's'
-							  } for ${deleteSuccess.issueKey}`
-							: `No worklogs found to delete for ${deleteSuccess.issueKey}`}
-					</Alert>
 				)}
 
 				{/* Delete error alert */}
@@ -780,7 +821,8 @@ export function WeeklyTimetableView({
 				) : (
 					<>
 						<Text color="gray">
-							[↑↓←→] Navigate Cells [Enter] Log Work [Shift+←→] Week Navigation
+							[↑↓←→] Navigate Cells [Enter] Log Work [A] Add Worklog [Shift+←→]
+							Week Navigation
 						</Text>
 						<Text color="gray">
 							[D] Delete Worklogs [I] Check In [O] Check Out

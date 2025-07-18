@@ -17,6 +17,7 @@ import {
 	truncateText,
 	getDefaultFocusId,
 } from '../utils/TimetableCalculations.js';
+import {AttendanceCalculations} from '../attendance/AttendanceCalculations.js';
 
 export interface TimetableGridProps {
 	data: WeeklyWorklogSummary | null;
@@ -105,10 +106,20 @@ export function TimetableGrid({
 			? buildIssueMap(data)
 			: buildIssueMapFromFavorites(favoriteIssues);
 	const dailyTotals = data ? calculateDailyTotals(data, weekDates) : [];
-	const defaultFocusId =
-		data || Object.keys(issueMap).length > 0
-			? getDefaultFocusId(issueMap)
-			: null;
+
+	// Calculate daily deltas (logged hours - attendance hours)
+	const dailyLoggedHours: Record<string, number> = {};
+	weekDates.forEach((date, index) => {
+		const dateKey = formatLocalDateKey(date);
+		dailyLoggedHours[dateKey] = dailyTotals[index] || 0;
+	});
+
+	const weekDateKeys = weekDates.map(date => formatLocalDateKey(date));
+	const dailyDeltas = AttendanceCalculations.calculateDailyDeltas(
+		weeklyAttendance,
+		dailyLoggedHours,
+		weekDateKeys,
+	);
 
 	// Group issues by their resolved groups using the extracted service
 
@@ -141,22 +152,14 @@ export function TimetableGrid({
 			const desired = group.group.desiredAmount;
 			const actual = group.totalHours;
 			const status = actual >= desired ? '✓' : '⚠️';
-			return `${totalHours}/${desired}h ${status}`;
+			return `${totalHours}/${desired} ${status}`;
 		}
 
-		// Only append 'h' if totalHours is not '-'
-		const formattedTotal = totalHours === '-' ? '-' : `${totalHours}h`;
-		return formattedTotal;
+		// Return hours without 'h' suffix for group totals
+		return totalHours;
 	};
 
 	const tableWidth = 2 + 20 + 5 * 12 + 8; // Group + Issue + 5 weekdays (wider) + Total = 90
-
-	// Set default focus when component mounts (simplified)
-	useEffect(() => {
-		if (defaultFocusId) {
-			focus(defaultFocusId);
-		}
-	}, [defaultFocusId, focus]);
 
 	// Create a flat list of all focusable cells for arrow key navigation
 	const getAllFocusableItems = useCallback(() => {
@@ -167,7 +170,7 @@ export function TimetableGrid({
 			isAttendance: boolean;
 		}> = [];
 
-		// Add attendance cells if attendance manager is available
+		// Add attendance cells first (they appear at the top)
 		if (attendanceManager) {
 			for (let columnIndex = 0; columnIndex < 5; columnIndex++) {
 				items.push({
@@ -176,10 +179,11 @@ export function TimetableGrid({
 					columnIndex,
 					isAttendance: true,
 				});
+				// Note: attendance-hours row is not focusable, so we don't add it here
 			}
 		}
 
-		// Add issue cells
+		// Add issue cells after attendance rows
 		for (const group of issueGroups) {
 			for (const [issueKey] of group.issues) {
 				for (let columnIndex = 0; columnIndex < 5; columnIndex++) {
@@ -193,8 +197,45 @@ export function TimetableGrid({
 			}
 		}
 
+		// Note: attendance-hours row is not focusable, so we don't add it here
+
 		return items;
 	}, [attendanceManager, issueGroups]);
+
+	// Set initial focus to first row and current day when component loads
+	useEffect(() => {
+		if (focusedCell === null && isActive) {
+			const focusableItems = getAllFocusableItems();
+			if (focusableItems.length > 0) {
+				// Find current day column index (0=Monday, 1=Tuesday, ..., 4=Friday)
+				const today = new Date();
+				const todayDayOfWeek = today.getDay(); // 0=Sunday, 1=Monday, ..., 6=Saturday
+
+				// Convert to our week format (0=Monday, 1=Tuesday, ..., 4=Friday)
+				// Monday=1->0, Tuesday=2->1, Wednesday=3->2, Thursday=4->3, Friday=5->4
+				// For weekend days (Saturday=6, Sunday=0), default to Monday (0)
+				let todayColumnIndex = 0; // Default to Monday
+				if (todayDayOfWeek >= 1 && todayDayOfWeek <= 5) {
+					todayColumnIndex = todayDayOfWeek - 1; // Convert to 0-based weekday index
+				}
+
+				// Find the first item for today's column
+				const todayFirstItem = focusableItems.find(
+					item => item.columnIndex === todayColumnIndex,
+				);
+
+				if (todayFirstItem) {
+					focus(todayFirstItem.focusId);
+				} else {
+					// Fallback to first item if today's column is not found
+					const firstItem = focusableItems[0];
+					if (firstItem) {
+						focus(firstItem.focusId);
+					}
+				}
+			}
+		}
+	}, [focusedCell, isActive, getAllFocusableItems, focus]);
 
 	// Handle arrow key navigation
 	const handleArrowNavigation = useCallback(
@@ -486,13 +527,46 @@ export function TimetableGrid({
 		);
 	}
 
-	// Render attendance row (compact: shows time range like "8:00-17:00")
-	const renderAttendanceRows = () => {
+	// Helper function to calculate working hours cell value
+	const getWorkingHoursCellValue = (date: string): string => {
+		const attendance = weeklyAttendance[date];
+
+		if (!attendance || (!attendance.checkIn && !attendance.checkOut)) {
+			return '-'; // Show dash when no data exists
+		}
+
+		// Calculate working hours using Duration class
+		const calculateWorkingHours = (
+			checkIn: string,
+			checkOut: string,
+			breakMinutes: number,
+		): string => {
+			const workingDuration = Duration.calculateWorkingDuration(
+				checkIn,
+				checkOut,
+				breakMinutes,
+			);
+			return workingDuration.toDecimalHours();
+		};
+
+		const breakMinutes =
+			attendance.breakMinutes || config?.attendance?.defaultBreakMinutes || 60; // Use configured break time or default to 60 minutes
+		const workingHours = calculateWorkingHours(
+			attendance.checkIn || '08:00',
+			attendance.checkOut || '17:00',
+			breakMinutes,
+		);
+
+		return workingHours;
+	};
+
+	// Render attendance row (time range only)
+	const renderAttendanceRow = () => {
 		const attendanceRows = [
 			{key: 'attendance', label: 'Attendance', type: 'attendance' as const},
 		];
 
-		const getCellValue = (date: string): string => {
+		const getTimeRangeCellValue = (date: string): string => {
 			const attendance = weeklyAttendance[date];
 
 			if (!attendance || (!attendance.checkIn && !attendance.checkOut)) {
@@ -508,33 +582,10 @@ export function TimetableGrid({
 				return m === 0 ? h.toString() : `${h}:${minutes}`;
 			};
 
-			// Calculate working hours using Duration class
-			const calculateWorkingHours = (
-				checkIn: string,
-				checkOut: string,
-				breakMinutes: number,
-			): string => {
-				const workingDuration = Duration.calculateWorkingDuration(
-					checkIn,
-					checkOut,
-					breakMinutes,
-				);
-				return workingDuration.toDecimalHours();
-			};
-
 			const checkIn = formatTime(attendance.checkIn || '08:00');
 			const checkOut = formatTime(attendance.checkOut || '17:00');
-			const breakMinutes =
-				attendance.breakMinutes ||
-				config?.attendance?.defaultBreakMinutes ||
-				60; // Use configured break time or default to 60 minutes
-			const workingHours = calculateWorkingHours(
-				attendance.checkIn || '08:00',
-				attendance.checkOut || '17:00',
-				breakMinutes,
-			);
 
-			return `${checkIn}-${checkOut}\n${workingHours}`;
+			return `${checkIn}-${checkOut}`;
 		};
 
 		return (
@@ -549,15 +600,19 @@ export function TimetableGrid({
 							{/* Row label */}
 							<Box width={20}>
 								<Text bold color="yellow">
-									{row.label.padEnd(12, ' ')}
+									{row.label}
 								</Text>
 							</Box>
 							{/* Day columns */}
-							{weekDates.map((date, index) =>
-								isActive ? (
+							{weekDates.map((date, index) => {
+								const cellValue = getTimeRangeCellValue(
+									formatLocalDateKey(date),
+								);
+
+								return isActive ? (
 									<FocusableCell
 										key={`attendance-${row.key}-${index}`}
-										value={getCellValue(formatLocalDateKey(date))}
+										value={cellValue}
 										focusId={`attendance-${row.key}-${index}`}
 										isActive={true}
 										issueKey={`attendance-${row.key}`}
@@ -572,10 +627,10 @@ export function TimetableGrid({
 										width={12}
 										justifyContent="flex-end"
 									>
-										<Text>{getCellValue(formatLocalDateKey(date))}</Text>
+										<Text>{cellValue}</Text>
 									</Box>
-								),
-							)}
+								);
+							})}
 							{/* Total column - empty for attendance rows */}
 							<Box width={8}>
 								<Text> </Text>
@@ -583,11 +638,103 @@ export function TimetableGrid({
 						</Box>
 					</Box>
 				))}
-				{/* Separator after attendance rows */}
-				<Box width={tableWidth}>
-					<Text color="gray">{'─'.repeat(tableWidth)}</Text>
-				</Box>
 			</>
+		);
+	};
+
+	// Render hours row (working hours from attendance data)
+	const renderHoursRow = () => {
+		return (
+			<Box flexDirection="column">
+				<Box flexDirection="row">
+					{/* Arrow indicator - empty for hours row */}
+					<Box width={2}>
+						<Text> </Text>
+					</Box>
+					{/* Row label */}
+					<Box width={20}>
+						<Text bold color="yellow">
+							Attendance
+						</Text>
+					</Box>
+					{/* Day columns */}
+					{weekDates.map((date, index) => {
+						const cellValue = getWorkingHoursCellValue(
+							formatLocalDateKey(date),
+						);
+
+						// Hours row is not focusable - always render as static text
+						return (
+							<Box
+								key={`hours-static-${index}`}
+								width={12}
+								justifyContent="flex-end"
+							>
+								<Text>{cellValue}</Text>
+							</Box>
+						);
+					})}
+					{/* Total column - empty for hours row */}
+					<Box width={8}>
+						<Text> </Text>
+					</Box>
+				</Box>
+			</Box>
+		);
+	};
+
+	// Render delta row (difference between logged and attendance hours)
+	const renderDeltaRow = () => {
+		const getDeltaCellValue = (date: string): string => {
+			const delta = dailyDeltas[date];
+			if (delta === null || delta === undefined) {
+				return '-';
+			}
+			return delta >= 0 ? `+${delta.toFixed(1)}` : delta.toFixed(1);
+		};
+
+		const getDeltaCellColor = (date: string): string => {
+			const delta = dailyDeltas[date];
+			if (delta === null || delta === undefined) {
+				return 'yellow';
+			}
+			if (delta === 0) {
+				return 'green';
+			}
+			// Any deviation from 0 is problematic
+			return 'red';
+		};
+
+		return (
+			<Box flexDirection="column">
+				<Box flexDirection="row">
+					{/* Arrow indicator - empty for delta row */}
+					<Box width={2}>
+						<Text> </Text>
+					</Box>
+					{/* Row label */}
+					<Box width={20}>
+						<Text bold color="yellow">
+							Delta
+						</Text>
+					</Box>
+					{/* Day columns */}
+					{weekDates.map((date, index) => {
+						const dateKey = formatLocalDateKey(date);
+						return (
+							<Box key={`delta-${index}`} width={12} justifyContent="flex-end">
+								<Text color={getDeltaCellColor(dateKey)}>
+									{getDeltaCellValue(dateKey)}
+								</Text>
+							</Box>
+						);
+					})}
+					{/* Total column - empty for delta row */}
+					<Box width={8}>
+						<Text> </Text>
+					</Box>
+				</Box>
+			</Box>
 		);
 	};
 
@@ -607,7 +754,7 @@ export function TimetableGrid({
 				</Box>
 				<Box width={20}>
 					<Text bold color="white">
-						Issue
+						{' '}
 					</Text>
 				</Box>
 				{DAYS.map(day => (
@@ -624,17 +771,88 @@ export function TimetableGrid({
 				</Box>
 			</Box>
 
+			{/* Attendance row - only show if attendanceManager is available */}
+			{attendanceManager && (
+				<Box flexDirection="column">
+					{/* Separator line above attendance */}
+					<Box flexDirection="row">
+						<Box width={2}>
+							<Text color="gray">{'─'.repeat(2)}</Text>
+						</Box>
+						<Box width={20}>
+							<Text color="gray">{'─'.repeat(20)}</Text>
+						</Box>
+						{weekDates.map((_, index) => (
+							<Box key={`attendance-separator-${index}`} width={12}>
+								<Text color="gray">{'─'.repeat(12)}</Text>
+							</Box>
+						))}
+						<Box width={8}>
+							<Text color="gray">{'─'.repeat(8)}</Text>
+						</Box>
+					</Box>
+					{/* Spacing after separator */}
+					<Box>
+						<Text> </Text>
+					</Box>
+					{/* Render the attendance row */}
+					{renderAttendanceRow()}
+				</Box>
+			)}
+
 			{/* Separator */}
 			<Box width={tableWidth}>
 				<Text color="gray">{'─'.repeat(tableWidth)}</Text>
 			</Box>
 
-			{/* Attendance rows - only show if attendanceManager is available */}
-			{attendanceManager && renderAttendanceRows()}
-
 			{/* Issue rows grouped by resolved groups */}
 			{issueGroups.map(group => (
 				<Box key={group.group?.id || 'ungrouped'} flexDirection="column">
+					{/* Group header row */}
+					{group.group && (
+						<Box flexDirection="column">
+							{/* Extra spacing before group header */}
+							<Box>
+								<Text> </Text>
+							</Box>
+							{/* Group header with name */}
+							<Box flexDirection="row">
+								<Box width={2}>
+									<Text> </Text>
+								</Box>
+								<Box width={20}>
+									<Text bold color="yellow">
+										{group.group.name}
+									</Text>
+								</Box>
+								{weekDates.map((_, index) => (
+									<Box key={`header-${group.group?.id}-${index}`} width={12}>
+										<Text> </Text>
+									</Box>
+								))}
+								<Box width={8}>
+									<Text> </Text>
+								</Box>
+							</Box>
+							{/* Underline below group header */}
+							<Box flexDirection="row">
+								<Box width={2}>
+									<Text color="yellow">{'─'.repeat(2)}</Text>
+								</Box>
+								<Box width={20}>
+									<Text color="yellow">{'─'.repeat(20)}</Text>
+								</Box>
+								{weekDates.map((_, index) => (
+									<Box key={`underline-${group.group?.id}-${index}`} width={12}>
+										<Text color="yellow">{'─'.repeat(12)}</Text>
+									</Box>
+								))}
+								<Box width={8}>
+									<Text color="yellow">{'─'.repeat(8)}</Text>
+								</Box>
+							</Box>
+						</Box>
+					)}
 					{group.issues.map(([issueKey, issueData]) => {
 						const isRowHighlighted = focusedCell?.issueKey === issueKey;
 						return (
@@ -721,19 +939,12 @@ export function TimetableGrid({
 								<Box width={2}>
 									<Text> </Text>
 								</Box>
-								<Box width={20}>
+								{/* Extended width for group total text - spans across issue and weekday columns */}
+								<Box width={20 + 5 * 12}>
 									<Text bold color="green">
 										{group.group.name} Total
 									</Text>
 								</Box>
-								{weekDates.map((_, index) => (
-									<Box
-										key={`group-total-${group.group?.id}-${index}`}
-										width={12}
-									>
-										<Text> </Text>
-									</Box>
-								))}
 								<Box width={8} justifyContent="flex-end">
 									<Text bold color="green">
 										{formatGroupTotal(group)}
@@ -741,6 +952,9 @@ export function TimetableGrid({
 								</Box>
 							</Box>
 							{/* Additional spacing after group total */}
+							<Box>
+								<Text> </Text>
+							</Box>
 							<Box>
 								<Text> </Text>
 							</Box>
@@ -761,7 +975,7 @@ export function TimetableGrid({
 				</Box>
 				<Box width={20}>
 					<Text bold color="yellow">
-						Daily Total
+						Worklog
 					</Text>
 				</Box>
 				{dailyTotals.map((total, index) => (
@@ -781,17 +995,30 @@ export function TimetableGrid({
 					</Text>
 				</Box>
 			</Box>
+
+			{/* Hours row - only show if attendanceManager is available */}
+			{attendanceManager && renderHoursRow()}
+
+			{/* Delta row - only show if attendanceManager is available */}
+			{attendanceManager && renderDeltaRow()}
 		</Box>
 	);
 }
 
 function generateWeekDates(weekStart: Date): Date[] {
 	const dates: Date[] = [];
+	const current = new Date(weekStart);
+
+	// Get Monday of the week (same logic as AttendanceCalculations.getWeekDates)
+	const day = current.getDay();
+	const diff = current.getDate() - day + (day === 0 ? -6 : 1);
+	current.setDate(diff);
+
 	// Only generate weekdays (Monday to Friday)
 	for (let i = 0; i < 5; i++) {
-		const date = new Date(weekStart);
-		date.setDate(weekStart.getDate() + i);
+		const date = new Date(current);
 		dates.push(date);
+		current.setDate(current.getDate() + 1);
 	}
 	return dates;
 }

@@ -29,12 +29,11 @@ test('WeeklyTimetableView has auto-focus behavior after week navigation', t => {
 	const output = lastFrame()!;
 
 	// Should render the timetable view structure
-	t.true(output.includes('Previous Week'), 'Should show previous week button');
-	t.true(output.includes('Next Week'), 'Should show next week button');
+	t.true(output.includes('Week'), 'Should show week information');
 
 	// Document the expected auto-focus behavior
 	t.pass(
-		'Auto-focus behavior documented: after week navigation (prev/next/today), focus returns to timetable',
+		'Auto-focus behavior documented: after week navigation (Shift+Arrow/today), focus returns to timetable',
 	);
 });
 
@@ -84,15 +83,14 @@ test('WeeklyTimetableView focus management integration', t => {
 	const output = lastFrame()!;
 
 	// Should show the complete interface structure
-	t.true(output.includes('Previous Week'), 'Should show navigation');
-	t.true(output.includes('Next Week'), 'Should show navigation');
+	t.true(output.includes('Week'), 'Should show week information');
 
 	// The expected flow:
-	// 1. User tabs to "Next Week" button
-	// 2. User presses Enter -> navigateToNextWeek() called
-	// 3. navigateToNextWeek() sets new week AND calls setActiveArea('timetable') + setShouldFocusCell(true)
+	// 1. User presses Shift+Arrow keys for week navigation
+	// 2. TimetableGrid handles the navigation and calls onWeekChange
+	// 3. navigateToNextWeek() sets new week AND calls setActiveArea('timetable')
 	// 4. Focus automatically returns to timetable grid
-	// 5. User doesn't need to manually tab back to the table
+	// 5. User doesn't need to manually navigate back to the table
 
 	t.pass(
 		'Focus management integration verified: week navigation automatically returns focus to timetable',

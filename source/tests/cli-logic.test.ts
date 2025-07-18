@@ -20,7 +20,12 @@ function setupMockFetch(response: typeof mockFetchResponse) {
 		if (!mockFetchResponse) {
 			throw new Error('No mock response configured');
 		}
-		return mockFetchResponse as Response;
+		return {
+			...mockFetchResponse,
+			headers: {
+				entries: () => [],
+			},
+		} as unknown as Response;
 	};
 }
 

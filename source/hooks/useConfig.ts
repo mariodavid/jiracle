@@ -25,9 +25,6 @@ export function useConfig(providedConfig?: JiraConfig): UseConfigResult {
 	useEffect(() => {
 		async function loadConfigAndUser() {
 			try {
-				// Add a minimum delay for the banner/loading effect
-				await new Promise(resolve => setTimeout(resolve, 2000));
-
 				let parsedConfig: JiraConfig;
 
 				if (providedConfig) {

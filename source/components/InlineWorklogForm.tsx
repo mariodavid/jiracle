@@ -11,18 +11,29 @@ interface InlineWorklogFormProps {
 	date: Date;
 	defaultTimeSpent?: string;
 	defaultComment?: string;
-	onSubmit: (data: {timeSpent: string; comment: string}) => void;
+	onSubmit: (data: {
+		issueKey: string;
+		timeSpent: string;
+		comment: string;
+		date: Date;
+		worklogId?: string; // For edit mode
+	}) => void;
 	onCancel: () => void;
 	isSubmitting?: boolean;
 	error?: string | null;
 	config?: JiraConfig;
 	isFavorite?: boolean;
+	isIssueKeyEditable?: boolean;
+	// Edit mode props
+	isEditMode?: boolean;
+	worklogId?: string;
 }
 
-type FocusArea = 'time' | 'comment' | 'submit' | 'cancel';
+type FocusArea = 'issueKey' | 'date' | 'time' | 'comment' | 'submit' | 'cancel';
 
 export function InlineWorklogForm({
 	issueKey,
+	date,
 	defaultTimeSpent,
 	defaultComment = '',
 	onSubmit,
@@ -31,6 +42,9 @@ export function InlineWorklogForm({
 	error = null,
 	config,
 	isFavorite = false,
+	isIssueKeyEditable = false,
+	isEditMode = false,
+	worklogId,
 }: InlineWorklogFormProps) {
 	// Determine default time based on configuration
 	const getDefaultTime = () => {
@@ -46,6 +60,11 @@ export function InlineWorklogForm({
 		return '1h';
 	};
 
+	const [currentIssueKey, setCurrentIssueKey] = useState(issueKey);
+	const [currentDate, setCurrentDate] = useState(date);
+	const [dateInputValue, setDateInputValue] = useState(
+		date.toISOString().split('T')[0], // YYYY-MM-DD format
+	);
 	const [selectedTime, setSelectedTime] = useState(() => {
 		return getDefaultTime();
 	});
@@ -53,7 +72,9 @@ export function InlineWorklogForm({
 		return getDefaultTime();
 	});
 	const [comment, setComment] = useState(defaultComment);
-	const [focusArea, setFocusArea] = useState<FocusArea>('time');
+	const [focusArea, setFocusArea] = useState<FocusArea>(
+		isIssueKeyEditable ? 'issueKey' : 'time',
+	);
 	const submittingRef = useRef(false);
 
 	const {isFocused} = useFocus({autoFocus: true});
@@ -79,8 +100,20 @@ export function InlineWorklogForm({
 			if (key.tab) {
 				if (key.shift) {
 					// Shift+Tab for reverse navigation
-					if (focusArea === 'time') {
+					if (focusArea === 'issueKey') {
 						setFocusArea('cancel');
+					} else if (focusArea === 'date') {
+						if (isIssueKeyEditable) {
+							setFocusArea('issueKey');
+						} else {
+							setFocusArea('cancel');
+						}
+					} else if (focusArea === 'time') {
+						if (isIssueKeyEditable) {
+							setFocusArea('date');
+						} else {
+							setFocusArea('cancel');
+						}
 					} else if (focusArea === 'comment') {
 						// Normalize time when leaving time field
 						normalizeTimeOnBlur(timeInputValue);
@@ -92,7 +125,15 @@ export function InlineWorklogForm({
 					}
 				} else {
 					// Regular Tab for forward navigation
-					if (focusArea === 'time') {
+					if (focusArea === 'issueKey') {
+						if (isIssueKeyEditable) {
+							setFocusArea('date');
+						} else {
+							setFocusArea('time');
+						}
+					} else if (focusArea === 'date') {
+						setFocusArea('time');
+					} else if (focusArea === 'time') {
 						// Normalize time when leaving time field
 						normalizeTimeOnBlur(timeInputValue);
 						setFocusArea('comment');
@@ -101,7 +142,11 @@ export function InlineWorklogForm({
 					} else if (focusArea === 'submit') {
 						setFocusArea('cancel');
 					} else if (focusArea === 'cancel') {
-						setFocusArea('time');
+						if (isIssueKeyEditable) {
+							setFocusArea('issueKey');
+						} else {
+							setFocusArea('time');
+						}
 					}
 				}
 				return;
@@ -142,6 +187,75 @@ export function InlineWorklogForm({
 		return inputValue;
 	};
 
+	// Simple date input component using useInput
+	const SimpleDateInput = ({
+		value,
+		onChange,
+		onSubmit,
+		isActive,
+	}: {
+		value: string;
+		onChange: (value: string) => void;
+		onSubmit: () => void;
+		isActive: boolean;
+	}) => {
+		const [inputValue, setInputValue] = useState(value);
+
+		useInput(
+			(input, key) => {
+				if (!isActive) return;
+
+				if (key.return) {
+					onChange(inputValue);
+					onSubmit();
+					return;
+				}
+
+				if (key.backspace || key.delete) {
+					if (inputValue.length > 0) {
+						const newValue = inputValue.slice(0, -1);
+						setInputValue(newValue);
+					}
+					return;
+				}
+
+				// Only allow digits and hyphens
+				if (/[\d-]/.test(input)) {
+					const newValue = inputValue + input;
+					if (newValue.length <= 10) {
+						// Max length for YYYY-MM-DD
+						setInputValue(newValue);
+						onChange(newValue);
+					}
+				}
+			},
+			{isActive},
+		);
+
+		return (
+			<Text color={isActive ? 'white' : 'gray'}>
+				{inputValue}
+				{isActive && '|'}
+			</Text>
+		);
+	};
+
+	const handleDateChange = (value: string) => {
+		setDateInputValue(value);
+
+		// Only update the date state if it's a valid date format
+		if (value.match(/^\d{4}-\d{2}-\d{2}$/)) {
+			try {
+				const newDate = new Date(value + 'T00:00:00.000Z');
+				if (!isNaN(newDate.getTime())) {
+					setCurrentDate(newDate);
+				}
+			} catch (error) {
+				// Ignore invalid dates
+			}
+		}
+	};
+
 	const handleSubmit = useCallback(() => {
 		uiLogger.debug('InlineWorklogForm: handleSubmit called', {
 			isSubmitting,
@@ -160,8 +274,23 @@ export function InlineWorklogForm({
 		// Set ref immediately (synchronous)
 		submittingRef.current = true;
 		const timeSpent = selectedTime;
-		onSubmit({timeSpent, comment});
-	}, [isSubmitting, selectedTime, comment, onSubmit]);
+		onSubmit({
+			issueKey: currentIssueKey,
+			timeSpent,
+			comment,
+			date: currentDate,
+			...(isEditMode && worklogId && {worklogId}),
+		});
+	}, [
+		isSubmitting,
+		selectedTime,
+		comment,
+		currentIssueKey,
+		currentDate,
+		onSubmit,
+		isEditMode,
+		worklogId,
+	]);
 
 	const renderButtons = () => {
 		return (
@@ -187,19 +316,16 @@ export function InlineWorklogForm({
 	// Show loading screen when submitting
 	if (isSubmitting) {
 		return (
-			<Box flexDirection="column" minHeight={10}>
-				{/* Loading content */}
-				<Box
-					marginTop={3}
-					justifyContent="center"
-					alignItems="center"
-					minHeight={8}
-				>
-					<Box flexDirection="row" alignItems="center">
-						<Spinner type="dots" />
-						<Box marginLeft={1}>
-							<Text color="yellow">Submitting Worklog</Text>
-						</Box>
+			<Box
+				width="100%"
+				justifyContent="center"
+				alignItems="center"
+				paddingY={5}
+			>
+				<Box flexDirection="row" alignItems="center">
+					<Spinner type="dots" />
+					<Box marginLeft={1}>
+						<Text>Submitting Worklog</Text>
 					</Box>
 				</Box>
 			</Box>
@@ -208,51 +334,79 @@ export function InlineWorklogForm({
 
 	return (
 		<Box flexDirection="column" minHeight={10}>
-			{/* Main Content */}
-			<Box marginTop={1} flexDirection="row" minHeight={8}>
-				{/* Left Column: Time Selection */}
-				<Box flexDirection="column" width={25} minHeight={8}>
-					<Text color="yellow">Time spent:</Text>
+			{/* Issue Key Input - only if editable */}
+			{isIssueKeyEditable && (
+				<Box marginTop={1} flexDirection="column">
+					<Text color="yellow">Issue Key:</Text>
 					<Box marginTop={1}>
-						{focusArea === 'time' ? (
-							<DurationInput
-								value={timeInputValue}
-								onChange={handleTimeInputChange}
-								onSubmit={() => setFocusArea('comment')}
-								compact={true}
-								config={config}
-								issueSelectionMode={isFavorite ? 'favorites' : null}
-								incrementMinutes={60}
-							/>
-						) : (
-							<Box>
-								<Text color="gray">{timeInputValue}</Text>
-							</Box>
-						)}
-					</Box>
-				</Box>
-
-				{/* Separator */}
-				<Box marginX={2}>
-					<Text color="gray">│</Text>
-				</Box>
-
-				{/* Right Column: Comment */}
-				<Box flexDirection="column" flexGrow={1} minHeight={8}>
-					<Text color="yellow">Comment:</Text>
-					<Box marginTop={1} height={4}>
 						<TextInput
-							defaultValue={comment}
-							onChange={setComment}
-							onSubmit={handleSubmit}
-							placeholder="Enter work description..."
-							isDisabled={focusArea !== 'comment'}
+							defaultValue={currentIssueKey}
+							onChange={setCurrentIssueKey}
+							onSubmit={value => {
+								setCurrentIssueKey(value);
+								setFocusArea('date');
+							}}
+							placeholder="e.g. DEF-123, AD-456..."
+							isDisabled={focusArea !== 'issueKey'}
 						/>
 					</Box>
-					<Box marginTop={2} justifyContent="flex-end">
-						{renderButtons()}
+				</Box>
+			)}
+
+			{/* Date Input - only if issue key is editable */}
+			{isIssueKeyEditable && (
+				<Box marginTop={1} flexDirection="column">
+					<Text color="yellow">Date:</Text>
+					<Box marginTop={1}>
+						<SimpleDateInput
+							value={dateInputValue || ''}
+							onChange={handleDateChange}
+							onSubmit={() => setFocusArea('time')}
+							isActive={focusArea === 'date'}
+						/>
 					</Box>
 				</Box>
+			)}
+
+			{/* Time Input */}
+			<Box marginTop={1} flexDirection="column">
+				<Text color="yellow">Time spent:</Text>
+				<Box marginTop={1}>
+					{focusArea === 'time' ? (
+						<DurationInput
+							value={timeInputValue}
+							onChange={handleTimeInputChange}
+							onSubmit={() => setFocusArea('comment')}
+							compact={true}
+							config={config}
+							issueSelectionMode={isFavorite ? 'favorites' : null}
+							incrementMinutes={60}
+						/>
+					) : (
+						<Box>
+							<Text color="gray">{timeInputValue}</Text>
+						</Box>
+					)}
+				</Box>
+			</Box>
+
+			{/* Comment Input */}
+			<Box marginTop={1} flexDirection="column">
+				<Text color="yellow">Comment:</Text>
+				<Box marginTop={1}>
+					<TextInput
+						defaultValue={comment}
+						onChange={setComment}
+						onSubmit={handleSubmit}
+						placeholder="Enter work description..."
+						isDisabled={focusArea !== 'comment'}
+					/>
+				</Box>
+			</Box>
+
+			{/* Buttons */}
+			<Box marginTop={2} justifyContent="flex-start">
+				{renderButtons()}
 			</Box>
 
 			{/* Error Display */}
