@@ -12,18 +12,13 @@ import {CheckinConfirmation} from './CheckinConfirmation.js';
 import {CheckoutConfirmation} from './CheckoutConfirmation.js';
 import {ConfirmationDialog} from './ConfirmationDialog.js';
 import {TitleBar} from './TitleBar.js';
-import {AttendanceManager} from '../attendance/AttendanceManager.js';
 import {AttendanceEditForm} from './AttendanceEditForm.js';
-import type {Attendance} from '../attendance/types.js';
 import {useWeeklyWorklogSummary} from '../hooks/useWeeklyWorklogSummary.js';
 import {useWorklogForm} from '../hooks/useWorklogForm.js';
 import {useDeleteOperations} from '../hooks/useDeleteOperations.js';
+import {useAttendanceManagement} from '../hooks/useAttendanceManagement.js';
 import type {JiraConfig} from '../jira-client.js';
-import {
-	getStartOfWeek,
-	getEndOfWeek,
-	formatLocalDateKey,
-} from '../utils/date.js';
+import {getStartOfWeek, getEndOfWeek} from '../utils/date.js';
 import {
 	isBrowserOpenSupported,
 	openInBrowser,
@@ -51,13 +46,6 @@ export function WeeklyTimetableView({
 		| 'checkin-confirmation'
 		| 'checkout-confirmation'
 	>('timetable');
-	const [attendanceManager, setAttendanceManager] =
-		useState<AttendanceManager | null>(null);
-	const [attendanceRefreshKey, setAttendanceRefreshKey] = useState(0);
-	const [attendanceEdit, setAttendanceEdit] = useState<{
-		date: Date;
-		data?: Attendance;
-	} | null>(null);
 
 	// Format date for display
 	const formatDate = (date: Date) => {
@@ -118,6 +106,23 @@ export function WeeklyTimetableView({
 		data,
 	});
 
+	// Attendance management state
+	const {
+		attendanceManager,
+		attendanceRefreshKey,
+		attendanceEdit,
+		handleAttendanceEdit,
+		handleAttendanceSubmit,
+		handleAttendanceCancel,
+		handleCheckinConfirm,
+		handleCheckoutConfirm,
+		refreshAttendance,
+	} = useAttendanceManagement({
+		config,
+		onRefresh: refresh,
+		onActiveAreaChange: (area: string) => setActiveArea(area as any),
+	});
+
 	// Delete operations state management
 	const {
 		deleteCandidate,
@@ -135,20 +140,12 @@ export function WeeklyTimetableView({
 		onRefresh: refresh,
 		onActiveAreaChange: (area: string) => setActiveArea(area as any),
 		attendanceManager,
-		onAttendanceRefresh: () => setAttendanceRefreshKey(prev => prev + 1),
+		onAttendanceRefresh: refreshAttendance,
 	});
 
 	// Always use fresh data from the hook
 	const displayData = data;
 	const displayLoading = isLoading;
-
-	// Initialize attendance manager
-	useEffect(() => {
-		if (config.attendance?.enabled) {
-			const manager = new AttendanceManager(config.attendance);
-			setAttendanceManager(manager);
-		}
-	}, [config.attendance]);
 
 	// Refresh data when component mounts
 	useEffect(() => {
@@ -182,54 +179,6 @@ export function WeeklyTimetableView({
 		setActiveArea('timetable');
 	};
 
-	const handleAttendanceEdit = async (data: {date: Date}) => {
-		if (!attendanceManager) return;
-
-		try {
-			// Load existing attendance data for this date
-			// Use local date format to avoid timezone issues
-			const dateKey = formatLocalDateKey(data.date);
-			// Load attendance data directly for this specific date
-			const storage = (attendanceManager as any).storage;
-			const existingData = await storage.getByDate(dateKey);
-
-			setAttendanceEdit({
-				date: data.date,
-				data: existingData || undefined,
-			});
-			setActiveArea('attendance-edit');
-		} catch (error) {
-			console.error('Failed to load attendance data:', error);
-			// Still allow editing with defaults
-			setAttendanceEdit({
-				date: data.date,
-				data: undefined,
-			});
-			setActiveArea('attendance-edit');
-		}
-	};
-
-	const handleAttendanceSubmit = async (data: Attendance) => {
-		if (!attendanceManager) return;
-
-		try {
-			await attendanceManager.updateAttendance(data);
-			setAttendanceEdit(null);
-			setActiveArea('timetable');
-			// Refresh the data to show the updated attendance
-			refresh();
-			// Force attendance data refresh in TimetableGrid
-			setAttendanceRefreshKey(prev => prev + 1);
-		} catch (error) {
-			console.error('Failed to save attendance:', error);
-		}
-	};
-
-	const handleAttendanceCancel = () => {
-		setAttendanceEdit(null);
-		setActiveArea('timetable');
-	};
-
 	const handleOpenInBrowser = async (issueKey: string) => {
 		if (!config.jiraUrl) return;
 		try {
@@ -237,38 +186,6 @@ export function WeeklyTimetableView({
 			await openInBrowser(url);
 		} catch (error) {
 			console.error('Failed to open browser:', error);
-		}
-	};
-
-	const handleCheckinConfirm = async (confirmed: boolean) => {
-		if (!confirmed || !attendanceManager) {
-			setActiveArea('timetable');
-			return;
-		}
-
-		try {
-			await attendanceManager.checkIn();
-			setAttendanceRefreshKey(prev => prev + 1); // Trigger refresh
-			setActiveArea('timetable');
-		} catch (error) {
-			console.error('Error checking in:', error);
-			setActiveArea('timetable');
-		}
-	};
-
-	const handleCheckoutConfirm = async (confirmed: boolean) => {
-		if (!confirmed || !attendanceManager) {
-			setActiveArea('timetable');
-			return;
-		}
-
-		try {
-			await attendanceManager.checkOut();
-			setAttendanceRefreshKey(prev => prev + 1); // Trigger refresh
-			setActiveArea('timetable');
-		} catch (error) {
-			console.error('Error checking out:', error);
-			setActiveArea('timetable');
 		}
 	};
 
