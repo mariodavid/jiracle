@@ -402,3 +402,126 @@ test('should handle cross-day time spans correctly', t => {
 	// If the implementation returns 0 for negative time spans, that's acceptable for now
 	t.true(totalHours === 7.5 || totalHours === 0 || totalHours === undefined);
 });
+
+test('should calculate daily deltas correctly', t => {
+	const weeklyAttendance: WeeklyAttendance = {
+		'2025-07-07': {
+			date: '2025-07-07',
+			checkIn: '08:00',
+			checkOut: '17:00',
+			breakMinutes: 30,
+			totalHours: 8.5,
+		},
+		'2025-07-08': {
+			date: '2025-07-08',
+			checkIn: '08:00',
+			checkOut: '16:00',
+			breakMinutes: 30,
+			totalHours: 7.5,
+		},
+		// No attendance data for 2025-07-09
+	};
+
+	const dailyLoggedHours: Record<string, number> = {
+		'2025-07-07': 8.0, // Logged less than attended
+		'2025-07-08': 8.0, // Logged more than attended
+		'2025-07-09': 6.0, // Logged hours but no attendance
+	};
+
+	const weekDates = ['2025-07-07', '2025-07-08', '2025-07-09'];
+
+	const deltas = AttendanceCalculations.calculateDailyDeltas(
+		weeklyAttendance,
+		dailyLoggedHours,
+		weekDates,
+	);
+
+	t.is(deltas['2025-07-07'], -0.5); // 8.0 - 8.5 = -0.5
+	t.is(deltas['2025-07-08'], 0.5); // 8.0 - 7.5 = 0.5
+	t.is(deltas['2025-07-09'], null); // No attendance data
+});
+
+test('should calculate daily deltas with zero logged hours', t => {
+	const weeklyAttendance: WeeklyAttendance = {
+		'2025-07-07': {
+			date: '2025-07-07',
+			checkIn: '08:00',
+			checkOut: '17:00',
+			breakMinutes: 30,
+			totalHours: 8.5,
+		},
+	};
+
+	const dailyLoggedHours: Record<string, number> = {
+		'2025-07-07': 0, // No logged hours
+	};
+
+	const weekDates = ['2025-07-07'];
+
+	const deltas = AttendanceCalculations.calculateDailyDeltas(
+		weeklyAttendance,
+		dailyLoggedHours,
+		weekDates,
+	);
+
+	t.is(deltas['2025-07-07'], -8.5); // 0 - 8.5 = -8.5
+});
+
+test('should handle incomplete attendance data in delta calculation', t => {
+	const weeklyAttendance: WeeklyAttendance = {
+		'2025-07-07': {
+			date: '2025-07-07',
+			checkIn: '08:00',
+			// Missing checkOut
+			breakMinutes: 30,
+		},
+		'2025-07-08': {
+			date: '2025-07-08',
+			// Missing checkIn
+			checkOut: '17:00',
+			breakMinutes: 30,
+		},
+	};
+
+	const dailyLoggedHours: Record<string, number> = {
+		'2025-07-07': 8.0,
+		'2025-07-08': 8.0,
+	};
+
+	const weekDates = ['2025-07-07', '2025-07-08'];
+
+	const deltas = AttendanceCalculations.calculateDailyDeltas(
+		weeklyAttendance,
+		dailyLoggedHours,
+		weekDates,
+	);
+
+	t.is(deltas['2025-07-07'], null); // Incomplete attendance data
+	t.is(deltas['2025-07-08'], null); // Incomplete attendance data
+});
+
+test('should calculate deltas with missing logged hours', t => {
+	const weeklyAttendance: WeeklyAttendance = {
+		'2025-07-07': {
+			date: '2025-07-07',
+			checkIn: '08:00',
+			checkOut: '17:00',
+			breakMinutes: 30,
+			totalHours: 8.5,
+		},
+	};
+
+	const dailyLoggedHours: Record<string, number> = {
+		// No logged hours for 2025-07-07
+	};
+
+	const weekDates = ['2025-07-07'];
+
+	const deltas = AttendanceCalculations.calculateDailyDeltas(
+		weeklyAttendance,
+		dailyLoggedHours,
+		weekDates,
+	);
+
+	t.is(deltas['2025-07-07'], -8.5); // 0 - 8.5 = -8.5 (default to 0 for missing logged hours)
+});
