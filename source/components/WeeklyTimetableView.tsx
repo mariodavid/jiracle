@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useEffect} from 'react';
 import {Box, Text, useInput} from 'ink';
 import {Alert} from '@inkjs/ui';
 import Gradient from 'ink-gradient';
@@ -17,6 +17,7 @@ import {useWeeklyWorklogSummary} from '../hooks/useWeeklyWorklogSummary.js';
 import {useWorklogForm} from '../hooks/useWorklogForm.js';
 import {useDeleteOperations} from '../hooks/useDeleteOperations.js';
 import {useAttendanceManagement} from '../hooks/useAttendanceManagement.js';
+import {useNavigationState} from '../hooks/useNavigationState.js';
 import type {JiraConfig} from '../jira-client.js';
 import {getStartOfWeek, getEndOfWeek} from '../utils/date.js';
 import {
@@ -36,16 +37,15 @@ export function WeeklyTimetableView({
 	config,
 	userEmail,
 }: WeeklyTimetableViewProps) {
-	const [currentWeek, setCurrentWeek] = useState(new Date());
-	const [activeArea, setActiveArea] = useState<
-		| 'timetable'
-		| 'worklog-form'
-		| 'delete-confirmation'
-		| 'delete-attendance-confirmation'
-		| 'attendance-edit'
-		| 'checkin-confirmation'
-		| 'checkout-confirmation'
-	>('timetable');
+	// Navigation state management
+	const {
+		currentWeek,
+		activeArea,
+		navigateToPreviousWeek,
+		navigateToNextWeek,
+		navigateToCurrentWeek,
+		setActiveArea,
+	} = useNavigationState();
 
 	// Format date for display
 	const formatDate = (date: Date) => {
@@ -157,28 +157,6 @@ export function WeeklyTimetableView({
 		return () => clearTimeout(timer);
 	}, []); // Empty dependency array means this runs only on mount
 
-	const navigateToPreviousWeek = () => {
-		const newWeek = new Date(currentWeek);
-		newWeek.setDate(currentWeek.getDate() - 7);
-		setCurrentWeek(newWeek);
-		// Return focus to table after navigation
-		setActiveArea('timetable');
-	};
-
-	const navigateToNextWeek = () => {
-		const newWeek = new Date(currentWeek);
-		newWeek.setDate(currentWeek.getDate() + 7);
-		setCurrentWeek(newWeek);
-		// Return focus to table after navigation
-		setActiveArea('timetable');
-	};
-
-	const handleCurrentWeek = () => {
-		setCurrentWeek(new Date());
-		// Return focus to table after navigation
-		setActiveArea('timetable');
-	};
-
 	const handleOpenInBrowser = async (issueKey: string) => {
 		if (!config.jiraUrl) return;
 		try {
@@ -208,7 +186,7 @@ export function WeeklyTimetableView({
 			onBack();
 		} else if (input === 't') {
 			// Go to current week, but stay in the same mode (attendance or worklog)
-			handleCurrentWeek();
+			navigateToCurrentWeek();
 		} else if (input === 'r') {
 			// Refresh data, but stay in the same mode
 			refresh();
