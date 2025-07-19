@@ -4,14 +4,14 @@ import {Alert} from '@inkjs/ui';
 import Gradient from 'ink-gradient';
 import BigText from 'ink-big-text';
 import {TimetableGrid} from './TimetableGrid.js';
-import {InlineWorklogForm} from './InlineWorklogForm.js';
 import {TitleBar} from './TitleBar.js';
-import {AttendanceEditForm} from './AttendanceEditForm.js';
 import {
 	DeleteWorklogConfirmationArea,
 	DeleteAttendanceConfirmationArea,
 	CheckinConfirmationArea,
 	CheckoutConfirmationArea,
+	WorklogFormArea,
+	AttendanceEditFormArea,
 } from './areas/index.js';
 import {useWeeklyWorklogSummary} from '../hooks/useWeeklyWorklogSummary.js';
 import {useWorklogForm} from '../hooks/useWorklogForm.js';
@@ -251,35 +251,14 @@ export function WeeklyTimetableView({
 				{/* Conditional content: table, form, delete confirmation, or attendance edit */}
 				{worklogForm.isVisible ? (
 					/* Inline Worklog Form - replaces table */
-					<Box justifyContent="center">
-						<Box
-							width={68}
-							{...(!worklogSubmitting && {
-								borderStyle: 'round',
-								borderColor: 'cyan',
-							})}
-							paddingX={1}
-							paddingY={1}
-						>
-							<InlineWorklogForm
-								issueKey={worklogForm.issueKey}
-								date={worklogForm.date}
-								defaultTimeSpent={worklogForm.timeSpent}
-								defaultComment={worklogForm.comment}
-								onSubmit={handleWorklogSubmit}
-								onCancel={handleWorklogCancel}
-								isSubmitting={worklogSubmitting}
-								error={worklogError}
-								config={config}
-								isFavorite={config?.favorites?.some(
-									fav => fav.key === worklogForm.issueKey,
-								)}
-								isIssueKeyEditable={worklogForm.isIssueKeyEditable}
-								isEditMode={worklogForm.isEditMode}
-								worklogId={worklogForm.worklogId}
-							/>
-						</Box>
-					</Box>
+					<WorklogFormArea
+						worklogForm={worklogForm}
+						worklogSubmitting={worklogSubmitting}
+						worklogError={worklogError}
+						config={config}
+						onSubmit={handleWorklogSubmit}
+						onCancel={handleWorklogCancel}
+					/>
 				) : activeArea === 'delete-confirmation' && deleteCandidate ? (
 					/* Delete Confirmation - replaces table */
 					<DeleteWorklogConfirmationArea
@@ -305,23 +284,12 @@ export function WeeklyTimetableView({
 					<CheckoutConfirmationArea onConfirm={handleCheckoutConfirm} />
 				) : activeArea === 'attendance-edit' && attendanceEdit ? (
 					/* Attendance Edit Form - replaces table */
-					<Box justifyContent="center">
-						<Box
-							width={50}
-							borderStyle="round"
-							borderColor="cyan"
-							paddingX={1}
-							paddingY={1}
-						>
-							<AttendanceEditForm
-								date={attendanceEdit.date}
-								initialData={attendanceEdit.data}
-								onSubmit={handleAttendanceSubmit}
-								onCancel={handleAttendanceCancel}
-								config={config}
-							/>
-						</Box>
-					</Box>
+					<AttendanceEditFormArea
+						attendanceEdit={attendanceEdit}
+						config={config}
+						onSubmit={handleAttendanceSubmit}
+						onCancel={handleAttendanceCancel}
+					/>
 				) : (
 					/* Timetable Grid */
 					<TimetableGrid
