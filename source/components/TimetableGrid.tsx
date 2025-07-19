@@ -756,13 +756,19 @@ export function TimetableGrid({
 						{' '}
 					</Text>
 				</Box>
-				{DAYS.map(day => (
-					<Box key={day} width={12} justifyContent="flex-end">
-						<Text bold color="white">
-							{day}
-						</Text>
-					</Box>
-				))}
+				{DAYS.map((day, index) => {
+					const date = weekDates[index];
+					const dayMonth = date
+						? `(${date.getDate()}.${date.getMonth() + 1})`
+						: '';
+					return (
+						<Box key={day} width={12} justifyContent="flex-end">
+							<Text bold color="white">
+								{day} {dayMonth}
+							</Text>
+						</Box>
+					);
+				})}
 				<Box width={8} justifyContent="flex-end">
 					<Text bold color="white">
 						Total
