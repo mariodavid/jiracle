@@ -21,6 +21,7 @@ import {
 	FocusableItemCalculator,
 	type FocusableItem,
 } from '../utils/FocusableItemCalculator.js';
+import {GridNavigationService} from '../services/GridNavigationService.js';
 
 export interface TimetableGridProps {
 	data: WeeklyWorklogSummary | null;
@@ -176,33 +177,22 @@ export function TimetableGrid({
 	useEffect(() => {
 		if (focusedCell === null && isActive) {
 			const focusableItems = getAllFocusableItems();
-			if (focusableItems.length > 0) {
-				// Find current day column index (0=Monday, 1=Tuesday, ..., 4=Friday)
-				const today = new Date();
-				const todayDayOfWeek = today.getDay(); // 0=Sunday, 1=Monday, ..., 6=Saturday
 
-				// Convert to our week format (0=Monday, 1=Tuesday, ..., 4=Friday)
-				// Monday=1->0, Tuesday=2->1, Wednesday=3->2, Thursday=4->3, Friday=5->4
-				// For weekend days (Saturday=6, Sunday=0), default to Monday (0)
-				let todayColumnIndex = 0; // Default to Monday
-				if (todayDayOfWeek >= 1 && todayDayOfWeek <= 5) {
-					todayColumnIndex = todayDayOfWeek - 1; // Convert to 0-based weekday index
-				}
+			// Calculate preferred column index (today's weekday)
+			const today = new Date();
+			const todayDayOfWeek = today.getDay(); // 0=Sunday, 1=Monday, ..., 6=Saturday
+			const todayColumnIndex =
+				todayDayOfWeek >= 1 && todayDayOfWeek <= 5
+					? todayDayOfWeek - 1 // Monday=0, Tuesday=1, ..., Friday=4
+					: 0; // Default to Monday for weekends
 
-				// Find the first item for today's column
-				const todayFirstItem = focusableItems.find(
-					item => item.columnIndex === todayColumnIndex,
-				);
+			const initialItem = GridNavigationService.findInitialFocusItem(
+				focusableItems,
+				todayColumnIndex,
+			);
 
-				if (todayFirstItem) {
-					focus(todayFirstItem.focusId);
-				} else {
-					// Fallback to first item if today's column is not found
-					const firstItem = focusableItems[0];
-					if (firstItem) {
-						focus(firstItem.focusId);
-					}
-				}
+			if (initialItem) {
+				focus(initialItem.focusId);
 			}
 		}
 	}, [focusedCell, isActive, getAllFocusableItems, focus]);
@@ -213,100 +203,13 @@ export function TimetableGrid({
 			if (!focusedCell) return;
 
 			const focusableItems = getAllFocusableItems();
-			const currentIndex = focusableItems.findIndex(
-				item =>
-					item.issueKey === focusedCell.issueKey &&
-					item.columnIndex === focusedCell.columnIndex,
-			);
+			const result = GridNavigationService.navigateInDirection(direction, {
+				focusedCell,
+				focusableItems,
+			});
 
-			if (currentIndex === -1) return;
-
-			let newIndex: number;
-
-			switch (direction) {
-				case 'up': {
-					// Move to previous row (same column) with wraparound
-					const currentColumnIndex = focusedCell.columnIndex;
-					const sameDayItems = focusableItems.filter(
-						item => item.columnIndex === currentColumnIndex,
-					);
-					const currentRowIndex = sameDayItems.findIndex(
-						item => item.issueKey === focusedCell.issueKey,
-					);
-
-					// Wrap to bottom if at top, otherwise go up
-					const targetRowIndex =
-						currentRowIndex > 0 ? currentRowIndex - 1 : sameDayItems.length - 1; // Wrap to bottom row
-
-					const targetItem = sameDayItems[targetRowIndex];
-					if (targetItem) {
-						newIndex = focusableItems.findIndex(
-							item =>
-								item.issueKey === targetItem.issueKey &&
-								item.columnIndex === targetItem.columnIndex,
-						);
-					} else {
-						return;
-					}
-					break;
-				}
-				case 'down': {
-					// Move to next row (same column) with wraparound
-					const currentColumnIndex = focusedCell.columnIndex;
-					const sameDayItems = focusableItems.filter(
-						item => item.columnIndex === currentColumnIndex,
-					);
-					const currentRowIndex = sameDayItems.findIndex(
-						item => item.issueKey === focusedCell.issueKey,
-					);
-
-					// Wrap to top if at bottom, otherwise go down
-					const targetRowIndex =
-						currentRowIndex < sameDayItems.length - 1 ? currentRowIndex + 1 : 0; // Wrap to top row
-
-					const targetItem = sameDayItems[targetRowIndex];
-					if (targetItem) {
-						newIndex = focusableItems.findIndex(
-							item =>
-								item.issueKey === targetItem.issueKey &&
-								item.columnIndex === targetItem.columnIndex,
-						);
-					} else {
-						return;
-					}
-					break;
-				}
-				case 'left': {
-					// Move to previous column (same row) with wraparound
-					const targetColumnIndex =
-						focusedCell.columnIndex > 0 ? focusedCell.columnIndex - 1 : 4; // Wrap to rightmost column
-
-					newIndex = focusableItems.findIndex(
-						item =>
-							item.issueKey === focusedCell.issueKey &&
-							item.columnIndex === targetColumnIndex,
-					);
-					break;
-				}
-				case 'right': {
-					// Move to next column (same row) with wraparound
-					const targetColumnIndex =
-						focusedCell.columnIndex < 4 ? focusedCell.columnIndex + 1 : 0; // Wrap to leftmost column
-
-					newIndex = focusableItems.findIndex(
-						item =>
-							item.issueKey === focusedCell.issueKey &&
-							item.columnIndex === targetColumnIndex,
-					);
-					break;
-				}
-			}
-
-			if (newIndex >= 0 && newIndex < focusableItems.length) {
-				const targetItem = focusableItems[newIndex];
-				if (targetItem) {
-					focus(targetItem.focusId);
-				}
+			if (result.success && result.targetItem) {
+				focus(result.targetItem.focusId);
 			}
 		},
 		[focusedCell, getAllFocusableItems, focus],
@@ -317,20 +220,13 @@ export function TimetableGrid({
 		if (!focusedCell) return;
 
 		const focusableItems = getAllFocusableItems();
-		const currentIndex = focusableItems.findIndex(
-			item =>
-				item.issueKey === focusedCell.issueKey &&
-				item.columnIndex === focusedCell.columnIndex,
+		const result = GridNavigationService.navigateToNextItem(
+			{focusedCell, focusableItems},
+			'previous',
 		);
 
-		if (currentIndex === -1) return;
-
-		// Move to previous item with wraparound
-		const newIndex =
-			currentIndex > 0 ? currentIndex - 1 : focusableItems.length - 1;
-		const targetItem = focusableItems[newIndex];
-		if (targetItem) {
-			focus(targetItem.focusId);
+		if (result.success && result.targetItem) {
+			focus(result.targetItem.focusId);
 		}
 	}, [focusedCell, getAllFocusableItems, focus]);
 
