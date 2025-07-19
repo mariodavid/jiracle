@@ -19,6 +19,7 @@ import {useDeleteOperations} from '../hooks/useDeleteOperations.js';
 import {useAttendanceManagement} from '../hooks/useAttendanceManagement.js';
 import {useNavigationState} from '../hooks/useNavigationState.js';
 import {useTitleResolver} from '../hooks/useTitleResolver.js';
+import {useActiveAreaResolver} from '../hooks/useActiveAreaResolver.js';
 import type {JiraConfig} from '../jira-client.js';
 import {getStartOfWeek, getEndOfWeek} from '../utils/date.js';
 import {
@@ -154,6 +155,15 @@ export function WeeklyTimetableView({
 		activeArea,
 	});
 
+	// Active area resolution
+	const resolvedActiveArea = useActiveAreaResolver({
+		activeArea,
+		worklogForm,
+		deleteCandidate,
+		deleteAttendanceCandidate,
+		attendanceEdit,
+	});
+
 	// Always use fresh data from the hook
 	const displayData = data;
 	const displayLoading = isLoading;
@@ -241,79 +251,91 @@ export function WeeklyTimetableView({
 
 			{/* Main Content Area - Fixed Height */}
 			<Box height={40} flexDirection="column">
-				{/* Extra spacing between week navigator and table - only when not in form or delete mode */}
-				{!worklogForm.isVisible &&
-					activeArea !== 'delete-confirmation' &&
-					activeArea !== 'delete-attendance-confirmation' && (
-						<Box paddingY={1} />
-					)}
+				{/* Extra spacing between week navigator and table - only when showing timetable */}
+				{resolvedActiveArea === 'timetable' && <Box paddingY={1} />}
 
 				{/* Conditional content: table, form, delete confirmation, or attendance edit */}
-				{worklogForm.isVisible ? (
-					/* Inline Worklog Form - replaces table */
-					<WorklogFormArea
-						worklogForm={worklogForm}
-						worklogSubmitting={worklogSubmitting}
-						worklogError={worklogError}
-						config={config}
-						onSubmit={handleWorklogSubmit}
-						onCancel={handleWorklogCancel}
-					/>
-				) : activeArea === 'delete-confirmation' && deleteCandidate ? (
-					/* Delete Confirmation - replaces table */
-					<DeleteWorklogConfirmationArea
-						deleteCandidate={deleteCandidate}
-						isDeleting={isDeleting}
-						onConfirm={handleDeleteConfirm}
-						formatDate={formatDate}
-					/>
-				) : activeArea === 'delete-attendance-confirmation' &&
-				  deleteAttendanceCandidate ? (
-					/* Delete Attendance Confirmation - replaces table */
-					<DeleteAttendanceConfirmationArea
-						deleteAttendanceCandidate={deleteAttendanceCandidate}
-						isDeletingAttendance={isDeletingAttendance}
-						onConfirm={handleDeleteAttendanceConfirm}
-						formatDate={formatDate}
-					/>
-				) : activeArea === 'checkin-confirmation' ? (
-					/* Checkin Confirmation - replaces table */
-					<CheckinConfirmationArea onConfirm={handleCheckinConfirm} />
-				) : activeArea === 'checkout-confirmation' ? (
-					/* Checkout Confirmation - replaces table */
-					<CheckoutConfirmationArea onConfirm={handleCheckoutConfirm} />
-				) : activeArea === 'attendance-edit' && attendanceEdit ? (
-					/* Attendance Edit Form - replaces table */
-					<AttendanceEditFormArea
-						attendanceEdit={attendanceEdit}
-						config={config}
-						onSubmit={handleAttendanceSubmit}
-						onCancel={handleAttendanceCancel}
-					/>
-				) : (
-					/* Timetable Grid */
-					<TimetableGrid
-						data={displayData}
-						isLoading={displayLoading}
-						onWeekChange={direction => {
-							if (direction === 'prev') {
-								navigateToPreviousWeek();
-							} else {
-								navigateToNextWeek();
-							}
-						}}
-						onCellWorklog={handleCellWorklog}
-						onCellDelete={handleCellDelete}
-						onAttendanceEdit={handleAttendanceEdit}
-						onAttendanceDelete={handleDeleteAttendance}
-						onOpenInBrowser={handleOpenInBrowser}
-						isActive={activeArea === 'timetable'}
-						favoriteIssues={config.favorites}
-						config={config}
-						attendanceManager={attendanceManager || undefined}
-						attendanceRefreshKey={attendanceRefreshKey}
-					/>
-				)}
+				{(() => {
+					switch (resolvedActiveArea) {
+						case 'worklog-form':
+							return (
+								<WorklogFormArea
+									worklogForm={worklogForm}
+									worklogSubmitting={worklogSubmitting}
+									worklogError={worklogError}
+									config={config}
+									onSubmit={handleWorklogSubmit}
+									onCancel={handleWorklogCancel}
+								/>
+							);
+
+						case 'delete-confirmation':
+							return (
+								<DeleteWorklogConfirmationArea
+									deleteCandidate={deleteCandidate!}
+									isDeleting={isDeleting}
+									onConfirm={handleDeleteConfirm}
+									formatDate={formatDate}
+								/>
+							);
+
+						case 'delete-attendance-confirmation':
+							return (
+								<DeleteAttendanceConfirmationArea
+									deleteAttendanceCandidate={deleteAttendanceCandidate!}
+									isDeletingAttendance={isDeletingAttendance}
+									onConfirm={handleDeleteAttendanceConfirm}
+									formatDate={formatDate}
+								/>
+							);
+
+						case 'checkin-confirmation':
+							return (
+								<CheckinConfirmationArea onConfirm={handleCheckinConfirm} />
+							);
+
+						case 'checkout-confirmation':
+							return (
+								<CheckoutConfirmationArea onConfirm={handleCheckoutConfirm} />
+							);
+
+						case 'attendance-edit':
+							return (
+								<AttendanceEditFormArea
+									attendanceEdit={attendanceEdit!}
+									config={config}
+									onSubmit={handleAttendanceSubmit}
+									onCancel={handleAttendanceCancel}
+								/>
+							);
+
+						case 'timetable':
+						default:
+							return (
+								<TimetableGrid
+									data={displayData}
+									isLoading={displayLoading}
+									onWeekChange={direction => {
+										if (direction === 'prev') {
+											navigateToPreviousWeek();
+										} else {
+											navigateToNextWeek();
+										}
+									}}
+									onCellWorklog={handleCellWorklog}
+									onCellDelete={handleCellDelete}
+									onAttendanceEdit={handleAttendanceEdit}
+									onAttendanceDelete={handleDeleteAttendance}
+									onOpenInBrowser={handleOpenInBrowser}
+									isActive={activeArea === 'timetable'}
+									favoriteIssues={config.favorites}
+									config={config}
+									attendanceManager={attendanceManager || undefined}
+									attendanceRefreshKey={attendanceRefreshKey}
+								/>
+							);
+					}
+				})()}
 
 				{/* Delete error alert */}
 				{deleteError && (
