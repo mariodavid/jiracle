@@ -57,18 +57,23 @@ export function useTitleResolver({
 		} ${date.getDate()}`;
 	};
 
-	// Generate week title
+	// Generate week title (German week: Monday to Friday)
 	const getWeekTitle = (week: Date) => {
 		const startOfWeek = new Date(week);
-		startOfWeek.setDate(week.getDate() - week.getDay());
+		// German week starts on Monday: getDay() returns 0=Sunday, 1=Monday, ..., 6=Saturday
+		// To get Monday as start: if Sunday (0), go back 6 days, otherwise go back (day-1) days
+		const day = startOfWeek.getDay();
+		const daysToSubtract = day === 0 ? 6 : day - 1;
+		startOfWeek.setDate(week.getDate() - daysToSubtract);
 
+		// End of German work week is Friday (4 days after Monday)
 		const endOfWeek = new Date(startOfWeek);
-		endOfWeek.setDate(startOfWeek.getDate() + 6);
+		endOfWeek.setDate(startOfWeek.getDate() + 4);
 
 		const formatWeekDate = (date: Date) => {
 			const month = date.getMonth() + 1;
 			const day = date.getDate();
-			return `${month}/${day}`;
+			return `${day}.${month}`;
 		};
 
 		return `Week ${formatWeekDate(startOfWeek)} - ${formatWeekDate(endOfWeek)}`;

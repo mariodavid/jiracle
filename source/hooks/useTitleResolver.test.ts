@@ -134,7 +134,7 @@ test('useTitleResolver returns week title as default', t => {
 		activeArea: 'timetable',
 	});
 
-	t.is(result.title, 'Week 1/14 - 1/20'); // Sunday 1/14 to Saturday 1/20
+	t.is(result.title, 'Week 15.1 - 19.1'); // Monday 15.1 to Friday 19.1
 	t.is(result.titleColor, undefined);
 });
 
@@ -172,7 +172,7 @@ test('useTitleResolver handles delete confirmation without candidate', t => {
 	});
 
 	// Should fall back to week title
-	t.is(result.title, 'Week 1/14 - 1/20');
+	t.is(result.title, 'Week 15.1 - 19.1');
 	t.is(result.titleColor, undefined);
 });
 
@@ -187,7 +187,7 @@ test('useTitleResolver handles attendance edit without data', t => {
 	});
 
 	// Should fall back to week title
-	t.is(result.title, 'Week 1/14 - 1/20');
+	t.is(result.title, 'Week 15.1 - 19.1');
 	t.is(result.titleColor, undefined);
 });
 
@@ -226,9 +226,9 @@ test('useTitleResolver formats different weekdays correctly', t => {
 });
 
 test('useTitleResolver handles different months in week title', t => {
-	// Week spanning December 2023 to January 2024
+	// Week in January 2024 (German week: Monday to Friday)
 	const result = useTitleResolver({
-		currentWeek: new Date('2024-01-01'), // Monday, but week starts on Sunday 12/31/2023
+		currentWeek: new Date('2024-01-01'), // Monday Jan 1st
 		worklogForm: createWorklogForm(),
 		deleteCandidate: null,
 		deleteAttendanceCandidate: null,
@@ -236,12 +236,12 @@ test('useTitleResolver handles different months in week title', t => {
 		activeArea: 'timetable',
 	});
 
-	t.is(result.title, 'Week 12/31 - 1/6');
+	t.is(result.title, 'Week 1.1 - 5.1'); // Monday 1.1 to Friday 5.1
 	t.is(result.titleColor, undefined);
 });
 
 test('useTitleResolver handles year boundary correctly', t => {
-	// Test last week of year
+	// Test year boundary: week spanning December 2024 to January 2025
 	const result = useTitleResolver({
 		currentWeek: new Date('2024-12-30'), // Monday
 		worklogForm: createWorklogForm(),
@@ -251,6 +251,6 @@ test('useTitleResolver handles year boundary correctly', t => {
 		activeArea: 'timetable',
 	});
 
-	t.is(result.title, 'Week 12/29 - 1/4');
+	t.is(result.title, 'Week 30.12 - 3.1'); // Monday 30.12 to Friday 3.1 (next year)
 	t.is(result.titleColor, undefined);
 });
