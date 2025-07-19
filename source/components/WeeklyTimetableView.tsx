@@ -4,14 +4,14 @@ import {Alert} from '@inkjs/ui';
 import Gradient from 'ink-gradient';
 import BigText from 'ink-big-text';
 import {TimetableGrid} from './TimetableGrid.js';
-import {InlineWorklogForm} from './InlineWorklogForm.js';
 import {TitleBar} from './TitleBar.js';
-import {AttendanceEditForm} from './AttendanceEditForm.js';
 import {
 	DeleteWorklogConfirmationArea,
 	DeleteAttendanceConfirmationArea,
 	CheckinConfirmationArea,
 	CheckoutConfirmationArea,
+	WorklogFormArea,
+	AttendanceEditFormArea,
 } from './areas/index.js';
 import {useWeeklyWorklogSummary} from '../hooks/useWeeklyWorklogSummary.js';
 import {useWorklogForm} from '../hooks/useWorklogForm.js';
@@ -19,6 +19,7 @@ import {useDeleteOperations} from '../hooks/useDeleteOperations.js';
 import {useAttendanceManagement} from '../hooks/useAttendanceManagement.js';
 import {useNavigationState} from '../hooks/useNavigationState.js';
 import {useTitleResolver} from '../hooks/useTitleResolver.js';
+import {useActiveAreaResolver} from '../hooks/useActiveAreaResolver.js';
 import type {JiraConfig} from '../jira-client.js';
 import {getStartOfWeek, getEndOfWeek} from '../utils/date.js';
 import {
@@ -154,6 +155,15 @@ export function WeeklyTimetableView({
 		activeArea,
 	});
 
+	// Active area resolution
+	const resolvedActiveArea = useActiveAreaResolver({
+		activeArea,
+		worklogForm,
+		deleteCandidate,
+		deleteAttendanceCandidate,
+		attendanceEdit,
+	});
+
 	// Always use fresh data from the hook
 	const displayData = data;
 	const displayLoading = isLoading;
@@ -241,111 +251,91 @@ export function WeeklyTimetableView({
 
 			{/* Main Content Area - Fixed Height */}
 			<Box height={40} flexDirection="column">
-				{/* Extra spacing between week navigator and table - only when not in form or delete mode */}
-				{!worklogForm.isVisible &&
-					activeArea !== 'delete-confirmation' &&
-					activeArea !== 'delete-attendance-confirmation' && (
-						<Box paddingY={1} />
-					)}
+				{/* Extra spacing between week navigator and table - only when showing timetable */}
+				{resolvedActiveArea === 'timetable' && <Box paddingY={1} />}
 
 				{/* Conditional content: table, form, delete confirmation, or attendance edit */}
-				{worklogForm.isVisible ? (
-					/* Inline Worklog Form - replaces table */
-					<Box justifyContent="center">
-						<Box
-							width={68}
-							{...(!worklogSubmitting && {
-								borderStyle: 'round',
-								borderColor: 'cyan',
-							})}
-							paddingX={1}
-							paddingY={1}
-						>
-							<InlineWorklogForm
-								issueKey={worklogForm.issueKey}
-								date={worklogForm.date}
-								defaultTimeSpent={worklogForm.timeSpent}
-								defaultComment={worklogForm.comment}
-								onSubmit={handleWorklogSubmit}
-								onCancel={handleWorklogCancel}
-								isSubmitting={worklogSubmitting}
-								error={worklogError}
-								config={config}
-								isFavorite={config?.favorites?.some(
-									fav => fav.key === worklogForm.issueKey,
-								)}
-								isIssueKeyEditable={worklogForm.isIssueKeyEditable}
-								isEditMode={worklogForm.isEditMode}
-								worklogId={worklogForm.worklogId}
-							/>
-						</Box>
-					</Box>
-				) : activeArea === 'delete-confirmation' && deleteCandidate ? (
-					/* Delete Confirmation - replaces table */
-					<DeleteWorklogConfirmationArea
-						deleteCandidate={deleteCandidate}
-						isDeleting={isDeleting}
-						onConfirm={handleDeleteConfirm}
-						formatDate={formatDate}
-					/>
-				) : activeArea === 'delete-attendance-confirmation' &&
-				  deleteAttendanceCandidate ? (
-					/* Delete Attendance Confirmation - replaces table */
-					<DeleteAttendanceConfirmationArea
-						deleteAttendanceCandidate={deleteAttendanceCandidate}
-						isDeletingAttendance={isDeletingAttendance}
-						onConfirm={handleDeleteAttendanceConfirm}
-						formatDate={formatDate}
-					/>
-				) : activeArea === 'checkin-confirmation' ? (
-					/* Checkin Confirmation - replaces table */
-					<CheckinConfirmationArea onConfirm={handleCheckinConfirm} />
-				) : activeArea === 'checkout-confirmation' ? (
-					/* Checkout Confirmation - replaces table */
-					<CheckoutConfirmationArea onConfirm={handleCheckoutConfirm} />
-				) : activeArea === 'attendance-edit' && attendanceEdit ? (
-					/* Attendance Edit Form - replaces table */
-					<Box justifyContent="center">
-						<Box
-							width={50}
-							borderStyle="round"
-							borderColor="cyan"
-							paddingX={1}
-							paddingY={1}
-						>
-							<AttendanceEditForm
-								date={attendanceEdit.date}
-								initialData={attendanceEdit.data}
-								onSubmit={handleAttendanceSubmit}
-								onCancel={handleAttendanceCancel}
-								config={config}
-							/>
-						</Box>
-					</Box>
-				) : (
-					/* Timetable Grid */
-					<TimetableGrid
-						data={displayData}
-						isLoading={displayLoading}
-						onWeekChange={direction => {
-							if (direction === 'prev') {
-								navigateToPreviousWeek();
-							} else {
-								navigateToNextWeek();
-							}
-						}}
-						onCellWorklog={handleCellWorklog}
-						onCellDelete={handleCellDelete}
-						onAttendanceEdit={handleAttendanceEdit}
-						onAttendanceDelete={handleDeleteAttendance}
-						onOpenInBrowser={handleOpenInBrowser}
-						isActive={activeArea === 'timetable'}
-						favoriteIssues={config.favorites}
-						config={config}
-						attendanceManager={attendanceManager || undefined}
-						attendanceRefreshKey={attendanceRefreshKey}
-					/>
-				)}
+				{(() => {
+					switch (resolvedActiveArea) {
+						case 'worklog-form':
+							return (
+								<WorklogFormArea
+									worklogForm={worklogForm}
+									worklogSubmitting={worklogSubmitting}
+									worklogError={worklogError}
+									config={config}
+									onSubmit={handleWorklogSubmit}
+									onCancel={handleWorklogCancel}
+								/>
+							);
+
+						case 'delete-confirmation':
+							return (
+								<DeleteWorklogConfirmationArea
+									deleteCandidate={deleteCandidate!}
+									isDeleting={isDeleting}
+									onConfirm={handleDeleteConfirm}
+									formatDate={formatDate}
+								/>
+							);
+
+						case 'delete-attendance-confirmation':
+							return (
+								<DeleteAttendanceConfirmationArea
+									deleteAttendanceCandidate={deleteAttendanceCandidate!}
+									isDeletingAttendance={isDeletingAttendance}
+									onConfirm={handleDeleteAttendanceConfirm}
+									formatDate={formatDate}
+								/>
+							);
+
+						case 'checkin-confirmation':
+							return (
+								<CheckinConfirmationArea onConfirm={handleCheckinConfirm} />
+							);
+
+						case 'checkout-confirmation':
+							return (
+								<CheckoutConfirmationArea onConfirm={handleCheckoutConfirm} />
+							);
+
+						case 'attendance-edit':
+							return (
+								<AttendanceEditFormArea
+									attendanceEdit={attendanceEdit!}
+									config={config}
+									onSubmit={handleAttendanceSubmit}
+									onCancel={handleAttendanceCancel}
+								/>
+							);
+
+						case 'timetable':
+						default:
+							return (
+								<TimetableGrid
+									data={displayData}
+									isLoading={displayLoading}
+									onWeekChange={direction => {
+										if (direction === 'prev') {
+											navigateToPreviousWeek();
+										} else {
+											navigateToNextWeek();
+										}
+									}}
+									onCellWorklog={handleCellWorklog}
+									onCellDelete={handleCellDelete}
+									onAttendanceEdit={handleAttendanceEdit}
+									onAttendanceDelete={handleDeleteAttendance}
+									onOpenInBrowser={handleOpenInBrowser}
+									isActive={activeArea === 'timetable'}
+									favoriteIssues={config.favorites}
+									config={config}
+									attendanceManager={attendanceManager || undefined}
+									attendanceRefreshKey={attendanceRefreshKey}
+								/>
+							);
+					}
+				})()}
 
 				{/* Delete error alert */}
 				{deleteError && (
