@@ -84,6 +84,44 @@ test('TimetableGrid renders table header', t => {
 	t.true(output.includes('Total'));
 });
 
+test('TimetableGrid displays dates in weekday headers', t => {
+	const sampleData: WeeklyWorklogSummary = {
+		weekStart: new Date('2024-10-14T00:00:00.000Z'), // Monday, October 14, 2024
+		weekEnd: new Date('2024-10-20T23:59:59.999Z'),
+		dailySummaries: [
+			{
+				date: new Date('2024-10-14T00:00:00.000Z'),
+				totalHours: 8.0,
+				issues: [
+					{
+						issueKey: 'TEST-123',
+						issueSummary: 'Test Issue',
+						hours: 8.0,
+					},
+				],
+			},
+		],
+		weekTotal: 8.0,
+	};
+
+	const props = {
+		data: sampleData,
+		isLoading: false,
+	};
+
+	const {lastFrame} = render(React.createElement(TimetableGrid, props));
+
+	const output = lastFrame()!;
+
+	// Check that weekdays include date information
+	// Week starting Oct 14, 2024: Mon (14.10), Tue (15.10), Wed (16.10), Thu (17.10), Fri (18.10)
+	t.true(output.includes('Mon (14.10)'), 'Should display Monday with date');
+	t.true(output.includes('Tue (15.10)'), 'Should display Tuesday with date');
+	t.true(output.includes('Wed (16.10)'), 'Should display Wednesday with date');
+	t.true(output.includes('Thu (17.10)'), 'Should display Thursday with date');
+	t.true(output.includes('Fri (18.10)'), 'Should display Friday with date');
+});
+
 test('TimetableGrid renders issue data correctly', t => {
 	const sampleData: WeeklyWorklogSummary = {
 		weekStart: new Date('2024-10-14T00:00:00.000Z'),
