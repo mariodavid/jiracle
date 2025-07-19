@@ -17,6 +17,10 @@ import {
 	truncateText,
 } from '../utils/TimetableCalculations.js';
 import {AttendanceCalculations} from '../attendance/AttendanceCalculations.js';
+import {
+	FocusableItemCalculator,
+	type FocusableItem,
+} from '../utils/FocusableItemCalculator.js';
 
 export interface TimetableGridProps {
 	data: WeeklyWorklogSummary | null;
@@ -161,44 +165,11 @@ export function TimetableGrid({
 	const tableWidth = 2 + 20 + 5 * 12 + 8; // Group + Issue + 5 weekdays (wider) + Total = 90
 
 	// Create a flat list of all focusable cells for arrow key navigation
-	const getAllFocusableItems = useCallback(() => {
-		const items: Array<{
-			focusId: string;
-			issueKey: string;
-			columnIndex: number;
-			isAttendance: boolean;
-		}> = [];
-
-		// Add attendance cells first (they appear at the top)
-		if (attendanceManager) {
-			for (let columnIndex = 0; columnIndex < 5; columnIndex++) {
-				items.push({
-					focusId: `attendance-attendance-${columnIndex}`,
-					issueKey: 'attendance-attendance',
-					columnIndex,
-					isAttendance: true,
-				});
-				// Note: attendance-hours row is not focusable, so we don't add it here
-			}
-		}
-
-		// Add issue cells after attendance rows
-		for (const group of issueGroups) {
-			for (const [issueKey] of group.issues) {
-				for (let columnIndex = 0; columnIndex < 5; columnIndex++) {
-					items.push({
-						focusId: `issue-${issueKey}-${columnIndex}`,
-						issueKey,
-						columnIndex,
-						isAttendance: false,
-					});
-				}
-			}
-		}
-
-		// Note: attendance-hours row is not focusable, so we don't add it here
-
-		return items;
+	const getAllFocusableItems = useCallback((): FocusableItem[] => {
+		return FocusableItemCalculator.calculateFocusableItems({
+			attendanceManager,
+			issueGroups,
+		});
 	}, [attendanceManager, issueGroups]);
 
 	// Set initial focus to first row and current day when component loads
