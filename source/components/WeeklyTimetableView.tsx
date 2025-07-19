@@ -5,13 +5,14 @@ import Gradient from 'ink-gradient';
 import BigText from 'ink-big-text';
 import {TimetableGrid} from './TimetableGrid.js';
 import {InlineWorklogForm} from './InlineWorklogForm.js';
-import {DeleteWorklogConfirmation} from './DeleteWorklogConfirmation.js';
-import {DeleteAttendanceConfirmation} from './DeleteAttendanceConfirmation.js';
-import {CheckinConfirmation} from './CheckinConfirmation.js';
-import {CheckoutConfirmation} from './CheckoutConfirmation.js';
-import {ConfirmationDialog} from './ConfirmationDialog.js';
 import {TitleBar} from './TitleBar.js';
 import {AttendanceEditForm} from './AttendanceEditForm.js';
+import {
+	DeleteWorklogConfirmationArea,
+	DeleteAttendanceConfirmationArea,
+	CheckinConfirmationArea,
+	CheckoutConfirmationArea,
+} from './areas/index.js';
 import {useWeeklyWorklogSummary} from '../hooks/useWeeklyWorklogSummary.js';
 import {useWorklogForm} from '../hooks/useWorklogForm.js';
 import {useDeleteOperations} from '../hooks/useDeleteOperations.js';
@@ -281,43 +282,27 @@ export function WeeklyTimetableView({
 					</Box>
 				) : activeArea === 'delete-confirmation' && deleteCandidate ? (
 					/* Delete Confirmation - replaces table */
-					<ConfirmationDialog
-						width={68}
-						borderColor="red"
-						isLoading={isDeleting}
-						loadingText="Deleting worklogs..."
-					>
-						<DeleteWorklogConfirmation
-							issueKey={deleteCandidate.issueKey}
-							dayLabel={formatDate(deleteCandidate.date)}
-							onConfirm={handleDeleteConfirm}
-						/>
-					</ConfirmationDialog>
+					<DeleteWorklogConfirmationArea
+						deleteCandidate={deleteCandidate}
+						isDeleting={isDeleting}
+						onConfirm={handleDeleteConfirm}
+						formatDate={formatDate}
+					/>
 				) : activeArea === 'delete-attendance-confirmation' &&
 				  deleteAttendanceCandidate ? (
 					/* Delete Attendance Confirmation - replaces table */
-					<ConfirmationDialog
-						width={68}
-						borderColor="red"
-						paddingX={2}
-						isLoading={isDeletingAttendance}
-						loadingText="Deleting attendance..."
-					>
-						<DeleteAttendanceConfirmation
-							dayLabel={formatDate(deleteAttendanceCandidate.date)}
-							onConfirm={handleDeleteAttendanceConfirm}
-						/>
-					</ConfirmationDialog>
+					<DeleteAttendanceConfirmationArea
+						deleteAttendanceCandidate={deleteAttendanceCandidate}
+						isDeletingAttendance={isDeletingAttendance}
+						onConfirm={handleDeleteAttendanceConfirm}
+						formatDate={formatDate}
+					/>
 				) : activeArea === 'checkin-confirmation' ? (
 					/* Checkin Confirmation - replaces table */
-					<ConfirmationDialog width={50} borderColor="cyan">
-						<CheckinConfirmation onConfirm={handleCheckinConfirm} />
-					</ConfirmationDialog>
+					<CheckinConfirmationArea onConfirm={handleCheckinConfirm} />
 				) : activeArea === 'checkout-confirmation' ? (
 					/* Checkout Confirmation - replaces table */
-					<ConfirmationDialog width={50} borderColor="yellow">
-						<CheckoutConfirmation onConfirm={handleCheckoutConfirm} />
-					</ConfirmationDialog>
+					<CheckoutConfirmationArea onConfirm={handleCheckoutConfirm} />
 				) : activeArea === 'attendance-edit' && attendanceEdit ? (
 					/* Attendance Edit Form - replaces table */
 					<Box justifyContent="center">
