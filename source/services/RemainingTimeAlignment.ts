@@ -296,20 +296,28 @@ export class RemainingTimeAlignment {
 			defaultStoriesCount: defaultStories.length,
 		});
 
-		// Calculate hours for each story and resolve comments
+		// Pre-resolve defaults for all stories to optimize performance
+		const defaultsCache = new Map<string, {comment: string}>();
+		for (const story of defaultStories) {
+			if (!defaultsCache.has(story.issueKey)) {
+				const defaults = resolveDefaults(config, story.issueKey);
+				defaultsCache.set(story.issueKey, {
+					comment: defaults.comment || '',
+				});
+			}
+		}
+
+		// Calculate hours for each story using cached defaults
 		const createdWorklogs = defaultStories.map(story => {
 			const hours = (attendanceHours * story.percentage) / 100;
-
-			// Resolve comment using existing hierarchy (favorites > projects > global > fallback)
-			const defaults = resolveDefaults(config, story.issueKey);
-			const comment = defaults.comment || '';
+			const cachedDefaults = defaultsCache.get(story.issueKey)!;
+			const comment = cachedDefaults.comment;
 
 			uiLogger.debug('Creating worklog for story', {
 				issueKey: story.issueKey,
 				percentage: story.percentage,
 				hours,
 				comment,
-				resolvedDefaults: defaults,
 			});
 
 			return {
