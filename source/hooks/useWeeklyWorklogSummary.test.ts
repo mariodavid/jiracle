@@ -92,7 +92,7 @@ test('useWeeklyWorklogSummary - error handling structure', t => {
 
 	// Test with invalid dates
 	const invalidDate = new Date('invalid');
-	t.true(isNaN(invalidDate.getTime()));
+	t.true(Number.isNaN(invalidDate.getTime()));
 });
 
 test('useWeeklyWorklogSummary - parameter validation', t => {

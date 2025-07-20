@@ -1,8 +1,8 @@
 import test from 'ava';
-import {execFileSync} from 'child_process';
-import {join} from 'path';
-import {readFileSync, writeFileSync, existsSync, unlinkSync} from 'fs';
-import {homedir} from 'os';
+import {execFileSync} from 'node:child_process';
+import {join} from 'node:path';
+import {readFileSync, writeFileSync, existsSync, unlinkSync} from 'node:fs';
+import {homedir} from 'node:os';
 
 const cliPath = join(process.cwd(), 'dist', 'cli.js');
 const originalConfigPath = join(homedir(), '.config', 'jiracle.json');

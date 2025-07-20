@@ -1,7 +1,7 @@
 import test from 'ava';
-import {writeFileSync, unlinkSync, existsSync} from 'fs';
-import {join} from 'path';
-import {tmpdir} from 'os';
+import {writeFileSync, unlinkSync, existsSync} from 'node:fs';
+import {join} from 'node:path';
+import {tmpdir} from 'node:os';
 import {executeWorklogAdd, type WorklogAddParams} from '../cli.js';
 import type {JiraConfig} from '../jira-client.js';
 

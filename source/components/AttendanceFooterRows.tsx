@@ -91,7 +91,8 @@ export function AttendanceFooterRows({
 									const cellValue = getWorkingHoursCellValue(
 										formatLocalDateKey(date),
 									);
-									const hours = cellValue === '-' ? 0 : parseFloat(cellValue);
+									const hours =
+										cellValue === '-' ? 0 : Number.parseFloat(cellValue);
 									totalHours += hours;
 								}
 								return formatHours(totalHours);

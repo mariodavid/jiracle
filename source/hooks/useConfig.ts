@@ -1,9 +1,9 @@
 import {useState, useEffect} from 'react';
 import {JiraClient} from '../jira-client.js';
 import type {JiraConfig} from '../jira-client.js';
-import {readFileSync} from 'fs';
-import {homedir} from 'os';
-import {join} from 'path';
+import {readFileSync} from 'node:fs';
+import {homedir} from 'node:os';
+import {join} from 'node:path';
 import type {Step} from '../types/index.js';
 import {ReminderService} from '../services/ReminderService.js';
 

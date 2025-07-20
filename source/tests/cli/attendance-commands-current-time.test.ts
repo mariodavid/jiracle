@@ -5,10 +5,10 @@ interface TestContext {
 }
 
 const testWithContext = test as TestFn<TestContext>;
-import {readFile, unlink} from 'fs/promises';
-import {existsSync} from 'fs';
-import {join} from 'path';
-import {tmpdir} from 'os';
+import {readFile, unlink} from 'node:fs/promises';
+import {existsSync} from 'node:fs';
+import {join} from 'node:path';
+import {tmpdir} from 'node:os';
 import {
 	executeCheckIn,
 	executeCheckOut,
@@ -54,7 +54,7 @@ testWithContext('checkin uses current time when no time specified', async t => {
 	const csvPath = t.context.testCsvPath as string;
 	t.true(existsSync(csvPath));
 
-	const csvContent = await readFile(csvPath, 'utf-8');
+	const csvContent = await readFile(csvPath, 'utf8');
 	const lines = csvContent.trim().split('\n');
 	t.is(lines.length, 2); // Header + 1 data line
 	t.is(lines[0], 'Date,CheckIn,CheckOut,BreakMinutes,TotalHours,Notes');
@@ -110,7 +110,7 @@ testWithContext(
 
 		// Verify CSV content
 		const csvPath = t.context.testCsvPath as string;
-		const csvContent = await readFile(csvPath, 'utf-8');
+		const csvContent = await readFile(csvPath, 'utf8');
 		const lines = csvContent.trim().split('\n');
 		t.is(lines.length, 2); // Header + 1 data line
 
@@ -154,7 +154,7 @@ testWithContext('explicit time overrides current time', async t => {
 
 	// Verify CSV content shows explicit time, not current time
 	const csvPath = t.context.testCsvPath as string;
-	const csvContent = await readFile(csvPath, 'utf-8');
+	const csvContent = await readFile(csvPath, 'utf8');
 	const lines = csvContent.trim().split('\n');
 	const dataLine = lines[1]!;
 	const [date, checkIn] = dataLine.split(',');
@@ -187,7 +187,7 @@ testWithContext('status shows attendance with current times', async t => {
 	const csvPath = t.context.testCsvPath as string;
 	t.true(existsSync(csvPath));
 
-	const csvContent = await readFile(csvPath, 'utf-8');
+	const csvContent = await readFile(csvPath, 'utf8');
 	const lines = csvContent.trim().split('\n');
 	t.is(lines.length, 2); // Header + 1 data line
 
@@ -232,7 +232,7 @@ testWithContext(
 
 		// Verify CSV only has one entry for the date
 		const csvPath = t.context.testCsvPath as string;
-		const csvContent = await readFile(csvPath, 'utf-8');
+		const csvContent = await readFile(csvPath, 'utf8');
 		const lines = csvContent.trim().split('\n');
 		t.is(lines.length, 2); // Header + 1 data line
 

@@ -1,7 +1,7 @@
-import {homedir} from 'os';
-import {join, dirname} from 'path';
-import {readFile, writeFile, mkdir} from 'fs/promises';
-import {existsSync} from 'fs';
+import {homedir} from 'node:os';
+import {join, dirname} from 'node:path';
+import {readFile, writeFile, mkdir} from 'node:fs/promises';
+import {existsSync} from 'node:fs';
 import type {Attendance} from './types.js';
 
 export class AttendanceCSVStorage {
@@ -25,7 +25,7 @@ export class AttendanceCSVStorage {
 				return [];
 			}
 
-			const content = await readFile(this.csvPath, 'utf-8');
+			const content = await readFile(this.csvPath, 'utf8');
 			const lines = content.trim().split('\n');
 
 			if (lines.length === 0 || (lines.length === 1 && lines[0] === '')) {
@@ -113,7 +113,7 @@ export class AttendanceCSVStorage {
 		if (checkOut && checkOut !== '') {
 			attendance.checkOut = checkOut;
 		}
-		if (totalHours && totalHours !== '' && !isNaN(Number(totalHours))) {
+		if (totalHours && totalHours !== '' && !Number.isNaN(Number(totalHours))) {
 			attendance.totalHours = Number(totalHours);
 		}
 		if (notes && notes !== '') {

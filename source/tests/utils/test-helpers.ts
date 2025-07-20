@@ -1,6 +1,6 @@
-import {join} from 'path';
-import {tmpdir} from 'os';
-import {writeFileSync, unlinkSync, existsSync} from 'fs';
+import {join} from 'node:path';
+import {tmpdir} from 'node:os';
+import {writeFileSync, unlinkSync, existsSync} from 'node:fs';
 import type {JiraConfig} from '../../jira-client.js';
 import type {Attendance} from '../../attendance/types.js';
 

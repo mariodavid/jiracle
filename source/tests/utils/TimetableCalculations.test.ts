@@ -19,10 +19,10 @@ function createMockSummary(dailySummaries: any[]) {
 test('calculateDailyTotals - calculates totals correctly', t => {
 	const summary = createMockSummary([
 		{date: new Date('2023-01-02'), totalHours: 8.5, issues: {}}, // Monday
-		{date: new Date('2023-01-03'), totalHours: 7.0, issues: {}}, // Tuesday
+		{date: new Date('2023-01-03'), totalHours: 7, issues: {}}, // Tuesday
 		{date: new Date('2023-01-04'), totalHours: 6.5, issues: {}}, // Wednesday
-		{date: new Date('2023-01-05'), totalHours: 8.0, issues: {}}, // Thursday
-		{date: new Date('2023-01-06'), totalHours: 4.0, issues: {}}, // Friday
+		{date: new Date('2023-01-05'), totalHours: 8, issues: {}}, // Thursday
+		{date: new Date('2023-01-06'), totalHours: 4, issues: {}}, // Friday
 	]);
 
 	const weekDates = [
@@ -35,14 +35,14 @@ test('calculateDailyTotals - calculates totals correctly', t => {
 
 	const totals = calculateDailyTotals(summary as any, weekDates);
 
-	t.deepEqual(totals, [8.5, 7.0, 6.5, 8.0, 4.0]);
+	t.deepEqual(totals, [8.5, 7, 6.5, 8, 4]);
 });
 
 test('calculateDailyTotals - handles missing days', t => {
 	const summary = createMockSummary([
 		{date: new Date('2023-01-02'), totalHours: 8.5, issues: {}}, // Monday
 		{date: new Date('2023-01-04'), totalHours: 6.5, issues: {}}, // Wednesday
-		{date: new Date('2023-01-06'), totalHours: 4.0, issues: {}}, // Friday
+		{date: new Date('2023-01-06'), totalHours: 4, issues: {}}, // Friday
 	]);
 
 	const weekDates = [
@@ -55,7 +55,7 @@ test('calculateDailyTotals - handles missing days', t => {
 
 	const totals = calculateDailyTotals(summary as any, weekDates);
 
-	t.deepEqual(totals, [8.5, 0, 6.5, 0, 4.0]);
+	t.deepEqual(totals, [8.5, 0, 6.5, 0, 4]);
 });
 
 test('calculateDailyTotals - handles empty daily summaries', t => {
@@ -77,7 +77,7 @@ test('calculateDailyTotals - handles empty daily summaries', t => {
 test('calculateDailyTotals - handles out-of-range dates', t => {
 	const summary = createMockSummary([
 		{date: new Date('2023-01-01'), totalHours: 8.5, issues: {}}, // Sunday (not in week)
-		{date: new Date('2023-01-02'), totalHours: 7.0, issues: {}}, // Monday
+		{date: new Date('2023-01-02'), totalHours: 7, issues: {}}, // Monday
 		{date: new Date('2023-01-07'), totalHours: 6.5, issues: {}}, // Next Saturday (not in week)
 	]);
 
@@ -91,7 +91,7 @@ test('calculateDailyTotals - handles out-of-range dates', t => {
 
 	const totals = calculateDailyTotals(summary as any, weekDates);
 
-	t.deepEqual(totals, [7.0, 0, 0, 0, 0]);
+	t.deepEqual(totals, [7, 0, 0, 0, 0]);
 });
 
 test('formatHours - formats hours correctly', t => {

@@ -120,20 +120,20 @@ test('WeeklyWorklogSummaryUseCase aggregates worklogs by day', async t => {
 
 	// Check first day (Oct 19)
 	const firstDay = result.dailySummaries[0]!;
-	t.is(firstDay.totalHours, 5.0); // 4 + 1 hours
+	t.is(firstDay.totalHours, 5); // 4 + 1 hours
 	t.is(firstDay.issues.length, 1); // Aggregated into single entry
 	t.is(firstDay.issues[0]!.issueKey, 'TEST-117');
-	t.is(firstDay.issues[0]!.hours, 5.0); // Combined hours
+	t.is(firstDay.issues[0]!.hours, 5); // Combined hours
 
 	// Check second day (Oct 22)
 	const secondDay = result.dailySummaries[1]!;
-	t.is(secondDay.totalHours, 2.0);
+	t.is(secondDay.totalHours, 2);
 	t.is(secondDay.issues.length, 1);
 	t.is(secondDay.issues[0]!.issueKey, 'TEST-117');
-	t.is(secondDay.issues[0]!.hours, 2.0);
+	t.is(secondDay.issues[0]!.hours, 2);
 
 	// Check week total
-	t.is(result.weekTotal, 7.0);
+	t.is(result.weekTotal, 7);
 });
 
 test('WeeklyWorklogSummaryUseCase filters by current user email', async t => {
@@ -206,9 +206,9 @@ test('WeeklyWorklogSummaryUseCase filters by current user email', async t => {
 
 	// Should only include the current user's worklog
 	t.is(result.dailySummaries.length, 1);
-	t.is(result.dailySummaries[0]!.totalHours, 1.0);
+	t.is(result.dailySummaries[0]!.totalHours, 1);
 	t.is(result.dailySummaries[0]!.issues.length, 1);
-	t.is(result.weekTotal, 1.0);
+	t.is(result.weekTotal, 1);
 });
 
 test('WeeklyWorklogSummaryUseCase filters by date range', async t => {
@@ -292,8 +292,8 @@ test('WeeklyWorklogSummaryUseCase filters by date range', async t => {
 
 	// Should only include worklogs within the date range
 	t.is(result.dailySummaries.length, 1);
-	t.is(result.dailySummaries[0]!.totalHours, 1.0);
-	t.is(result.weekTotal, 1.0);
+	t.is(result.dailySummaries[0]!.totalHours, 1);
+	t.is(result.weekTotal, 1);
 });
 
 test('WeeklyWorklogSummaryUseCase handles empty results', async t => {
@@ -402,10 +402,10 @@ test('WeeklyWorklogSummaryUseCase converts time correctly', async t => {
 	const result = await useCase.execute(weekStart, weekEnd);
 
 	t.is(result.dailySummaries.length, 1);
-	t.is(result.dailySummaries[0]!.totalHours, 4.0); // 1 + 0.5 + 2.5
+	t.is(result.dailySummaries[0]!.totalHours, 4); // 1 + 0.5 + 2.5
 	t.is(result.dailySummaries[0]!.issues.length, 1); // Aggregated into single entry
-	t.is(result.dailySummaries[0]!.issues[0]!.hours, 4.0); // Combined hours
-	t.is(result.weekTotal, 4.0);
+	t.is(result.dailySummaries[0]!.issues[0]!.hours, 4); // Combined hours
+	t.is(result.weekTotal, 4);
 });
 
 test('WeeklyWorklogSummaryUseCase includes favorite issues without worklogs', async t => {
@@ -524,7 +524,7 @@ test('WeeklyWorklogSummaryUseCase includes favorite issues without worklogs', as
 
 	// Should include both issues: one with worklog and one favorite without worklog
 	t.is(result.dailySummaries.length, 1);
-	t.is(result.dailySummaries[0]!.totalHours, 1.0); // Only from TEST-117
+	t.is(result.dailySummaries[0]!.totalHours, 1); // Only from TEST-117
 	t.is(result.dailySummaries[0]!.issues.length, 2); // TEST-117 with worklog + FAV-123 with 0 hours
 
 	// Find the issues in the results
@@ -534,7 +534,7 @@ test('WeeklyWorklogSummaryUseCase includes favorite issues without worklogs', as
 
 	t.truthy(testIssue, 'TEST-117 should be present');
 	t.truthy(favIssue, 'FAV-123 should be present');
-	t.is(testIssue!.hours, 1.0, 'TEST-117 should have 1 hour');
+	t.is(testIssue!.hours, 1, 'TEST-117 should have 1 hour');
 	t.is(favIssue!.hours, 0, 'FAV-123 should have 0 hours');
 	t.is(
 		favIssue!.issueSummary,
@@ -542,7 +542,7 @@ test('WeeklyWorklogSummaryUseCase includes favorite issues without worklogs', as
 		'FAV-123 should have correct summary',
 	);
 
-	t.is(result.weekTotal, 1.0);
+	t.is(result.weekTotal, 1);
 });
 
 test('WeeklyWorklogSummaryUseCase includes sliding window issues', async t => {
@@ -901,7 +901,7 @@ test('WeeklyWorklogSummaryUseCase shows sliding window issues as 0h entries when
 	t.is(result.dailySummaries.length, 1);
 
 	const firstDay = result.dailySummaries[0]!;
-	t.is(firstDay.totalHours, 2.0); // Only from CURRENT-456
+	t.is(firstDay.totalHours, 2); // Only from CURRENT-456
 
 	// Should have 4 issues total:
 	// 1. CURRENT-456 with 2h (has current week worklog)
@@ -931,13 +931,13 @@ test('WeeklyWorklogSummaryUseCase shows sliding window issues as 0h entries when
 	t.truthy(favoriteIssue, 'FAV-999 should be present');
 
 	// Verify hours
-	t.is(currentIssue!.hours, 2.0, 'CURRENT-456 should have 2 hours');
+	t.is(currentIssue!.hours, 2, 'CURRENT-456 should have 2 hours');
 	t.is(recentIssue!.hours, 0, 'SLIDING-123 should have 0 hours');
 	t.is(recentFavoriteIssue!.hours, 0, 'SLIDING-789 should have 0 hours');
 	t.is(favoriteIssue!.hours, 0, 'FAV-999 should have 0 hours');
 
 	// Verify week total
-	t.is(result.weekTotal, 2.0);
+	t.is(result.weekTotal, 2);
 });
 
 test('WeeklyWorklogSummaryUseCase sliding window issues are not duplicated when already in current week', async t => {
@@ -1025,8 +1025,8 @@ test('WeeklyWorklogSummaryUseCase sliding window issues are not duplicated when 
 	t.is(result.dailySummaries.length, 1);
 	t.is(result.dailySummaries[0]!.issues.length, 1);
 	t.is(result.dailySummaries[0]!.issues[0]!.issueKey, 'SHARED-123');
-	t.is(result.dailySummaries[0]!.issues[0]!.hours, 1.0);
-	t.is(result.weekTotal, 1.0);
+	t.is(result.dailySummaries[0]!.issues[0]!.hours, 1);
+	t.is(result.weekTotal, 1);
 });
 
 test('WeeklyWorklogSummaryUseCase sliding window issues with very large window period', async t => {

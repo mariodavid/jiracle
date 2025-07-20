@@ -25,7 +25,7 @@ export class Duration {
 			/^(\d+(?:[.,]\d+)?)\s+(hours?|h)$/i,
 		);
 		if (englishWordsMatch) {
-			const hours = parseFloat(englishWordsMatch[1]!.replace(',', '.'));
+			const hours = Number.parseFloat(englishWordsMatch[1]!.replace(',', '.'));
 			return Math.round(hours * 60);
 		}
 
@@ -33,7 +33,9 @@ export class Duration {
 			/^(\d+(?:[.,]\d+)?)\s+(minutes?|mins?|m)$/i,
 		);
 		if (englishMinutesMatch) {
-			const minutes = parseFloat(englishMinutesMatch[1]!.replace(',', '.'));
+			const minutes = Number.parseFloat(
+				englishMinutesMatch[1]!.replace(',', '.'),
+			);
 			return Math.round(minutes);
 		}
 
@@ -42,8 +44,12 @@ export class Duration {
 			/^(\d+(?:[.,]\d+)?)h\s+(\d+(?:[.,]\d+)?)m$/i,
 		);
 		if (spacedCombinedMatch) {
-			const hours = parseFloat(spacedCombinedMatch[1]!.replace(',', '.'));
-			const minutes = parseFloat(spacedCombinedMatch[2]!.replace(',', '.'));
+			const hours = Number.parseFloat(
+				spacedCombinedMatch[1]!.replace(',', '.'),
+			);
+			const minutes = Number.parseFloat(
+				spacedCombinedMatch[2]!.replace(',', '.'),
+			);
 			return Math.round(hours * 60 + minutes);
 		}
 
@@ -52,36 +58,36 @@ export class Duration {
 			/^(\d+(?:[.,]\d+)?)h(\d+(?:[.,]\d+)?)m$/i,
 		);
 		if (combinedMatch) {
-			const hours = parseFloat(combinedMatch[1]!.replace(',', '.'));
-			const minutes = parseFloat(combinedMatch[2]!.replace(',', '.'));
+			const hours = Number.parseFloat(combinedMatch[1]!.replace(',', '.'));
+			const minutes = Number.parseFloat(combinedMatch[2]!.replace(',', '.'));
 			return Math.round(hours * 60 + minutes);
 		}
 
 		// Handle hours only (1h, 2.5h, etc.)
 		const hourMatch = timeStr.match(/^(\d+(?:[.,]\d+)?)h$/i);
 		if (hourMatch) {
-			const hours = parseFloat(hourMatch[1]!.replace(',', '.'));
+			const hours = Number.parseFloat(hourMatch[1]!.replace(',', '.'));
 			return Math.round(hours * 60);
 		}
 
 		// Handle minutes only (30m, 45m, etc.)
 		const minuteMatch = timeStr.match(/^(\d+(?:[.,]\d+)?)m$/i);
 		if (minuteMatch) {
-			const minutes = parseFloat(minuteMatch[1]!.replace(',', '.'));
+			const minutes = Number.parseFloat(minuteMatch[1]!.replace(',', '.'));
 			return Math.round(minutes);
 		}
 
 		// Handle days (1d = 8h = 480m)
 		const dayMatch = timeStr.match(/^(\d+(?:[.,]\d+)?)d$/i);
 		if (dayMatch) {
-			const days = parseFloat(dayMatch[1]!.replace(',', '.'));
+			const days = Number.parseFloat(dayMatch[1]!.replace(',', '.'));
 			return Math.round(days * 8 * 60);
 		}
 
 		// Handle plain numbers (assume minutes)
 		const numberMatch = timeStr.match(/^(\d+(?:[.,]\d+)?)$/);
 		if (numberMatch) {
-			return Math.round(parseFloat(numberMatch[1]!.replace(',', '.')));
+			return Math.round(Number.parseFloat(numberMatch[1]!.replace(',', '.')));
 		}
 
 		// Default fallback

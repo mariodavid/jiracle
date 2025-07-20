@@ -1,7 +1,7 @@
 import {AttendanceManager} from '../attendance/AttendanceManager.js';
-import {readFileSync} from 'fs';
-import {homedir} from 'os';
-import {join} from 'path';
+import {readFileSync} from 'node:fs';
+import {homedir} from 'node:os';
+import {join} from 'node:path';
 import type {JiraConfig} from '../jira-client.js';
 
 export interface AttendanceCommandResult {
@@ -48,7 +48,7 @@ function validateDate(date: string): void {
 
 	const testDate = new Date(date);
 	if (
-		isNaN(testDate.getTime()) ||
+		Number.isNaN(testDate.getTime()) ||
 		testDate.toISOString().split('T')[0] !== date
 	) {
 		throw new Error('Date must be in YYYY-MM-DD format');

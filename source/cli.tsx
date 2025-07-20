@@ -8,9 +8,9 @@ import {
 	WorklogRequest,
 	loadConfigWithEnvVars,
 } from './jira-client.js';
-import {readFileSync} from 'fs';
-import {homedir} from 'os';
-import {join} from 'path';
+import {readFileSync} from 'node:fs';
+import {homedir} from 'node:os';
+import {join} from 'node:path';
 import winston from 'winston';
 import {
 	executeCheckIn,
@@ -111,7 +111,7 @@ export async function executeWorklogAdd(
 	// Additional date validation - check if it's a valid date
 	const testDate = new Date(date);
 	if (
-		isNaN(testDate.getTime()) ||
+		Number.isNaN(testDate.getTime()) ||
 		testDate.toISOString().split('T')[0] !== date
 	) {
 		throw new Error('Date must be in YYYY-MM-DD format');

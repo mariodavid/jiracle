@@ -1,7 +1,7 @@
 import test from 'ava';
-import {join} from 'path';
-import {tmpdir} from 'os';
-import {unlinkSync, existsSync} from 'fs';
+import {join} from 'node:path';
+import {tmpdir} from 'node:os';
+import {unlinkSync, existsSync} from 'node:fs';
 import {AttendanceCSVStorage} from '../../attendance/AttendanceCSVStorage.js';
 import type {Attendance} from '../../attendance/types.js';
 

@@ -88,7 +88,7 @@ export class IssueGroupManager {
 				return aProject.localeCompare(bProject);
 			}
 
-			return parseInt(aNumber, 10) - parseInt(bNumber, 10);
+			return Number.parseInt(aNumber, 10) - Number.parseInt(bNumber, 10);
 		});
 	}
 }
