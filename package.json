@@ -77,7 +77,8 @@
 					"**/tests/**/*.tsx"
 				],
 				"rules": {
-					"@typescript-eslint/no-empty-function": "off"
+					"@typescript-eslint/no-empty-function": "off",
+					"no-promise-executor-return": "off"
 				}
 			}
 		],
@@ -91,7 +92,6 @@
 				}
 			],
 			"@typescript-eslint/restrict-template-expressions": "off",
-			"no-promise-executor-return": "off",
 			"no-else-return": "off",
 			"react/prop-types": "off",
 			"unicorn/expiring-todo-comments": "off",
