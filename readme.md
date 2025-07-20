@@ -174,120 +174,77 @@ Create a configuration file at `~/.config/jiracle.json`:
 
 **Note**: By default, `jiracle checkin` and `jiracle checkout` use the current time, not the configured default times. The `defaultCheckIn` and `defaultCheckOut` values are only used by the UI components.
 
-### Time Alignment
+### Smart Time Calculation
 
-When you have attendance tracking enabled, Jiracle can automatically distribute time across your worklogs in two different modes:
+When you have attendance tracking enabled, Jiracle intelligently calculates time suggestions when you log work. This creates an effortless "time stamping" workflow that eliminates mental math and ensures your total logged time matches your attendance.
 
-1. **Update existing worklogs** - Distribute remaining time across worklogs you've already created
-2. **Auto-fill with default stories** - Create new worklogs from configured default stories when only attendance data exists
+#### How It Works
 
-#### Mode 1: Update Existing Worklogs
+**Smart Calculation (Automatic):**
 
-When you already have worklogs for a day, Jiracle can distribute the remaining time between your attendance hours and logged work across your existing worklogs.
+1. **Enter time logging** - Press `Enter` on any issue/day cell
+2. **Automatic calculation** - Jiracle calculates: `Attendance Hours - Already Logged Hours = Remaining Time`
+3. **Smart suggestion** - The worklog form opens with the remaining time pre-filled
+4. **One-click submission** - Accept the suggestion or adjust as needed
 
-**How it works:**
+**Three scenarios are handled automatically:**
 
-1. Navigate to any cell in the weekly timetable (the column determines which day)
-2. Press `F` to trigger time alignment for that day
-3. Jiracle calculates: `Attendance Hours - Logged Hours = Remaining Time`
-4. The remaining time is distributed across **only existing worklogs** for that day
-5. No new worklogs are created - only existing ones are updated
+| Scenario                        | Behavior                                                  |
+| ------------------------------- | --------------------------------------------------------- |
+| **No attendance data**          | Uses configured defaults (1h, 4h, project defaults, etc.) |
+| **No other worklogs yet**       | Suggests the full attendance time for the day             |
+| **Other issues already logged** | Suggests the remaining unlogged time                      |
 
-#### Mode 2: Auto-Fill with Default Stories
+#### The "Time Stamping" Workflow
 
-When you have attendance data but no existing worklogs (or only zero-hour entries), Jiracle can automatically create worklogs using predefined default stories with percentage-based distribution.
+1. **Set attendance** - Check in/out or enter working hours (8:00-17:30, 30min break = 8.5h)
+2. **Choose main work** - Press Enter on your primary issue → **8.5h suggested** → Accept
+3. **Stamp out exceptions** - Press Enter on secondary work → Enter 2h → Remaining 6.5h automatically calculated for main work
 
-**How it works:**
+#### Example Scenarios
 
-1. Configure default stories in your configuration (see below)
-2. Navigate to any cell for a day with attendance but no logged worklogs
-3. Press `F` to trigger auto-fill for that day
-4. Jiracle creates new worklogs based on your default stories and attendance hours
-5. Each story gets time allocated according to its percentage of your total attendance
+**Scenario A: Main work first**
 
-**Configuration:**
+1. ✅ Log **8.5h** for primary project (PROJ-123)
+2. Realize you did 2h of meetings → Log **2h** for MEET-456
+3. PROJ-123 automatically becomes **6.5h** (stamped out the 2h)
+
+**Scenario B: Exceptions first**
+
+1. Log **2h** for meeting (MEET-456)
+2. Press Enter on main project (PROJ-123) → **6.5h suggested**
+3. One click to accept the remainder
+
+**Benefits:**
+
+- **No mental math** - The system calculates everything
+- **Always adds up** - Your total will never be wrong
+- **Flexible workflow** - Work in either direction (main first, or exceptions first)
+- **One-click logging** - Most suggestions are exactly what you want
+
+#### Configuration
+
+No additional configuration needed! The smart calculation works with your existing setup:
 
 ```json
 {
-	"alignRemainingStrategy": "even",
-	"fill": {
-		"alignRemainingStrategy": "proportional",
-		"defaultStories": [
-			{"issueKey": "PROJ-123", "percentage": 60},
-			{"issueKey": "PROJ-456", "percentage": 30},
-			{"issueKey": "ADMIN-001", "percentage": 10}
-		]
-	}
+	"defaultTime": "1h",
+	"projects": [
+		{
+			"key": "PROJ",
+			"defaultTime": "4h"
+		}
+	],
+	"favorites": [
+		{
+			"key": "PROJ-123",
+			"defaultTime": "6h"
+		}
+	]
 }
 ```
 
-**Available strategies:**
-
-| Strategy         | Description                                                       |
-| ---------------- | ----------------------------------------------------------------- |
-| `"even"`         | Distributes remaining time equally across all existing worklogs   |
-| `"proportional"` | Distributes remaining time proportionally based on existing hours |
-
-**Auto-Fill Example:**
-
-- **Attendance**: 8.5 hours (08:00-17:00 with 30min break)
-- **No existing worklogs** (or only zero-hour entries)
-- **Default stories**: PROJ-123 (60%), PROJ-456 (30%), ADMIN-001 (10%)
-
-**Result:**
-
-- PROJ-123: 5.1h (60% of 8.5h)
-- PROJ-456: 2.55h (30% of 8.5h)
-- ADMIN-001: 0.85h (10% of 8.5h)
-
-**Update Existing Example:**
-
-- **Attendance**: 8.5 hours (08:00-17:00 with 30min break)
-- **Current worklogs**: PROJ-123 (2h), PROJ-456 (1h) = 3h total
-- **Remaining time**: 8.5h - 3h = 5.5h
-
-**With "even" strategy:**
-
-- 5.5h ÷ 2 worklogs = 2.75h each
-- PROJ-123: 2h → 4.75h (+2.75h)
-- PROJ-456: 1h → 3.75h (+2.75h)
-
-**With "proportional" strategy:**
-
-- PROJ-123 gets 2/3 of remaining: 2h → 5.67h (+3.67h)
-- PROJ-456 gets 1/3 of remaining: 1h → 2.83h (+1.83h)
-
-**Configuration Options:**
-
-| Option                        | Level | Description                                          |
-| ----------------------------- | ----- | ---------------------------------------------------- |
-| `alignRemainingStrategy`      | Root  | Strategy for updating existing worklogs (fallback)   |
-| `fill.alignRemainingStrategy` | Fill  | Strategy for updating existing worklogs (priority)   |
-| `fill.defaultStories`         | Fill  | Array of default issues with percentage distribution |
-
-**Default Stories Configuration:**
-
-- **Percentages must sum to 100%** - Configuration validation ensures proper distribution
-- **Comments auto-resolved** - Uses existing comment hierarchy (favorites > projects > global > fallback)
-- **Flexible percentages** - Support for decimal percentages (e.g., 33.33%, 33.33%, 33.34%)
-
-**Key Features:**
-
-- **Smart mode detection**: Automatically chooses between update and auto-fill based on existing worklogs
-- **Day-specific**: Only affects the day of the focused column
-- **Backward compatible**: Works with existing `alignRemainingStrategy` configuration
-- **Comment inheritance**: Auto-fill uses your configured comment hierarchy
-- **Configuration validation**: Validates percentages and prevents duplicate issue keys
-- **User feedback**: Shows different confirmations for update vs. auto-fill modes
-- **Debug logging**: Detailed calculation logs for troubleshooting
-
-**Usage Tips:**
-
-- **For regular work patterns**: Configure default stories for typical daily work distribution
-- **For existing worklogs**: Log rough time estimates first, then use alignment to match attendance
-- **End-of-day reconciliation**: Use auto-fill when you only tracked attendance during the day
-- **Mixed approach**: Use auto-fill for planned work, then manually add specific worklogs as needed
-- **Strategy selection**: Use "proportional" to maintain relative time ratios, "even" for equal distribution
+**Fallback behavior:** When attendance tracking is disabled or no attendance exists for the day, Jiracle uses the existing default time hierarchy (favorites > projects > global > 1h).
 
 ### Sliding Window
 
@@ -598,7 +555,6 @@ jiracle status
 - `D` - Delete worklogs/attendance for focused cell
 - `I` - Check in (attendance tracking)
 - `O` - Check out (attendance tracking)
-- `F` - Fill time (distribute attendance time across existing worklogs)
 - `Shift+O` - Open focused issue in browser (when supported)
 - `T` - Go to current week
 - `R` - Refresh data from Jira
