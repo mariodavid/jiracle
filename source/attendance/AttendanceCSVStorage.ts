@@ -25,7 +25,7 @@ export class AttendanceCSVStorage {
 				return [];
 			}
 
-			const content = await readFile(this.csvPath, 'utf-8');
+			const content = await readFile(this.csvPath, 'utf8');
 			const lines = content.trim().split('\n');
 
 			if (lines.length === 0 || (lines.length === 1 && lines[0] === '')) {
