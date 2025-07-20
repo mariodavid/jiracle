@@ -417,7 +417,6 @@ export function WeeklyTimetableView({
 								/>
 							);
 
-						case 'timetable':
 						default:
 							return (
 								<TimetableGrid

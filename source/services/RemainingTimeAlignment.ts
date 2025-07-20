@@ -173,11 +173,9 @@ export class RemainingTimeAlignment {
 		oldHours: number;
 		diff: number;
 	}> {
-		if (strategy === 'even') {
-			return this.distributeEvenly(issues, remainingHours);
-		} else {
-			return this.distributeProportionally(issues, remainingHours);
-		}
+		return strategy === 'even'
+			? this.distributeEvenly(issues, remainingHours)
+			: this.distributeProportionally(issues, remainingHours);
 	}
 
 	/**

@@ -151,7 +151,7 @@ export function useWorklogForm(
 				issueKey: data.issueKey,
 				timeSpent: data.timeSpent,
 				comment: data.comment,
-				isEditMode: !!data.worklogId,
+				isEditMode: Boolean(data.worklogId),
 			});
 
 			// Validate issue key
