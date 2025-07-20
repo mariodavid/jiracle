@@ -1,8 +1,8 @@
 import React from 'react';
 import {Box, Text} from 'ink';
-import {FocusableCell} from './FocusableCell.js';
 import {formatLocalDateKey} from '../utils/date.js';
 import type {WeeklyAttendance} from '../attendance/types.js';
+import {FocusableCell} from './FocusableCell.js';
 
 type AttendanceRowsProps = {
 	weekDates: Date[];

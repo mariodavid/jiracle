@@ -1,10 +1,10 @@
 import React, {useState, useEffect, useCallback, useRef} from 'react';
 import {Box, Text, useInput, useFocus} from 'ink';
 import {TextInput, Spinner} from '@inkjs/ui';
-import DurationInput from './WorklogForm/DurationInput.js';
 import type {JiraConfig} from '../jira-client.js';
 import {resolveDefaults} from '../jira-client.js';
 import {uiLogger} from '../utils/logger.js';
+import DurationInput from './WorklogForm/DurationInput.js';
 
 type InlineWorklogFormProps = {
 	issueKey: string;

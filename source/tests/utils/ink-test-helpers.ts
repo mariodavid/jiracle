@@ -170,13 +170,13 @@ export const InkTestHelpers: any = {
 	},
 
 	// Test timing utilities
-	delay(ms: number): Promise<void> {
+	async delay(ms: number): Promise<void> {
 		// eslint-disable-next-line no-promise-executor-return
 		return new Promise(resolve => setTimeout(resolve, ms));
 	},
 
 	// For async effects in React components
-	waitForEffects(): Promise<void> {
+	async waitForEffects(): Promise<void> {
 		// eslint-disable-next-line no-promise-executor-return
 		return new Promise(resolve => setImmediate(resolve));
 	},

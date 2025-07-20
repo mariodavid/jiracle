@@ -1,8 +1,8 @@
 import test from 'ava';
 import React from 'react';
 import {render} from 'ink-testing-library';
-import {DeleteWorklogConfirmationArea} from './DeleteWorklogConfirmationArea.js';
 import type {DeleteCandidate} from '../../hooks/useDeleteOperations.js';
+import {DeleteWorklogConfirmationArea} from './DeleteWorklogConfirmationArea.js';
 
 const mockDeleteCandidate: DeleteCandidate = {
 	issueKey: 'PROJECT-123',

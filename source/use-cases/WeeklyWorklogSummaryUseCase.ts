@@ -220,7 +220,7 @@ export class WeeklyWorklogSummaryUseCase {
 		uiLogger.debug('Searching for sliding window issues', {dateRange});
 
 		const windowJql = this.buildJqlQuery(startDate, endDate);
-		return await this.jiraClient.searchIssuesWithWorklogs(windowJql);
+		return this.jiraClient.searchIssuesWithWorklogs(windowJql);
 	}
 
 	private aggregateWorklogsByDay(

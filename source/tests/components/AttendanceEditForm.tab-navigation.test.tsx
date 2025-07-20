@@ -90,28 +90,28 @@ test('AttendanceEditForm Tab and Shift+Tab navigation cycles correctly', t => {
 	t.true(output.includes('Beginn:'));
 
 	// Tab forward twice to get to break
-	stdin.write('\t'); // checkIn -> checkOut
-	stdin.write('\t'); // checkOut -> break
+	stdin.write('\t'); // CheckIn -> checkOut
+	stdin.write('\t'); // CheckOut -> break
 	output = lastFrame() || '';
 	t.true(output.includes('Pause:'));
 
 	// Shift+Tab backward to checkOut
-	stdin.write('\u001B[Z'); // break -> checkOut
+	stdin.write('\u001B[Z'); // Break -> checkOut
 	output = lastFrame() || '';
 	t.true(output.includes('Ende:'));
 
 	// Tab forward to break again
-	stdin.write('\t'); // checkOut -> break
+	stdin.write('\t'); // CheckOut -> break
 	output = lastFrame() || '';
 	t.true(output.includes('Pause:'));
 
 	// Continue forward to submit
-	stdin.write('\t'); // break -> submit
+	stdin.write('\t'); // Break -> submit
 	output = lastFrame() || '';
 	t.true(output.includes('[Speichern]'));
 
 	// Shift+Tab backward to break
-	stdin.write('\u001B[Z'); // submit -> break
+	stdin.write('\u001B[Z'); // Submit -> break
 	output = lastFrame() || '';
 	t.true(output.includes('Pause:'));
 });
@@ -145,13 +145,13 @@ test('AttendanceEditForm Escape cancels from any focus area', async t => {
 	await InkTestHelpers.delay(100);
 
 	// Verify tab works first
-	stdin.write('\t'); // checkIn -> checkOut
+	stdin.write('\t'); // CheckIn -> checkOut
 	await InkTestHelpers.delay(50);
 	const output = lastFrame() || '';
 	t.true(output.includes('Ende:')); // Should be on checkOut field
 
 	// Now try escape
-	stdin.write('\x1B'); // Hex escape sequence
+	stdin.write('\u001B'); // Hex escape sequence
 	await InkTestHelpers.delay(100); // Allow event processing
 	t.true(cancelled);
 
@@ -161,7 +161,7 @@ test('AttendanceEditForm Escape cancels from any focus area', async t => {
 		React.createElement(AttendanceEditForm, cancelProps),
 	);
 	await InkTestHelpers.delay(100);
-	stdin2.write('\x1B'); // Escape from checkIn field
+	stdin2.write('\u001B'); // Escape from checkIn field
 	await InkTestHelpers.delay(100);
 	t.true(cancelled);
 });
@@ -181,11 +181,11 @@ test('AttendanceEditForm Enter submits from submit button', async t => {
 	await InkTestHelpers.delay(100);
 
 	// Navigate to submit button using Tab (checkIn -> checkOut -> break -> submit)
-	stdin.write('\t'); // checkIn -> checkOut
+	stdin.write('\t'); // CheckIn -> checkOut
 	await InkTestHelpers.delay(50);
-	stdin.write('\t'); // checkOut -> break
+	stdin.write('\t'); // CheckOut -> break
 	await InkTestHelpers.delay(50);
-	stdin.write('\t'); // break -> submit
+	stdin.write('\t'); // Break -> submit
 	await InkTestHelpers.delay(50);
 
 	// Verify we haven't submitted yet

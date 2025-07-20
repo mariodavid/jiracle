@@ -3,9 +3,6 @@ import {Box, Text, useFocusManager} from 'ink';
 import {Spinner} from '@inkjs/ui';
 import figures from 'figures';
 import {type WeeklyWorklogSummary} from '../domain/WeeklyWorklogSummary.js';
-import {FocusableCell} from './FocusableCell.js';
-import {AttendanceRows} from './AttendanceRows.js';
-import {AttendanceFooterRows} from './AttendanceFooterRows.js';
 import {formatLocalDateKey} from '../utils/date.js';
 import type {FavoriteIssue, JiraConfig} from '../jira-client.js';
 import {type AttendanceManager} from '../attendance/AttendanceManager.js';
@@ -20,6 +17,9 @@ import {
 import {FocusableItemCalculator} from '../utils/FocusableItemCalculator.js';
 import {GridNavigationService} from '../services/GridNavigationService.js';
 import {useTableNavigation} from '../hooks/useTableNavigation.js';
+import {AttendanceFooterRows} from './AttendanceFooterRows.js';
+import {AttendanceRows} from './AttendanceRows.js';
+import {FocusableCell} from './FocusableCell.js';
 
 export type TimetableGridProps = {
 	data: WeeklyWorklogSummary | null;

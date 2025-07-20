@@ -1,9 +1,9 @@
 import React, {useState} from 'react';
 import {Box, Text, useInput, useFocus} from 'ink';
-import TimeInputField from './TimeInputField.js';
-import DurationInput from './WorklogForm/DurationInput.js';
 import {Duration} from '../utils/Duration.js';
 import type {Attendance} from '../attendance/types.js';
+import TimeInputField from './TimeInputField.js';
+import DurationInput from './WorklogForm/DurationInput.js';
 
 type AttendanceEditFormProps = {
 	date: Date;

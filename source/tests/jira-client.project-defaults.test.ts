@@ -16,7 +16,7 @@ test('extractProjectKey returns null for invalid issue keys', t => {
 	t.is(extractProjectKey('invalid'), null);
 	t.is(extractProjectKey('DEF-'), null);
 	t.is(extractProjectKey('-123'), null);
-	t.is(extractProjectKey('def-123'), null); // lowercase
+	t.is(extractProjectKey('def-123'), null); // Lowercase
 	t.is(extractProjectKey(''), null);
 });
 

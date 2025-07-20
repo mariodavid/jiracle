@@ -169,11 +169,11 @@ test('WeeklyWorklogSummaryUseCase supports bidirectional sliding window', async 
 	t.is(result.dailySummaries[0]!.totalHours, 0);
 
 	// Both issues should appear with 0 hours since they have no worklogs in current week
-	const issueKeys = result.dailySummaries[0]!.issues.map(
-		issue => issue.issueKey,
+	const issueKeys = new Set(
+		result.dailySummaries[0]!.issues.map(issue => issue.issueKey),
 	);
-	t.true(issueKeys.includes('PAST-100'));
-	t.true(issueKeys.includes('FUTURE-100'));
+	t.true(issueKeys.has('PAST-100'));
+	t.true(issueKeys.has('FUTURE-100'));
 	t.is(result.dailySummaries[0]!.issues[0]!.hours, 0);
 	t.is(result.dailySummaries[0]!.issues[1]!.hours, 0);
 });

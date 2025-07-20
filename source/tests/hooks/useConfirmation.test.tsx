@@ -112,7 +112,7 @@ test('useConfirmation setLoading() updates loading state', t => {
 	// Initially not loading
 	t.false(capturedState.isLoading);
 
-	// setLoading function should exist
+	// SetLoading function should exist
 	t.is(typeof capturedState.setLoading, 'function');
 });
 
@@ -127,7 +127,7 @@ test('useConfirmation handleConfirm() function exists', t => {
 		}),
 	);
 
-	// handleConfirm function should exist
+	// HandleConfirm function should exist
 	t.is(typeof capturedState.handleConfirm, 'function');
 });
 

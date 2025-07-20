@@ -31,7 +31,7 @@ export function useConfirmation(): ConfirmationState & ConfirmationActions {
 	});
 
 	const show = useCallback(
-		(config: ConfirmationConfig = {}): Promise<boolean> => {
+		async (config: ConfirmationConfig = {}): Promise<boolean> => {
 			return new Promise<boolean>(resolve => {
 				setState({
 					isVisible: true,

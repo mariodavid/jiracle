@@ -1,10 +1,5 @@
 import {useCallback} from 'react';
 import {useFocusManager} from 'ink';
-import {useFocusManagement, type FocusedCell} from './useFocusManagement.js';
-import {
-	useKeyboardInput,
-	type KeyboardInputHandlers,
-} from './useKeyboardInput.js';
 import {GridNavigationService} from '../services/GridNavigationService.js';
 import {
 	FocusableItemCalculator,
@@ -12,6 +7,11 @@ import {
 } from '../utils/FocusableItemCalculator.js';
 import type {AttendanceManager} from '../attendance/AttendanceManager.js';
 import type {IssueGroup} from '../services/IssueGroupManager.js';
+import {
+	useKeyboardInput,
+	type KeyboardInputHandlers,
+} from './useKeyboardInput.js';
+import {useFocusManagement, type FocusedCell} from './useFocusManagement.js';
 
 export type TableNavigationProps = {
 	isActive: boolean;

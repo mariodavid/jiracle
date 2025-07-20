@@ -1,7 +1,7 @@
-import {AttendanceManager} from '../attendance/AttendanceManager.js';
 import {readFileSync} from 'node:fs';
 import {homedir} from 'node:os';
 import {join} from 'node:path';
+import {AttendanceManager} from '../attendance/AttendanceManager.js';
 import type {JiraConfig} from '../jira-client.js';
 
 export type AttendanceCommandResult = {

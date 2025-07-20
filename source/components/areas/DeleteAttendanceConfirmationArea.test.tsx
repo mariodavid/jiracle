@@ -1,8 +1,8 @@
 import test from 'ava';
 import React from 'react';
 import {render} from 'ink-testing-library';
-import {DeleteAttendanceConfirmationArea} from './DeleteAttendanceConfirmationArea.js';
 import type {DeleteAttendanceCandidate} from '../../hooks/useDeleteOperations.js';
+import {DeleteAttendanceConfirmationArea} from './DeleteAttendanceConfirmationArea.js';
 
 const mockDeleteAttendanceCandidate: DeleteAttendanceCandidate = {
 	date: new Date('2024-01-15'),

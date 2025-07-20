@@ -1254,11 +1254,11 @@ test('WeeklyWorklogSummaryUseCase sliding window issues work correctly when curr
 	t.is(result.dailySummaries[0]!.issues.length, 2);
 
 	// Check that both recent issues are present
-	const issueKeys = result.dailySummaries[0]!.issues.map(
-		issue => issue.issueKey,
+	const issueKeys = new Set(
+		result.dailySummaries[0]!.issues.map(issue => issue.issueKey),
 	);
-	t.true(issueKeys.includes('SLIDING-1'));
-	t.true(issueKeys.includes('SLIDING-2'));
+	t.true(issueKeys.has('SLIDING-1'));
+	t.true(issueKeys.has('SLIDING-2'));
 
 	// All should have 0 hours
 	for (const issue of result.dailySummaries[0]!.issues) {

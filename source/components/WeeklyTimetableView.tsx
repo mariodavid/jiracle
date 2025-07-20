@@ -3,17 +3,6 @@ import {Box, Text, useInput} from 'ink';
 import {Alert} from '@inkjs/ui';
 import Gradient from 'ink-gradient';
 import BigText from 'ink-big-text';
-import {TimetableGrid} from './TimetableGrid.js';
-import {TitleBar} from './TitleBar.js';
-import {
-	DeleteWorklogConfirmationArea,
-	DeleteAttendanceConfirmationArea,
-	CheckinConfirmationArea,
-	CheckoutConfirmationArea,
-	WorklogFormArea,
-	AttendanceEditFormArea,
-} from './areas/index.js';
-import {NotificationBar} from './NotificationBar.js';
 import {useWeeklyWorklogSummary} from '../hooks/useWeeklyWorklogSummary.js';
 import {useWorklogForm} from '../hooks/useWorklogForm.js';
 import {useDeleteOperations} from '../hooks/useDeleteOperations.js';
@@ -29,6 +18,17 @@ import {
 	openInBrowser,
 	generateJiraIssueUrl,
 } from '../utils/browser.js';
+import {NotificationBar} from './NotificationBar.js';
+import {
+	DeleteWorklogConfirmationArea,
+	DeleteAttendanceConfirmationArea,
+	CheckinConfirmationArea,
+	CheckoutConfirmationArea,
+	WorklogFormArea,
+	AttendanceEditFormArea,
+} from './areas/index.js';
+import {TitleBar} from './TitleBar.js';
+import {TimetableGrid} from './TimetableGrid.js';
 
 export type WeeklyTimetableViewProps = {
 	onBack: () => void;

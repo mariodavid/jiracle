@@ -1,3 +1,8 @@
+import {join} from 'node:path';
+import winston from 'winston';
+import {Duration} from './utils/Duration.js';
+import type {AttendanceConfig} from './attendance/types.js';
+
 export type Group = {
 	id: string;
 	name: string;
@@ -100,11 +105,6 @@ export type JiraSearchResponse = {
 	maxResults: number;
 	total: number;
 };
-
-import winston from 'winston';
-import {join} from 'node:path';
-import {Duration} from './utils/Duration.js';
-import type {AttendanceConfig} from './attendance/types.js';
 
 export type WorklogRequest = {
 	timeSpent: string;
@@ -253,7 +253,7 @@ export function resolveDefaults(
 	}
 
 	// Resolve time with priority: issue → group → global → fallback
-	let time = '1h'; // fallback
+	let time = '1h'; // Fallback
 	let timeSource: 'issue' | 'group' | 'global' | 'fallback' = 'fallback';
 
 	if (favorite?.defaultTime) {
@@ -581,7 +581,7 @@ export class JiraClient {
 				status: response.status,
 			});
 
-			return response.json() as Promise<JiraIssue>;
+			return await (response.json() as Promise<JiraIssue>);
 		} catch (error) {
 			this.logger.error('Error fetching issue', {
 				method: 'GET',

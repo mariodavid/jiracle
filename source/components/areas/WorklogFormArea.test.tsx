@@ -1,9 +1,9 @@
 import test from 'ava';
 import React from 'react';
 import {render} from 'ink-testing-library';
-import {WorklogFormArea} from './WorklogFormArea.js';
 import type {WorklogFormData} from '../../hooks/useWorklogForm.js';
 import type {JiraConfig} from '../../jira-client.js';
+import {WorklogFormArea} from './WorklogFormArea.js';
 
 const mockConfig: JiraConfig = {
 	jiraUrl: 'https://test.example.com',
