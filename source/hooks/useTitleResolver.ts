@@ -128,6 +128,13 @@ export function useTitleResolver({
 		};
 	}
 
+	if (activeArea === 'align-time-confirmation') {
+		return {
+			title: 'Time Alignment Confirmation',
+			titleColor: 'cyan',
+		};
+	}
+
 	if (activeArea === 'attendance-edit' && attendanceEdit) {
 		return {
 			title: `Anwesenheit - ${formatDate(attendanceEdit.date)}`,

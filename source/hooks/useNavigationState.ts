@@ -7,7 +7,8 @@ export type ActiveArea =
 	| 'delete-attendance-confirmation'
 	| 'attendance-edit'
 	| 'checkin-confirmation'
-	| 'checkout-confirmation';
+	| 'checkout-confirmation'
+	| 'align-time-confirmation';
 
 export interface UseNavigationStateOptions {
 	initialWeek?: Date;

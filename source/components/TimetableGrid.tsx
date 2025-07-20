@@ -27,6 +27,7 @@ export interface TimetableGridProps {
 	onAttendanceEdit?: (data: {date: Date}) => void;
 	onAttendanceDelete?: (data: {date: Date}) => void;
 	onOpenInBrowser?: (issueKey: string) => void;
+	onAlignRemainingTime?: (date: Date) => void;
 	isActive?: boolean;
 	favoriteIssues?: FavoriteIssue[];
 	config?: JiraConfig;
@@ -45,6 +46,7 @@ export function TimetableGrid({
 	onAttendanceEdit,
 	onAttendanceDelete,
 	onOpenInBrowser,
+	onAlignRemainingTime,
 	isActive = true,
 	favoriteIssues = [],
 	config,
@@ -459,6 +461,19 @@ export function TimetableGrid({
 			!focusedCell.isAttendance
 		) {
 			onOpenInBrowser(focusedCell.issueKey);
+			return;
+		}
+
+		// Handle 'F' for aligning remaining time
+		if (
+			(_input === 'f' || _input === 'F') &&
+			onAlignRemainingTime &&
+			focusedCell
+		) {
+			const date = weekDates[focusedCell.columnIndex];
+			if (date) {
+				onAlignRemainingTime(date);
+			}
 			return;
 		}
 

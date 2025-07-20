@@ -10,9 +10,11 @@ import {
 	DeleteAttendanceConfirmationArea,
 	CheckinConfirmationArea,
 	CheckoutConfirmationArea,
+	AlignTimeConfirmationArea,
 	WorklogFormArea,
 	AttendanceEditFormArea,
 } from './areas/index.js';
+import {NotificationBar} from './NotificationBar.js';
 import {useWeeklyWorklogSummary} from '../hooks/useWeeklyWorklogSummary.js';
 import {useWorklogForm} from '../hooks/useWorklogForm.js';
 import {useDeleteOperations} from '../hooks/useDeleteOperations.js';
@@ -20,6 +22,8 @@ import {useAttendanceManagement} from '../hooks/useAttendanceManagement.js';
 import {useNavigationState} from '../hooks/useNavigationState.js';
 import {useTitleResolver} from '../hooks/useTitleResolver.js';
 import {useActiveAreaResolver} from '../hooks/useActiveAreaResolver.js';
+import {useRemainingTimeAlignment} from '../hooks/useRemainingTimeAlignment.js';
+import {useNotification} from '../hooks/useNotification.js';
 import type {JiraConfig} from '../jira-client.js';
 import {getStartOfWeek, getEndOfWeek} from '../utils/date.js';
 import {
@@ -49,34 +53,34 @@ export function WeeklyTimetableView({
 		setActiveArea,
 	} = useNavigationState();
 
-	// Format date for display
+	// Format date for display (German)
 	const formatDate = (date: Date) => {
 		const days = [
-			'Sunday',
-			'Monday',
-			'Tuesday',
-			'Wednesday',
-			'Thursday',
-			'Friday',
-			'Saturday',
+			'Sonntag',
+			'Montag',
+			'Dienstag',
+			'Mittwoch',
+			'Donnerstag',
+			'Freitag',
+			'Samstag',
 		];
 		const months = [
 			'Jan',
 			'Feb',
-			'Mar',
+			'Mär',
 			'Apr',
-			'May',
+			'Mai',
 			'Jun',
 			'Jul',
 			'Aug',
 			'Sep',
-			'Oct',
+			'Okt',
 			'Nov',
-			'Dec',
+			'Dez',
 		];
-		return `${days[date.getDay()]}, ${
+		return `${days[date.getDay()]}, ${date.getDate()}. ${
 			months[date.getMonth()]
-		} ${date.getDate()}`;
+		}`;
 	};
 
 	const weekStart = getStartOfWeek(currentWeek);
@@ -164,6 +168,31 @@ export function WeeklyTimetableView({
 		attendanceEdit,
 	});
 
+	// Notification system
+	const {notifications, showNotification} = useNotification();
+
+	// Remaining time alignment
+	const {alignRemainingTime, previewAlignment} = useRemainingTimeAlignment({
+		config,
+		userEmail,
+		onRefresh: refresh,
+		onNotification: showNotification,
+	});
+
+	// Alignment confirmation state
+	const [alignmentConfirmation, setAlignmentConfirmation] = React.useState<{
+		date: Date;
+		dailySummary: any;
+		previewData: {
+			result: any;
+			attendanceHours: number;
+			currentLoggedHours: number;
+			remainingHours: number;
+			strategy: 'even' | 'proportional';
+		};
+	} | null>(null);
+	const [isAligning, setIsAligning] = React.useState(false);
+
 	// Always use fresh data from the hook
 	const displayData = data;
 	const displayLoading = isLoading;
@@ -188,6 +217,49 @@ export function WeeklyTimetableView({
 		}
 	};
 
+	const handleAlignRemainingTime = async (date: Date) => {
+		if (!displayData) return;
+
+		// Find the daily summary for the selected date
+		const dailySummary = displayData.dailySummaries.find(
+			summary => summary.date.toDateString() === date.toDateString(),
+		);
+
+		// Get preview data for confirmation dialog
+		const previewData = await previewAlignment(date, dailySummary || null);
+		if (!previewData) return;
+
+		// Show confirmation dialog
+		setAlignmentConfirmation({
+			date,
+			dailySummary: dailySummary || null,
+			previewData,
+		});
+		setActiveArea('align-time-confirmation');
+	};
+
+	const handleAlignmentConfirm = async (confirmed: boolean) => {
+		if (!confirmed || !alignmentConfirmation) {
+			// Cancel - return to timetable
+			setAlignmentConfirmation(null);
+			setActiveArea('timetable');
+			return;
+		}
+
+		// Execute alignment
+		setIsAligning(true);
+		try {
+			await alignRemainingTime(
+				alignmentConfirmation.date,
+				alignmentConfirmation.dailySummary,
+			);
+		} finally {
+			setIsAligning(false);
+			setAlignmentConfirmation(null);
+			setActiveArea('timetable');
+		}
+	};
+
 	useInput(input => {
 		// Don't handle input if forms are visible or delete confirmation is active
 		if (
@@ -196,7 +268,8 @@ export function WeeklyTimetableView({
 			activeArea === 'delete-attendance-confirmation' ||
 			activeArea === 'attendance-edit' ||
 			activeArea === 'checkin-confirmation' ||
-			activeArea === 'checkout-confirmation'
+			activeArea === 'checkout-confirmation' ||
+			activeArea === 'align-time-confirmation'
 		) {
 			return;
 		}
@@ -299,6 +372,26 @@ export function WeeklyTimetableView({
 								<CheckoutConfirmationArea onConfirm={handleCheckoutConfirm} />
 							);
 
+						case 'align-time-confirmation':
+							return alignmentConfirmation ? (
+								<AlignTimeConfirmationArea
+									dayLabel={formatDate(alignmentConfirmation.date)}
+									attendanceHours={
+										alignmentConfirmation.previewData.attendanceHours
+									}
+									currentLoggedHours={
+										alignmentConfirmation.previewData.currentLoggedHours
+									}
+									remainingHours={
+										alignmentConfirmation.previewData.remainingHours
+									}
+									strategy={alignmentConfirmation.previewData.strategy}
+									previewResult={alignmentConfirmation.previewData.result}
+									isAligning={isAligning}
+									onConfirm={handleAlignmentConfirm}
+								/>
+							) : null;
+
 						case 'attendance-edit':
 							return (
 								<AttendanceEditFormArea
@@ -327,6 +420,7 @@ export function WeeklyTimetableView({
 									onAttendanceEdit={handleAttendanceEdit}
 									onAttendanceDelete={handleDeleteAttendance}
 									onOpenInBrowser={handleOpenInBrowser}
+									onAlignRemainingTime={handleAlignRemainingTime}
 									isActive={activeArea === 'timetable'}
 									favoriteIssues={config.favorites}
 									config={config}
@@ -343,6 +437,9 @@ export function WeeklyTimetableView({
 						{deleteError}
 					</Alert>
 				)}
+
+				{/* Notification bar */}
+				<NotificationBar notifications={notifications} />
 			</Box>
 
 			{/* Footer Area - Fixed Height */}
@@ -363,7 +460,7 @@ export function WeeklyTimetableView({
 							Week Navigation
 						</Text>
 						<Text color="gray">
-							[D] Delete Worklogs [I] Check In [O] Check Out
+							[D] Delete Worklogs [F] Align Time [I] Check In [O] Check Out
 							{isBrowserOpenSupported() && config.jiraUrl
 								? ' [Shift+O] Open in Browser'
 								: ''}

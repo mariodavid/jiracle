@@ -25,6 +25,7 @@ The application presents your Jira issues in a calendar-like timetable where eac
 - **Keyboard Navigation** - Navigate efficiently with arrow keys and shortcuts
 - **Quick Time Entry** - Log time directly in the grid cells with inline forms
 - **Attendance Tracking** - Built-in check-in/check-out with working hours calculation
+- **Time Alignment** - Automatically distribute remaining attendance time across existing worklogs
 - **Issue Organization** - Group issues and configure project-level defaults
 - **Daily Reminders** - Automatic desktop notifications to remind you to log time
 - **Smart Defaults** - Hierarchical configuration with group, project, and issue-specific defaults
@@ -127,20 +128,21 @@ Create a configuration file at `~/.config/jiracle.json`:
 
 ### Configuration Options
 
-| Option                | Required | Description                                                                  |
-| --------------------- | -------- | ---------------------------------------------------------------------------- |
-| `jiraUrl`             | Yes      | Your Jira instance URL (e.g., `https://company.atlassian.net`)               |
-| `username`            | Yes      | Your Jira username/email                                                     |
-| `apiToken`            | Yes      | Your Jira API token                                                          |
-| `defaultComment`      | No       | Global default comment for all worklogs                                      |
-| `defaultTime`         | No       | Global default time (e.g., "1h", "2h")                                       |
-| `workingHoursPerWeek` | No       | Expected working hours per week for tracking purposes                        |
-| `reminders`           | No       | Daily reminder settings for desktop notifications                            |
-| `groups`              | No       | Issue groups with shared defaults and organization                           |
-| `projects`            | No       | Project-level defaults and group assignments                                 |
-| `favorites`           | No       | Array of favorite issues with optional aliases and defaults                  |
-| `attendance`          | No       | Attendance tracking configuration                                            |
-| `slidingWindowDays`   | No       | Show issues worked on around the current week (object with past/future days) |
+| Option                   | Required | Description                                                                  |
+| ------------------------ | -------- | ---------------------------------------------------------------------------- |
+| `jiraUrl`                | Yes      | Your Jira instance URL (e.g., `https://company.atlassian.net`)               |
+| `username`               | Yes      | Your Jira username/email                                                     |
+| `apiToken`               | Yes      | Your Jira API token                                                          |
+| `defaultComment`         | No       | Global default comment for all worklogs                                      |
+| `defaultTime`            | No       | Global default time (e.g., "1h", "2h")                                       |
+| `workingHoursPerWeek`    | No       | Expected working hours per week for tracking purposes                        |
+| `alignRemainingStrategy` | No       | Strategy for time alignment: "even" or "proportional" (default: "even")      |
+| `reminders`              | No       | Daily reminder settings for desktop notifications                            |
+| `groups`                 | No       | Issue groups with shared defaults and organization                           |
+| `projects`               | No       | Project-level defaults and group assignments                                 |
+| `favorites`              | No       | Array of favorite issues with optional aliases and defaults                  |
+| `attendance`             | No       | Attendance tracking configuration                                            |
+| `slidingWindowDays`      | No       | Show issues worked on around the current week (object with past/future days) |
 
 ### Attendance Configuration
 
@@ -171,6 +173,65 @@ Create a configuration file at `~/.config/jiracle.json`:
 ```
 
 **Note**: By default, `jiracle checkin` and `jiracle checkout` use the current time, not the configured default times. The `defaultCheckIn` and `defaultCheckOut` values are only used by the UI components.
+
+### Time Alignment
+
+When you have attendance tracking enabled, Jiracle can automatically distribute the remaining time between your attendance hours and logged work across your existing worklogs. This helps ensure your logged time matches your actual working hours without manual calculation.
+
+**How it works:**
+
+1. Navigate to any cell in the weekly timetable (the column determines which day)
+2. Press `F` to trigger time alignment for that day
+3. Jiracle calculates: `Attendance Hours - Logged Hours = Remaining Time`
+4. The remaining time is distributed across **only existing worklogs** for that day
+5. No new worklogs are created - only existing ones are updated
+
+**Configuration:**
+
+```json
+{
+	"alignRemainingStrategy": "even"
+}
+```
+
+**Available strategies:**
+
+| Strategy         | Description                                                       |
+| ---------------- | ----------------------------------------------------------------- |
+| `"even"`         | Distributes remaining time equally across all existing worklogs   |
+| `"proportional"` | Distributes remaining time proportionally based on existing hours |
+
+**Example scenario:**
+
+- **Attendance**: 8.5 hours (08:00-17:00 with 30min break)
+- **Current worklogs**: PROJ-123 (2h), PROJ-456 (1h) = 3h total
+- **Remaining time**: 8.5h - 3h = 5.5h
+
+**With "even" strategy:**
+
+- 5.5h ÷ 2 worklogs = 2.75h each
+- PROJ-123: 2h → 4.75h (+2.75h)
+- PROJ-456: 1h → 3.75h (+2.75h)
+
+**With "proportional" strategy:**
+
+- PROJ-123 gets 2/3 of remaining: 2h → 5.67h (+3.67h)
+- PROJ-456 gets 1/3 of remaining: 1h → 2.83h (+1.83h)
+
+**Key features:**
+
+- **Existing worklogs only**: Never creates new worklogs, only updates existing ones
+- **Day-specific**: Only affects the day of the focused column
+- **Smart filtering**: Ignores issues with 0 hours logged
+- **User feedback**: Shows notification with distribution summary
+- **Debug logging**: Detailed calculation logs for troubleshooting
+
+**Usage tips:**
+
+- Log rough time estimates first, then use alignment to match attendance
+- Works great for end-of-day time reconciliation
+- Use "proportional" when you want to maintain relative time ratios
+- Use "even" for equal distribution regardless of current amounts
 
 ### Sliding Window
 
@@ -481,6 +542,7 @@ jiracle status
 - `D` - Delete worklogs/attendance for focused cell
 - `I` - Check in (attendance tracking)
 - `O` - Check out (attendance tracking)
+- `F` - Align remaining time (distribute attendance time across existing worklogs)
 - `Shift+O` - Open focused issue in browser (when supported)
 - `T` - Go to current week
 - `R` - Refresh data from Jira

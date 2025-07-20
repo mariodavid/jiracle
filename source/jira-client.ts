@@ -48,6 +48,8 @@ export function normalizeSlidingWindowConfig(
 	};
 }
 
+export type AlignRemainingStrategy = 'even' | 'proportional';
+
 export interface JiraConfig {
 	jiraUrl: string;
 	username: string;
@@ -62,6 +64,7 @@ export interface JiraConfig {
 	attendance?: AttendanceConfig;
 	// Sliding window configuration - only bidirectional object format
 	slidingWindowDays?: SlidingWindowConfig;
+	alignRemainingStrategy?: AlignRemainingStrategy;
 }
 
 export interface JiraIssueField {
