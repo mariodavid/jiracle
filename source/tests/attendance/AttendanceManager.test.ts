@@ -52,8 +52,8 @@ test('should check in with current time', async t => {
 		`2025-07-12T${afterCheckIn.toTimeString().slice(0, 5)}:00`,
 	);
 
-	t.true(checkInTime >= new Date(beforeTime.getTime() - 60000)); // -1 minute
-	t.true(checkInTime <= new Date(afterTime.getTime() + 60000)); // +1 minute
+	t.true(checkInTime >= new Date(beforeTime.getTime() - 60_000)); // -1 minute
+	t.true(checkInTime <= new Date(afterTime.getTime() + 60_000)); // +1 minute
 
 	cleanup(csvPath);
 });
@@ -109,8 +109,8 @@ test('should check out with current time', async t => {
 		`2025-07-12T${afterCheckOut.toTimeString().slice(0, 5)}:00`,
 	);
 
-	t.true(checkOutTime >= new Date(beforeTime.getTime() - 60000)); // -1 minute
-	t.true(checkOutTime <= new Date(afterTime.getTime() + 60000)); // +1 minute
+	t.true(checkOutTime >= new Date(beforeTime.getTime() - 60_000)); // -1 minute
+	t.true(checkOutTime <= new Date(afterTime.getTime() + 60_000)); // +1 minute
 
 	cleanup(csvPath);
 });

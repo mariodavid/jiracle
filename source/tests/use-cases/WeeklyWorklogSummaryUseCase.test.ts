@@ -86,7 +86,7 @@ test('WeeklyWorklogSummaryUseCase aggregates worklogs by day', async t => {
 				},
 				comment: '',
 				started: '2024-10-19T08:00:00.000+0200',
-				timeSpentSeconds: 14400, // 4 hours
+				timeSpentSeconds: 14_400, // 4 hours
 			},
 			{
 				id: '111112',
@@ -628,7 +628,7 @@ test('WeeklyWorklogSummaryUseCase includes sliding window issues', async t => {
 						},
 						comment: '',
 						started: '2024-10-10T08:00:00.000+0200', // Before current week
-						timeSpentSeconds: 14400, // 4 hours
+						timeSpentSeconds: 14_400, // 4 hours
 					},
 				],
 			};

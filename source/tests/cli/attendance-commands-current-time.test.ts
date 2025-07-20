@@ -76,8 +76,8 @@ testWithContext('checkin uses current time when no time specified', async t => {
 		`2025-07-15T${afterCheckIn.toTimeString().slice(0, 5)}:00`,
 	);
 
-	t.true(checkInTime >= new Date(beforeTime.getTime() - 60000)); // -1 minute
-	t.true(checkInTime <= new Date(afterTime.getTime() + 60000)); // +1 minute
+	t.true(checkInTime >= new Date(beforeTime.getTime() - 60_000)); // -1 minute
+	t.true(checkInTime <= new Date(afterTime.getTime() + 60_000)); // +1 minute
 });
 
 testWithContext(
@@ -133,8 +133,8 @@ testWithContext(
 			`2025-07-15T${afterCheckOut.toTimeString().slice(0, 5)}:00`,
 		);
 
-		t.true(checkOutTime >= new Date(beforeTime.getTime() - 60000)); // -1 minute
-		t.true(checkOutTime <= new Date(afterTime.getTime() + 60000)); // +1 minute
+		t.true(checkOutTime >= new Date(beforeTime.getTime() - 60_000)); // -1 minute
+		t.true(checkOutTime <= new Date(afterTime.getTime() + 60_000)); // +1 minute
 	},
 );
 

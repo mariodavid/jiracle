@@ -161,8 +161,8 @@ export const TimeHelpers = {
 			.slice(0, 5)}:00`;
 
 		return (
-			testTime >= new Date(new Date(beforeTimeStr).getTime() - 60000) &&
-			testTime <= new Date(new Date(afterTimeStr).getTime() + 60000)
+			testTime >= new Date(new Date(beforeTimeStr).getTime() - 60_000) &&
+			testTime <= new Date(new Date(afterTimeStr).getTime() + 60_000)
 		);
 	},
 };
