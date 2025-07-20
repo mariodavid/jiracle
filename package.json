@@ -168,8 +168,7 @@
 			"no-return-await": "off",
 			"@typescript-eslint/class-literal-property-style": "off",
 			"no-prototype-builtins": "off",
-			"unicorn/no-useless-promise-resolve-reject": "off",
-			"unicorn/no-for-loop": "off"
+			"unicorn/no-useless-promise-resolve-reject": "off"
 		}
 	},
 	"prettier": "@vdemedes/prettier-config",
