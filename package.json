@@ -172,8 +172,7 @@
 			"no-prototype-builtins": "off",
 			"unicorn/no-useless-promise-resolve-reject": "off",
 			"unicorn/no-for-loop": "off",
-			"unicorn/no-useless-switch-case": "off",
-			"no-implicit-coercion": "off"
+			"unicorn/no-useless-switch-case": "off"
 		}
 	},
 	"prettier": "@vdemedes/prettier-config",
