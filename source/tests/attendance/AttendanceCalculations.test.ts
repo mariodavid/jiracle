@@ -423,9 +423,9 @@ test('should calculate daily deltas correctly', t => {
 	};
 
 	const dailyLoggedHours: Record<string, number> = {
-		'2025-07-07': 8.0, // Logged less than attended
-		'2025-07-08': 8.0, // Logged more than attended
-		'2025-07-09': 6.0, // Logged hours but no attendance
+		'2025-07-07': 8, // Logged less than attended
+		'2025-07-08': 8, // Logged more than attended
+		'2025-07-09': 6, // Logged hours but no attendance
 	};
 
 	const weekDates = ['2025-07-07', '2025-07-08', '2025-07-09'];
@@ -484,8 +484,8 @@ test('should handle incomplete attendance data in delta calculation', t => {
 	};
 
 	const dailyLoggedHours: Record<string, number> = {
-		'2025-07-07': 8.0,
-		'2025-07-08': 8.0,
+		'2025-07-07': 8,
+		'2025-07-08': 8,
 	};
 
 	const weekDates = ['2025-07-07', '2025-07-08'];

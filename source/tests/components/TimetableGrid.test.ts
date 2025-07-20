@@ -53,17 +53,17 @@ test('TimetableGrid renders table header', t => {
 		dailySummaries: [
 			{
 				date: new Date('2024-10-19T00:00:00.000Z'),
-				totalHours: 4.0,
+				totalHours: 4,
 				issues: [
 					{
 						issueKey: 'TEST-117',
 						issueSummary: 'Test Issue Summary',
-						hours: 4.0,
+						hours: 4,
 					},
 				],
 			},
 		],
-		weekTotal: 4.0,
+		weekTotal: 4,
 	};
 
 	const props = {
@@ -92,17 +92,17 @@ test('TimetableGrid displays dates in weekday headers', t => {
 		dailySummaries: [
 			{
 				date: new Date('2024-10-14T00:00:00.000Z'),
-				totalHours: 8.0,
+				totalHours: 8,
 				issues: [
 					{
 						issueKey: 'TEST-123',
 						issueSummary: 'Test Issue',
-						hours: 8.0,
+						hours: 8,
 					},
 				],
 			},
 		],
-		weekTotal: 8.0,
+		weekTotal: 8,
 	};
 
 	const props = {
@@ -135,7 +135,7 @@ test('TimetableGrid renders issue data correctly', t => {
 					{
 						issueKey: 'TEST-117',
 						issueSummary: 'Test Issue Summary',
-						hours: 4.0,
+						hours: 4,
 					},
 					{
 						issueKey: 'TEST-117',
@@ -199,22 +199,22 @@ test('TimetableGrid shows daily totals', t => {
 		dailySummaries: [
 			{
 				date: new Date('2024-10-18T00:00:00.000Z'), // Friday
-				totalHours: 8.0,
+				totalHours: 8,
 				issues: [
 					{
 						issueKey: 'TEST-117',
 						issueSummary: 'First Issue',
-						hours: 4.0,
+						hours: 4,
 					},
 					{
 						issueKey: 'TEST-118',
 						issueSummary: 'Second Issue',
-						hours: 4.0,
+						hours: 4,
 					},
 				],
 			},
 		],
-		weekTotal: 8.0,
+		weekTotal: 8,
 	};
 
 	const props = {
@@ -236,17 +236,17 @@ test('TimetableGrid shows week total', t => {
 		dailySummaries: [
 			{
 				date: new Date('2024-10-19T00:00:00.000Z'),
-				totalHours: 7.0,
+				totalHours: 7,
 				issues: [
 					{
 						issueKey: 'TEST-117',
 						issueSummary: 'Test Issue',
-						hours: 7.0,
+						hours: 7,
 					},
 				],
 			},
 		],
-		weekTotal: 7.0,
+		weekTotal: 7,
 	};
 
 	const props = {
@@ -267,22 +267,22 @@ test('TimetableGrid handles multiple issues correctly', t => {
 		dailySummaries: [
 			{
 				date: new Date('2024-10-19T00:00:00.000Z'),
-				totalHours: 8.0,
+				totalHours: 8,
 				issues: [
 					{
 						issueKey: 'TEST-117',
 						issueSummary: 'First Issue',
-						hours: 4.0,
+						hours: 4,
 					},
 					{
 						issueKey: 'TEST-118',
 						issueSummary: 'Second Issue',
-						hours: 4.0,
+						hours: 4,
 					},
 				],
 			},
 		],
-		weekTotal: 8.0,
+		weekTotal: 8,
 	};
 
 	const props = {
@@ -306,17 +306,17 @@ test('TimetableGrid shows dash for zero hours', t => {
 		dailySummaries: [
 			{
 				date: new Date('2024-10-18T00:00:00.000Z'), // Only Friday has work
-				totalHours: 4.0,
+				totalHours: 4,
 				issues: [
 					{
 						issueKey: 'TEST-117',
 						issueSummary: 'Test Issue',
-						hours: 4.0,
+						hours: 4,
 					},
 				],
 			},
 		],
-		weekTotal: 4.0,
+		weekTotal: 4,
 	};
 
 	const props = {
@@ -361,17 +361,17 @@ test.serial(
 			dailySummaries: [
 				{
 					date: new Date('2024-10-14T00:00:00.000Z'),
-					totalHours: 4.0,
+					totalHours: 4,
 					issues: [
 						{
 							issueKey: 'TEST-117',
 							issueSummary: 'First Issue',
-							hours: 4.0,
+							hours: 4,
 						},
 					],
 				},
 			],
-			weekTotal: 4.0,
+			weekTotal: 4,
 		};
 
 		const favoriteIssues = [
@@ -446,17 +446,17 @@ test.serial(
 			dailySummaries: [
 				{
 					date: new Date('2024-10-14T00:00:00.000Z'),
-					totalHours: 4.0,
+					totalHours: 4,
 					issues: [
 						{
 							issueKey: 'TEST-117',
 							issueSummary: 'First Issue',
-							hours: 4.0,
+							hours: 4,
 						},
 					],
 				},
 			],
-			weekTotal: 4.0,
+			weekTotal: 4,
 		};
 
 		const favoriteIssues = [
@@ -535,17 +535,17 @@ test.serial(
 			dailySummaries: [
 				{
 					date: new Date('2024-10-18T00:00:00.000Z'), // Friday data
-					totalHours: 4.0,
+					totalHours: 4,
 					issues: [
 						{
 							issueKey: 'TEST-117',
 							issueSummary: 'First Issue',
-							hours: 4.0,
+							hours: 4,
 						},
 					],
 				},
 			],
-			weekTotal: 4.0,
+			weekTotal: 4,
 		};
 
 		const favoriteIssues = [
@@ -601,17 +601,17 @@ test.serial(
 			dailySummaries: [
 				{
 					date: new Date('2024-10-14T00:00:00.000Z'),
-					totalHours: 4.0,
+					totalHours: 4,
 					issues: [
 						{
 							issueKey: 'TEST-117',
 							issueSummary: 'First Issue',
-							hours: 4.0,
+							hours: 4,
 						},
 					],
 				},
 			],
-			weekTotal: 4.0,
+			weekTotal: 4,
 		};
 
 		const favoriteIssues = [
@@ -766,37 +766,37 @@ test('TimetableGrid sorts issues by project prefix and number', t => {
 		dailySummaries: [
 			{
 				date: new Date('2024-10-18T00:00:00.000Z'),
-				totalHours: 12.0,
+				totalHours: 12,
 				issues: [
 					{
 						issueKey: 'DEF-2457',
 						issueSummary: 'DEF issue 2457',
-						hours: 2.0,
+						hours: 2,
 					},
 					{
 						issueKey: 'ABC-5417',
 						issueSummary: 'ABC issue 5417',
-						hours: 3.0,
+						hours: 3,
 					},
 					{
 						issueKey: 'DEF-2456',
 						issueSummary: 'DEF issue 2456',
-						hours: 1.0,
+						hours: 1,
 					},
 					{
 						issueKey: 'ABC-5420',
 						issueSummary: 'ABC issue 5420',
-						hours: 4.0,
+						hours: 4,
 					},
 					{
 						issueKey: 'ABC-5419',
 						issueSummary: 'ABC issue 5419',
-						hours: 2.0,
+						hours: 2,
 					},
 				],
 			},
 		],
-		weekTotal: 12.0,
+		weekTotal: 12,
 	};
 
 	const props = {
@@ -840,27 +840,27 @@ test('TimetableGrid sorts issues with different project prefixes correctly', t =
 		dailySummaries: [
 			{
 				date: new Date('2024-10-18T00:00:00.000Z'),
-				totalHours: 9.0,
+				totalHours: 9,
 				issues: [
 					{
 						issueKey: 'ZZZ-100',
 						issueSummary: 'Last project issue',
-						hours: 3.0,
+						hours: 3,
 					},
 					{
 						issueKey: 'AAA-200',
 						issueSummary: 'First project issue',
-						hours: 3.0,
+						hours: 3,
 					},
 					{
 						issueKey: 'BBB-50',
 						issueSummary: 'Second project issue',
-						hours: 3.0,
+						hours: 3,
 					},
 				],
 			},
 		],
-		weekTotal: 9.0,
+		weekTotal: 9,
 	};
 
 	const props = {
@@ -893,22 +893,22 @@ test('TimetableGrid sorts issues numerically within same project (124 before 102
 		dailySummaries: [
 			{
 				date: new Date('2024-10-18T00:00:00.000Z'),
-				totalHours: 6.0,
+				totalHours: 6,
 				issues: [
 					{
 						issueKey: 'ABC-1029',
 						issueSummary: 'Higher number issue',
-						hours: 3.0,
+						hours: 3,
 					},
 					{
 						issueKey: 'ABC-124',
 						issueSummary: 'Lower number issue',
-						hours: 3.0,
+						hours: 3,
 					},
 				],
 			},
 		],
-		weekTotal: 6.0,
+		weekTotal: 6,
 	};
 
 	const props = {
@@ -938,22 +938,22 @@ test('TimetableGrid shows favorite issues with asterisk marker', t => {
 		dailySummaries: [
 			{
 				date: new Date('2024-10-18T00:00:00.000Z'),
-				totalHours: 6.0,
+				totalHours: 6,
 				issues: [
 					{
 						issueKey: 'ABC-5417',
 						issueSummary: 'Favorite issue',
-						hours: 3.0,
+						hours: 3,
 					},
 					{
 						issueKey: 'DEF-2456',
 						issueSummary: 'Regular issue',
-						hours: 3.0,
+						hours: 3,
 					},
 				],
 			},
 		],
-		weekTotal: 6.0,
+		weekTotal: 6,
 	};
 
 	const favoriteIssues = [
@@ -999,17 +999,17 @@ test('TimetableGrid handles favorite issues without worklogs', t => {
 		dailySummaries: [
 			{
 				date: new Date('2024-10-18T00:00:00.000Z'),
-				totalHours: 3.0,
+				totalHours: 3,
 				issues: [
 					{
 						issueKey: 'DEF-2456',
 						issueSummary: 'Issue with worklog',
-						hours: 3.0,
+						hours: 3,
 					},
 				],
 			},
 		],
-		weekTotal: 3.0,
+		weekTotal: 3,
 	};
 
 	// This represents a scenario where a favorite issue was fetched
@@ -1109,22 +1109,22 @@ test('TimetableGrid displays aliases for favorite issues', t => {
 		dailySummaries: [
 			{
 				date: new Date('2024-10-18T00:00:00.000Z'),
-				totalHours: 6.0,
+				totalHours: 6,
 				issues: [
 					{
 						issueKey: 'DEF-2456',
 						issueSummary: 'Dev work issue',
-						hours: 4.0,
+						hours: 4,
 					},
 					{
 						issueKey: 'ABC-5419',
 						issueSummary: 'Monitoring issue',
-						hours: 2.0,
+						hours: 2,
 					},
 				],
 			},
 		],
-		weekTotal: 6.0,
+		weekTotal: 6,
 	};
 
 	const favoriteIssues = [
@@ -1178,17 +1178,17 @@ test('TimetableGrid shows original key when no alias is configured', t => {
 		dailySummaries: [
 			{
 				date: new Date('2024-10-18T00:00:00.000Z'),
-				totalHours: 4.0,
+				totalHours: 4,
 				issues: [
 					{
 						issueKey: 'DEF-2456',
 						issueSummary: 'Issue without alias',
-						hours: 4.0,
+						hours: 4,
 					},
 				],
 			},
 		],
-		weekTotal: 4.0,
+		weekTotal: 4,
 	};
 
 	const favoriteIssues = [
@@ -1223,22 +1223,22 @@ test('TimetableGrid handles mixed alias and non-alias favorites', t => {
 		dailySummaries: [
 			{
 				date: new Date('2024-10-18T00:00:00.000Z'),
-				totalHours: 6.0,
+				totalHours: 6,
 				issues: [
 					{
 						issueKey: 'DEF-2456',
 						issueSummary: 'Dev work',
-						hours: 3.0,
+						hours: 3,
 					},
 					{
 						issueKey: 'ABC-5419',
 						issueSummary: 'Regular work',
-						hours: 3.0,
+						hours: 3,
 					},
 				],
 			},
 		],
-		weekTotal: 6.0,
+		weekTotal: 6,
 	};
 
 	const favoriteIssues = [
@@ -1577,17 +1577,17 @@ test('TimetableGrid shows group total with hours suffix when not empty', t => {
 		dailySummaries: [
 			{
 				date: new Date('2024-10-18T00:00:00.000Z'),
-				totalHours: 8.0,
+				totalHours: 8,
 				issues: [
 					{
 						issueKey: 'TEST-123',
 						issueSummary: 'Test work',
-						hours: 8.0,
+						hours: 8,
 					},
 				],
 			},
 		],
-		weekTotal: 8.0,
+		weekTotal: 8,
 	};
 
 	const config = {
@@ -1637,17 +1637,17 @@ test('TimetableGrid shows group total with desired amount and status', t => {
 		dailySummaries: [
 			{
 				date: new Date('2024-10-18T00:00:00.000Z'),
-				totalHours: 8.0,
+				totalHours: 8,
 				issues: [
 					{
 						issueKey: 'TEST-123',
 						issueSummary: 'Test work',
-						hours: 8.0,
+						hours: 8,
 					},
 				],
 			},
 		],
-		weekTotal: 8.0,
+		weekTotal: 8,
 	};
 
 	const config = {
@@ -1720,17 +1720,17 @@ test('TimetableGrid shows delta row with positive values in red', async t => {
 		dailySummaries: [
 			{
 				date: new Date('2024-10-14T00:00:00.000Z'),
-				totalHours: 8.0, // Logged more than attended
+				totalHours: 8, // Logged more than attended
 				issues: [
 					{
 						issueKey: 'TEST-123',
 						issueSummary: 'Test work',
-						hours: 8.0,
+						hours: 8,
 					},
 				],
 			},
 		],
-		weekTotal: 8.0,
+		weekTotal: 8,
 	};
 
 	const favoriteIssues = [
@@ -1847,17 +1847,17 @@ test('TimetableGrid shows delta row with negative values in red', async t => {
 		dailySummaries: [
 			{
 				date: new Date('2024-10-14T00:00:00.000Z'),
-				totalHours: 8.0, // Logged less than attended
+				totalHours: 8, // Logged less than attended
 				issues: [
 					{
 						issueKey: 'TEST-123',
 						issueSummary: 'Test work',
-						hours: 8.0,
+						hours: 8,
 					},
 				],
 			},
 		],
-		weekTotal: 8.0,
+		weekTotal: 8,
 	};
 
 	const favoriteIssues = [
@@ -1902,17 +1902,17 @@ test('TimetableGrid shows dash in delta row when no attendance data', async t =>
 		dailySummaries: [
 			{
 				date: new Date('2024-10-14T00:00:00.000Z'),
-				totalHours: 8.0,
+				totalHours: 8,
 				issues: [
 					{
 						issueKey: 'TEST-123',
 						issueSummary: 'Test work',
-						hours: 8.0,
+						hours: 8,
 					},
 				],
 			},
 		],
-		weekTotal: 8.0,
+		weekTotal: 8,
 	};
 
 	const favoriteIssues = [
@@ -1962,7 +1962,7 @@ test('TimetableGrid shows attendance and delta rows at bottom after daily total'
 				checkIn: '08:00',
 				checkOut: '17:00',
 				breakMinutes: 60,
-				totalHours: 8.0,
+				totalHours: 8,
 			},
 		}),
 	};
@@ -1973,17 +1973,17 @@ test('TimetableGrid shows attendance and delta rows at bottom after daily total'
 		dailySummaries: [
 			{
 				date: new Date('2024-10-14T00:00:00.000Z'),
-				totalHours: 8.0,
+				totalHours: 8,
 				issues: [
 					{
 						issueKey: 'TEST-123',
 						issueSummary: 'Test work',
-						hours: 8.0,
+						hours: 8,
 					},
 				],
 			},
 		],
-		weekTotal: 8.0,
+		weekTotal: 8,
 	};
 
 	const favoriteIssues = [
@@ -2049,17 +2049,17 @@ test('TimetableGrid does not show delta row when no attendance manager', t => {
 		dailySummaries: [
 			{
 				date: new Date('2024-10-14T00:00:00.000Z'),
-				totalHours: 8.0,
+				totalHours: 8,
 				issues: [
 					{
 						issueKey: 'TEST-123',
 						issueSummary: 'Test work',
-						hours: 8.0,
+						hours: 8,
 					},
 				],
 			},
 		],
-		weekTotal: 8.0,
+		weekTotal: 8,
 	};
 
 	const favoriteIssues = [

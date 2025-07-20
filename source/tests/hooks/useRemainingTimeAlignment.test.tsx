@@ -95,12 +95,12 @@ test('useRemainingTimeAlignment - handles no attendance data', async t => {
 		const date = new Date('2025-07-19');
 		const dailySummary: DailyWorklogSummary = {
 			date,
-			totalHours: 6.0,
+			totalHours: 6,
 			issues: [
 				{
 					issueKey: 'PROJ-1',
 					issueSummary: 'Test issue',
-					hours: 6.0,
+					hours: 6,
 					worklogId: 'worklog-1',
 					comment: 'Test comment',
 				},
@@ -234,12 +234,12 @@ test('useRemainingTimeAlignment - handles errors gracefully', async t => {
 		const date = new Date('2025-07-19');
 		const dailySummary: DailyWorklogSummary = {
 			date,
-			totalHours: 6.0,
+			totalHours: 6,
 			issues: [
 				{
 					issueKey: 'PROJ-1',
 					issueSummary: 'Test issue',
-					hours: 6.0,
+					hours: 6,
 					worklogId: 'worklog-1',
 					comment: 'Test comment',
 				},
