@@ -137,7 +137,11 @@ export function useKeyboardInput({
 		}
 
 		// Handle 'F' for time alignment
-		if ((_input === 'f' || _input === 'F') && onAlignRemainingTime && focusedCell) {
+		if (
+			(_input === 'f' || _input === 'F') &&
+			onAlignRemainingTime &&
+			focusedCell
+		) {
 			const date = weekDates[focusedCell.columnIndex];
 			if (date) {
 				onAlignRemainingTime(date);

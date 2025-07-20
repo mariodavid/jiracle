@@ -122,6 +122,7 @@ export function TimetableGrid({
 		onAttendanceEdit,
 		onAttendanceDelete,
 		onOpenInBrowser,
+		onAlignRemainingTime,
 	});
 
 	// Helper function to check if an issue is a favorite

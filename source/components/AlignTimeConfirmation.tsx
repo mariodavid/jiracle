@@ -36,8 +36,8 @@ export function AlignTimeConfirmation({
 			<Text bold>Align Remaining Time - {dayLabel}</Text>
 			<Text> </Text>
 			<Text>
-				Attendance: {formatHours(attendanceHours)}h, Logged: {formatHours(currentLoggedHours)}h,
-				Remaining:{' '}
+				Attendance: {formatHours(attendanceHours)}h, Logged:{' '}
+				{formatHours(currentLoggedHours)}h, Remaining:{' '}
 				<Text color={remainingHours >= 0 ? 'green' : 'red'}>
 					{sign}
 					{formatHours(remainingHours)}h
@@ -52,7 +52,8 @@ export function AlignTimeConfirmation({
 			<Text> </Text>
 			{previewResult.updatedIssues.map(issue => (
 				<Text key={issue.issueKey}>
-					{issue.issueKey}: {formatHours(issue.oldHours)}h → {formatHours(issue.newHours)}h (
+					{issue.issueKey}: {formatHours(issue.oldHours)}h →{' '}
+					{formatHours(issue.newHours)}h (
 					<Text color={issue.diff >= 0 ? 'green' : 'red'}>
 						{issue.diff >= 0 ? '+' : ''}
 						{formatHours(issue.diff)}h
