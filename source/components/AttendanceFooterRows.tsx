@@ -85,15 +85,17 @@ export function AttendanceFooterRows({
 					{/* Total column - calculate total attendance hours */}
 					<Box width={8} justifyContent="flex-end">
 						<Text bold color="yellow">
-							{formatHours(
-								weekDates.reduce((sum, date) => {
+							{(() => {
+								let totalHours = 0;
+								for (const date of weekDates) {
 									const cellValue = getWorkingHoursCellValue(
 										formatLocalDateKey(date),
 									);
 									const hours = cellValue === '-' ? 0 : parseFloat(cellValue);
-									return sum + hours;
-								}, 0),
-							)}
+									totalHours += hours;
+								}
+								return formatHours(totalHours);
+							})()}
 						</Text>
 					</Box>
 				</Box>
