@@ -107,7 +107,7 @@ export class ReminderService {
 			const {platform} = process;
 
 			if (platform === 'darwin') {
-				// macOS - use terminal-notifier with better styling
+				// MacOS - use terminal-notifier with better styling
 				notifier.notify({
 					title: 'Jiracle Time Tracker',
 					message: "⏰ Don't forget to log your work time today!",
@@ -143,7 +143,7 @@ export class ReminderService {
 
 		// Fallback to system icons
 		if (platform === 'darwin') {
-			// macOS - use system clock/time icon
+			// MacOS - use system clock/time icon
 			return '/System/Library/CoreServices/Clock.app/Contents/Resources/Clock.icns';
 		}
 		if (platform === 'win32') {

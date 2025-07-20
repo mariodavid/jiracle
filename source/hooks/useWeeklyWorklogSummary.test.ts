@@ -1,6 +1,6 @@
 import test from 'ava';
-import {useWeeklyWorklogSummary} from './useWeeklyWorklogSummary.js';
 import {hookTestUtils} from '../tests/utils/testUtils.js';
+import {useWeeklyWorklogSummary} from './useWeeklyWorklogSummary.js';
 
 test('useWeeklyWorklogSummary - types and interfaces exist', t => {
 	const mockConfig = hookTestUtils.createHookTestConfig();

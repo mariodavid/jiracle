@@ -41,7 +41,7 @@ test.beforeEach(() => {
 				return {
 					ok: false,
 					status: 400,
-					text: () => Promise.resolve('Bad Request'),
+					text: async () => 'Bad Request',
 				} as Response;
 			}
 
@@ -49,7 +49,7 @@ test.beforeEach(() => {
 			return {
 				ok: true,
 				status: 201,
-				json: () => Promise.resolve({}),
+				json: async () => ({}),
 			} as Response;
 		}
 
@@ -58,31 +58,30 @@ test.beforeEach(() => {
 			return {
 				ok: true,
 				status: 200,
-				json: () =>
-					Promise.resolve({
-						issues: [
-							{
-								key: 'TEST-123',
-								fields: {
-									summary: 'Test Issue',
-									worklog: {
-										total: 1,
-										worklogs: [
-											{
-												id: '12345',
-												timeSpent: '1h',
-												comment: 'Test worklog',
-												started: '2025-07-10T09:00:00.000+0000',
-												author: {
-													emailAddress: 'test@example.com',
-												},
+				json: async () => ({
+					issues: [
+						{
+							key: 'TEST-123',
+							fields: {
+								summary: 'Test Issue',
+								worklog: {
+									total: 1,
+									worklogs: [
+										{
+											id: '12345',
+											timeSpent: '1h',
+											comment: 'Test worklog',
+											started: '2025-07-10T09:00:00.000+0000',
+											author: {
+												emailAddress: 'test@example.com',
 											},
-										],
-									},
+										},
+									],
 								},
 							},
-						],
-					}),
+						},
+					],
+				}),
 			} as Response;
 		}
 
@@ -90,7 +89,7 @@ test.beforeEach(() => {
 		return {
 			ok: true,
 			status: 200,
-			json: () => Promise.resolve({}),
+			json: async () => ({}),
 		} as Response;
 	};
 });

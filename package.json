@@ -107,13 +107,7 @@
 			"@typescript-eslint/no-unsafe-assignment": "off",
 			"@typescript-eslint/prefer-optional-chain": "off",
 			"@typescript-eslint/member-ordering": "off",
-			// === STOPPING POINT === 
-			// Auto-fix experiment completed successfully (79% success rate)
-			// 18 rules successfully enabled via PR #200
-			// Remaining rules below require manual review/configuration
-			// TODO: Continue systematic auto-fix testing from this point
-			"react/jsx-sort-props": "off",
-			"import/order": "off",
+			"import/order": "error",
 			"n/prefer-global/process": "off",
 			"ava/no-ignored-test-files": "off",
 			"no-await-in-loop": "off",
@@ -121,7 +115,7 @@
 			"capitalized-comments": "off",
 			"complexity": "off",
 			"@typescript-eslint/no-unsafe-call": "off",
-			"import/first": "off",
+			"import/first": "error",
 			"@typescript-eslint/no-dynamic-delete": "off",
 			"no-misleading-character-class": "off",
 			"@typescript-eslint/no-base-to-string": "off",

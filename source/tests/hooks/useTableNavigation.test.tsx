@@ -18,8 +18,7 @@ function TestTableNavigationComponent({
 	const result = useTableNavigation(options);
 
 	// Store result for testing
-	// @ts-ignore
-	globalThis.__testTableNavigationResult = result;
+	(globalThis as any).__testTableNavigationResult = result;
 
 	return (
 		<Box>
@@ -54,7 +53,6 @@ test('useTableNavigation: returns expected interface structure', t => {
 		React.createElement(TestTableNavigationComponent, {options: mockOptions}),
 	);
 
-	// @ts-ignore - test-only global
 	const result = (globalThis as any)
 		.__testTableNavigationResult as TableNavigationResult;
 	t.truthy(result);
@@ -99,17 +97,17 @@ test('useTableNavigation: handles all optional callback props', t => {
 test('useTableNavigation: works with attendance manager', t => {
 	const mockAttendanceManager = {
 		isEnabled: true,
-		checkIn: () => Promise.resolve(),
-		checkOut: () => Promise.resolve(),
-		getAttendanceForDate: () => Promise.resolve(null),
-		getWeeklyAttendance: () => Promise.resolve({}),
+		async checkIn() {},
+		async checkOut() {},
+		getAttendanceForDate: async () => null,
+		getWeeklyAttendance: async () => ({}),
 	};
 
 	const mockOptions: TableNavigationProps = {
 		isActive: true,
 		weekDates: [new Date('2023-07-17')],
 		issueGroups: [],
-		// @ts-ignore - simplified mock for testing
+		// @ts-expect-error - simplified mock for testing
 		attendanceManager: mockAttendanceManager,
 	};
 
@@ -132,7 +130,6 @@ test('useTableNavigation: handles inactive state', t => {
 		React.createElement(TestTableNavigationComponent, {options: mockOptions}),
 	);
 
-	// @ts-ignore - test-only global
 	const result = (globalThis as any)
 		.__testTableNavigationResult as TableNavigationResult;
 	t.truthy(result);
@@ -188,7 +185,6 @@ test('useTableNavigation: works with complex issue groups', t => {
 		);
 	});
 
-	// @ts-ignore - test-only global
 	const result = (globalThis as any)
 		.__testTableNavigationResult as TableNavigationResult;
 	t.truthy(result);
@@ -252,7 +248,6 @@ test('useTableNavigation: result methods maintain hook contract', t => {
 		React.createElement(TestTableNavigationComponent, {options: mockOptions}),
 	);
 
-	// @ts-ignore - test-only global
 	const result = (globalThis as any)
 		.__testTableNavigationResult as TableNavigationResult;
 

@@ -1,19 +1,19 @@
+import {readFile, unlink} from 'node:fs/promises';
+import {existsSync} from 'node:fs';
+import {join} from 'node:path';
+import {tmpdir} from 'node:os';
 import test, {type TestFn} from 'ava';
+import {
+	executeCheckIn,
+	executeCheckOut,
+	executeStatus,
+} from '../../cli/attendance-commands.js';
 
 type TestContext = {
 	testCsvPath: string;
 };
 
 const testWithContext = test as TestFn<TestContext>;
-import {readFile, unlink} from 'node:fs/promises';
-import {existsSync} from 'node:fs';
-import {join} from 'node:path';
-import {tmpdir} from 'node:os';
-import {
-	executeCheckIn,
-	executeCheckOut,
-	executeStatus,
-} from '../../cli/attendance-commands.js';
 
 testWithContext.beforeEach(t => {
 	// Set unique test CSV path

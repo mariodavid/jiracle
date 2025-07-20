@@ -285,7 +285,7 @@ test('getFocusableItemIndex: finds correct index for target item', t => {
 		columnIndex: 3,
 	});
 
-	t.is(index, 13); // attendance(5) + PROJECT-123(5) + PROJECT-456 column 3
+	t.is(index, 13); // Attendance(5) + PROJECT-123(5) + PROJECT-456 column 3
 	t.is(items[index]!.issueKey, 'PROJECT-456');
 	t.is(items[index]!.columnIndex, 3);
 });

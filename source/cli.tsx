@@ -1,17 +1,17 @@
 #!/usr/bin/env node
+import {readFileSync} from 'node:fs';
+import {homedir} from 'node:os';
+import {join} from 'node:path';
 import React from 'react';
 import {render} from 'ink';
 import meow from 'meow';
+import winston from 'winston';
 import App from './app.js';
 import {
 	JiraClient,
 	type WorklogRequest,
 	loadConfigWithEnvVars,
 } from './jira-client.js';
-import {readFileSync} from 'node:fs';
-import {homedir} from 'node:os';
-import {join} from 'node:path';
-import winston from 'winston';
 import {
 	executeCheckIn,
 	executeCheckOut,

@@ -1,7 +1,7 @@
-import test from 'ava';
 import {join} from 'node:path';
 import {tmpdir} from 'node:os';
 import {unlinkSync, existsSync} from 'node:fs';
+import test from 'ava';
 import {AttendanceManager} from '../../attendance/AttendanceManager.js';
 import type {AttendanceConfig} from '../../attendance/types.js';
 
@@ -97,7 +97,7 @@ test('should check out with current time', async t => {
 	t.is(attendance.date, '2025-07-12');
 	t.is(attendance.checkIn, '06:00');
 	t.regex(attendance.checkOut!, /^\d{2}:\d{2}$/);
-	// totalHours might be 0 if checkout is too close to checkin due to break time
+	// TotalHours might be 0 if checkout is too close to checkin due to break time
 	t.true(typeof attendance.totalHours === 'number');
 
 	// Verify check-out time is within reasonable range (current time ±1 minute)
@@ -270,9 +270,9 @@ test('should correct time entries', async t => {
 	// Correct the times
 	const corrected = await manager.correctTime(
 		'2025-07-12',
-		'08:15', // new check-in
-		'17:30', // new check-out
-		45, // new break minutes
+		'08:15', // New check-in
+		'17:30', // New check-out
+		45, // New break minutes
 	);
 
 	t.is(corrected.checkIn, '08:15');
@@ -347,7 +347,7 @@ test('should handle config updates', async t => {
 	const updatedConfig = manager.getConfig();
 	t.is(updatedConfig.workingHours, 7.5);
 	t.is(updatedConfig.defaultBreakMinutes, 45);
-	t.is(updatedConfig.defaultCheckIn, '08:00'); // unchanged
+	t.is(updatedConfig.defaultCheckIn, '08:00'); // Unchanged
 
 	cleanup(csvPath);
 });

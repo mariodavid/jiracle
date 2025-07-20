@@ -1,7 +1,7 @@
-import test from 'ava';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {writeFileSync} from 'node:fs';
+import test from 'ava';
 import {AttendanceManager} from '../../attendance/AttendanceManager.js';
 import type {JiraConfig} from '../../jira-client.js';
 
@@ -159,10 +159,10 @@ test.serial(
 		t.is(afterDelete.length, 2);
 
 		// Verify correct records remain
-		const dates = afterDelete.map(a => a.date);
-		t.true(dates.includes('2025-07-10'));
-		t.true(dates.includes('2025-07-12'));
-		t.false(dates.includes('2025-07-11'));
+		const dates = new Set(afterDelete.map(a => a.date));
+		t.true(dates.has('2025-07-10'));
+		t.true(dates.has('2025-07-12'));
+		t.false(dates.has('2025-07-11'));
 	},
 );
 

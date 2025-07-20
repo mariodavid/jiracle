@@ -236,7 +236,7 @@ export const hookTestUtils = {
 	 * Mock implementation for async hook testing
 	 */
 	createMockAsyncOperation<T>(result: T, delay = 100) {
-		return () =>
+		return async () =>
 			new Promise<T>(resolve => {
 				setTimeout(() => {
 					resolve(result);

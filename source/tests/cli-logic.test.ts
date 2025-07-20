@@ -1,7 +1,7 @@
-import test from 'ava';
 import {writeFileSync, unlinkSync, existsSync} from 'node:fs';
 import {join} from 'node:path';
 import {tmpdir} from 'node:os';
+import test from 'ava';
 import {executeWorklogAdd, type WorklogAddParams} from '../cli.js';
 import type {JiraConfig} from '../jira-client.js';
 
@@ -71,25 +71,25 @@ test('executeWorklogAdd - validates required parameters', async t => {
 	try {
 		// Missing issue
 		await t.throwsAsync(
-			() => executeWorklogAdd({...validParams, issue: ''}, configPath),
+			async () => executeWorklogAdd({...validParams, issue: ''}, configPath),
 			{message: /All flags are required/},
 		);
 
 		// Missing date
 		await t.throwsAsync(
-			() => executeWorklogAdd({...validParams, date: ''}, configPath),
+			async () => executeWorklogAdd({...validParams, date: ''}, configPath),
 			{message: /All flags are required/},
 		);
 
 		// Missing time
 		await t.throwsAsync(
-			() => executeWorklogAdd({...validParams, time: ''}, configPath),
+			async () => executeWorklogAdd({...validParams, time: ''}, configPath),
 			{message: /All flags are required/},
 		);
 
 		// Missing comment
 		await t.throwsAsync(
-			() => executeWorklogAdd({...validParams, comment: ''}, configPath),
+			async () => executeWorklogAdd({...validParams, comment: ''}, configPath),
 			{message: /All flags are required/},
 		);
 	} finally {
@@ -110,7 +110,7 @@ test('executeWorklogAdd - validates date format', async t => {
 
 		for (const invalidDate of invalidDates) {
 			await t.throwsAsync(
-				() =>
+				async () =>
 					executeWorklogAdd({...validParams, date: invalidDate}, configPath),
 				{message: /Date must be in YYYY-MM-DD format/},
 			);
@@ -151,7 +151,7 @@ test('executeWorklogAdd - validates time format', async t => {
 
 		for (const invalidTime of invalidTimes) {
 			await t.throwsAsync(
-				() =>
+				async () =>
 					executeWorklogAdd({...validParams, time: invalidTime}, configPath),
 				{message: /Time must be in format/},
 			);
@@ -177,7 +177,7 @@ test('executeWorklogAdd - handles missing config file', async t => {
 	const nonExistentConfigPath = join(tmpdir(), 'non-existent-config.json');
 
 	await t.throwsAsync(
-		() => executeWorklogAdd(validParams, nonExistentConfigPath),
+		async () => executeWorklogAdd(validParams, nonExistentConfigPath),
 		{message: /Invalid configuration file format|ENOENT/},
 	);
 });
@@ -187,9 +187,12 @@ test('executeWorklogAdd - handles malformed config file', async t => {
 	writeFileSync(configPath, 'invalid json {');
 
 	try {
-		await t.throwsAsync(() => executeWorklogAdd(validParams, configPath), {
-			message: /Invalid configuration file format/,
-		});
+		await t.throwsAsync(
+			async () => executeWorklogAdd(validParams, configPath),
+			{
+				message: /Invalid configuration file format/,
+			},
+		);
 	} finally {
 		cleanupTestConfig(configPath);
 	}
@@ -201,14 +204,16 @@ test('executeWorklogAdd - handles 404 Issue Does Not Exist', async t => {
 	setupMockFetch({
 		status: 404,
 		ok: false,
-		text: () =>
-			Promise.resolve('{"errorMessages":["Issue Does Not Exist"],"errors":{}}'),
+		text: async () => '{"errorMessages":["Issue Does Not Exist"],"errors":{}}',
 	});
 
 	try {
-		await t.throwsAsync(() => executeWorklogAdd(validParams, configPath), {
-			message: /Issue 'TEST-123' does not exist/,
-		});
+		await t.throwsAsync(
+			async () => executeWorklogAdd(validParams, configPath),
+			{
+				message: /Issue 'TEST-123' does not exist/,
+			},
+		);
 	} finally {
 		cleanupTestConfig(configPath);
 	}
@@ -219,13 +224,16 @@ test('executeWorklogAdd - handles 401 Unauthorized', async t => {
 	setupMockFetch({
 		status: 401,
 		ok: false,
-		text: () => Promise.resolve('Unauthorized'),
+		text: async () => 'Unauthorized',
 	});
 
 	try {
-		await t.throwsAsync(() => executeWorklogAdd(validParams, configPath), {
-			message: /Invalid Jira credentials or insufficient permissions/,
-		});
+		await t.throwsAsync(
+			async () => executeWorklogAdd(validParams, configPath),
+			{
+				message: /Invalid Jira credentials or insufficient permissions/,
+			},
+		);
 	} finally {
 		cleanupTestConfig(configPath);
 	}
@@ -236,13 +244,16 @@ test('executeWorklogAdd - handles 403 Forbidden', async t => {
 	setupMockFetch({
 		status: 403,
 		ok: false,
-		text: () => Promise.resolve('Forbidden'),
+		text: async () => 'Forbidden',
 	});
 
 	try {
-		await t.throwsAsync(() => executeWorklogAdd(validParams, configPath), {
-			message: /Access denied to issue 'TEST-123'/,
-		});
+		await t.throwsAsync(
+			async () => executeWorklogAdd(validParams, configPath),
+			{
+				message: /Access denied to issue 'TEST-123'/,
+			},
+		);
 	} finally {
 		cleanupTestConfig(configPath);
 	}
@@ -253,7 +264,7 @@ test('executeWorklogAdd - handles success scenario', async t => {
 	setupMockFetch({
 		status: 201,
 		ok: true,
-		json: () => Promise.resolve({}),
+		json: async () => ({}),
 	});
 
 	try {
@@ -272,9 +283,12 @@ test('executeWorklogAdd - handles network error', async t => {
 	};
 
 	try {
-		await t.throwsAsync(() => executeWorklogAdd(validParams, configPath), {
-			message: /Cannot connect to Jira server/,
-		});
+		await t.throwsAsync(
+			async () => executeWorklogAdd(validParams, configPath),
+			{
+				message: /Cannot connect to Jira server/,
+			},
+		);
 	} finally {
 		cleanupTestConfig(configPath);
 	}

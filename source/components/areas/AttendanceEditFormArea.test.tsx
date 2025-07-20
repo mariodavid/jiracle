@@ -1,9 +1,9 @@
 import test from 'ava';
 import React from 'react';
 import {render} from 'ink-testing-library';
-import {AttendanceEditFormArea} from './AttendanceEditFormArea.js';
 import type {AttendanceEditState} from '../../hooks/useAttendanceManagement.js';
 import type {JiraConfig} from '../../jira-client.js';
+import {AttendanceEditFormArea} from './AttendanceEditFormArea.js';
 
 const mockConfig: JiraConfig = {
 	jiraUrl: 'https://test.example.com',

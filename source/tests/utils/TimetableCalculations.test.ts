@@ -144,7 +144,7 @@ test('getDefaultFocusId - returns correct focus ID', t => {
 	const focusId = getDefaultFocusId(issueMap);
 	t.true(focusId.startsWith('issue-'));
 	t.true(focusId.includes('PROJ-123')); // Should use first issue key
-	t.true(/-\d+$/.test(focusId)); // Should end with day index
+	t.regex(focusId, /-\d+$/); // Should end with day index
 });
 
 test('getDefaultFocusId - handles empty issue map', t => {
