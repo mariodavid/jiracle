@@ -27,7 +27,7 @@ testWithContext.beforeEach(t => {
 
 testWithContext.afterEach.always(async t => {
 	// Clean up test CSV file
-	const csvPath = t.context.testCsvPath as string;
+	const csvPath = t.context.testCsvPath;
 	if (existsSync(csvPath)) {
 		await unlink(csvPath);
 	}
@@ -51,7 +51,7 @@ testWithContext('checkin uses current time when no time specified', async t => {
 	t.regex(result.message, /✅ Checked in at \d{2}:\d{2}/);
 
 	// Verify CSV content
-	const csvPath = t.context.testCsvPath as string;
+	const csvPath = t.context.testCsvPath;
 	t.true(existsSync(csvPath));
 
 	const csvContent = await readFile(csvPath, 'utf8');
@@ -109,7 +109,7 @@ testWithContext(
 		);
 
 		// Verify CSV content
-		const csvPath = t.context.testCsvPath as string;
+		const csvPath = t.context.testCsvPath;
 		const csvContent = await readFile(csvPath, 'utf8');
 		const lines = csvContent.trim().split('\n');
 		t.is(lines.length, 2); // Header + 1 data line
@@ -153,7 +153,7 @@ testWithContext('explicit time overrides current time', async t => {
 	t.is(result.message, `✅ Checked in at ${explicitTime}`);
 
 	// Verify CSV content shows explicit time, not current time
-	const csvPath = t.context.testCsvPath as string;
+	const csvPath = t.context.testCsvPath;
 	const csvContent = await readFile(csvPath, 'utf8');
 	const lines = csvContent.trim().split('\n');
 	const dataLine = lines[1]!;
@@ -184,7 +184,7 @@ testWithContext('status shows attendance with current times', async t => {
 	);
 
 	// Verify CSV was created and contains data
-	const csvPath = t.context.testCsvPath as string;
+	const csvPath = t.context.testCsvPath;
 	t.true(existsSync(csvPath));
 
 	const csvContent = await readFile(csvPath, 'utf8');
@@ -231,7 +231,7 @@ testWithContext(
 		);
 
 		// Verify CSV only has one entry for the date
-		const csvPath = t.context.testCsvPath as string;
+		const csvPath = t.context.testCsvPath;
 		const csvContent = await readFile(csvPath, 'utf8');
 		const lines = csvContent.trim().split('\n');
 		t.is(lines.length, 2); // Header + 1 data line

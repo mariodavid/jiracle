@@ -166,7 +166,7 @@ export const InkTestHelpers: any = {
 		const {lastFrame} = render(React.createElement(component, props));
 		const output = lastFrame() || '';
 		this.assertComponentContains(output, expectedValues, t);
-		return output as string;
+		return output;
 	},
 
 	// Test timing utilities
