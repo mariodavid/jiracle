@@ -186,6 +186,20 @@ export function useWorklogForm(
 								remainingTime,
 								suggestion: suggestedTime,
 							});
+						} else if (remainingTime !== null && remainingTime === 0) {
+							// Remaining time is 0 (all attendance hours already logged),
+							// use config defaults for "clock out" workflow
+							suggestedTime = defaults.time;
+
+							uiLogger.debug(
+								'Remaining time is 0, using config defaults for clock out',
+								{
+									issueKey: cellData.issueKey,
+									date: cellData.date.toISOString(),
+									remainingTime,
+									suggestion: suggestedTime,
+								},
+							);
 						} else {
 							// No remaining time calculation possible, use defaults
 							suggestedTime = defaults.time;
