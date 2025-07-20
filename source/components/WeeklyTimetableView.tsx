@@ -108,7 +108,7 @@ export function WeeklyTimetableView({
 		config,
 		userEmail,
 		onRefresh: refresh,
-		onActiveAreaChange: (area: string) => {
+		onActiveAreaChange(area: string) {
 			setActiveArea(area as any);
 		},
 		data,
@@ -128,7 +128,7 @@ export function WeeklyTimetableView({
 	} = useAttendanceManagement({
 		config,
 		onRefresh: refresh,
-		onActiveAreaChange: (area: string) => {
+		onActiveAreaChange(area: string) {
 			setActiveArea(area as any);
 		},
 	});
@@ -148,7 +148,7 @@ export function WeeklyTimetableView({
 		config,
 		userEmail,
 		onRefresh: refresh,
-		onActiveAreaChange: (area: string) => {
+		onActiveAreaChange(area: string) {
 			setActiveArea(area as any);
 		},
 		attendanceManager,
