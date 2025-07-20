@@ -121,7 +121,6 @@
 			"@typescript-eslint/no-base-to-string": "off",
 			"@typescript-eslint/consistent-type-assertions": "off",
 			"@typescript-eslint/promise-function-async": "off",
-			"unicorn/catch-error-name": "off",
 			"unicorn/escape-case": "off",
 			"unicorn/no-hex-escape": "off",
 			"@typescript-eslint/no-inferrable-types": "off",

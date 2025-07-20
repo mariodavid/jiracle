@@ -71,8 +71,8 @@ export function useWeeklyWorklogSummary(
 			// Cache the result
 			weekDataCache.set(cacheKey, summary);
 			setData(summary);
-		} catch (err) {
-			setError(err instanceof Error ? err.message : 'Unknown error');
+		} catch (error_) {
+			setError(error_ instanceof Error ? error_.message : 'Unknown error');
 		} finally {
 			setIsLoading(false);
 			loadingCache.delete(cacheKey);

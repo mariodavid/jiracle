@@ -347,9 +347,9 @@ export function useWorklogForm(
 				uiLogger.debug(
 					'useWorklogForm: Worklog submission completed successfully',
 				);
-			} catch (err) {
+			} catch (error) {
 				setWorklogError(
-					err instanceof Error ? err.message : 'Failed to submit worklog',
+					error instanceof Error ? error.message : 'Failed to submit worklog',
 				);
 			} finally {
 				setWorklogSubmitting(false);
