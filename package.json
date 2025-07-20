@@ -117,6 +117,7 @@
 			"complexity": "off",
 			"@typescript-eslint/no-unsafe-call": "off",
 			"import/first": "off",
+			"@typescript-eslint/no-dynamic-delete": "off",
 			"no-misleading-character-class": "off",
 			"@typescript-eslint/no-base-to-string": "off",
 			"@typescript-eslint/consistent-type-assertions": "off",
