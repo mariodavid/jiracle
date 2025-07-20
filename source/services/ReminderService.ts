@@ -145,13 +145,13 @@ export class ReminderService {
 		if (platform === 'darwin') {
 			// macOS - use system clock/time icon
 			return '/System/Library/CoreServices/Clock.app/Contents/Resources/Clock.icns';
-		} else if (platform === 'win32') {
+		}
+		if (platform === 'win32') {
 			// Windows - use system clock icon
 			return 'C:\\Windows\\System32\\shell32.dll,176';
-		} else {
-			// Linux - use a common system icon
-			return '/usr/share/icons/gnome/48x48/status/appointment-soon.png';
 		}
+		// Linux - use a common system icon
+		return '/usr/share/icons/gnome/48x48/status/appointment-soon.png';
 	}
 
 	private createTemporaryIcon(): string {

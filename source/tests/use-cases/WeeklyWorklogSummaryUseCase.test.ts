@@ -497,7 +497,8 @@ test('WeeklyWorklogSummaryUseCase includes favorite issues without worklogs', as
 					},
 				],
 			};
-		} else if (issueKey === 'FAV-123') {
+		}
+		if (issueKey === 'FAV-123') {
 			// No worklogs for this favorite issue
 			return {
 				startAt: 0,

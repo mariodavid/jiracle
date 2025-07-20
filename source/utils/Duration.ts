@@ -113,11 +113,11 @@ export class Duration {
 
 		if (hours > 0 && remainingMinutes > 0) {
 			return `${hours}h${remainingMinutes}m`;
-		} else if (hours > 0) {
-			return `${hours}h`;
-		} else {
-			return `${remainingMinutes}m`;
 		}
+		if (hours > 0) {
+			return `${hours}h`;
+		}
+		return `${remainingMinutes}m`;
 	}
 
 	/**

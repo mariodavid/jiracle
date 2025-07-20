@@ -91,7 +91,6 @@
 				}
 			],
 			"@typescript-eslint/restrict-template-expressions": "off",
-			"no-else-return": "off",
 			"react/prop-types": "off",
 			"unicorn/expiring-todo-comments": "off",
 			"unicorn/filename-case": "off",
