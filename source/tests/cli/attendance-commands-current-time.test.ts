@@ -19,7 +19,7 @@ testWithContext.beforeEach(t => {
 	// Set unique test CSV path
 	const testCsvPath = join(
 		tmpdir(),
-		`jiracle-test-${Date.now()}-${Math.random().toString(36).substring(7)}.csv`,
+		`jiracle-test-${Date.now()}-${Math.random().toString(36).slice(7)}.csv`,
 	);
 	process.env['JIRACLE_ATTENDANCE_CSV_PATH'] = testCsvPath;
 	t.context.testCsvPath = testCsvPath;
@@ -70,10 +70,10 @@ testWithContext('checkin uses current time when no time specified', async t => {
 	// Verify check-in time is within reasonable range (current time ±1 minute)
 	const checkInTime = new Date(`2025-07-15T${checkIn}:00`);
 	const beforeTime = new Date(
-		`2025-07-15T${beforeCheckIn.toTimeString().substring(0, 5)}:00`,
+		`2025-07-15T${beforeCheckIn.toTimeString().slice(0, 5)}:00`,
 	);
 	const afterTime = new Date(
-		`2025-07-15T${afterCheckIn.toTimeString().substring(0, 5)}:00`,
+		`2025-07-15T${afterCheckIn.toTimeString().slice(0, 5)}:00`,
 	);
 
 	t.true(checkInTime >= new Date(beforeTime.getTime() - 60000)); // -1 minute
@@ -127,10 +127,10 @@ testWithContext(
 		// Verify check-out time is within reasonable range (current time ±1 minute)
 		const checkOutTime = new Date(`2025-07-15T${checkOut}:00`);
 		const beforeTime = new Date(
-			`2025-07-15T${beforeCheckOut.toTimeString().substring(0, 5)}:00`,
+			`2025-07-15T${beforeCheckOut.toTimeString().slice(0, 5)}:00`,
 		);
 		const afterTime = new Date(
-			`2025-07-15T${afterCheckOut.toTimeString().substring(0, 5)}:00`,
+			`2025-07-15T${afterCheckOut.toTimeString().slice(0, 5)}:00`,
 		);
 
 		t.true(checkOutTime >= new Date(beforeTime.getTime() - 60000)); // -1 minute

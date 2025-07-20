@@ -10,7 +10,7 @@ function createTempCSVPath(): string {
 		tmpdir(),
 		`attendance-manager-test-${Date.now()}-${Math.random()
 			.toString(36)
-			.substring(7)}.csv`,
+			.slice(7)}.csv`,
 	);
 }
 
@@ -46,10 +46,10 @@ test('should check in with current time', async t => {
 	// Verify check-in time is within reasonable range (current time ±1 minute)
 	const checkInTime = new Date(`2025-07-12T${attendance.checkIn}:00`);
 	const beforeTime = new Date(
-		`2025-07-12T${beforeCheckIn.toTimeString().substring(0, 5)}:00`,
+		`2025-07-12T${beforeCheckIn.toTimeString().slice(0, 5)}:00`,
 	);
 	const afterTime = new Date(
-		`2025-07-12T${afterCheckIn.toTimeString().substring(0, 5)}:00`,
+		`2025-07-12T${afterCheckIn.toTimeString().slice(0, 5)}:00`,
 	);
 
 	t.true(checkInTime >= new Date(beforeTime.getTime() - 60000)); // -1 minute
@@ -103,10 +103,10 @@ test('should check out with current time', async t => {
 	// Verify check-out time is within reasonable range (current time ±1 minute)
 	const checkOutTime = new Date(`2025-07-12T${attendance.checkOut}:00`);
 	const beforeTime = new Date(
-		`2025-07-12T${beforeCheckOut.toTimeString().substring(0, 5)}:00`,
+		`2025-07-12T${beforeCheckOut.toTimeString().slice(0, 5)}:00`,
 	);
 	const afterTime = new Date(
-		`2025-07-12T${afterCheckOut.toTimeString().substring(0, 5)}:00`,
+		`2025-07-12T${afterCheckOut.toTimeString().slice(0, 5)}:00`,
 	);
 
 	t.true(checkOutTime >= new Date(beforeTime.getTime() - 60000)); // -1 minute

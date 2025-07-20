@@ -38,7 +38,7 @@ export function truncateText(text: string, maxLength: number): string {
 		return '...';
 	}
 
-	return text.substring(0, maxLength - 3) + '...';
+	return text.slice(0, Math.max(0, maxLength - 3)) + '...';
 }
 
 export function getCurrentDayIndex(): number {

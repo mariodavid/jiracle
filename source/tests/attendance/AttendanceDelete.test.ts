@@ -14,7 +14,7 @@ function createTestConfig(): {configPath: string; csvPath: string} {
 		tmpdir(),
 		`attendance-delete-test-${Date.now()}-${Math.random()
 			.toString(36)
-			.substring(7)}.csv`,
+			.slice(7)}.csv`,
 	);
 
 	const config: JiraConfig = {

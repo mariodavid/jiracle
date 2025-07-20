@@ -79,7 +79,7 @@ export class ReminderService {
 	}
 
 	private formatTime(date: Date): string {
-		return date.toTimeString().substring(0, 5); // "HH:MM"
+		return date.toTimeString().slice(0, 5); // "HH:MM"
 	}
 
 	private isWeekday(date: Date): boolean {
