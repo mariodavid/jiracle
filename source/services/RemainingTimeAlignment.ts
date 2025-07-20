@@ -1,4 +1,9 @@
-import type {AlignRemainingStrategy} from '../jira-client.js';
+import type {
+	AlignRemainingStrategy,
+	DefaultStory,
+	JiraConfig,
+} from '../jira-client.js';
+import {validateDefaultStories, resolveDefaults} from '../jira-client.js';
 import type {
 	DailyWorklogSummary,
 	IssueWorklogEntry,
@@ -17,8 +22,24 @@ export interface AlignmentResult {
 	message: string;
 }
 
+export interface CreateWorklogsResult {
+	createdWorklogs: Array<{
+		issueKey: string;
+		hours: number;
+		comment: string;
+		percentage: number;
+	}>;
+	totalDistributed: number;
+	message: string;
+}
+
 export interface AlignmentError {
-	type: 'no-attendance' | 'no-worklogs' | 'no-remaining' | 'calculation-error';
+	type:
+		| 'no-attendance'
+		| 'no-worklogs'
+		| 'no-remaining'
+		| 'calculation-error'
+		| 'invalid-config';
 	message: string;
 }
 
@@ -211,5 +232,119 @@ export class RemainingTimeAlignment {
 				diff,
 			};
 		});
+	}
+
+	/**
+	 * Creates new worklogs for default stories based on percentage distribution
+	 */
+	static createDefaultWorklogs(
+		attendance: Attendance | null,
+		defaultStories: DefaultStory[],
+		config: JiraConfig,
+	): CreateWorklogsResult | AlignmentError {
+		uiLogger.debug('createDefaultWorklogs: Starting', {
+			hasAttendance: Boolean(attendance),
+			attendanceHours: attendance?.totalHours,
+			defaultStoriesCount: defaultStories?.length || 0,
+			defaultStories,
+			fillConfig: config.fill,
+		});
+
+		// Validate inputs
+		if (!attendance || !attendance.totalHours) {
+			uiLogger.debug('createDefaultWorklogs: No attendance data found', {
+				hasAttendance: Boolean(attendance),
+				totalHours: attendance?.totalHours,
+				attendance,
+			});
+			return {
+				type: 'no-attendance',
+				message: 'No attendance data found for this date',
+			};
+		}
+
+		// Validate default stories configuration
+		const validation = validateDefaultStories(defaultStories);
+		if (!validation.valid) {
+			uiLogger.debug(
+				'createDefaultWorklogs: Invalid default stories configuration',
+				{
+					defaultStories,
+					validationError: validation.error,
+					validationValid: validation.valid,
+				},
+			);
+			return {
+				type: 'invalid-config',
+				message: validation.error || 'Invalid default stories configuration',
+			};
+		}
+
+		uiLogger.debug(
+			'createDefaultWorklogs: Validation passed, proceeding with creation',
+			{
+				attendanceHours: attendance.totalHours,
+				storiesCount: defaultStories.length,
+			},
+		);
+
+		const attendanceHours = attendance.totalHours;
+		uiLogger.debug('Creating worklogs for default stories', {
+			attendanceHours,
+			defaultStoriesCount: defaultStories.length,
+		});
+
+		// Pre-resolve defaults for all stories to optimize performance
+		const defaultsCache = new Map<string, {comment: string}>();
+		for (const story of defaultStories) {
+			if (!defaultsCache.has(story.issueKey)) {
+				const defaults = resolveDefaults(config, story.issueKey);
+				defaultsCache.set(story.issueKey, {
+					comment: defaults.comment || '',
+				});
+			}
+		}
+
+		// Calculate hours for each story using cached defaults
+		const createdWorklogs = defaultStories.map(story => {
+			const hours = (attendanceHours * story.percentage) / 100;
+			const cachedDefaults = defaultsCache.get(story.issueKey)!;
+			const comment = cachedDefaults.comment;
+
+			uiLogger.debug('Creating worklog for story', {
+				issueKey: story.issueKey,
+				percentage: story.percentage,
+				hours,
+				comment,
+			});
+
+			return {
+				issueKey: story.issueKey,
+				hours,
+				comment,
+				percentage: story.percentage,
+			};
+		});
+
+		const totalDistributed = createdWorklogs.reduce(
+			(sum, worklog) => sum + worklog.hours,
+			0,
+		);
+
+		const message = `${totalDistributed.toFixed(1)}h distributed across ${
+			createdWorklogs.length
+		} default stories`;
+
+		uiLogger.debug('RemainingTimeAlignment.createDefaultWorklogs COMPLETE', {
+			totalDistributed,
+			createdWorklogsCount: createdWorklogs.length,
+			message,
+		});
+
+		return {
+			createdWorklogs,
+			totalDistributed,
+			message,
+		};
 	}
 }

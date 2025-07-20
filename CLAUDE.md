@@ -8,7 +8,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 - `npm run build` - Compile TypeScript source files to JavaScript
 - `npm run dev` - Watch mode for TypeScript compilation  
-- `npm test` - Run all tests (includes build, Prettier check, XO linting, and AVA tests)
+- `npm test` - Run all tests (includes build, Prettier auto-formatting, and AVA tests) - for local development
+- `npm run test:ci` - Run all tests with format checking (no auto-formatting) - for CI/CD
 - `npx ava dist/**/*.test.js -m "*pattern*"` - Run tests matching a pattern
 - `npx ava --watch` - Run tests in watch mode
 - `node dist/cli.js` - Run the compiled CLI application
@@ -16,8 +17,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ### Code Quality
 
-- `npm run test:prettier` - Check code formatting
-- `npm run test:xo` - Run XO linting
+**IMPORTANT**: Always run linting and tests locally before pushing to ensure code quality!
+
+- `npm run quality:check` - Run XO linting to check code style
+- `npm run lint:fix` - Auto-fix XO linting issues where possible
+- `npm test` - Run full test suite with auto-formatting (local development)
+- `npm run test:ci` - Run tests with format checking only (CI/CD)
 
 ## Architecture
 

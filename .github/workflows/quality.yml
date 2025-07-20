@@ -31,9 +31,3 @@ jobs:
 
       - name: ESLint quality checks (max-lines, complexity)
         run: npm run quality:check
-
-      - name: Test execution (without build)
-        run: npx ava
-
-      - name: Upload test coverage (if available)
-        run: echo "Coverage reporting can be added here if needed"
