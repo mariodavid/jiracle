@@ -106,7 +106,7 @@ const mockConfig = {
 
 test('Integration: Component renders without errors', async t => {
 	const props = {
-		onBack: () => {},
+		onBack() {},
 		config: mockConfig,
 		userEmail: 'test@example.com',
 	};
@@ -132,7 +132,7 @@ test('Integration: Component renders without errors', async t => {
 
 test('Integration: API calls are made', async t => {
 	const props = {
-		onBack: () => {},
+		onBack() {},
 		config: mockConfig,
 		userEmail: 'test@example.com',
 	};
@@ -150,7 +150,7 @@ test('Integration: Component handles API errors gracefully', async t => {
 	shouldFailWorklogSubmit = true;
 
 	const props = {
-		onBack: () => {},
+		onBack() {},
 		config: mockConfig,
 		userEmail: 'test@example.com',
 	};
@@ -188,7 +188,7 @@ test('Integration: Component accepts different configurations', async t => {
 	};
 
 	const props = {
-		onBack: () => {},
+		onBack() {},
 		config: differentConfig,
 		userEmail: 'different@example.com',
 	};
@@ -228,7 +228,7 @@ test('Integration: Mock fetch setup works correctly', t => {
 
 test('Integration: Component lifecycle completes', async t => {
 	const props = {
-		onBack: () => {},
+		onBack() {},
 		config: mockConfig,
 		userEmail: 'test@example.com',
 	};

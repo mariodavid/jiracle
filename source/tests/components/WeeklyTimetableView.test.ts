@@ -15,7 +15,7 @@ test('WeeklyTimetableView renders basic structure', t => {
 	};
 
 	const props = {
-		onBack: () => {},
+		onBack() {},
 		config: mockConfig,
 		userEmail: null,
 	};
@@ -48,7 +48,7 @@ test('WeeklyTimetableView shows loading state initially', t => {
 	};
 
 	const props = {
-		onBack: () => {},
+		onBack() {},
 		config: mockConfig,
 		userEmail: null,
 	};

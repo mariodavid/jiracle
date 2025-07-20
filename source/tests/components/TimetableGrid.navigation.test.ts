@@ -161,8 +161,8 @@ test('TimetableGrid navigation works with attendance rows', t => {
 	// Create mock attendance manager
 	const mockAttendanceManager = {
 		getWeeklyAttendance: async () => ({}),
-		checkIn: async () => {},
-		checkOut: async () => {},
+		async checkIn() {},
+		async checkOut() {},
 		getStatusForDate: async () => ({
 			status: 'not_started' as const,
 			message: 'Not started',

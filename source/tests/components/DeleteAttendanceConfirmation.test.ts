@@ -7,7 +7,7 @@ test('DeleteAttendanceConfirmation renders with correct message', t => {
 	const {lastFrame} = render(
 		React.createElement(DeleteAttendanceConfirmation, {
 			dayLabel: 'Friday, July 11, 2025',
-			onConfirm: () => {},
+			onConfirm() {},
 		}),
 	);
 
@@ -59,7 +59,7 @@ test('DeleteAttendanceConfirmation displays proper structure', t => {
 	const {lastFrame} = render(
 		React.createElement(DeleteAttendanceConfirmation, {
 			dayLabel: 'Monday, July 14, 2025',
-			onConfirm: () => {},
+			onConfirm() {},
 		}),
 	);
 

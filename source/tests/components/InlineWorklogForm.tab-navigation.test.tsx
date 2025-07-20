@@ -15,8 +15,8 @@ const mockProps = {
 	date: new Date('2025-07-10T00:00:00.000Z'),
 	defaultTimeSpent: '1h',
 	defaultComment: '',
-	onSubmit: () => {},
-	onCancel: () => {},
+	onSubmit() {},
+	onCancel() {},
 	config: mockConfig,
 };
 

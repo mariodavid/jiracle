@@ -6,9 +6,9 @@ import {WeekNavigator, getWeekTitle} from '../../components/WeekNavigator.js';
 test('WeekNavigator renders navigation buttons', t => {
 	const mockProps = {
 		currentWeek: new Date('2024-10-19T12:00:00.000Z'),
-		onPreviousWeek: () => {},
-		onNextWeek: () => {},
-		onCurrentWeek: () => {},
+		onPreviousWeek() {},
+		onNextWeek() {},
+		onCurrentWeek() {},
 		activeArea: 'timetable' as const,
 	};
 

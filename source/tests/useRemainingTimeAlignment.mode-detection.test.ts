@@ -91,7 +91,7 @@ test('useRemainingTimeAlignment - detects CREATE mode when all issues have zero 
 			},
 		});
 
-		const testState: TestState = {options: {config, onRefresh: () => {}}};
+		const testState: TestState = {options: {config, onRefresh() {}}};
 		const date = new Date('2025-07-21');
 		// Critical test case: dailySummary has issues but all have 0 hours
 		// This was the bug - the system was incorrectly entering UPDATE mode
@@ -252,7 +252,7 @@ test('useRemainingTimeAlignment - detects UPDATE mode when issues have actual ho
 			},
 		});
 
-		const testState: TestState = {options: {config, onRefresh: () => {}}};
+		const testState: TestState = {options: {config, onRefresh() {}}};
 		const date = new Date('2025-07-21');
 
 		// This scenario: dailySummary has issues with actual hours logged
@@ -338,7 +338,7 @@ test('useRemainingTimeAlignment - handles mixed scenario correctly', async t => 
 			},
 		});
 
-		const testState: TestState = {options: {config, onRefresh: () => {}}};
+		const testState: TestState = {options: {config, onRefresh() {}}};
 		const date = new Date('2025-07-21');
 
 		// Mixed scenario: some issues have hours, some don't

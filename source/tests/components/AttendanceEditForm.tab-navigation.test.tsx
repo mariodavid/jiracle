@@ -5,8 +5,8 @@ import {AttendanceEditForm} from '../../components/AttendanceEditForm.js';
 
 const mockProps = {
 	date: new Date('2025-07-11T00:00:00.000Z'),
-	onSubmit: () => {},
-	onCancel: () => {},
+	onSubmit() {},
+	onCancel() {},
 };
 
 test('AttendanceEditForm handles Tab navigation forward', t => {
@@ -131,7 +131,7 @@ test('AttendanceEditForm Escape cancels from any focus area', async t => {
 	let cancelled = false;
 	const cancelProps = {
 		...mockProps,
-		onCancel: () => {
+		onCancel() {
 			cancelled = true;
 		},
 	};
@@ -169,7 +169,7 @@ test('AttendanceEditForm Enter submits from submit button', async t => {
 	let submitted = false;
 	const submitProps = {
 		...mockProps,
-		onSubmit: () => {
+		onSubmit() {
 			submitted = true;
 		},
 	};

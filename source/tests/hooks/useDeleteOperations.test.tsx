@@ -23,7 +23,7 @@ const mockConfig: JiraConfig = {
 
 // Mock AttendanceManager
 const mockAttendanceManager: Partial<AttendanceManager> = {
-	deleteAttendance: async (_dateString: string) => {
+	async deleteAttendance(_dateString: string) {
 		// Simulate successful deletion
 		return true;
 	},
@@ -70,14 +70,14 @@ test('useDeleteOperations returns initial state', t => {
 	const mockOptions: UseDeleteOperationsOptions = {
 		config: mockConfig,
 		userEmail: 'test@example.com',
-		onRefresh: () => {},
-		onActiveAreaChange: () => {},
+		onRefresh() {},
+		onActiveAreaChange() {},
 	};
 
 	render(
 		React.createElement(TestDeleteOperationsComponent, {
 			options: mockOptions,
-			onStateChange: (state: any) => {
+			onStateChange(state: any) {
 				capturedState = state;
 			},
 		}),
@@ -98,8 +98,8 @@ test('useDeleteOperations handleCellDelete sets candidate and changes area', t =
 	const mockOptions: UseDeleteOperationsOptions = {
 		config: mockConfig,
 		userEmail: 'test@example.com',
-		onRefresh: () => {},
-		onActiveAreaChange: (area: string) => {
+		onRefresh() {},
+		onActiveAreaChange(area: string) {
 			activeAreaChanged = area;
 		},
 	};
@@ -107,7 +107,7 @@ test('useDeleteOperations handleCellDelete sets candidate and changes area', t =
 	const {rerender} = render(
 		React.createElement(TestDeleteOperationsComponent, {
 			options: mockOptions,
-			onStateChange: (state: any) => {
+			onStateChange(state: any) {
 				capturedState = state;
 			},
 		}),
@@ -119,7 +119,7 @@ test('useDeleteOperations handleCellDelete sets candidate and changes area', t =
 	rerender(
 		React.createElement(TestDeleteOperationsComponent, {
 			options: mockOptions,
-			onStateChange: (state: any) => {
+			onStateChange(state: any) {
 				capturedState = state;
 			},
 		}),
@@ -136,8 +136,8 @@ test('useDeleteOperations handleDeleteAttendance sets attendance candidate', t =
 	const mockOptions: UseDeleteOperationsOptions = {
 		config: mockConfig,
 		userEmail: 'test@example.com',
-		onRefresh: () => {},
-		onActiveAreaChange: (area: string) => {
+		onRefresh() {},
+		onActiveAreaChange(area: string) {
 			activeAreaChanged = area;
 		},
 		attendanceManager: mockAttendanceManager as AttendanceManager,
@@ -146,7 +146,7 @@ test('useDeleteOperations handleDeleteAttendance sets attendance candidate', t =
 	const {rerender} = render(
 		React.createElement(TestDeleteOperationsComponent, {
 			options: mockOptions,
-			onStateChange: (state: any) => {
+			onStateChange(state: any) {
 				capturedState = state;
 			},
 		}),
@@ -158,7 +158,7 @@ test('useDeleteOperations handleDeleteAttendance sets attendance candidate', t =
 	rerender(
 		React.createElement(TestDeleteOperationsComponent, {
 			options: mockOptions,
-			onStateChange: (state: any) => {
+			onStateChange(state: any) {
 				capturedState = state;
 			},
 		}),
@@ -175,8 +175,8 @@ test('useDeleteOperations handleDeleteConfirm cancels when not confirmed', async
 	const mockOptions: UseDeleteOperationsOptions = {
 		config: mockConfig,
 		userEmail: 'test@example.com',
-		onRefresh: () => {},
-		onActiveAreaChange: (area: string) => {
+		onRefresh() {},
+		onActiveAreaChange(area: string) {
 			activeAreaChanged = area;
 		},
 	};
@@ -184,7 +184,7 @@ test('useDeleteOperations handleDeleteConfirm cancels when not confirmed', async
 	const {rerender} = render(
 		React.createElement(TestDeleteOperationsComponent, {
 			options: mockOptions,
-			onStateChange: (state: any) => {
+			onStateChange(state: any) {
 				capturedState = state;
 			},
 		}),
@@ -195,7 +195,7 @@ test('useDeleteOperations handleDeleteConfirm cancels when not confirmed', async
 	rerender(
 		React.createElement(TestDeleteOperationsComponent, {
 			options: mockOptions,
-			onStateChange: (state: any) => {
+			onStateChange(state: any) {
 				capturedState = state;
 			},
 		}),
@@ -206,7 +206,7 @@ test('useDeleteOperations handleDeleteConfirm cancels when not confirmed', async
 	rerender(
 		React.createElement(TestDeleteOperationsComponent, {
 			options: mockOptions,
-			onStateChange: (state: any) => {
+			onStateChange(state: any) {
 				capturedState = state;
 			},
 		}),
@@ -223,8 +223,8 @@ test('useDeleteOperations handleDeleteAttendanceConfirm cancels when not confirm
 	const mockOptions: UseDeleteOperationsOptions = {
 		config: mockConfig,
 		userEmail: 'test@example.com',
-		onRefresh: () => {},
-		onActiveAreaChange: (area: string) => {
+		onRefresh() {},
+		onActiveAreaChange(area: string) {
 			activeAreaChanged = area;
 		},
 		attendanceManager: mockAttendanceManager as AttendanceManager,
@@ -233,7 +233,7 @@ test('useDeleteOperations handleDeleteAttendanceConfirm cancels when not confirm
 	const {rerender} = render(
 		React.createElement(TestDeleteOperationsComponent, {
 			options: mockOptions,
-			onStateChange: (state: any) => {
+			onStateChange(state: any) {
 				capturedState = state;
 			},
 		}),
@@ -244,7 +244,7 @@ test('useDeleteOperations handleDeleteAttendanceConfirm cancels when not confirm
 	rerender(
 		React.createElement(TestDeleteOperationsComponent, {
 			options: mockOptions,
-			onStateChange: (state: any) => {
+			onStateChange(state: any) {
 				capturedState = state;
 			},
 		}),
@@ -255,7 +255,7 @@ test('useDeleteOperations handleDeleteAttendanceConfirm cancels when not confirm
 	rerender(
 		React.createElement(TestDeleteOperationsComponent, {
 			options: mockOptions,
-			onStateChange: (state: any) => {
+			onStateChange(state: any) {
 				capturedState = state;
 			},
 		}),
@@ -271,14 +271,14 @@ test('useDeleteOperations clearDeleteError removes error message', t => {
 	const mockOptions: UseDeleteOperationsOptions = {
 		config: mockConfig,
 		userEmail: 'test@example.com',
-		onRefresh: () => {},
-		onActiveAreaChange: () => {},
+		onRefresh() {},
+		onActiveAreaChange() {},
 	};
 
 	const {rerender} = render(
 		React.createElement(TestDeleteOperationsComponent, {
 			options: mockOptions,
-			onStateChange: (state: any) => {
+			onStateChange(state: any) {
 				capturedState = state;
 			},
 		}),
@@ -289,7 +289,7 @@ test('useDeleteOperations clearDeleteError removes error message', t => {
 	rerender(
 		React.createElement(TestDeleteOperationsComponent, {
 			options: mockOptions,
-			onStateChange: (state: any) => {
+			onStateChange(state: any) {
 				capturedState = state;
 			},
 		}),
@@ -304,14 +304,14 @@ test('useDeleteOperations hook structure is correct', t => {
 	const mockOptions: UseDeleteOperationsOptions = {
 		config: mockConfig,
 		userEmail: 'test@example.com',
-		onRefresh: () => {},
-		onActiveAreaChange: () => {},
+		onRefresh() {},
+		onActiveAreaChange() {},
 	};
 
 	render(
 		React.createElement(TestDeleteOperationsComponent, {
 			options: mockOptions,
-			onStateChange: (state: any) => {
+			onStateChange(state: any) {
 				capturedState = state;
 			},
 		}),
@@ -348,14 +348,14 @@ test('useDeleteOperations candidate structures are correct', t => {
 	const mockOptions: UseDeleteOperationsOptions = {
 		config: mockConfig,
 		userEmail: 'test@example.com',
-		onRefresh: () => {},
-		onActiveAreaChange: () => {},
+		onRefresh() {},
+		onActiveAreaChange() {},
 	};
 
 	const {rerender} = render(
 		React.createElement(TestDeleteOperationsComponent, {
 			options: mockOptions,
-			onStateChange: (state: any) => {
+			onStateChange(state: any) {
 				capturedState = state;
 			},
 		}),
@@ -367,7 +367,7 @@ test('useDeleteOperations candidate structures are correct', t => {
 	rerender(
 		React.createElement(TestDeleteOperationsComponent, {
 			options: mockOptions,
-			onStateChange: (state: any) => {
+			onStateChange(state: any) {
 				capturedState = state;
 			},
 		}),
@@ -383,7 +383,7 @@ test('useDeleteOperations candidate structures are correct', t => {
 	rerender(
 		React.createElement(TestDeleteOperationsComponent, {
 			options: mockOptions,
-			onStateChange: (state: any) => {
+			onStateChange(state: any) {
 				capturedState = state;
 			},
 		}),
@@ -397,8 +397,8 @@ test('useDeleteOperations displays state correctly in component', t => {
 	const mockOptions: UseDeleteOperationsOptions = {
 		config: mockConfig,
 		userEmail: 'test@example.com',
-		onRefresh: () => {},
-		onActiveAreaChange: () => {},
+		onRefresh() {},
+		onActiveAreaChange() {},
 	};
 
 	const {lastFrame} = render(
@@ -425,14 +425,14 @@ test('useDeleteOperations auto-clears error after timeout', async t => {
 	const mockOptions: UseDeleteOperationsOptions = {
 		config: mockConfig,
 		userEmail: 'test@example.com',
-		onRefresh: () => {},
-		onActiveAreaChange: () => {},
+		onRefresh() {},
+		onActiveAreaChange() {},
 	};
 
 	render(
 		React.createElement(TestDeleteOperationsComponent, {
 			options: mockOptions,
-			onStateChange: (state: any) => {
+			onStateChange(state: any) {
 				capturedState = state;
 			},
 		}),

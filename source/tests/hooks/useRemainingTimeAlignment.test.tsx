@@ -90,7 +90,7 @@ test('useRemainingTimeAlignment - handles no attendance data', async t => {
 			},
 		});
 
-		const testState: TestState = {options: {config, onRefresh: () => {}}};
+		const testState: TestState = {options: {config, onRefresh() {}}};
 		const date = new Date('2025-07-19');
 		const dailySummary: DailyWorklogSummary = {
 			date,
@@ -146,7 +146,7 @@ test('useRemainingTimeAlignment - handles no worklogs', async t => {
 			},
 		});
 
-		const testState: TestState = {options: {config, onRefresh: () => {}}};
+		const testState: TestState = {options: {config, onRefresh() {}}};
 		const date = new Date('2025-07-19');
 
 		const {rerender} = render(
@@ -183,7 +183,7 @@ test('useRemainingTimeAlignment - uses default strategy from config', t => {
 		alignRemainingStrategy: 'proportional',
 	});
 
-	const testState: TestState = {options: {config, onRefresh: () => {}}};
+	const testState: TestState = {options: {config, onRefresh() {}}};
 
 	const {rerender} = render(
 		React.createElement(TestHookComponent, {testState}),
@@ -200,7 +200,7 @@ test('useRemainingTimeAlignment - falls back to even strategy when not configure
 	const config = ConfigFactory.createValidConfig();
 	// alignRemainingStrategy not set, should default to 'even'
 
-	const testState: TestState = {options: {config, onRefresh: () => {}}};
+	const testState: TestState = {options: {config, onRefresh() {}}};
 
 	const {rerender} = render(
 		React.createElement(TestHookComponent, {testState}),
@@ -229,7 +229,7 @@ test('useRemainingTimeAlignment - handles errors gracefully', async t => {
 			},
 		});
 
-		const testState: TestState = {options: {config, onRefresh: () => {}}};
+		const testState: TestState = {options: {config, onRefresh() {}}};
 		const date = new Date('2025-07-19');
 		const dailySummary: DailyWorklogSummary = {
 			date,

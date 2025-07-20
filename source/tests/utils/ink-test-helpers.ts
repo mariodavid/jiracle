@@ -8,8 +8,8 @@ export const InkTestHelpers: any = {
 	createAttendanceEditFormProps(overrides: Partial<any> = {}) {
 		return {
 			date: new Date(2025, 6, 11), // July 11, 2025
-			onSubmit: () => {},
-			onCancel: () => {},
+			onSubmit() {},
+			onCancel() {},
 			...overrides,
 		};
 	},
