@@ -1,43 +1,52 @@
-# Fix ESLint Rules
-
-Du sollst eine Liste von spezifischen ESLint-Regel beheben basierend auf den GitHub Issues: $ARGUMENTS
+Du sollst ESLint-Regel Violations für die GitHub Issues $ARGUMENTS systematisch beheben.
 
 ## Workflow
 
-Du sollst automatisch folgende Schritte ausführen:
+Für jede ESLint-Regel:
 
-### 0. Branch anlegen
+1. **Violations prüfen**: `npm run lint` ausführen um aktuelle Violations zu sehen
+2. **Automatische Fixes versuchen**: `npm run lint:fix` ausführen um Violations automatisch zu beheben
+3. **Tests prüfen**: `npm test` ausführen um sicherzustellen dass Auto-Fixes nichts kaputt gemacht haben
+4. **Manuelle Fixes falls nötig**: Wenn Auto-Fix fehlschlägt oder Tests fehlschlagen, manuelle Fixes durchführen
+5. **Finale Verifikation**: `npm test` erneut ausführen um sicherzustellen dass alle Fixes funktionieren
+6. **Changes committen**: Einen Commit für jede Regel mit aussagekräftiger Message
 
-### 1. Issue Analyse
-- GitHub Issue: $ARGUMENTS über GH CLI abrufen
-- ESLint-Regel aus Issue-Titel extrahieren  
-- Regel-Details und Beschreibung analysieren
+## Wichtige Strategien
 
-### 2. Regel Aktivierung
-- In `package.json` die entsprechende Regel von `"off"` entfernen
-- XO-Konfiguration aktualisieren
+**Immer zuerst Auto-Fix versuchen** bevor manuelle Fixes:
+- `npm run lint` → `npm run lint:fix` → `npm test`
+- Nur wenn das nicht funktioniert, manuelle Fixes
 
-### 3. Violations Beheben
-- `npm run lint` ausführen um Violations zu identifizieren
-- Alle gefundenen Violations automatisch beheben
-- Code-Änderungen gemäß Regel-Anforderungen implementieren
+**Für manuelle Fixes**:
+- Helper-Methoden erstellen für häufige Patterns (wie setTimeout in Tests)
+- Test-spezifische Rule-Overrides in package.json XO config wenn nötig
+- Code refactoring um Rule-Patterns zu befolgen
 
-### 4. Tests Sicherstellen
-- `npm test` ausführen um sicherzustellen, dass alle Tests bestehen
-- Bei Bedarf fehlende Tests ergänzen
-- Test-Failures durch Code-Anpassungen beheben
+**Beispiel Helper-Methoden Pattern**:
+Für Rules wie `no-promise-executor-return` in Tests:
 
-### 5. Git Commit
+```typescript
+// In InkTestHelpers
+delay(ms: number): Promise<void> {
+  // eslint-disable-next-line no-promise-executor-return
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+```
 
+**Configuration Override Pattern** in package.json:
+```json
+{
+  "xo": {
+    "overrides": [
+      {
+        "files": ["source/tests/**/*.ts"],
+        "rules": {
+          "@typescript-eslint/no-empty-function": "off"
+        }
+      }
+    ]
+  }
+}
+```
 
-## Vorgehen
-
-Diese Schrite 1 - 5 sollen für jedes GH issue gemacht werden und es soll alles auf einen branch. Am ende soll ein PR erstellt werden.
-
-
-## Wichtige Hinweise
-- Validiere die GitHub Issue URL und stelle sicher dass es eine ESLint-Regel betrifft
-- Bei Test-Failures führe entsprechende Code-Anpassungen durch
-- Erstelle aussagekräftige Commit-Messages und PR-Beschreibungen
-- Verwende die TodoWrite Tool um deinen Fortschritt zu verfolgen
-- Das Repository verwendet XO ESLint-Konfiguration in package.json
+Immer den schnellsten Weg (Auto-Fix) zuerst versuchen, dann auf durchdachte manuelle Fixes zurückgreifen.
