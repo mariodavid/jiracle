@@ -5,6 +5,7 @@ import figures from 'figures';
 import {WeeklyWorklogSummary} from '../domain/WeeklyWorklogSummary.js';
 import {FocusableCell} from './FocusableCell.js';
 import {AttendanceRows} from './AttendanceRows.js';
+import {AttendanceFooterRows} from './AttendanceFooterRows.js';
 import {formatLocalDateKey} from '../utils/date.js';
 import type {FavoriteIssue, JiraConfig} from '../jira-client.js';
 import {AttendanceManager} from '../attendance/AttendanceManager.js';
@@ -282,9 +283,7 @@ export function TimetableGrid({
 				<AttendanceRows
 					weekDates={weekDates}
 					weeklyAttendance={weeklyAttendance}
-					dailyLoggedHours={dailyLoggedHours}
 					isActive={isActive}
-					config={config}
 					onFocusChange={handleFocusChange}
 				/>
 			)}
@@ -484,6 +483,15 @@ export function TimetableGrid({
 					</Text>
 				</Box>
 			</Box>
+
+			{/* Attendance footer rows (hours and delta) - only show if attendanceManager is available */}
+			{attendanceManager && (
+				<AttendanceFooterRows
+					weekDates={weekDates}
+					weeklyAttendance={weeklyAttendance}
+					dailyLoggedHours={dailyLoggedHours}
+				/>
+			)}
 		</Box>
 	);
 }
