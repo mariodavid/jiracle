@@ -38,7 +38,7 @@ export function useWeeklyWorklogSummary(
 		const normalizedWindow = normalizeSlidingWindowConfig(config);
 		const cacheKey = `${weekStart.toISOString().split('T')[0]}-${
 			weekEnd.toISOString().split('T')[0]
-		}-${userEmail || 'unknown'}-${favoriteKeys}-sliding:${
+		}-${String(userEmail || 'unknown')}-${favoriteKeys}-sliding:${
 			normalizedWindow.past
 		}:${normalizedWindow.future}`;
 
@@ -96,7 +96,7 @@ export function useWeeklyWorklogSummary(
 		const normalizedWindow = normalizeSlidingWindowConfig(config);
 		const cacheKey = `${weekStart.toISOString().split('T')[0]}-${
 			weekEnd.toISOString().split('T')[0]
-		}-${userEmail || 'unknown'}-${favoriteKeys}-sliding:${
+		}-${String(userEmail || 'unknown')}-${favoriteKeys}-sliding:${
 			normalizedWindow.past
 		}:${normalizedWindow.future}`;
 		weekDataCache.delete(cacheKey);

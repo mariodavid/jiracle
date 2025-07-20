@@ -169,7 +169,7 @@ export function createMockFetch(responses: Record<string, any> = {}) {
 				return {
 					ok: true,
 					status: 200,
-					json: async () => response,
+					json: async (): Promise<any> => response,
 				} as Response;
 			}
 		}

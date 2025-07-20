@@ -312,15 +312,25 @@ if (cli.input.length > 0) {
 
 	if (command === 'worklog' && subcommand === 'add') {
 		await handleWorklogAdd();
-	} else if (command === 'checkin') {
-		await handleCheckIn();
-	} else if (command === 'checkout') {
-		await handleCheckOut();
-	} else if (command === 'status') {
-		await handleStatus();
 	} else {
-		console.error(`Unknown command: ${cli.input.join(' ')}`);
-		process.exit(1);
+		switch (command) {
+			case 'checkin': {
+				await handleCheckIn();
+				break;
+			}
+			case 'checkout': {
+				await handleCheckOut();
+				break;
+			}
+			case 'status': {
+				await handleStatus();
+				break;
+			}
+			default: {
+				console.error(`Unknown command: ${cli.input.join(' ')}`);
+				process.exit(1);
+			}
+		}
 	}
 } else {
 	render(<App />);

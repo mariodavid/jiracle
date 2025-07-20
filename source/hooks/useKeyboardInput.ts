@@ -146,7 +146,6 @@ export function useKeyboardInput({
 			if (date) {
 				onAlignRemainingTime(date);
 			}
-			return;
 		}
 
 		// Note: Tab key is still handled by Ink's default focus system

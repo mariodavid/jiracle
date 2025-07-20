@@ -168,6 +168,6 @@ export class ReminderService {
 		const iconPath = path.join(tempDir, 'jiracle-notification-icon.png');
 
 		fs.writeFileSync(iconPath, iconData);
-		return iconPath;
+		return iconPath as string;
 	}
 }

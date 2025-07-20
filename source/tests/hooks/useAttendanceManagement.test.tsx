@@ -271,7 +271,7 @@ test('useAttendanceManagement handleAttendanceSubmit saves data and refreshes', 
 		capturedState.attendanceManager.updateAttendance = async (
 			_data: Attendance,
 		) => {
-			return;
+			// Empty function for test
 		};
 	}
 

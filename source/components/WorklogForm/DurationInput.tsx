@@ -131,7 +131,7 @@ export default function DurationInput({
 			// Validate input character
 			if (isSelectedRef.current) {
 				// If text is selected, replace everything with first character
-				if (/[0-9.,hdm]/.test(input)) {
+				if (/[\d.,hdm]/.test(input)) {
 					setTimeInputValue(input);
 					timeInputValueRef.current = input;
 					setCursorPosition(1);
@@ -139,15 +139,13 @@ export default function DurationInput({
 					setIsSelected(false);
 					isSelectedRef.current = false;
 				}
-			} else {
+			} else if (isValidInputChar(input, timeInputValueRef.current)) {
 				// Normal typing - append to existing text if valid
-				if (isValidInputChar(input, timeInputValueRef.current)) {
-					const newValue = timeInputValueRef.current + input;
-					setTimeInputValue(newValue);
-					timeInputValueRef.current = newValue;
-					setCursorPosition(newValue.length);
-					handleTimeInputChange(newValue);
-				}
+				const newValue = timeInputValueRef.current + input;
+				setTimeInputValue(newValue);
+				timeInputValueRef.current = newValue;
+				setCursorPosition(newValue.length);
+				handleTimeInputChange(newValue);
 				// If invalid, ignore the character (no feedback, just don't add it)
 			}
 		}

@@ -27,7 +27,7 @@ export default function TimeInputField({
 
 	// Helper function to check if a character is valid for time input (HH:MM)
 	const isValidInputChar = (char: string, currentValue: string): boolean => {
-		if (!/[0-9:]/.test(char)) return false;
+		if (!/[\d:]/.test(char)) return false;
 
 		const newValue = currentValue + char;
 
@@ -41,41 +41,40 @@ export default function TimeInputField({
 		if (newValue.length > 5) return false;
 
 		// Don't allow digits in wrong positions
-		if (newValue.length === 1 && !/[0-9]/.test(newValue)) return false;
+		if (newValue.length === 1 && !/\d/.test(newValue)) return false;
 		if (newValue.length === 2) {
 			// Two characters: either HH or H:
 			if (!/:/.test(newValue)) {
 				// Two digit hour (00-23)
-				if (!/^[0-1][0-9]|2[0-3]$/.test(newValue)) return false;
-			} else {
+				if (!/^[01]\d|2[0-3]$/.test(newValue)) return false;
+			} else if (!/^\d:$/.test(newValue)) {
 				// Single digit hour with colon (8:)
-				if (!/^[0-9]:$/.test(newValue)) return false;
+				return false;
 			}
 		}
 		if (newValue.length === 3) {
 			// Three characters: either HH: or H:M
 			if (newValue[2] === ':') {
 				// Two digit hour with colon (08:)
-				if (!/^[0-1][0-9]:|2[0-3]:$/.test(newValue)) return false;
-			} else {
+				if (!/^[01]\d:|2[0-3]:$/.test(newValue)) return false;
+			} else if (!/^\d:[0-5]$/.test(newValue)) {
 				// Single digit hour with one minute digit (8:3)
-				if (!/^[0-9]:[0-5]$/.test(newValue)) return false;
+				return false;
 			}
 		}
 		if (newValue.length === 4) {
 			// Four characters: either HH:M or H:MM
-			if (/^[0-9]:/.test(newValue)) {
+			if (/^\d:/.test(newValue)) {
 				// Single digit hour with two minute digits (8:30)
-				if (!/^[0-9]:[0-5][0-9]$/.test(newValue)) return false;
-			} else {
+				if (!/^\d:[0-5]\d$/.test(newValue)) return false;
+			} else if (!/^[01]\d:[0-5]|2[0-3]:[0-5]$/.test(newValue)) {
 				// Two digit hour with one minute digit (08:3)
-				if (!/^[0-1][0-9]:[0-5]|2[0-3]:[0-5]$/.test(newValue)) return false;
+				return false;
 			}
 		}
 		if (newValue.length === 5) {
 			// Five characters: HH:MM format
-			if (!/^[0-1][0-9]:[0-5][0-9]|2[0-3]:[0-5][0-9]$/.test(newValue))
-				return false;
+			if (!/^[01]\d:[0-5]\d|2[0-3]:[0-5]\d$/.test(newValue)) return false;
 		}
 
 		return true;
@@ -126,12 +125,12 @@ export default function TimeInputField({
 		} else if (/^\d{1,2}:$/.test(normalizedValue)) {
 			// Hours with colon, add 00
 			normalizedValue += '00';
-		} else if (/^\d{1,2}:\d{1}$/.test(normalizedValue)) {
+		} else if (/^\d{1,2}:\d$/.test(normalizedValue)) {
 			// Hours with single minute digit, pad
 			normalizedValue += '0';
-		} else if (/^\d{1}:\d{2}$/.test(normalizedValue)) {
+		} else if (/^\d:\d{2}$/.test(normalizedValue)) {
 			// Single hour digit with minutes (8:30), pad hour
-			const match = normalizedValue.match(/^(\d{1}):(\d{2})$/);
+			const match = normalizedValue.match(/^(\d):(\d{2})$/);
 			if (match) {
 				const hours = parseInt(match[1]!, 10);
 				const minutes = parseInt(match[2]!, 10);
@@ -230,7 +229,7 @@ export default function TimeInputField({
 			// Validate input character
 			if (isSelectedRef.current) {
 				// If text is selected, replace everything with first character
-				if (/[0-9:]/.test(input)) {
+				if (/[\d:]/.test(input)) {
 					setTimeInputValue(input);
 					timeInputValueRef.current = input;
 					setCursorPosition(1);
@@ -238,15 +237,13 @@ export default function TimeInputField({
 					setIsSelected(false);
 					isSelectedRef.current = false;
 				}
-			} else {
+			} else if (isValidInputChar(input, timeInputValueRef.current)) {
 				// Normal typing - append to existing text if valid
-				if (isValidInputChar(input, timeInputValueRef.current)) {
-					const newValue = timeInputValueRef.current + input;
-					setTimeInputValue(newValue);
-					timeInputValueRef.current = newValue;
-					setCursorPosition(newValue.length);
-					handleTimeInputChange(newValue);
-				}
+				const newValue = timeInputValueRef.current + input;
+				setTimeInputValue(newValue);
+				timeInputValueRef.current = newValue;
+				setCursorPosition(newValue.length);
+				handleTimeInputChange(newValue);
 				// If invalid, ignore the character (no feedback, just don't add it)
 			}
 		}
