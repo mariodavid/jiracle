@@ -86,9 +86,9 @@ test('useWeeklyWorklogSummary - error handling structure', t => {
 	const mockConfig = hookTestUtils.createHookTestConfig();
 
 	// Verify config structure for error handling
-	t.true(mockConfig.hasOwnProperty('jiraUrl'));
-	t.true(mockConfig.hasOwnProperty('username'));
-	t.true(mockConfig.hasOwnProperty('apiToken'));
+	t.true(Object.prototype.hasOwnProperty.call(mockConfig, 'jiraUrl'));
+	t.true(Object.prototype.hasOwnProperty.call(mockConfig, 'username'));
+	t.true(Object.prototype.hasOwnProperty.call(mockConfig, 'apiToken'));
 
 	// Test with invalid dates
 	const invalidDate = new Date('invalid');
