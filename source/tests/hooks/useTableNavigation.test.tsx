@@ -1,6 +1,6 @@
 import test from 'ava';
 import React from 'react';
-import {Box} from 'ink';
+import {Box, Text} from 'ink';
 import {render} from 'ink-testing-library';
 import {
 	useTableNavigation,
@@ -21,7 +21,11 @@ function TestTableNavigationComponent({
 	// @ts-ignore
 	globalThis.__testTableNavigationResult = result;
 
-	return <Box>Test Component</Box>;
+	return (
+		<Box>
+			<Text>Test Component</Text>
+		</Box>
+	);
 }
 
 test('useTableNavigation: hook can be instantiated with minimal props', t => {

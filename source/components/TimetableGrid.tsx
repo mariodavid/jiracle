@@ -30,6 +30,7 @@ export interface TimetableGridProps {
 	onAttendanceEdit?: (data: {date: Date}) => void;
 	onAttendanceDelete?: (data: {date: Date}) => void;
 	onOpenInBrowser?: (issueKey: string) => void;
+	onAlignRemainingTime?: (date: Date) => void;
 	isActive?: boolean;
 	favoriteIssues?: FavoriteIssue[];
 	config?: JiraConfig;
@@ -48,6 +49,7 @@ export function TimetableGrid({
 	onAttendanceEdit,
 	onAttendanceDelete,
 	onOpenInBrowser,
+	onAlignRemainingTime,
 	isActive = true,
 	favoriteIssues = [],
 	config,
@@ -120,6 +122,7 @@ export function TimetableGrid({
 		onAttendanceEdit,
 		onAttendanceDelete,
 		onOpenInBrowser,
+		onAlignRemainingTime,
 	});
 
 	// Helper function to check if an issue is a favorite

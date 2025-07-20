@@ -1,6 +1,6 @@
 import test from 'ava';
 import React from 'react';
-import {Box} from 'ink';
+import {Box, Text} from 'ink';
 import {render} from 'ink-testing-library';
 import {
 	useFocusManagement,
@@ -15,7 +15,11 @@ function TestFocusManagementComponent() {
 	// @ts-ignore
 	globalThis.__testHookResult = focusManagement;
 
-	return <Box>Test Component</Box>;
+	return (
+		<Box>
+			<Text>Test Component</Text>
+		</Box>
+	);
 }
 
 test('useFocusManagement: returns initial state with null focused cell', t => {

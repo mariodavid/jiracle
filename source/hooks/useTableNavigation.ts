@@ -24,6 +24,7 @@ export interface TableNavigationProps {
 	onAttendanceEdit?: (data: {date: Date}) => void;
 	onAttendanceDelete?: (data: {date: Date}) => void;
 	onOpenInBrowser?: (issueKey: string) => void;
+	onAlignRemainingTime?: (date: Date) => void;
 }
 
 export interface TableNavigationResult {
@@ -49,6 +50,7 @@ export function useTableNavigation({
 	onAttendanceEdit,
 	onAttendanceDelete,
 	onOpenInBrowser,
+	onAlignRemainingTime,
 }: TableNavigationProps): TableNavigationResult {
 	// Core focus management
 	const {
@@ -113,6 +115,7 @@ export function useTableNavigation({
 		onAttendanceEdit,
 		onAttendanceDelete,
 		onOpenInBrowser,
+		onAlignRemainingTime,
 	};
 
 	// Initialize keyboard input handling

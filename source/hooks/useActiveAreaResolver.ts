@@ -20,6 +20,7 @@ export type ResolvedActiveArea =
 	| 'delete-attendance-confirmation'
 	| 'checkin-confirmation'
 	| 'checkout-confirmation'
+	| 'align-time-confirmation'
 	| 'attendance-edit'
 	| 'timetable';
 
@@ -56,6 +57,10 @@ export function useActiveAreaResolver({
 
 	if (activeArea === 'checkout-confirmation') {
 		return 'checkout-confirmation';
+	}
+
+	if (activeArea === 'align-time-confirmation') {
+		return 'align-time-confirmation';
 	}
 
 	if (activeArea === 'attendance-edit' && attendanceEdit) {

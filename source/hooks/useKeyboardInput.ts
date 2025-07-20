@@ -10,6 +10,7 @@ export interface KeyboardInputHandlers {
 	onAttendanceEdit?: (data: {date: Date}) => void;
 	onAttendanceDelete?: (data: {date: Date}) => void;
 	onOpenInBrowser?: (issueKey: string) => void;
+	onAlignRemainingTime?: (date: Date) => void;
 }
 
 export interface KeyboardInputOptions {
@@ -34,6 +35,7 @@ export function useKeyboardInput({
 		onAttendanceEdit,
 		onAttendanceDelete,
 		onOpenInBrowser,
+		onAlignRemainingTime,
 	} = handlers;
 
 	useInput((_input, key) => {
@@ -131,6 +133,19 @@ export function useKeyboardInput({
 			!focusedCell.isAttendance
 		) {
 			onOpenInBrowser(focusedCell.issueKey);
+			return;
+		}
+
+		// Handle 'F' for time alignment
+		if (
+			(_input === 'f' || _input === 'F') &&
+			onAlignRemainingTime &&
+			focusedCell
+		) {
+			const date = weekDates[focusedCell.columnIndex];
+			if (date) {
+				onAlignRemainingTime(date);
+			}
 			return;
 		}
 
