@@ -238,7 +238,9 @@ export const hookTestUtils = {
 	createMockAsyncOperation<T>(result: T, delay: number = 100) {
 		return () =>
 			new Promise<T>(resolve => {
-				setTimeout(() => resolve(result), delay);
+				setTimeout(() => {
+					resolve(result);
+				}, delay);
 			});
 	},
 };

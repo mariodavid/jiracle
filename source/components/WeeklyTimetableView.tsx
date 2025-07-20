@@ -108,7 +108,9 @@ export function WeeklyTimetableView({
 		config,
 		userEmail,
 		onRefresh: refresh,
-		onActiveAreaChange: (area: string) => setActiveArea(area as any),
+		onActiveAreaChange: (area: string) => {
+			setActiveArea(area as any);
+		},
 		data,
 	});
 
@@ -126,7 +128,9 @@ export function WeeklyTimetableView({
 	} = useAttendanceManagement({
 		config,
 		onRefresh: refresh,
-		onActiveAreaChange: (area: string) => setActiveArea(area as any),
+		onActiveAreaChange: (area: string) => {
+			setActiveArea(area as any);
+		},
 	});
 
 	// Delete operations state management
@@ -144,7 +148,9 @@ export function WeeklyTimetableView({
 		config,
 		userEmail,
 		onRefresh: refresh,
-		onActiveAreaChange: (area: string) => setActiveArea(area as any),
+		onActiveAreaChange: (area: string) => {
+			setActiveArea(area as any);
+		},
 		attendanceManager,
 		onAttendanceRefresh: refreshAttendance,
 	});
@@ -206,7 +212,9 @@ export function WeeklyTimetableView({
 			refresh();
 		}, 100);
 
-		return () => clearTimeout(timer);
+		return () => {
+			clearTimeout(timer);
+		};
 	}, []); // Empty dependency array means this runs only on mount
 
 	const handleOpenInBrowser = async (issueKey: string) => {

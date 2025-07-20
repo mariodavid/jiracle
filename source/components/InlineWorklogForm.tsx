@@ -287,13 +287,13 @@ export function InlineWorklogForm({
 		setDateInputValue(value);
 
 		// Only update the date state if it's a valid date format
-		if (value.match(/^\d{4}-\d{2}-\d{2}$/)) {
+		if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
 			try {
 				const newDate = new Date(value + 'T00:00:00.000Z');
 				if (!isNaN(newDate.getTime())) {
 					setCurrentDate(newDate);
 				}
-			} catch (error) {
+			} catch {
 				// Ignore invalid dates
 			}
 		}
@@ -404,7 +404,9 @@ export function InlineWorklogForm({
 						<SimpleDateInput
 							value={dateInputValue || ''}
 							onChange={handleDateChange}
-							onSubmit={() => setFocusArea('time')}
+							onSubmit={() => {
+								setFocusArea('time');
+							}}
 							isActive={focusArea === 'date'}
 						/>
 					</Box>
@@ -419,7 +421,9 @@ export function InlineWorklogForm({
 						<DurationInput
 							value={timeInputValue}
 							onChange={handleTimeInputChange}
-							onSubmit={() => setFocusArea('comment')}
+							onSubmit={() => {
+								setFocusArea('comment');
+							}}
 							compact={true}
 							config={config}
 							issueSelectionMode={isFavorite ? 'favorites' : null}

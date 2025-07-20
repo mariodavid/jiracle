@@ -66,8 +66,12 @@ export function AlignTimeConfirmation({
 				<Text> </Text>
 				<ConfirmInput
 					submitOnEnter={false}
-					onConfirm={() => onConfirm(true)}
-					onCancel={() => onConfirm(false)}
+					onConfirm={() => {
+						onConfirm(true);
+					}}
+					onCancel={() => {
+						onConfirm(false);
+					}}
 				/>
 			</Box>
 		);
@@ -108,8 +112,12 @@ export function AlignTimeConfirmation({
 				<Text> </Text>
 				<ConfirmInput
 					submitOnEnter={false}
-					onConfirm={() => onConfirm(true)}
-					onCancel={() => onConfirm(false)}
+					onConfirm={() => {
+						onConfirm(true);
+					}}
+					onCancel={() => {
+						onConfirm(false);
+					}}
 				/>
 			</Box>
 		);
@@ -123,8 +131,12 @@ export function AlignTimeConfirmation({
 			</Text>
 			<ConfirmInput
 				submitOnEnter={false}
-				onConfirm={() => onConfirm(false)}
-				onCancel={() => onConfirm(false)}
+				onConfirm={() => {
+					onConfirm(false);
+				}}
+				onCancel={() => {
+					onConfirm(false);
+				}}
 			/>
 		</Box>
 	);

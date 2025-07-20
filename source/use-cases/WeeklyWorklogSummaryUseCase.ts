@@ -121,7 +121,7 @@ export class WeeklyWorklogSummaryUseCase {
 
 		// Fetch detailed worklogs for each issue
 		const issuesWithWorklogs: IssueWithWorklogs[] = await Promise.all(
-			Array.from(allIssueKeys).map(async issueKey => {
+			[...allIssueKeys].map(async issueKey => {
 				// Find issue data from either worklogs search, sliding window search, or favorites
 				const worklogIssue = searchResult.issues.find(
 					issue => issue.key === issueKey,
@@ -297,7 +297,7 @@ export class WeeklyWorklogSummaryUseCase {
 		});
 
 		// Convert map to sorted array
-		return Array.from(dailyWorklogMap.values()).sort(
+		return [...dailyWorklogMap.values()].sort(
 			(a, b) => a.date.getTime() - b.date.getTime(),
 		);
 	}

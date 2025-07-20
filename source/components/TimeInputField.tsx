@@ -32,7 +32,7 @@ export default function TimeInputField({
 		const newValue = currentValue + char;
 
 		// Don't allow starting with colon
-		if (/^:/.test(newValue)) return false;
+		if (newValue.startsWith(':')) return false;
 
 		// Don't allow multiple colons
 		if ((newValue.match(/:/g) || []).length > 1) return false;
