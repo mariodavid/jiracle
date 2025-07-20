@@ -174,7 +174,8 @@
 			"unicorn/no-for-loop": "off",
 			"unicorn/no-useless-switch-case": "off",
 			"no-implicit-coercion": "off",
-			"unicorn/prefer-ternary": "off"
+			"unicorn/prefer-ternary": "off",
+			"unicorn/no-array-reduce": "off"
 		}
 	},
 	"prettier": "@vdemedes/prettier-config",
