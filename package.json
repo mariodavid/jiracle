@@ -107,7 +107,6 @@
 			"@typescript-eslint/no-unsafe-assignment": "off",
 			"@typescript-eslint/prefer-optional-chain": "off",
 			"@typescript-eslint/member-ordering": "off",
-			"@typescript-eslint/consistent-indexed-object-style": "off",
 			"react/jsx-sort-props": "off",
 			"import/order": "off",
 			"n/prefer-global/process": "off",

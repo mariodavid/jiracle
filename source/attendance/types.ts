@@ -26,6 +26,4 @@ export type AttendanceStatus = {
 	hasCheckedOut: boolean;
 };
 
-export type WeeklyAttendance = {
-	[date: string]: Attendance;
-};
+export type WeeklyAttendance = Record<string, Attendance>;
