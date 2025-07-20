@@ -173,8 +173,7 @@
 			"unicorn/no-useless-promise-resolve-reject": "off",
 			"unicorn/no-for-loop": "off",
 			"unicorn/no-useless-switch-case": "off",
-			"no-implicit-coercion": "off",
-			"unicorn/prefer-ternary": "off"
+			"no-implicit-coercion": "off"
 		}
 	},
 	"prettier": "@vdemedes/prettier-config",
