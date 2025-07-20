@@ -86,9 +86,7 @@ export class TempFileManager {
 	createTempConfigPath(): string {
 		const path = join(
 			tmpdir(),
-			`jiracle-test-${Date.now()}-${Math.random()
-				.toString(36)
-				.substring(7)}.json`,
+			`jiracle-test-${Date.now()}-${Math.random().toString(36).slice(7)}.json`,
 		);
 		this.files.push(path);
 		return path;
@@ -99,7 +97,7 @@ export class TempFileManager {
 			tmpdir(),
 			`attendance-test-${Date.now()}-${Math.random()
 				.toString(36)
-				.substring(7)}.csv`,
+				.slice(7)}.csv`,
 		);
 		this.files.push(path);
 		return path;
@@ -157,14 +155,14 @@ export const TimeHelpers = {
 		const testTime = new Date(`2025-07-11T${timeStr}:00`);
 		const beforeTimeStr = `2025-07-11T${beforeTime
 			.toTimeString()
-			.substring(0, 5)}:00`;
+			.slice(0, 5)}:00`;
 		const afterTimeStr = `2025-07-11T${afterTime
 			.toTimeString()
-			.substring(0, 5)}:00`;
+			.slice(0, 5)}:00`;
 
 		return (
-			testTime >= new Date(new Date(beforeTimeStr).getTime() - 60000) &&
-			testTime <= new Date(new Date(afterTimeStr).getTime() + 60000)
+			testTime >= new Date(new Date(beforeTimeStr).getTime() - 60_000) &&
+			testTime <= new Date(new Date(afterTimeStr).getTime() + 60_000)
 		);
 	},
 };

@@ -231,9 +231,9 @@ test('filterFocusableItems: filters items by predicate', t => {
 	);
 
 	t.is(attendanceItems.length, 5);
-	attendanceItems.forEach(item => {
+	for (const item of attendanceItems) {
 		t.true(item.isAttendance);
-	});
+	}
 });
 
 test('getFocusableItemsByColumn: returns items for specific column', t => {
@@ -250,9 +250,9 @@ test('getFocusableItemsByColumn: returns items for specific column', t => {
 	);
 
 	t.is(column2Items.length, 3); // 1 attendance + 2 issues
-	column2Items.forEach(item => {
+	for (const item of column2Items) {
 		t.is(item.columnIndex, 2);
-	});
+	}
 });
 
 test('getFocusableItemsByIssue: returns items for specific issue', t => {
@@ -266,9 +266,9 @@ test('getFocusableItemsByIssue: returns items for specific issue', t => {
 	);
 
 	t.is(issueItems.length, 5); // 5 columns for this issue
-	issueItems.forEach(item => {
+	for (const item of issueItems) {
 		t.is(item.issueKey, 'PROJECT-123');
-	});
+	}
 });
 
 test('getFocusableItemIndex: finds correct index for target item', t => {
@@ -311,9 +311,9 @@ test('calculateFocusableItems: handles undefined attendance manager', t => {
 	const items = FocusableItemCalculator.calculateFocusableItems(options);
 
 	t.is(items.length, 5); // Only issue items, no attendance
-	items.forEach(item => {
+	for (const item of items) {
 		t.false(item.isAttendance);
-	});
+	}
 });
 
 test('calculateFocusableItems: handles single issue', t => {
@@ -322,10 +322,10 @@ test('calculateFocusableItems: handles single issue', t => {
 	const items = FocusableItemCalculator.calculateFocusableItems(options);
 
 	t.is(items.length, 5);
-	items.forEach((item, index) => {
+	for (const [index, item] of items.entries()) {
 		t.is(item.issueKey, 'SINGLE-123');
 		t.is(item.columnIndex, index);
 		t.is(item.focusId, `issue-SINGLE-123-${index}`);
 		t.false(item.isAttendance);
-	});
+	}
 });

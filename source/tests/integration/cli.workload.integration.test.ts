@@ -41,7 +41,7 @@ test('worklog add - invalid Jira URL shows connection error', t => {
 			{
 				encoding: 'utf8',
 				stdio: ['pipe', 'pipe', 'pipe'],
-				timeout: 10000, // 10 second timeout
+				timeout: 10_000, // 10 second timeout
 			},
 		);
 

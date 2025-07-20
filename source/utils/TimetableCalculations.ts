@@ -1,13 +1,13 @@
-import {WeeklyWorklogSummary} from '../domain/WeeklyWorklogSummary.js';
+import {type WeeklyWorklogSummary} from '../domain/WeeklyWorklogSummary.js';
 import {formatLocalDateKey} from './date.js';
 
 export function calculateDailyTotals(
 	data: WeeklyWorklogSummary,
 	weekDates: Date[],
 ): number[] {
-	const totals: number[] = new Array(5).fill(0);
+	const totals: number[] = Array.from({length: 5}, () => 0);
 
-	data.dailySummaries.forEach(dailySummary => {
+	for (const dailySummary of data.dailySummaries) {
 		const dateKey = formatLocalDateKey(dailySummary.date);
 		const dayIndex = weekDates.findIndex(
 			date => formatLocalDateKey(date) === dateKey,
@@ -16,7 +16,7 @@ export function calculateDailyTotals(
 		if (dayIndex >= 0) {
 			totals[dayIndex] = dailySummary.totalHours;
 		}
-	});
+	}
 
 	return totals;
 }
@@ -38,7 +38,7 @@ export function truncateText(text: string, maxLength: number): string {
 		return '...';
 	}
 
-	return text.substring(0, maxLength - 3) + '...';
+	return text.slice(0, Math.max(0, maxLength - 3)) + '...';
 }
 
 export function getCurrentDayIndex(): number {

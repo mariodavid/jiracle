@@ -2,13 +2,13 @@ import React from 'react';
 import {Box, Text} from 'ink';
 import {getStartOfWeek, getEndOfWeek} from '../utils/date.js';
 
-export interface WeekNavigatorProps {
+export type WeekNavigatorProps = {
 	currentWeek: Date;
 	onPreviousWeek: () => void;
 	onNextWeek: () => void;
 	onCurrentWeek: () => void;
 	activeArea: 'prev-week' | 'timetable' | 'next-week';
-}
+};
 
 // Helper function to get week title - exported for use in TitleBar
 export function getWeekTitle(currentWeek: Date): string {
@@ -70,7 +70,7 @@ function getWeekNumber(date: Date): number {
 	const dayNum = d.getUTCDay() || 7;
 	d.setUTCDate(d.getUTCDate() + 4 - dayNum);
 	const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
-	return Math.ceil(((d.getTime() - yearStart.getTime()) / 86400000 + 1) / 7);
+	return Math.ceil(((d.getTime() - yearStart.getTime()) / 86_400_000 + 1) / 7);
 }
 
 function formatDate(date: Date): string {

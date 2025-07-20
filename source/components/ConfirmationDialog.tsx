@@ -2,7 +2,7 @@ import React from 'react';
 import {Box, Text} from 'ink';
 import {Spinner} from '@inkjs/ui';
 
-interface ConfirmationDialogProps {
+type ConfirmationDialogProps = {
 	children: React.ReactNode;
 	width?: number;
 	borderColor?: string;
@@ -10,7 +10,7 @@ interface ConfirmationDialogProps {
 	paddingY?: number;
 	isLoading?: boolean;
 	loadingText?: string;
-}
+};
 
 export function ConfirmationDialog({
 	children,

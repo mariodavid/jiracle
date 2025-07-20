@@ -1,5 +1,5 @@
 import {useState, useEffect} from 'react';
-import {WeeklyWorklogSummary} from '../domain/WeeklyWorklogSummary.js';
+import {type WeeklyWorklogSummary} from '../domain/WeeklyWorklogSummary.js';
 import {WeeklyWorklogSummaryUseCase} from '../use-cases/WeeklyWorklogSummaryUseCase.js';
 import {JiraClient, normalizeSlidingWindowConfig} from '../jira-client.js';
 import type {JiraConfig, FavoriteIssue} from '../jira-client.js';
@@ -8,18 +8,18 @@ import type {JiraConfig, FavoriteIssue} from '../jira-client.js';
 const weekDataCache = new Map<string, WeeklyWorklogSummary>();
 const loadingCache = new Set<string>();
 
-export interface UseWeeklyWorklogSummaryResult {
+export type UseWeeklyWorklogSummaryResult = {
 	data: WeeklyWorklogSummary | null;
 	isLoading: boolean;
 	error: string | null;
 	refresh: () => void;
-}
+};
 
 export function useWeeklyWorklogSummary(
 	weekStart: Date,
 	weekEnd: Date,
 	config: JiraConfig,
-	skipAutoLoad: boolean = false,
+	skipAutoLoad = false,
 	userEmail?: string,
 	favoriteIssues?: FavoriteIssue[],
 ): UseWeeklyWorklogSummaryResult {
@@ -71,8 +71,8 @@ export function useWeeklyWorklogSummary(
 			// Cache the result
 			weekDataCache.set(cacheKey, summary);
 			setData(summary);
-		} catch (err) {
-			setError(err instanceof Error ? err.message : 'Unknown error');
+		} catch (error_) {
+			setError(error_ instanceof Error ? error_.message : 'Unknown error');
 		} finally {
 			setIsLoading(false);
 			loadingCache.delete(cacheKey);

@@ -639,7 +639,7 @@ test('DurationInput allows and auto-completes h+digits pattern', t => {
 });
 
 test('DurationInput prevents invalid complex patterns like "2h.d.d."', t => {
-	let changedValues: string[] = [];
+	const changedValues: string[] = [];
 	const onChange = (value: string) => {
 		changedValues.push(value);
 	};
@@ -667,7 +667,7 @@ test('DurationInput prevents invalid complex patterns like "2h.d.d."', t => {
 });
 
 test('DurationInput prevents "2...." pattern', t => {
-	let changedValues: string[] = [];
+	const changedValues: string[] = [];
 	const onChange = (value: string) => {
 		changedValues.push(value);
 	};
@@ -696,7 +696,7 @@ test('DurationInput prevents "2...." pattern', t => {
 test('DurationInput accepts valid hour formats', t => {
 	const validHourInputs = ['1h', '2h', '10h', '24h'];
 
-	validHourInputs.forEach(input => {
+	for (const input of validHourInputs) {
 		let finalValue = '';
 		const onChange = (value: string) => {
 			finalValue = value;
@@ -717,7 +717,7 @@ test('DurationInput accepts valid hour formats', t => {
 		}
 
 		t.is(finalValue, input, `Should accept valid hour format: ${input}`);
-	});
+	}
 });
 
 test('DurationInput accepts valid decimal hour formats', t => {
@@ -727,7 +727,7 @@ test('DurationInput accepts valid decimal hour formats', t => {
 		{input: '0.25h', expected: '0.25h'},
 	];
 
-	testCases.forEach(({input, expected}) => {
+	for (const {input, expected} of testCases) {
 		let finalValue = '';
 		const onChange = (value: string) => {
 			finalValue = value;
@@ -748,13 +748,13 @@ test('DurationInput accepts valid decimal hour formats', t => {
 		}
 
 		t.is(finalValue, expected, `Should accept valid decimal format: ${input}`);
-	});
+	}
 });
 
 test('DurationInput accepts valid minute formats', t => {
 	const validMinuteInputs = ['15m', '30m', '45m', '90m'];
 
-	validMinuteInputs.forEach(input => {
+	for (const input of validMinuteInputs) {
 		let finalValue = '';
 		const onChange = (value: string) => {
 			finalValue = value;
@@ -775,7 +775,7 @@ test('DurationInput accepts valid minute formats', t => {
 		}
 
 		t.is(finalValue, input, `Should accept valid minute format: ${input}`);
-	});
+	}
 });
 
 test('DurationInput accepts valid day formats', t => {
@@ -786,7 +786,7 @@ test('DurationInput accepts valid day formats', t => {
 		{input: '1,5d', expected: '1,5d'},
 	];
 
-	testCases.forEach(({input, expected}) => {
+	for (const {input, expected} of testCases) {
 		let finalValue = '';
 		const onChange = (value: string) => {
 			finalValue = value;
@@ -807,7 +807,7 @@ test('DurationInput accepts valid day formats', t => {
 		}
 
 		t.is(finalValue, expected, `Should accept valid day format: ${input}`);
-	});
+	}
 });
 
 test('DurationInput accepts numbers only (for auto-completion)', t => {
@@ -818,7 +818,7 @@ test('DurationInput accepts numbers only (for auto-completion)', t => {
 		{input: '1,5', expected: '1,5'},
 	];
 
-	testCases.forEach(({input, expected}) => {
+	for (const {input, expected} of testCases) {
 		let finalValue = '';
 		const onChange = (value: string) => {
 			finalValue = value;
@@ -839,7 +839,7 @@ test('DurationInput accepts numbers only (for auto-completion)', t => {
 		}
 
 		t.is(finalValue, expected, `Should accept number format: ${input}`);
-	});
+	}
 });
 
 // === COMPLEX NEGATIVE CASES ===
@@ -865,8 +865,8 @@ test('DurationInput rejects complex invalid patterns', t => {
 		{input: '2.5hm', reason: 'm after decimal hours'},
 	];
 
-	invalidPatterns.forEach(({input, reason}) => {
-		let changedValues: string[] = [];
+	for (const {input, reason} of invalidPatterns) {
+		const changedValues: string[] = [];
 		const onChange = (value: string) => {
 			changedValues.push(value);
 		};
@@ -892,7 +892,7 @@ test('DurationInput rejects complex invalid patterns', t => {
 			new RegExp(input.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')),
 			`Should reject invalid pattern "${input}" (${reason})`,
 		);
-	});
+	}
 });
 
 test('DurationInput accepts valid combined hour-minute formats', t => {
@@ -903,7 +903,7 @@ test('DurationInput accepts valid combined hour-minute formats', t => {
 		{input: '12h00m', expected: '12h00m'},
 	];
 
-	testCases.forEach(({input, expected}) => {
+	for (const {input, expected} of testCases) {
 		let finalValue = '';
 		const onChange = (value: string) => {
 			finalValue = value;
@@ -924,7 +924,7 @@ test('DurationInput accepts valid combined hour-minute formats', t => {
 		}
 
 		t.is(finalValue, expected, `Should accept valid combined format: ${input}`);
-	});
+	}
 });
 
 test('DurationInput rejects invalid patterns with dots after units', t => {
@@ -934,8 +934,8 @@ test('DurationInput rejects invalid patterns with dots after units', t => {
 		{input: '2d.', reason: 'dot after d'},
 	];
 
-	testCases.forEach(({input, reason}) => {
-		let changedValues: string[] = [];
+	for (const {input, reason} of testCases) {
+		const changedValues: string[] = [];
 		const onChange = (value: string) => {
 			changedValues.push(value);
 		};
@@ -957,7 +957,7 @@ test('DurationInput rejects invalid patterns with dots after units', t => {
 		// Should not end with dot
 		const finalValue = changedValues[changedValues.length - 1] || '';
 		t.false(finalValue.endsWith('.'), `Should reject ${reason}: ${input}`);
-	});
+	}
 });
 
 // === COMMA TO DOT CONVERSION TESTS ===
@@ -1061,7 +1061,7 @@ test('DurationInput converts comma to dot with Tab key', t => {
 });
 
 test('DurationInput handles multiple commas correctly', t => {
-	let changedValues: string[] = [];
+	const changedValues: string[] = [];
 	let submittedValue = '';
 	const onChange = (value: string) => {
 		changedValues.push(value);
@@ -1108,7 +1108,7 @@ test('DurationInput smart unit detection with comma - hours for decimals', t => 
 		{input: '3,75', expected: '3.75h'},
 	];
 
-	testCases.forEach(({input, expected}) => {
+	for (const {input, expected} of testCases) {
 		submittedValue = ''; // Reset
 
 		const {stdin} = render(
@@ -1131,7 +1131,7 @@ test('DurationInput smart unit detection with comma - hours for decimals', t => 
 			expected,
 			`Input "${input}" should become "${expected}"`,
 		);
-	});
+	}
 });
 
 test('DurationInput smart unit detection with comma - whole numbers for minutes', t => {
@@ -1146,7 +1146,7 @@ test('DurationInput smart unit detection with comma - whole numbers for minutes'
 		{input: '45', expected: '45m'},
 	];
 
-	testCases.forEach(({input, expected}) => {
+	for (const {input, expected} of testCases) {
 		submittedValue = ''; // Reset
 
 		const {stdin} = render(
@@ -1169,5 +1169,5 @@ test('DurationInput smart unit detection with comma - whole numbers for minutes'
 			expected,
 			`Input "${input}" should become "${expected}"`,
 		);
-	});
+	}
 });

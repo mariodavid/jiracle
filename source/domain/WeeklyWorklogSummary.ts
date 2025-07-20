@@ -1,20 +1,20 @@
 // Domain models for the weekly worklog timetable feature
 // Translated from Java records in the timesheets reference implementation
 
-export interface WeeklyWorklogSummary {
+export type WeeklyWorklogSummary = {
 	weekStart: Date;
 	weekEnd: Date;
 	dailySummaries: DailyWorklogSummary[];
 	weekTotal: number;
-}
+};
 
-export interface DailyWorklogSummary {
+export type DailyWorklogSummary = {
 	date: Date;
 	totalHours: number;
 	issues: IssueWorklogEntry[];
-}
+};
 
-export interface IssueWorklogEntry {
+export type IssueWorklogEntry = {
 	issueKey: string;
 	issueSummary: string;
 	hours: number;
@@ -22,17 +22,17 @@ export interface IssueWorklogEntry {
 	worklogId?: string;
 	// Optional comment - only set when there's exactly one worklog for this issue/date
 	comment?: string;
-}
+};
 
 // Additional interfaces for worklog API responses
-export interface WorklogResponse {
+export type WorklogResponse = {
 	startAt: number;
 	maxResults: number;
 	total: number;
 	worklogs: WorklogEntry[];
-}
+};
 
-export interface WorklogEntry {
+export type WorklogEntry = {
 	id: string;
 	issueId: string;
 	author: {
@@ -42,10 +42,10 @@ export interface WorklogEntry {
 	comment: string;
 	started: string; // ISO date string
 	timeSpentSeconds: number;
-}
+};
 
 // Interface for issues with worklogs (used in aggregation)
-export interface IssueWithWorklogs {
+export type IssueWithWorklogs = {
 	issue: {
 		id: string;
 		key: string;
@@ -54,4 +54,4 @@ export interface IssueWithWorklogs {
 		};
 	};
 	worklogs: WorklogEntry[];
-}
+};

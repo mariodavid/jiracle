@@ -1,11 +1,11 @@
 import type {JiraConfig, Group} from '../jira-client.js';
 import {resolveDefaults} from '../jira-client.js';
 
-export interface IssueGroup {
+export type IssueGroup = {
 	group: Group | null;
 	issues: Array<[string, any]>;
 	totalHours: number;
-}
+};
 
 export class IssueGroupManager {
 	constructor(private config: JiraConfig | null) {}
@@ -15,7 +15,7 @@ export class IssueGroupManager {
 			return [
 				{
 					group: null,
-					issues: this.sortIssuesByKey(issues) as Array<[string, any]>,
+					issues: this.sortIssuesByKey(issues),
 					totalHours: issues.reduce(
 						(sum: number, [, issueData]: [string, any]): number =>
 							sum + (issueData.weekTotal as number),
@@ -30,7 +30,7 @@ export class IssueGroupManager {
 
 		for (const [issueKey, issueData] of issues) {
 			const resolved = resolveDefaults(this.config, issueKey);
-			const group = resolved.group;
+			const {group} = resolved;
 
 			if (group) {
 				const groupId = group.id;
@@ -62,7 +62,7 @@ export class IssueGroupManager {
 		if (ungroupedIssues.length > 0) {
 			groups.push({
 				group: null,
-				issues: this.sortIssuesByKey(ungroupedIssues) as Array<[string, any]>,
+				issues: this.sortIssuesByKey(ungroupedIssues),
 				totalHours: ungroupedIssues.reduce(
 					(sum: number, [, issueData]: [string, any]): number =>
 						sum + (issueData.weekTotal as number),

@@ -4,7 +4,7 @@ import {FocusableCell} from './FocusableCell.js';
 import {formatLocalDateKey} from '../utils/date.js';
 import type {WeeklyAttendance} from '../attendance/types.js';
 
-interface AttendanceRowsProps {
+type AttendanceRowsProps = {
 	weekDates: Date[];
 	weeklyAttendance: WeeklyAttendance;
 	isActive: boolean;
@@ -13,7 +13,7 @@ interface AttendanceRowsProps {
 		columnIndex: number,
 		isFocused: boolean,
 	) => void;
-}
+};
 
 export function AttendanceRows({
 	weekDates,

@@ -1,8 +1,8 @@
 import test, {type TestFn} from 'ava';
 
-interface TestContext {
+type TestContext = {
 	testCsvPath: string;
-}
+};
 
 const testWithContext = test as TestFn<TestContext>;
 import {readFile, unlink} from 'node:fs/promises';
@@ -19,7 +19,7 @@ testWithContext.beforeEach(t => {
 	// Set unique test CSV path
 	const testCsvPath = join(
 		tmpdir(),
-		`jiracle-test-${Date.now()}-${Math.random().toString(36).substring(7)}.csv`,
+		`jiracle-test-${Date.now()}-${Math.random().toString(36).slice(7)}.csv`,
 	);
 	process.env['JIRACLE_ATTENDANCE_CSV_PATH'] = testCsvPath;
 	t.context.testCsvPath = testCsvPath;
@@ -27,7 +27,7 @@ testWithContext.beforeEach(t => {
 
 testWithContext.afterEach.always(async t => {
 	// Clean up test CSV file
-	const csvPath = t.context.testCsvPath as string;
+	const csvPath = t.context.testCsvPath;
 	if (existsSync(csvPath)) {
 		await unlink(csvPath);
 	}
@@ -51,7 +51,7 @@ testWithContext('checkin uses current time when no time specified', async t => {
 	t.regex(result.message, /✅ Checked in at \d{2}:\d{2}/);
 
 	// Verify CSV content
-	const csvPath = t.context.testCsvPath as string;
+	const csvPath = t.context.testCsvPath;
 	t.true(existsSync(csvPath));
 
 	const csvContent = await readFile(csvPath, 'utf8');
@@ -70,14 +70,14 @@ testWithContext('checkin uses current time when no time specified', async t => {
 	// Verify check-in time is within reasonable range (current time ±1 minute)
 	const checkInTime = new Date(`2025-07-15T${checkIn}:00`);
 	const beforeTime = new Date(
-		`2025-07-15T${beforeCheckIn.toTimeString().substring(0, 5)}:00`,
+		`2025-07-15T${beforeCheckIn.toTimeString().slice(0, 5)}:00`,
 	);
 	const afterTime = new Date(
-		`2025-07-15T${afterCheckIn.toTimeString().substring(0, 5)}:00`,
+		`2025-07-15T${afterCheckIn.toTimeString().slice(0, 5)}:00`,
 	);
 
-	t.true(checkInTime >= new Date(beforeTime.getTime() - 60000)); // -1 minute
-	t.true(checkInTime <= new Date(afterTime.getTime() + 60000)); // +1 minute
+	t.true(checkInTime >= new Date(beforeTime.getTime() - 60_000)); // -1 minute
+	t.true(checkInTime <= new Date(afterTime.getTime() + 60_000)); // +1 minute
 });
 
 testWithContext(
@@ -109,7 +109,7 @@ testWithContext(
 		);
 
 		// Verify CSV content
-		const csvPath = t.context.testCsvPath as string;
+		const csvPath = t.context.testCsvPath;
 		const csvContent = await readFile(csvPath, 'utf8');
 		const lines = csvContent.trim().split('\n');
 		t.is(lines.length, 2); // Header + 1 data line
@@ -127,14 +127,14 @@ testWithContext(
 		// Verify check-out time is within reasonable range (current time ±1 minute)
 		const checkOutTime = new Date(`2025-07-15T${checkOut}:00`);
 		const beforeTime = new Date(
-			`2025-07-15T${beforeCheckOut.toTimeString().substring(0, 5)}:00`,
+			`2025-07-15T${beforeCheckOut.toTimeString().slice(0, 5)}:00`,
 		);
 		const afterTime = new Date(
-			`2025-07-15T${afterCheckOut.toTimeString().substring(0, 5)}:00`,
+			`2025-07-15T${afterCheckOut.toTimeString().slice(0, 5)}:00`,
 		);
 
-		t.true(checkOutTime >= new Date(beforeTime.getTime() - 60000)); // -1 minute
-		t.true(checkOutTime <= new Date(afterTime.getTime() + 60000)); // +1 minute
+		t.true(checkOutTime >= new Date(beforeTime.getTime() - 60_000)); // -1 minute
+		t.true(checkOutTime <= new Date(afterTime.getTime() + 60_000)); // +1 minute
 	},
 );
 
@@ -153,7 +153,7 @@ testWithContext('explicit time overrides current time', async t => {
 	t.is(result.message, `✅ Checked in at ${explicitTime}`);
 
 	// Verify CSV content shows explicit time, not current time
-	const csvPath = t.context.testCsvPath as string;
+	const csvPath = t.context.testCsvPath;
 	const csvContent = await readFile(csvPath, 'utf8');
 	const lines = csvContent.trim().split('\n');
 	const dataLine = lines[1]!;
@@ -184,7 +184,7 @@ testWithContext('status shows attendance with current times', async t => {
 	);
 
 	// Verify CSV was created and contains data
-	const csvPath = t.context.testCsvPath as string;
+	const csvPath = t.context.testCsvPath;
 	t.true(existsSync(csvPath));
 
 	const csvContent = await readFile(csvPath, 'utf8');
@@ -231,7 +231,7 @@ testWithContext(
 		);
 
 		// Verify CSV only has one entry for the date
-		const csvPath = t.context.testCsvPath as string;
+		const csvPath = t.context.testCsvPath;
 		const csvContent = await readFile(csvPath, 'utf8');
 		const lines = csvContent.trim().split('\n');
 		t.is(lines.length, 2); // Header + 1 data line

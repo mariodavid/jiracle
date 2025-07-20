@@ -7,12 +7,12 @@ import {Duration} from '../utils/Duration.js';
 import type {WeeklyAttendance} from '../attendance/types.js';
 import type {JiraConfig} from '../jira-client.js';
 
-interface AttendanceFooterRowsProps {
+type AttendanceFooterRowsProps = {
 	weekDates: Date[];
 	weeklyAttendance: WeeklyAttendance;
 	dailyLoggedHours: Record<string, number>;
 	config?: JiraConfig;
-}
+};
 
 export function AttendanceFooterRows({
 	weekDates,

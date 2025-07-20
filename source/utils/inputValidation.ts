@@ -51,16 +51,18 @@ export class InputValidation {
 			}
 
 			// If we have 'd' in the string
-			if (newValue.includes('d')) {
-				// Don't allow anything after d
-				if (/d./.test(newValue)) return false;
-			}
+			if (
+				newValue.includes('d') && // Don't allow anything after d
+				/d./.test(newValue)
+			)
+				return false;
 
 			// If we have 'm' in the string
-			if (newValue.includes('m')) {
-				// Don't allow anything after m
-				if (/m./.test(newValue)) return false;
-			}
+			if (
+				newValue.includes('m') && // Don't allow anything after m
+				/m./.test(newValue)
+			)
+				return false;
 		}
 
 		return true;

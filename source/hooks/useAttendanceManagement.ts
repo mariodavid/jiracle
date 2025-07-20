@@ -4,18 +4,18 @@ import type {Attendance} from '../attendance/types.js';
 import type {JiraConfig} from '../jira-client.js';
 import {formatLocalDateKey} from '../utils/date.js';
 
-export interface AttendanceEditState {
+export type AttendanceEditState = {
 	date: Date;
 	data?: Attendance;
-}
+};
 
-export interface UseAttendanceManagementOptions {
+export type UseAttendanceManagementOptions = {
 	config: JiraConfig;
 	onRefresh: () => void;
 	onActiveAreaChange: (area: string) => void;
-}
+};
 
-export interface UseAttendanceManagementReturn {
+export type UseAttendanceManagementReturn = {
 	// State
 	attendanceManager: AttendanceManager | null;
 	attendanceRefreshKey: number;
@@ -28,7 +28,7 @@ export interface UseAttendanceManagementReturn {
 	handleCheckinConfirm: (confirmed: boolean) => Promise<void>;
 	handleCheckoutConfirm: (confirmed: boolean) => Promise<void>;
 	refreshAttendance: () => void;
-}
+};
 
 export function useAttendanceManagement(
 	options: UseAttendanceManagementOptions,
@@ -60,7 +60,7 @@ export function useAttendanceManagement(
 				// Use local date format to avoid timezone issues
 				const dateKey = formatLocalDateKey(data.date);
 				// Load attendance data directly for this specific date
-				const storage = (attendanceManager as any).storage;
+				const {storage} = attendanceManager as any;
 				const existingData = await storage.getByDate(dateKey);
 
 				setAttendanceEdit({

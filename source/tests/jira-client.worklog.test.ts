@@ -30,7 +30,7 @@ test('getIssueWorklogs builds correct request', async t => {
 				},
 				comment: 'Test worklog',
 				started: '2024-10-19T08:00:00.000+0200',
-				timeSpentSeconds: 14400,
+				timeSpentSeconds: 14_400,
 			},
 		],
 	};
@@ -244,7 +244,7 @@ test('getIssueWorklogs parses response correctly', async t => {
 				},
 				comment: 'First worklog',
 				started: '2024-10-19T08:00:00.000+0200',
-				timeSpentSeconds: 14400, // 4 hours
+				timeSpentSeconds: 14_400, // 4 hours
 			},
 			{
 				id: '111112',
@@ -273,7 +273,7 @@ test('getIssueWorklogs parses response correctly', async t => {
 
 		t.is(result.worklogs.length, 2);
 		t.is(result.worklogs[0]!.id, '111111');
-		t.is(result.worklogs[0]!.timeSpentSeconds, 14400);
+		t.is(result.worklogs[0]!.timeSpentSeconds, 14_400);
 		t.is(result.worklogs[0]!.author.emailAddress, 'user1@example.com');
 		t.is(result.worklogs[1]!.id, '111112');
 		t.is(result.worklogs[1]!.timeSpentSeconds, 3600);

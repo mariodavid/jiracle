@@ -4,7 +4,7 @@ import {InlineWorklogForm} from '../InlineWorklogForm.js';
 import type {WorklogFormData} from '../../hooks/useWorklogForm.js';
 import type {JiraConfig} from '../../jira-client.js';
 
-export interface WorklogFormAreaProps {
+export type WorklogFormAreaProps = {
 	worklogForm: WorklogFormData;
 	worklogSubmitting: boolean;
 	worklogError: string | null;
@@ -17,7 +17,7 @@ export interface WorklogFormAreaProps {
 		worklogId?: string;
 	}) => Promise<void>;
 	onCancel: () => void;
-}
+};
 
 export function WorklogFormArea({
 	worklogForm,

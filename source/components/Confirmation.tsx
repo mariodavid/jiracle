@@ -2,11 +2,11 @@ import React from 'react';
 import {Box, Text} from 'ink';
 import {ConfirmInput} from '@inkjs/ui';
 
-interface ConfirmationProps {
+type ConfirmationProps = {
 	title?: string;
 	message: string;
 	onConfirm: (confirmed: boolean) => void;
-}
+};
 
 export function Confirmation({title, message, onConfirm}: ConfirmationProps) {
 	return (

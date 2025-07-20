@@ -126,7 +126,7 @@ test('TimeInputField normalizes single digit hour input', t => {
 });
 
 test('TimeInputField validates time input', t => {
-	let changedValues: string[] = [];
+	const changedValues: string[] = [];
 	const onChange = (value: string) => {
 		changedValues.push(value);
 	};
@@ -156,7 +156,7 @@ test('TimeInputField validates time input', t => {
 test('TimeInputField accepts valid time formats', t => {
 	const validInputs = ['8:30', '08:30', '15:45', '23:59'];
 
-	validInputs.forEach(input => {
+	for (const input of validInputs) {
 		let submittedValue = '';
 		const onSubmit = (value: string) => {
 			submittedValue = value;
@@ -180,5 +180,5 @@ test('TimeInputField accepts valid time formats', t => {
 		// Should normalize to HH:MM format
 		const expected = input.padStart(5, '0').replace(/^(\d):/, '0$1:');
 		t.is(submittedValue, expected, `Should accept and normalize: ${input}`);
-	});
+	}
 });

@@ -24,7 +24,7 @@ export async function openInBrowser(url: string): Promise<void> {
 export function isBrowserOpenSupported(): boolean {
 	// The open package handles macOS (open), Windows (start), and Linux (xdg-open)
 	// automatically, so we can assume it's supported on these platforms.
-	const platform = process.platform;
+	const {platform} = process;
 	return platform === 'darwin' || platform === 'win32' || platform === 'linux';
 }
 

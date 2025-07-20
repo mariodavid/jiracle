@@ -1,15 +1,15 @@
 import {
-	JiraClient,
+	type JiraClient,
 	type FavoriteIssue,
 	type JiraIssue,
 } from '../jira-client.js';
 import {formatLocalDateKey} from '../utils/date.js';
 import {uiLogger} from '../utils/logger.js';
 import {
-	WeeklyWorklogSummary,
-	DailyWorklogSummary,
-	IssueWorklogEntry,
-	IssueWithWorklogs,
+	type WeeklyWorklogSummary,
+	type DailyWorklogSummary,
+	type IssueWorklogEntry,
+	type IssueWithWorklogs,
 } from '../domain/WeeklyWorklogSummary.js';
 
 export class WeeklyWorklogSummaryUseCase {
@@ -234,14 +234,14 @@ export class WeeklyWorklogSummaryUseCase {
 		// Track worklogs by issue/date for aggregation logic
 		const worklogsByIssueDate = new Map<string, any[]>();
 
-		issuesWithWorklogs.forEach(({issue, worklogs}) => {
+		for (const {issue, worklogs} of issuesWithWorklogs) {
 			const filteredWorklogs = worklogs
 				.filter(worklog =>
 					this.isWorklogInDateRange(worklog.started, weekStart, weekEnd),
 				)
 				.filter(worklog => worklog.author.emailAddress === currentUserEmail);
 
-			filteredWorklogs.forEach(worklog => {
+			for (const worklog of filteredWorklogs) {
 				const worklogDate = new Date(worklog.started);
 				const localDateKey = formatLocalDateKey(worklogDate);
 				const issueWorklogKey = `${issue.key}|${localDateKey}`;
@@ -251,16 +251,16 @@ export class WeeklyWorklogSummaryUseCase {
 					worklogsByIssueDate.set(issueWorklogKey, []);
 				}
 				worklogsByIssueDate.get(issueWorklogKey)!.push(worklog);
-			});
-		});
+			}
+		}
 
 		// Now aggregate by issue/date
-		worklogsByIssueDate.forEach((worklogs, issueWorklogKey) => {
+		for (const [issueWorklogKey, worklogs] of worklogsByIssueDate.entries()) {
 			// Split by pipe character to separate issue key from date
 			const [issueKey, localDateKey] = issueWorklogKey.split('|');
-			const issue = issuesWithWorklogs.find(
+			const {issue} = issuesWithWorklogs.find(
 				iwl => iwl.issue.key === issueKey,
-			)!.issue;
+			)!;
 			const totalHours = worklogs.reduce(
 				(sum: number, wl): number => sum + wl.timeSpentSeconds / 3600,
 				0,
@@ -294,7 +294,7 @@ export class WeeklyWorklogSummaryUseCase {
 					issues: [issueEntry],
 				});
 			}
-		});
+		}
 
 		// Convert map to sorted array
 		return [...dailyWorklogMap.values()].sort(
@@ -344,13 +344,13 @@ export class WeeklyWorklogSummaryUseCase {
 
 		// Add favorite issues with 0 hours to the first day
 		const firstDay = dailySummaries[0]!;
-		favoriteIssuesWithoutWorklogs.forEach(favorite => {
+		for (const favorite of favoriteIssuesWithoutWorklogs) {
 			firstDay.issues.push({
 				issueKey: favorite.key,
 				issueSummary: favorite.fields.summary,
 				hours: 0,
 			});
-		});
+		}
 	}
 
 	private addSlidingWindowIssuesWithoutWorklogs(
@@ -404,12 +404,12 @@ export class WeeklyWorklogSummaryUseCase {
 
 		// Add sliding window issues with 0 hours to the first day
 		const firstDay = dailySummaries[0]!;
-		slidingWindowIssuesWithoutCurrentWeekWorklogs.forEach(issue => {
+		for (const issue of slidingWindowIssuesWithoutCurrentWeekWorklogs) {
 			firstDay.issues.push({
 				issueKey: issue.key,
 				issueSummary: issue.fields.summary,
 				hours: 0,
 			});
-		});
+		}
 	}
 }

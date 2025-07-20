@@ -382,7 +382,7 @@ test.serial(
 			},
 		];
 
-		let focusedCells: Array<{issueKey: string; date: Date}> = [];
+		const focusedCells: Array<{issueKey: string; date: Date}> = [];
 		const handleCellWorklog = (data: {issueKey: string; date: Date}) => {
 			focusedCells.push(data);
 		};
@@ -467,7 +467,7 @@ test.serial(
 			},
 		];
 
-		let focusedCells: Array<{issueKey: string; date: Date}> = [];
+		const focusedCells: Array<{issueKey: string; date: Date}> = [];
 		const handleCellWorklog = (data: {issueKey: string; date: Date}) => {
 			focusedCells.push(data);
 		};
@@ -556,7 +556,7 @@ test.serial(
 			},
 		];
 
-		let focusedCells: Array<{issueKey: string; date: Date}> = [];
+		const focusedCells: Array<{issueKey: string; date: Date}> = [];
 		const handleCellWorklog = (data: {issueKey: string; date: Date}) => {
 			focusedCells.push(data);
 		};
@@ -622,7 +622,7 @@ test.serial(
 			},
 		];
 
-		let focusedCells: Array<{issueKey: string; date: Date}> = [];
+		const focusedCells: Array<{issueKey: string; date: Date}> = [];
 		const handleCellWorklog = (data: {issueKey: string; date: Date}) => {
 			focusedCells.push(data);
 		};
@@ -680,10 +680,10 @@ test('TimetableGrid allows week navigation even with empty data', t => {
 	// But navigation should still work
 
 	// Simulate Shift+LeftArrow (previous week) - this should work
-	stdin.write('\u001b[1;2D');
+	stdin.write('\u001B[1;2D');
 
 	// Simulate Shift+RightArrow (next week) - this should also work
-	stdin.write('\u001b[1;2C');
+	stdin.write('\u001B[1;2C');
 
 	// Navigation should work even with empty data (this was the bug)
 	t.is(navigationCalls.length, 2);
@@ -723,11 +723,11 @@ test('TimetableGrid blocks cell interaction with empty data but allows week navi
 	stdin.write('\r');
 
 	// Try arrow keys (should NOT work for cell navigation with empty data)
-	stdin.write('\u001b[C'); // Right arrow
-	stdin.write('\u001b[A'); // Up arrow
+	stdin.write('\u001B[C'); // Right arrow
+	stdin.write('\u001B[A'); // Up arrow
 
 	// Try week navigation (SHOULD work even with empty data)
-	stdin.write('\u001b[1;2D'); // Shift+Left arrow
+	stdin.write('\u001B[1;2D'); // Shift+Left arrow
 
 	// Cell interactions should be blocked, week navigation should work
 	t.is(cellWorklogCalls.length, 0); // No cell worklog calls
@@ -751,8 +751,8 @@ test('TimetableGrid allows navigation during loading state', t => {
 	const {stdin} = render(React.createElement(TimetableGrid, props));
 
 	// Navigation should work even during loading
-	stdin.write('\u001b[1;2D'); // Shift+LeftArrow
-	stdin.write('\u001b[1;2C'); // Shift+RightArrow
+	stdin.write('\u001B[1;2D'); // Shift+LeftArrow
+	stdin.write('\u001B[1;2C'); // Shift+RightArrow
 
 	t.is(navigationCalls.length, 2);
 	t.is(navigationCalls[0], 'prev');

@@ -1,10 +1,10 @@
 import notifier from 'node-notifier';
-import {JiraClient, ReminderConfig} from '../jira-client.js';
+import {type JiraClient, type ReminderConfig} from '../jira-client.js';
 
-interface ReminderState {
+type ReminderState = {
 	notifiedTimes: Set<string>;
 	lastCheckDate: string;
-}
+};
 
 export class ReminderService {
 	private interval: NodeJS.Timeout | null = null;
@@ -79,7 +79,7 @@ export class ReminderService {
 	}
 
 	private formatTime(date: Date): string {
-		return date.toTimeString().substring(0, 5); // "HH:MM"
+		return date.toTimeString().slice(0, 5); // "HH:MM"
 	}
 
 	private isWeekday(date: Date): boolean {
@@ -104,7 +104,7 @@ export class ReminderService {
 
 	private async sendReminder(): Promise<void> {
 		try {
-			const platform = process.platform;
+			const {platform} = process;
 
 			if (platform === 'darwin') {
 				// macOS - use terminal-notifier with better styling
@@ -132,7 +132,7 @@ export class ReminderService {
 	}
 
 	private getNotificationIcon(): string {
-		const platform = process.platform;
+		const {platform} = process;
 
 		try {
 			// Try to create a temporary icon from embedded data

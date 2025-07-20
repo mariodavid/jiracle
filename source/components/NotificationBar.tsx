@@ -2,9 +2,9 @@ import React from 'react';
 import {Box, Text} from 'ink';
 import type {Notification} from '../hooks/useNotification.js';
 
-export interface NotificationBarProps {
+export type NotificationBarProps = {
 	notifications: Notification[];
-}
+};
 
 export function NotificationBar({notifications}: NotificationBarProps) {
 	if (notifications.length === 0) {
@@ -19,12 +19,15 @@ export function NotificationBar({notifications}: NotificationBarProps) {
 
 	const getNotificationColor = (type: Notification['type']) => {
 		switch (type) {
-			case 'success':
+			case 'success': {
 				return 'green';
-			case 'error':
+			}
+			case 'error': {
 				return 'red';
-			default:
+			}
+			default: {
 				return 'blue';
+			}
 		}
 	};
 

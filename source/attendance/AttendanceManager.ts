@@ -244,7 +244,7 @@ export class AttendanceManager {
 
 	private getCurrentTime(): string {
 		const now = new Date();
-		return now.toTimeString().substring(0, 5);
+		return now.toTimeString().slice(0, 5);
 	}
 
 	// Utility methods for UI

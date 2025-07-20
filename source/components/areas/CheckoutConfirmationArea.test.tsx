@@ -84,7 +84,7 @@ test('CheckoutConfirmationArea handles escape key', t => {
 	);
 
 	// Simulate pressing escape (CheckoutConfirmation handles escape internally)
-	stdin.write('\x1b');
+	stdin.write('\x1B');
 
 	// Note: Escape handling depends on CheckoutConfirmation component implementation
 	// This test verifies the component can handle escape input without errors

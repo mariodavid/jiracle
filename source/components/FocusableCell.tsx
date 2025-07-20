@@ -1,7 +1,7 @@
 import React from 'react';
 import {Box, Text, useFocus} from 'ink';
 
-export interface FocusableCellProps {
+export type FocusableCellProps = {
 	value: string;
 	focusId: string;
 	isDefault?: boolean;
@@ -16,7 +16,7 @@ export interface FocusableCellProps {
 		columnIndex: number,
 		isFocused: boolean,
 	) => void;
-}
+};
 
 export function FocusableCell({
 	value,

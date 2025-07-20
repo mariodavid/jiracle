@@ -24,7 +24,7 @@ test('WeeklyWorklogSummaryUseCase supports bidirectional sliding window', async 
 	// Mock current user
 	client.getCurrentUser = async () => ({emailAddress: 'user1@example.com'});
 
-	let jqlQueries: string[] = [];
+	const jqlQueries: string[] = [];
 
 	// Mock search that tracks all JQL queries
 	client.searchIssuesWithWorklogs = async jql => {
@@ -263,7 +263,7 @@ test('WeeklyWorklogSummaryUseCase skips future window when future is 0', async t
 
 	client.getCurrentUser = async () => ({emailAddress: 'user1@example.com'});
 
-	let jqlQueries: string[] = [];
+	const jqlQueries: string[] = [];
 
 	client.searchIssuesWithWorklogs = async jql => {
 		jqlQueries.push(jql);
@@ -303,7 +303,7 @@ test('WeeklyWorklogSummaryUseCase skips past window when past is 0', async t => 
 
 	client.getCurrentUser = async () => ({emailAddress: 'user1@example.com'});
 
-	let jqlQueries: string[] = [];
+	const jqlQueries: string[] = [];
 
 	client.searchIssuesWithWorklogs = async jql => {
 		jqlQueries.push(jql);

@@ -2,13 +2,13 @@ import React, {useEffect, useState} from 'react';
 import {Box, Text, useFocusManager} from 'ink';
 import {Spinner} from '@inkjs/ui';
 import figures from 'figures';
-import {WeeklyWorklogSummary} from '../domain/WeeklyWorklogSummary.js';
+import {type WeeklyWorklogSummary} from '../domain/WeeklyWorklogSummary.js';
 import {FocusableCell} from './FocusableCell.js';
 import {AttendanceRows} from './AttendanceRows.js';
 import {AttendanceFooterRows} from './AttendanceFooterRows.js';
 import {formatLocalDateKey} from '../utils/date.js';
 import type {FavoriteIssue, JiraConfig} from '../jira-client.js';
-import {AttendanceManager} from '../attendance/AttendanceManager.js';
+import {type AttendanceManager} from '../attendance/AttendanceManager.js';
 import type {WeeklyAttendance} from '../attendance/types.js';
 import {useIssueGroups} from '../hooks/useIssueGroups.js';
 import type {IssueGroup} from '../services/IssueGroupManager.js';
@@ -21,7 +21,7 @@ import {FocusableItemCalculator} from '../utils/FocusableItemCalculator.js';
 import {GridNavigationService} from '../services/GridNavigationService.js';
 import {useTableNavigation} from '../hooks/useTableNavigation.js';
 
-export interface TimetableGridProps {
+export type TimetableGridProps = {
 	data: WeeklyWorklogSummary | null;
 	isLoading: boolean;
 	onWeekChange?: (direction: 'prev' | 'next') => void;
@@ -35,7 +35,7 @@ export interface TimetableGridProps {
 	config?: JiraConfig;
 	attendanceManager?: AttendanceManager;
 	attendanceRefreshKey?: number;
-}
+};
 
 const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
 
@@ -71,8 +71,8 @@ export function TimetableGrid({
 				const weekStart = new Date(data.weekStart);
 				const weekly = await attendanceManager.getWeeklyAttendance(weekStart);
 				setWeeklyAttendance(weekly);
-			} catch (err) {
-				console.error('Failed to load attendance data:', err);
+			} catch (error) {
+				console.error('Failed to load attendance data:', error);
 			}
 		};
 
@@ -93,10 +93,10 @@ export function TimetableGrid({
 
 	// Calculate daily deltas (logged hours - attendance hours)
 	const dailyLoggedHours: Record<string, number> = {};
-	weekDates.forEach((date, index) => {
+	for (const [index, date] of weekDates.entries()) {
 		const dateKey = formatLocalDateKey(date);
 		dailyLoggedHours[dateKey] = dailyTotals[index] || 0;
-	});
+	}
 
 	// Group issues by their resolved groups using the extracted service
 	const issueGroups = useIssueGroups(Object.entries(issueMap), config || null);
@@ -526,20 +526,20 @@ function generateWeekDates(weekStart: Date): Date[] {
 	return dates;
 }
 
-interface IssueData {
+type IssueData = {
 	summary: string;
 	dailyHours: Record<string, number>;
 	weekTotal: number;
-}
+};
 
 function buildIssueMap(data: WeeklyWorklogSummary): Record<string, IssueData> {
 	const issueMap: Record<string, IssueData> = {};
 
 	// Process all worklog data (includes favorites with 0 hours from WeeklyWorklogSummaryUseCase)
-	data.dailySummaries.forEach(dailySummary => {
+	for (const dailySummary of data.dailySummaries) {
 		const dateKey = formatLocalDateKey(dailySummary.date);
 
-		dailySummary.issues.forEach(issue => {
+		for (const issue of dailySummary.issues) {
 			if (!issueMap[issue.issueKey]) {
 				issueMap[issue.issueKey] = {
 					summary: issue.issueSummary,
@@ -551,8 +551,8 @@ function buildIssueMap(data: WeeklyWorklogSummary): Record<string, IssueData> {
 			issueMap[issue.issueKey]!.dailyHours[dateKey] =
 				(issueMap[issue.issueKey]!.dailyHours[dateKey] || 0) + issue.hours;
 			issueMap[issue.issueKey]!.weekTotal += issue.hours;
-		});
-	});
+		}
+	}
 
 	return issueMap;
 }
@@ -562,13 +562,13 @@ function buildIssueMapFromFavorites(
 ): Record<string, IssueData> {
 	const issueMap: Record<string, IssueData> = {};
 
-	favoriteIssues.forEach(favorite => {
+	for (const favorite of favoriteIssues) {
 		issueMap[favorite.key] = {
 			summary: `Favorite: ${favorite.key}`,
 			dailyHours: {},
 			weekTotal: 0,
 		};
-	});
+	}
 
 	return issueMap;
 }

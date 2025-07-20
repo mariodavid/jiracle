@@ -5,7 +5,7 @@ import meow from 'meow';
 import App from './app.js';
 import {
 	JiraClient,
-	WorklogRequest,
+	type WorklogRequest,
 	loadConfigWithEnvVars,
 } from './jira-client.js';
 import {readFileSync} from 'node:fs';
@@ -79,17 +79,17 @@ const cli = meow(
 	},
 );
 
-export interface WorklogAddParams {
+export type WorklogAddParams = {
 	issue: string;
 	date: string;
 	time: string;
 	comment: string;
-}
+};
 
-export interface WorklogAddResult {
+export type WorklogAddResult = {
 	success: boolean;
 	message: string;
-}
+};
 
 export async function executeWorklogAdd(
 	params: WorklogAddParams,
@@ -161,7 +161,7 @@ export async function executeWorklogAdd(
 	} catch (error) {
 		// Clean error messages for CLI usage
 		if (error instanceof Error) {
-			const message = error.message;
+			const {message} = error;
 
 			// Handle specific Jira API errors
 			if (message.includes('404') && message.includes('Issue Does Not Exist')) {
@@ -188,7 +188,7 @@ export async function executeWorklogAdd(
 				throw new Error(message.split(' - ')[0]);
 			}
 		} else {
-			throw new Error('Unknown error occurred');
+			throw new TypeError('Unknown error occurred');
 		}
 	}
 }

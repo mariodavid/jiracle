@@ -1,35 +1,35 @@
-export interface Group {
+export type Group = {
 	id: string;
 	name: string;
 	defaultComment?: string;
 	defaultTime?: string;
 	desiredAmount?: number;
-}
+};
 
-export interface FavoriteIssue {
+export type FavoriteIssue = {
 	key: string;
 	alias?: string;
 	defaultComment?: string;
 	defaultTime?: string;
 	groupId?: string;
-}
+};
 
-export interface ProjectDefaults {
+export type ProjectDefaults = {
 	key: string;
 	groupId?: string;
-}
+};
 
-export interface ReminderConfig {
+export type ReminderConfig = {
 	enabled: boolean;
 	times: string[];
 	weekdaysOnly: boolean;
-}
+};
 
 // Bidirectional sliding window configuration
-export interface SlidingWindowConfig {
+export type SlidingWindowConfig = {
 	past: number;
 	future: number;
-}
+};
 
 // Utility function to normalize sliding window configuration
 export function normalizeSlidingWindowConfig(
@@ -48,7 +48,7 @@ export function normalizeSlidingWindowConfig(
 	};
 }
 
-export interface JiraConfig {
+export type JiraConfig = {
 	jiraUrl: string;
 	username: string;
 	apiToken: string;
@@ -62,9 +62,9 @@ export interface JiraConfig {
 	attendance?: AttendanceConfig;
 	// Sliding window configuration - only bidirectional object format
 	slidingWindowDays?: SlidingWindowConfig;
-}
+};
 
-export interface JiraIssueField {
+export type JiraIssueField = {
 	summary: string;
 	status: {
 		name: string;
@@ -86,40 +86,40 @@ export interface JiraIssueField {
 	};
 	created: string;
 	updated: string;
-}
+};
 
-export interface JiraIssue {
+export type JiraIssue = {
 	id: string;
 	key: string;
 	fields: JiraIssueField;
-}
+};
 
-export interface JiraSearchResponse {
+export type JiraSearchResponse = {
 	issues: JiraIssue[];
 	startAt: number;
 	maxResults: number;
 	total: number;
-}
+};
 
 import winston from 'winston';
 import {join} from 'node:path';
 import {Duration} from './utils/Duration.js';
 import type {AttendanceConfig} from './attendance/types.js';
 
-export interface WorklogRequest {
+export type WorklogRequest = {
 	timeSpent: string;
 	comment: string;
 	started: string;
-}
+};
 
-export interface WorklogResponse {
+export type WorklogResponse = {
 	startAt: number;
 	maxResults: number;
 	total: number;
 	worklogs: WorklogEntry[];
-}
+};
 
-export interface WorklogEntry {
+export type WorklogEntry = {
 	id: string;
 	issueId: string;
 	author: {
@@ -129,7 +129,7 @@ export interface WorklogEntry {
 	comment: string;
 	started: string;
 	timeSpentSeconds: number;
-}
+};
 
 export function normalizeTimeFormat(timeString: string): string {
 	try {
@@ -188,7 +188,7 @@ export function extractProjectKey(issueKey: string): string | null {
 	return match ? match[1] ?? null : null;
 }
 
-export interface ResolvedDefaults {
+export type ResolvedDefaults = {
 	comment: string;
 	time: string;
 	group?: Group;
@@ -196,7 +196,7 @@ export interface ResolvedDefaults {
 		comment: 'issue' | 'group' | 'global' | 'fallback';
 		time: 'issue' | 'group' | 'global' | 'fallback';
 	};
-}
+};
 
 export function loadConfigWithEnvVars(config: JiraConfig): JiraConfig {
 	return {

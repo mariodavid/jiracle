@@ -10,12 +10,12 @@ export type ActiveArea =
 	| 'checkout-confirmation'
 	| 'align-time-confirmation';
 
-export interface UseNavigationStateOptions {
+export type UseNavigationStateOptions = {
 	initialWeek?: Date;
 	initialActiveArea?: ActiveArea;
-}
+};
 
-export interface UseNavigationStateReturn {
+export type UseNavigationStateReturn = {
 	// State
 	currentWeek: Date;
 	activeArea: ActiveArea;
@@ -28,7 +28,7 @@ export interface UseNavigationStateReturn {
 	// Area navigation
 	setActiveArea: (area: ActiveArea) => void;
 	returnToTimetable: () => void;
-}
+};
 
 /**
  * Custom hook for managing navigation state in WeeklyTimetableView

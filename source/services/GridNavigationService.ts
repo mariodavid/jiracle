@@ -2,7 +2,7 @@ import type {FocusableItem} from '../utils/FocusableItemCalculator.js';
 
 export type NavigationDirection = 'up' | 'down' | 'left' | 'right';
 
-export interface NavigationContext {
+export type NavigationContext = {
 	focusedCell: {
 		issueKey: string;
 		columnIndex: number;
@@ -10,16 +10,18 @@ export interface NavigationContext {
 	};
 	focusableItems: FocusableItem[];
 	columnCount?: number;
-}
+};
 
-export interface NavigationResult {
+export type NavigationResult = {
 	success: boolean;
 	targetItem?: FocusableItem;
 	newIndex?: number;
-}
+};
 
 export class GridNavigationService {
-	private static readonly DEFAULT_COLUMN_COUNT = 5; // Monday to Friday
+	private static get DEFAULT_COLUMN_COUNT() {
+		return 5;
+	} // Monday to Friday
 
 	static navigateInDirection(
 		direction: NavigationDirection,
@@ -39,20 +41,25 @@ export class GridNavigationService {
 		let newIndex: number;
 
 		switch (direction) {
-			case 'up':
+			case 'up': {
 				newIndex = this.navigateUp(focusedCell, focusableItems);
 				break;
-			case 'down':
+			}
+			case 'down': {
 				newIndex = this.navigateDown(focusedCell, focusableItems);
 				break;
-			case 'left':
+			}
+			case 'left': {
 				newIndex = this.navigateLeft(focusedCell, focusableItems, columnCount);
 				break;
-			case 'right':
+			}
+			case 'right': {
 				newIndex = this.navigateRight(focusedCell, focusableItems, columnCount);
 				break;
-			default:
+			}
+			default: {
 				return {success: false};
+			}
 		}
 
 		if (newIndex >= 0 && newIndex < focusableItems.length) {

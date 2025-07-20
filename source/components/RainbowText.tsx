@@ -1,10 +1,10 @@
 import React from 'react';
 import {Text} from 'ink';
 
-export interface RainbowTextProps {
+export type RainbowTextProps = {
 	children: string;
 	bold?: boolean;
-}
+};
 
 export function RainbowText({children, bold = false}: RainbowTextProps) {
 	const colors = ['red', 'yellow', 'green', 'cyan', 'blue', 'magenta'];

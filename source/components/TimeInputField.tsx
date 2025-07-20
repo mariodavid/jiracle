@@ -72,10 +72,11 @@ export default function TimeInputField({
 				return false;
 			}
 		}
-		if (newValue.length === 5) {
-			// Five characters: HH:MM format
-			if (!/^[01]\d:[0-5]\d|2[0-3]:[0-5]\d$/.test(newValue)) return false;
-		}
+		if (
+			newValue.length === 5 && // Five characters: HH:MM format
+			!/^[01]\d:[0-5]\d|2[0-3]:[0-5]\d$/.test(newValue)
+		)
+			return false;
 
 		return true;
 	};

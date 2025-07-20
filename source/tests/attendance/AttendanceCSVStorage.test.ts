@@ -8,9 +8,7 @@ import type {Attendance} from '../../attendance/types.js';
 function createTempCSVPath(): string {
 	return join(
 		tmpdir(),
-		`attendance-test-${Date.now()}-${Math.random()
-			.toString(36)
-			.substring(7)}.csv`,
+		`attendance-test-${Date.now()}-${Math.random().toString(36).slice(7)}.csv`,
 	);
 }
 

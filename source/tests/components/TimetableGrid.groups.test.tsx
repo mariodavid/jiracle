@@ -168,15 +168,13 @@ test('TimetableGrid handles ungrouped issues correctly', t => {
 	let hasGroupIndicators = false;
 	for (const line of lines) {
 		if (
-			line.includes('ABC-5417') ||
-			line.includes('DEF-2456') ||
-			line.includes('MON-1001')
+			(line.includes('ABC-5417') ||
+				line.includes('DEF-2456') ||
+				line.includes('MON-1001')) && // Check if line starts with a letter followed by a space (group indicator)
+			/^[A-Z] /.test(line.trim())
 		) {
-			// Check if line starts with a letter followed by a space (group indicator)
-			if (/^[A-Z] /.test(line.trim())) {
-				hasGroupIndicators = true;
-				break;
-			}
+			hasGroupIndicators = true;
+			break;
 		}
 	}
 

@@ -54,7 +54,7 @@ export const InkTestHelpers: any = {
 	},
 
 	// Test keyboard interaction pattern
-	simulateTabNavigation(stdin: any, steps: number = 3) {
+	simulateTabNavigation(stdin: any, steps = 3) {
 		for (let i = 0; i < steps; i++) {
 			stdin.write('\t');
 		}
@@ -166,7 +166,7 @@ export const InkTestHelpers: any = {
 		const {lastFrame} = render(React.createElement(component, props));
 		const output = lastFrame() || '';
 		this.assertComponentContains(output, expectedValues, t);
-		return output as string;
+		return output;
 	},
 
 	// Test timing utilities
