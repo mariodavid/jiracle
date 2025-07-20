@@ -60,14 +60,14 @@ export class FocusableItemCalculator {
 		items: FocusableItem[],
 		predicate: (item: FocusableItem) => boolean,
 	): FocusableItem | undefined {
-		return items.find(predicate);
+		return items.find(item => predicate(item));
 	}
 
 	static filterFocusableItems(
 		items: FocusableItem[],
 		predicate: (item: FocusableItem) => boolean,
 	): FocusableItem[] {
-		return items.filter(predicate);
+		return items.filter(item => predicate(item));
 	}
 
 	static getFocusableItemsByColumn(
