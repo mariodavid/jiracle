@@ -125,7 +125,7 @@ test('useWorklogForm handleAddWorklog makes form visible with defaults', t => {
 	t.is(activeAreaChanged, 'worklog-form');
 });
 
-test('useWorklogForm handleCellWorklog opens form for cell editing', t => {
+test('useWorklogForm handleCellWorklog opens form for cell editing', async t => {
 	let capturedState: any;
 	let activeAreaChanged = '';
 
@@ -155,9 +155,15 @@ test('useWorklogForm handleCellWorklog opens form for cell editing', t => {
 		}),
 	);
 
-	// Call handleCellWorklog
+	// Call handleCellWorklog and wait for async operation
 	const cellData = {issueKey: 'TEST-456', date: new Date('2024-01-15')};
-	capturedState.handleCellWorklog(cellData);
+	await capturedState.handleCellWorklog(cellData);
+
+	// Wait a bit for state updates to propagate
+	await new Promise(resolve => {
+		setTimeout(resolve, 10);
+	});
+
 	rerender(
 		React.createElement(TestWorklogFormComponent, {
 			options: mockOptions,
@@ -173,7 +179,7 @@ test('useWorklogForm handleCellWorklog opens form for cell editing', t => {
 	t.is(activeAreaChanged, 'worklog-form');
 });
 
-test('useWorklogForm handleCellWorklog uses favorite defaults', t => {
+test('useWorklogForm handleCellWorklog uses favorite defaults', async t => {
 	let capturedState: any;
 
 	const mockOptions: UseWorklogFormOptions = {
@@ -200,9 +206,15 @@ test('useWorklogForm handleCellWorklog uses favorite defaults', t => {
 		}),
 	);
 
-	// Call handleCellWorklog with favorite issue
+	// Call handleCellWorklog with favorite issue and wait for async operation
 	const cellData = {issueKey: 'TEST-123', date: new Date('2024-01-15')};
-	capturedState.handleCellWorklog(cellData);
+	await capturedState.handleCellWorklog(cellData);
+
+	// Wait a bit for state updates to propagate
+	await new Promise(resolve => {
+		setTimeout(resolve, 10);
+	});
+
 	rerender(
 		React.createElement(TestWorklogFormComponent, {
 			options: mockOptions,

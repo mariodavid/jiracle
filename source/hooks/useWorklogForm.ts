@@ -11,6 +11,7 @@ import {
 	detectWorklogForEdit,
 	findWorklogEntryForIssue,
 } from '../utils/worklog-detection.js';
+import {AttendanceManager} from '../attendance/AttendanceManager.js';
 
 export interface WorklogFormData {
 	issueKey: string;
@@ -57,6 +58,60 @@ export function useWorklogForm(
 ): UseWorklogFormReturn {
 	const {config, onRefresh, onActiveAreaChange, data} = options;
 
+	// Helper function to calculate remaining time for a date
+	const calculateRemainingTime = useCallback(
+		async (date: Date, currentIssueKey: string) => {
+			try {
+				// Check if attendance is enabled and get attendance data
+				if (!config.attendance?.enabled) {
+					return null; // No attendance tracking, can't calculate remaining time
+				}
+
+				const attendanceManager = new AttendanceManager(config.attendance);
+				const dateKey = formatLocalDateKey(date);
+				const storage = (attendanceManager as any).storage;
+				const attendance = await storage.getByDate(dateKey);
+
+				if (
+					!attendance ||
+					!attendance.totalHours ||
+					attendance.totalHours <= 0
+				) {
+					return null; // No attendance data for this date
+				}
+
+				// Find daily summary for this date
+				const dailySummary = data?.dailySummaries.find(
+					(summary: any) => formatLocalDateKey(summary.date) === dateKey,
+				);
+
+				if (!dailySummary) {
+					// No worklogs yet, return full attendance time
+					return attendance.totalHours as number;
+				}
+
+				// Calculate total time already logged for other issues
+				let totalLoggedForOtherIssues = 0;
+				for (const issue of dailySummary.issues) {
+					// Don't count the current issue we're trying to log time for
+					if (issue.issueKey !== currentIssueKey) {
+						totalLoggedForOtherIssues += issue.hours || 0;
+					}
+				}
+
+				// Calculate remaining time
+				const remainingTime = attendance.totalHours - totalLoggedForOtherIssues;
+
+				// Don't suggest negative time
+				return Math.max(0, remainingTime);
+			} catch (error) {
+				console.error('Failed to calculate remaining time:', error);
+				return null;
+			}
+		},
+		[config, data],
+	);
+
 	const [worklogForm, setWorklogForm] = useState<WorklogFormData>({
 		issueKey: '',
 		date: new Date(),
@@ -86,36 +141,101 @@ export function useWorklogForm(
 			const detectionResult = detectWorklogForEdit(worklogEntry);
 
 			// Resolve defaults for new entries or use existing data for edits
-			let timeSpent: string;
-			let comment: string;
+			const defaults = resolveDefaults(config, cellData.issueKey);
 
 			if (
 				detectionResult.isEditable &&
 				detectionResult.timeSpent &&
 				detectionResult.comment
 			) {
-				timeSpent = detectionResult.timeSpent;
-				comment = detectionResult.comment;
+				// Edit mode: use existing data
+				setWorklogForm({
+					issueKey: cellData.issueKey,
+					date: cellData.date,
+					timeSpent: detectionResult.timeSpent,
+					comment: detectionResult.comment,
+					isVisible: true,
+					isIssueKeyEditable: false,
+					isEditMode: detectionResult.isEditable,
+					worklogId: detectionResult.worklogId,
+				});
+				setWorklogError(null);
+				onActiveAreaChange('worklog-form');
 			} else {
-				const defaults = resolveDefaults(config, cellData.issueKey);
-				timeSpent = defaults.time;
-				comment = defaults.comment;
-			}
+				// New entry mode: calculate remaining time first, then show form
+				calculateRemainingTime(cellData.date, cellData.issueKey)
+					.then(remainingTime => {
+						let suggestedTime: string;
 
-			setWorklogForm({
-				issueKey: cellData.issueKey,
-				date: cellData.date,
-				timeSpent,
-				comment,
-				isVisible: true,
-				isIssueKeyEditable: false,
-				isEditMode: detectionResult.isEditable,
-				worklogId: detectionResult.worklogId,
-			});
-			setWorklogError(null); // Clear any previous error
-			onActiveAreaChange('worklog-form');
+						if (remainingTime !== null && remainingTime > 0) {
+							// Use remaining time as suggestion
+							const hours = Math.floor(remainingTime);
+							const minutes = Math.round((remainingTime - hours) * 60);
+
+							if (hours === 0 && minutes > 0) {
+								suggestedTime = `${minutes}m`;
+							} else if (minutes === 0) {
+								suggestedTime = `${hours}h`;
+							} else {
+								suggestedTime = `${hours}h ${minutes}m`;
+							}
+
+							uiLogger.debug('Using remaining time as suggestion', {
+								issueKey: cellData.issueKey,
+								date: cellData.date.toISOString(),
+								remainingTime,
+								suggestion: suggestedTime,
+							});
+						} else if (remainingTime !== null && remainingTime === 0) {
+							// Remaining time is 0 (all attendance hours already logged),
+							// use config defaults for "clock out" workflow
+							suggestedTime = defaults.time;
+
+							uiLogger.debug(
+								'Remaining time is 0, using config defaults for clock out',
+								{
+									issueKey: cellData.issueKey,
+									date: cellData.date.toISOString(),
+									remainingTime,
+									suggestion: suggestedTime,
+								},
+							);
+						} else {
+							// No remaining time calculation possible, use defaults
+							suggestedTime = defaults.time;
+						}
+
+						// Show form with calculated suggestion
+						setWorklogForm({
+							issueKey: cellData.issueKey,
+							date: cellData.date,
+							timeSpent: suggestedTime,
+							comment: defaults.comment,
+							isVisible: true,
+							isIssueKeyEditable: false,
+							isEditMode: false,
+						});
+						setWorklogError(null);
+						onActiveAreaChange('worklog-form');
+					})
+					.catch(error => {
+						console.error('Failed to calculate remaining time:', error);
+						// Fallback to defaults on error
+						setWorklogForm({
+							issueKey: cellData.issueKey,
+							date: cellData.date,
+							timeSpent: defaults.time,
+							comment: defaults.comment,
+							isVisible: true,
+							isIssueKeyEditable: false,
+							isEditMode: false,
+						});
+						setWorklogError(null);
+						onActiveAreaChange('worklog-form');
+					});
+			}
 		},
-		[data, config, onActiveAreaChange],
+		[data, config, onActiveAreaChange, calculateRemainingTime],
 	);
 
 	const handleAddWorklog = useCallback(() => {
