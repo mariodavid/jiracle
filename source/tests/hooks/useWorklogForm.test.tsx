@@ -160,7 +160,9 @@ test('useWorklogForm handleCellWorklog opens form for cell editing', async t => 
 	await capturedState.handleCellWorklog(cellData);
 
 	// Wait a bit for state updates to propagate
-	await new Promise(resolve => setTimeout(resolve, 10));
+	await new Promise(resolve => {
+		setTimeout(resolve, 10);
+	});
 
 	rerender(
 		React.createElement(TestWorklogFormComponent, {
@@ -209,7 +211,9 @@ test('useWorklogForm handleCellWorklog uses favorite defaults', async t => {
 	await capturedState.handleCellWorklog(cellData);
 
 	// Wait a bit for state updates to propagate
-	await new Promise(resolve => setTimeout(resolve, 10));
+	await new Promise(resolve => {
+		setTimeout(resolve, 10);
+	});
 
 	rerender(
 		React.createElement(TestWorklogFormComponent, {

@@ -87,7 +87,7 @@ export function useWorklogForm(
 
 				if (!dailySummary) {
 					// No worklogs yet, return full attendance time
-					return attendance.totalHours;
+					return attendance.totalHours as number;
 				}
 
 				// Calculate total time already logged for other issues

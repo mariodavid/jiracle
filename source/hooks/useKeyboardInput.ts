@@ -131,7 +131,6 @@ export function useKeyboardInput({
 			!focusedCell.isAttendance
 		) {
 			onOpenInBrowser(focusedCell.issueKey);
-			return;
 		}
 
 		// Note: Tab key is still handled by Ink's default focus system
