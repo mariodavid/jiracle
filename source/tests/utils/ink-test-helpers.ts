@@ -54,7 +54,7 @@ export const InkTestHelpers: any = {
 	},
 
 	// Test keyboard interaction pattern
-	simulateTabNavigation(stdin: any, steps: number = 3) {
+	simulateTabNavigation(stdin: any, steps = 3) {
 		for (let i = 0; i < steps; i++) {
 			stdin.write('\t');
 		}

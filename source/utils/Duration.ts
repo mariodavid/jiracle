@@ -150,7 +150,7 @@ export class Duration {
 	static calculateWorkingDuration(
 		checkIn: string,
 		checkOut: string,
-		breakMinutes: number = 0,
+		breakMinutes = 0,
 	): Duration {
 		const parseTime = (time: string): number => {
 			const [hours, minutes] = time.split(':').map(Number);

@@ -19,7 +19,7 @@ export function useWeeklyWorklogSummary(
 	weekStart: Date,
 	weekEnd: Date,
 	config: JiraConfig,
-	skipAutoLoad: boolean = false,
+	skipAutoLoad = false,
 	userEmail?: string,
 	favoriteIssues?: FavoriteIssue[],
 ): UseWeeklyWorklogSummaryResult {

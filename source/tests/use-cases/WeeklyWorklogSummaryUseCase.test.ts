@@ -21,7 +21,7 @@ test('WeeklyWorklogSummaryUseCase builds correct JQL query', async t => {
 	const weekEnd = new Date('2024-10-20T23:59:59.999Z'); // Sunday
 
 	// Mock the methods
-	let capturedJql: string = '';
+	let capturedJql = '';
 	client.getCurrentUser = async () => ({emailAddress: 'user1@example.com'});
 	client.searchIssuesWithWorklogs = async jql => {
 		capturedJql = jql;

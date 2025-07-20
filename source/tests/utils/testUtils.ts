@@ -63,7 +63,7 @@ export function createMockFavorite(
 /**
  * Creates a list of mock issues for testing
  */
-export function createMockIssueList(count: number = 3): JiraIssue[] {
+export function createMockIssueList(count = 3): JiraIssue[] {
 	return Array.from({length: count}, (_, index) =>
 		createMockIssue({
 			id: String(index + 1),
@@ -235,7 +235,7 @@ export const hookTestUtils = {
 	/**
 	 * Mock implementation for async hook testing
 	 */
-	createMockAsyncOperation<T>(result: T, delay: number = 100) {
+	createMockAsyncOperation<T>(result: T, delay = 100) {
 		return () =>
 			new Promise<T>(resolve => {
 				setTimeout(() => {
