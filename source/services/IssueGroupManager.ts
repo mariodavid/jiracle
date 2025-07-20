@@ -18,7 +18,7 @@ export class IssueGroupManager {
 					issues: this.sortIssuesByKey(issues) as Array<[string, any]>,
 					totalHours: issues.reduce(
 						(sum: number, [, issueData]: [string, any]): number =>
-							sum + issueData.weekTotal,
+							sum + (issueData.weekTotal as number),
 						0,
 					),
 				},
@@ -65,7 +65,7 @@ export class IssueGroupManager {
 				issues: this.sortIssuesByKey(ungroupedIssues) as Array<[string, any]>,
 				totalHours: ungroupedIssues.reduce(
 					(sum: number, [, issueData]: [string, any]): number =>
-						sum + issueData.weekTotal,
+						sum + (issueData.weekTotal as number),
 					0,
 				),
 			});
