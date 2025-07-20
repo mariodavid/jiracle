@@ -93,10 +93,10 @@ export function TimetableGrid({
 
 	// Calculate daily deltas (logged hours - attendance hours)
 	const dailyLoggedHours: Record<string, number> = {};
-	weekDates.forEach((date, index) => {
+	for (const [index, date] of weekDates.entries()) {
 		const dateKey = formatLocalDateKey(date);
 		dailyLoggedHours[dateKey] = dailyTotals[index] || 0;
-	});
+	}
 
 	// Group issues by their resolved groups using the extracted service
 	const issueGroups = useIssueGroups(Object.entries(issueMap), config || null);
@@ -536,10 +536,10 @@ function buildIssueMap(data: WeeklyWorklogSummary): Record<string, IssueData> {
 	const issueMap: Record<string, IssueData> = {};
 
 	// Process all worklog data (includes favorites with 0 hours from WeeklyWorklogSummaryUseCase)
-	data.dailySummaries.forEach(dailySummary => {
+	for (const dailySummary of data.dailySummaries) {
 		const dateKey = formatLocalDateKey(dailySummary.date);
 
-		dailySummary.issues.forEach(issue => {
+		for (const issue of dailySummary.issues) {
 			if (!issueMap[issue.issueKey]) {
 				issueMap[issue.issueKey] = {
 					summary: issue.issueSummary,
@@ -551,8 +551,8 @@ function buildIssueMap(data: WeeklyWorklogSummary): Record<string, IssueData> {
 			issueMap[issue.issueKey]!.dailyHours[dateKey] =
 				(issueMap[issue.issueKey]!.dailyHours[dateKey] || 0) + issue.hours;
 			issueMap[issue.issueKey]!.weekTotal += issue.hours;
-		});
-	});
+		}
+	}
 
 	return issueMap;
 }
@@ -562,13 +562,13 @@ function buildIssueMapFromFavorites(
 ): Record<string, IssueData> {
 	const issueMap: Record<string, IssueData> = {};
 
-	favoriteIssues.forEach(favorite => {
+	for (const favorite of favoriteIssues) {
 		issueMap[favorite.key] = {
 			summary: `Favorite: ${favorite.key}`,
 			dailyHours: {},
 			weekTotal: 0,
 		};
-	});
+	}
 
 	return issueMap;
 }

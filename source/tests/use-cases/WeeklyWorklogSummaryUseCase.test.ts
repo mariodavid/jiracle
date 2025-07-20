@@ -1261,9 +1261,9 @@ test('WeeklyWorklogSummaryUseCase sliding window issues work correctly when curr
 	t.true(issueKeys.includes('SLIDING-2'));
 
 	// All should have 0 hours
-	result.dailySummaries[0]!.issues.forEach(issue => {
+	for (const issue of result.dailySummaries[0]!.issues) {
 		t.is(issue.hours, 0);
-	});
+	}
 
 	t.is(result.weekTotal, 0);
 });

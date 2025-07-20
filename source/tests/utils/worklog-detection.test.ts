@@ -94,7 +94,7 @@ test('detectWorklogForEdit - time spent formatting', t => {
 		{hours: 8.75, expected: '8h 45m'},
 	];
 
-	testCases.forEach(({hours, expected}) => {
+	for (const {hours, expected} of testCases) {
 		const entry: IssueWorklogEntry = {
 			issueKey: 'TEST-123',
 			issueSummary: 'Test issue',
@@ -108,7 +108,7 @@ test('detectWorklogForEdit - time spent formatting', t => {
 			expected,
 			`Expected ${hours} hours to format as "${expected}"`,
 		);
-	});
+	}
 });
 
 test('findWorklogEntryForIssue - finds matching issue', t => {

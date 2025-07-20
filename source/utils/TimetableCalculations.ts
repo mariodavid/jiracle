@@ -7,7 +7,7 @@ export function calculateDailyTotals(
 ): number[] {
 	const totals: number[] = new Array(5).fill(0);
 
-	data.dailySummaries.forEach(dailySummary => {
+	for (const dailySummary of data.dailySummaries) {
 		const dateKey = formatLocalDateKey(dailySummary.date);
 		const dayIndex = weekDates.findIndex(
 			date => formatLocalDateKey(date) === dateKey,
@@ -16,7 +16,7 @@ export function calculateDailyTotals(
 		if (dayIndex >= 0) {
 			totals[dayIndex] = dailySummary.totalHours;
 		}
-	});
+	}
 
 	return totals;
 }
