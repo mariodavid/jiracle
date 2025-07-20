@@ -68,8 +68,8 @@ export function useRemainingTimeAlignment(
 					currentLoggedHours,
 					remainingHours,
 					strategy,
-					hasAttendance: !!attendance,
-					hasDailySummary: !!dailySummary,
+					hasAttendance: Boolean(attendance),
+					hasDailySummary: Boolean(dailySummary),
 					issuesCount: dailySummary?.issues?.length || 0,
 					fillConfig: config.fill,
 				});
@@ -80,7 +80,7 @@ export function useRemainingTimeAlignment(
 					dailySummary && dailySummary.issues.some(issue => issue.hours > 0);
 
 				uiLogger.debug('previewAlignment: determining mode', {
-					hasDailySummary: !!dailySummary,
+					hasDailySummary: Boolean(dailySummary),
 					issuesCount: dailySummary?.issues?.length || 0,
 					issuesWithHours:
 						dailySummary?.issues?.filter(issue => issue.hours > 0).length || 0,
@@ -126,7 +126,7 @@ export function useRemainingTimeAlignment(
 					// Mode: Create new worklogs from default stories
 					uiLogger.debug('previewAlignment: entering CREATE mode', {
 						fillConfig: config.fill,
-						hasDefaultStories: !!config.fill?.defaultStories,
+						hasDefaultStories: Boolean(config.fill?.defaultStories),
 						defaultStoriesLength: config.fill?.defaultStories?.length || 0,
 					});
 
@@ -135,7 +135,7 @@ export function useRemainingTimeAlignment(
 						uiLogger.debug(
 							'previewAlignment: CREATE mode failed - no default stories',
 							{
-								hasDefaultStories: !!defaultStories,
+								hasDefaultStories: Boolean(defaultStories),
 								defaultStoriesLength: defaultStories?.length || 0,
 								fillConfig: config.fill,
 							},

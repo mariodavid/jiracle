@@ -243,7 +243,7 @@ export class RemainingTimeAlignment {
 		config: JiraConfig,
 	): CreateWorklogsResult | AlignmentError {
 		uiLogger.debug('createDefaultWorklogs: Starting', {
-			hasAttendance: !!attendance,
+			hasAttendance: Boolean(attendance),
 			attendanceHours: attendance?.totalHours,
 			defaultStoriesCount: defaultStories?.length || 0,
 			defaultStories,
@@ -253,7 +253,7 @@ export class RemainingTimeAlignment {
 		// Validate inputs
 		if (!attendance || !attendance.totalHours) {
 			uiLogger.debug('createDefaultWorklogs: No attendance data found', {
-				hasAttendance: !!attendance,
+				hasAttendance: Boolean(attendance),
 				totalHours: attendance?.totalHours,
 				attendance,
 			});

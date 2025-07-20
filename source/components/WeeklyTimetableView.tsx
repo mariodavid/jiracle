@@ -229,7 +229,7 @@ export function WeeklyTimetableView({
 
 		console.log('handleAlignRemainingTime: Starting', {
 			date: date.toISOString(),
-			hasDailySummary: !!dailySummary,
+			hasDailySummary: Boolean(dailySummary),
 			issuesCount: dailySummary?.issues?.length || 0,
 			totalHours: dailySummary?.totalHours || 0,
 			config: config,
