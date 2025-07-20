@@ -118,7 +118,7 @@ export interface JiraSearchResponse {
 }
 
 import winston from 'winston';
-import {join} from 'path';
+import {join} from 'node:path';
 import {Duration} from './utils/Duration.js';
 import type {AttendanceConfig} from './attendance/types.js';
 

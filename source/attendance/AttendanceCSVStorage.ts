@@ -1,7 +1,7 @@
-import {homedir} from 'os';
-import {join, dirname} from 'path';
-import {readFile, writeFile, mkdir} from 'fs/promises';
-import {existsSync} from 'fs';
+import {homedir} from 'node:os';
+import {join, dirname} from 'node:path';
+import {readFile, writeFile, mkdir} from 'node:fs/promises';
+import {existsSync} from 'node:fs';
 import type {Attendance} from './types.js';
 
 export class AttendanceCSVStorage {

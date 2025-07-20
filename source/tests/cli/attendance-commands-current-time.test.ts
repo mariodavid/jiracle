@@ -5,10 +5,10 @@ interface TestContext {
 }
 
 const testWithContext = test as TestFn<TestContext>;
-import {readFile, unlink} from 'fs/promises';
-import {existsSync} from 'fs';
-import {join} from 'path';
-import {tmpdir} from 'os';
+import {readFile, unlink} from 'node:fs/promises';
+import {existsSync} from 'node:fs';
+import {join} from 'node:path';
+import {tmpdir} from 'node:os';
 import {
 	executeCheckIn,
 	executeCheckOut,

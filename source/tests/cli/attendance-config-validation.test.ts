@@ -29,7 +29,7 @@ test.serial('should handle malformed JSON config', async t => {
 	await TestPatterns.withTempFiles(async manager => {
 		const configPath = manager.createTempConfigPath();
 		// Write malformed JSON directly
-		const fs = await import('fs');
+		const fs = await import('node:fs');
 		fs.writeFileSync(configPath, '{ "jiraUrl": "invalid json');
 		const params: CheckInParams = {date: '2025-07-11'};
 		const result = await executeCheckIn(params, configPath);

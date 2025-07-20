@@ -155,9 +155,9 @@ export class ReminderService {
 	}
 
 	private createTemporaryIcon(): string {
-		const fs = require('fs');
-		const os = require('os');
-		const path = require('path');
+		const fs = require('node:fs');
+		const os = require('node:os');
+		const path = require('node:path');
 
 		// Base64 encoded PNG icon (32x32 pixels) - simple clock with "J"
 		const iconBase64 =
