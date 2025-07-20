@@ -29,6 +29,9 @@ jobs:
       - name: Code formatting check
         run: npx prettier --check .
 
+      - name: ESLint quality checks (max-lines, complexity)
+        run: npm run quality:check
+
       - name: Test execution (without build)
         run: npx ava
 
