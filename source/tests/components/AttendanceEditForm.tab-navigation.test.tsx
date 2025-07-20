@@ -147,7 +147,7 @@ test('AttendanceEditForm Escape cancels from any focus area', async t => {
 	// Verify tab works first
 	stdin.write('\t'); // checkIn -> checkOut
 	await InkTestHelpers.delay(50);
-	let output = lastFrame() || '';
+	const output = lastFrame() || '';
 	t.true(output.includes('Ende:')); // Should be on checkOut field
 
 	// Now try escape

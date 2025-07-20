@@ -556,7 +556,7 @@ test('WeeklyWorklogSummaryUseCase includes sliding window issues', async t => {
 	// Mock current user
 	client.getCurrentUser = async () => ({emailAddress: 'user1@example.com'});
 
-	let jqlQueries: string[] = [];
+	const jqlQueries: string[] = [];
 	let capturedWindowStartDate = '';
 
 	// Mock search for current week and recent lookback
@@ -682,7 +682,7 @@ test('WeeklyWorklogSummaryUseCase skips sliding window search when window size i
 	// Mock current user
 	client.getCurrentUser = async () => ({emailAddress: 'user1@example.com'});
 
-	let jqlQueries: string[] = [];
+	const jqlQueries: string[] = [];
 	client.searchIssuesWithWorklogs = async jql => {
 		jqlQueries.push(jql);
 		return {issues: [], startAt: 0, maxResults: 50, total: 0};
@@ -712,7 +712,7 @@ test('WeeklyWorklogSummaryUseCase makes sliding window search even with small wi
 	// Mock current user
 	client.getCurrentUser = async () => ({emailAddress: 'user1@example.com'});
 
-	let jqlQueries: string[] = [];
+	const jqlQueries: string[] = [];
 	client.searchIssuesWithWorklogs = async jql => {
 		jqlQueries.push(jql);
 		return {issues: [], startAt: 0, maxResults: 50, total: 0};

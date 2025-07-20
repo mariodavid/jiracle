@@ -639,7 +639,7 @@ test('DurationInput allows and auto-completes h+digits pattern', t => {
 });
 
 test('DurationInput prevents invalid complex patterns like "2h.d.d."', t => {
-	let changedValues: string[] = [];
+	const changedValues: string[] = [];
 	const onChange = (value: string) => {
 		changedValues.push(value);
 	};
@@ -667,7 +667,7 @@ test('DurationInput prevents invalid complex patterns like "2h.d.d."', t => {
 });
 
 test('DurationInput prevents "2...." pattern', t => {
-	let changedValues: string[] = [];
+	const changedValues: string[] = [];
 	const onChange = (value: string) => {
 		changedValues.push(value);
 	};
@@ -866,7 +866,7 @@ test('DurationInput rejects complex invalid patterns', t => {
 	];
 
 	for (const {input, reason} of invalidPatterns) {
-		let changedValues: string[] = [];
+		const changedValues: string[] = [];
 		const onChange = (value: string) => {
 			changedValues.push(value);
 		};
@@ -935,7 +935,7 @@ test('DurationInput rejects invalid patterns with dots after units', t => {
 	];
 
 	for (const {input, reason} of testCases) {
-		let changedValues: string[] = [];
+		const changedValues: string[] = [];
 		const onChange = (value: string) => {
 			changedValues.push(value);
 		};
@@ -1061,7 +1061,7 @@ test('DurationInput converts comma to dot with Tab key', t => {
 });
 
 test('DurationInput handles multiple commas correctly', t => {
-	let changedValues: string[] = [];
+	const changedValues: string[] = [];
 	let submittedValue = '';
 	const onChange = (value: string) => {
 		changedValues.push(value);

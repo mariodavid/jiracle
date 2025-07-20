@@ -136,7 +136,6 @@
 			"unicorn/no-new-array": "off",
 			"unicorn/explicit-length-check": "off",
 			"unicorn/prefer-set-has": "off",
-			"prefer-const": "off",
 			"ava/no-async-fn-without-await": "off",
 			"ava/prefer-t-regex": "off",
 			"unicorn/switch-case-braces": "off",

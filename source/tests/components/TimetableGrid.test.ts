@@ -382,7 +382,7 @@ test.serial(
 			},
 		];
 
-		let focusedCells: Array<{issueKey: string; date: Date}> = [];
+		const focusedCells: Array<{issueKey: string; date: Date}> = [];
 		const handleCellWorklog = (data: {issueKey: string; date: Date}) => {
 			focusedCells.push(data);
 		};
@@ -467,7 +467,7 @@ test.serial(
 			},
 		];
 
-		let focusedCells: Array<{issueKey: string; date: Date}> = [];
+		const focusedCells: Array<{issueKey: string; date: Date}> = [];
 		const handleCellWorklog = (data: {issueKey: string; date: Date}) => {
 			focusedCells.push(data);
 		};
@@ -556,7 +556,7 @@ test.serial(
 			},
 		];
 
-		let focusedCells: Array<{issueKey: string; date: Date}> = [];
+		const focusedCells: Array<{issueKey: string; date: Date}> = [];
 		const handleCellWorklog = (data: {issueKey: string; date: Date}) => {
 			focusedCells.push(data);
 		};
@@ -622,7 +622,7 @@ test.serial(
 			},
 		];
 
-		let focusedCells: Array<{issueKey: string; date: Date}> = [];
+		const focusedCells: Array<{issueKey: string; date: Date}> = [];
 		const handleCellWorklog = (data: {issueKey: string; date: Date}) => {
 			focusedCells.push(data);
 		};

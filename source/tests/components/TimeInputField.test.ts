@@ -126,7 +126,7 @@ test('TimeInputField normalizes single digit hour input', t => {
 });
 
 test('TimeInputField validates time input', t => {
-	let changedValues: string[] = [];
+	const changedValues: string[] = [];
 	const onChange = (value: string) => {
 		changedValues.push(value);
 	};

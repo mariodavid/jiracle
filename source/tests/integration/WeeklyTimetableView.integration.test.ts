@@ -56,7 +56,7 @@ test('Integration: WeeklyTimetableView handles week navigation', t => {
 	// Shift+Arrow keys navigate weeks but this is handled by TimetableGrid
 	// So we just verify the structure remains intact
 
-	let output = lastFrame()!;
+	const output = lastFrame()!;
 	t.true(output.includes('Week'));
 	t.true(output.includes('[Shift+←→] Week Navigation'));
 
