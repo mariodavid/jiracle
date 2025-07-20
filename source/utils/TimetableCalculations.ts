@@ -5,7 +5,7 @@ export function calculateDailyTotals(
 	data: WeeklyWorklogSummary,
 	weekDates: Date[],
 ): number[] {
-	const totals: number[] = new Array(5).fill(0);
+	const totals: number[] = Array.from({length: 5}).fill(0);
 
 	for (const dailySummary of data.dailySummaries) {
 		const dateKey = formatLocalDateKey(dailySummary.date);
