@@ -60,12 +60,12 @@ export class TimeParsingService {
 			// - If >= 10: likely minutes
 			// - If < 10: likely hours
 			const smartUnit = hasDecimal ? 'h' : numericValue >= 10 ? 'm' : 'h';
-			normalizedValue = normalizedValue + smartUnit;
+			normalizedValue += smartUnit;
 		}
 
 		// If user entered h+digits (like "2h5"), add 'm' automatically
 		if (/^\d+h\d+$/.test(normalizedValue)) {
-			normalizedValue = normalizedValue + 'm';
+			normalizedValue += 'm';
 		}
 
 		// Final cleanup: ensure any remaining commas are converted to dots

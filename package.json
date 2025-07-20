@@ -154,7 +154,6 @@
 			"@typescript-eslint/prefer-ts-expect-error": "off",
 			"@typescript-eslint/ban-ts-comment": "off",
 			"@typescript-eslint/restrict-plus-operands": "off",
-			"operator-assignment": "off",
 			"no-eq-null": "off",
 			"eqeqeq": "off",
 			"@typescript-eslint/no-floating-promises": "off",
