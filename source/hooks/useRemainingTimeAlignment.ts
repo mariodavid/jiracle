@@ -1,11 +1,16 @@
 import {useCallback} from 'react';
-import {JiraClient} from '../jira-client.js';
+import {JiraClient, resolveAlignRemainingStrategy} from '../jira-client.js';
 import {RemainingTimeAlignment} from '../services/RemainingTimeAlignment.js';
 import {AttendanceManager} from '../attendance/AttendanceManager.js';
 import {formatLocalDateKey} from '../utils/date.js';
+import {uiLogger} from '../utils/logger.js';
 import type {JiraConfig, AlignRemainingStrategy} from '../jira-client.js';
 import type {DailyWorklogSummary} from '../domain/WeeklyWorklogSummary.js';
 import type {Attendance} from '../attendance/types.js';
+import type {
+	AlignmentResult,
+	CreateWorklogsResult,
+} from '../services/RemainingTimeAlignment.js';
 
 export interface UseRemainingTimeAlignmentOptions {
 	config: JiraConfig;
@@ -23,11 +28,13 @@ export interface UseRemainingTimeAlignmentReturn {
 		date: Date,
 		dailySummary: DailyWorklogSummary | null,
 	) => Promise<{
-		result: import('../services/RemainingTimeAlignment.js').AlignmentResult;
+		mode: 'update' | 'create';
+		result?: AlignmentResult;
+		createResult?: CreateWorklogsResult;
 		attendanceHours: number;
 		currentLoggedHours: number;
 		remainingHours: number;
-		strategy: import('../jira-client.js').AlignRemainingStrategy;
+		strategy: AlignRemainingStrategy;
 	} | null>;
 }
 
@@ -48,34 +55,132 @@ export function useRemainingTimeAlignment(
 					attendance = await storage.getByDate(dateKey);
 				}
 
-				// Get alignment strategy from config
-				const strategy: AlignRemainingStrategy =
-					config.alignRemainingStrategy || 'even';
-
-				// Calculate alignment
-				const result = RemainingTimeAlignment.calculateAlignment(
-					attendance,
-					dailySummary,
-					strategy,
-				);
-
-				// Handle errors
-				if ('type' in result) {
-					onNotification?.(result.message, 'error');
-					return null;
-				}
+				// Get alignment strategy from config with backward compatibility
+				const strategy = resolveAlignRemainingStrategy(config);
 
 				const attendanceHours = attendance?.totalHours || 0;
 				const currentLoggedHours = dailySummary?.totalHours || 0;
 				const remainingHours = attendanceHours - currentLoggedHours;
 
-				return {
-					result,
+				uiLogger.debug('previewAlignment: analyzing situation', {
+					date: date.toISOString(),
 					attendanceHours,
 					currentLoggedHours,
 					remainingHours,
 					strategy,
-				};
+					hasAttendance: !!attendance,
+					hasDailySummary: !!dailySummary,
+					issuesCount: dailySummary?.issues?.length || 0,
+					fillConfig: config.fill,
+				});
+
+				// Determine mode: update existing worklogs vs create new ones
+				// Only consider it "existing worklogs" if there are issues with actual hours > 0
+				const hasExistingWorklogs =
+					dailySummary &&
+					dailySummary.issues.length > 0 &&
+					dailySummary.issues.some(issue => issue.hours > 0);
+
+				uiLogger.debug('previewAlignment: determining mode', {
+					hasDailySummary: !!dailySummary,
+					issuesCount: dailySummary?.issues?.length || 0,
+					issuesWithHours:
+						dailySummary?.issues?.filter(issue => issue.hours > 0).length || 0,
+					hasExistingWorklogs,
+					totalLoggedHours: currentLoggedHours,
+				});
+
+				if (hasExistingWorklogs) {
+					// Mode: Update existing worklogs
+					uiLogger.debug('previewAlignment: entering UPDATE mode', {
+						issuesCount: dailySummary.issues.length,
+					});
+
+					const result = RemainingTimeAlignment.calculateAlignment(
+						attendance,
+						dailySummary,
+						strategy,
+					);
+
+					// Handle errors
+					if ('type' in result) {
+						uiLogger.debug('previewAlignment: UPDATE mode failed', {
+							errorType: result.type,
+							errorMessage: result.message,
+						});
+						onNotification?.(result.message, 'error');
+						return null;
+					}
+
+					uiLogger.debug('previewAlignment: UPDATE mode successful', {
+						updatedIssuesCount: result.updatedIssues.length,
+					});
+
+					return {
+						mode: 'update' as const,
+						result,
+						attendanceHours,
+						currentLoggedHours,
+						remainingHours,
+						strategy,
+					};
+				} else {
+					// Mode: Create new worklogs from default stories
+					uiLogger.debug('previewAlignment: entering CREATE mode', {
+						fillConfig: config.fill,
+						hasDefaultStories: !!config.fill?.defaultStories,
+						defaultStoriesLength: config.fill?.defaultStories?.length || 0,
+					});
+
+					const defaultStories = config.fill?.defaultStories;
+					if (!defaultStories || defaultStories.length === 0) {
+						uiLogger.debug(
+							'previewAlignment: CREATE mode failed - no default stories',
+							{
+								hasDefaultStories: !!defaultStories,
+								defaultStoriesLength: defaultStories?.length || 0,
+								fillConfig: config.fill,
+							},
+						);
+						onNotification?.(
+							'No default stories configured for auto-fill',
+							'error',
+						);
+						return null;
+					}
+
+					const createResult = RemainingTimeAlignment.createDefaultWorklogs(
+						attendance,
+						defaultStories,
+						config,
+					);
+
+					// Handle errors
+					if ('type' in createResult) {
+						uiLogger.debug('previewAlignment: CREATE mode failed', {
+							errorType: createResult.type,
+							errorMessage: createResult.message,
+							attendance,
+							defaultStories,
+						});
+						onNotification?.(createResult.message, 'error');
+						return null;
+					}
+
+					uiLogger.debug('previewAlignment: CREATE mode successful', {
+						createdWorklogsCount: createResult.createdWorklogs.length,
+						totalDistributed: createResult.totalDistributed,
+					});
+
+					return {
+						mode: 'create' as const,
+						createResult,
+						attendanceHours,
+						currentLoggedHours: 0, // No existing worklogs
+						remainingHours: attendanceHours, // All attendance time to distribute
+						strategy,
+					};
+				}
 			} catch (error) {
 				console.error('Failed to preview alignment:', error);
 				onNotification?.(
@@ -98,67 +203,88 @@ export function useRemainingTimeAlignment(
 					return;
 				}
 
-				const {result} = previewData;
-
-				// Apply the alignment by updating worklogs
 				const jiraClient = new JiraClient(config);
 				const dateStr = date.toISOString().split('T')[0];
 
-				for (const update of result.updatedIssues) {
-					// Find the worklog entry for this issue on this date
-					const issueEntry = dailySummary?.issues.find(
-						issue => issue.issueKey === update.issueKey,
-					);
+				if (previewData.mode === 'update') {
+					// Mode: Update existing worklogs
+					const {result} = previewData;
+					if (!result) {
+						onNotification?.('No alignment result found', 'error');
+						return;
+					}
 
-					if (issueEntry?.worklogId) {
-						// Simple case: single worklog with ID, just update it
-						await jiraClient.updateWorklog(
-							update.issueKey,
-							issueEntry.worklogId,
-							{
-								timeSpent: `${update.newHours}h`,
-								comment: issueEntry.comment || '',
-								started: date.toISOString().replace('Z', '+0000'),
-							},
+					for (const update of result.updatedIssues) {
+						// Find the worklog entry for this issue on this date
+						const issueEntry = dailySummary?.issues.find(
+							issue => issue.issueKey === update.issueKey,
 						);
-					} else {
-						// Complex case: multiple worklogs for this issue on this date
-						// Get all worklogs for this issue and filter by date
-						const worklogResponse = await jiraClient.getIssueWorklogs(
-							update.issueKey,
-						);
-						const dayWorklogs = worklogResponse.worklogs.filter(worklog => {
-							const worklogDate = new Date(worklog.started)
-								.toISOString()
-								.split('T')[0];
-							const isCorrectDate = worklogDate === dateStr;
-							const isCorrectUser =
-								!userEmail || worklog.author.emailAddress === userEmail;
-							return isCorrectDate && isCorrectUser;
-						});
 
-						if (dayWorklogs.length > 0) {
-							// Distribute the new total time across existing worklogs proportionally
-							const currentTotal = dayWorklogs.reduce(
-								(sum: number, wl) => sum + wl.timeSpentSeconds / 3600,
-								0,
+						if (issueEntry?.worklogId) {
+							// Simple case: single worklog with ID, just update it
+							await jiraClient.updateWorklog(
+								update.issueKey,
+								issueEntry.worklogId,
+								{
+									timeSpent: `${update.newHours}h`,
+									comment: issueEntry.comment || '',
+									started: date.toISOString().replace('Z', '+0000'),
+								},
 							);
-							const newTotalSeconds = update.newHours * 3600;
+						} else {
+							// Complex case: multiple worklogs for this issue on this date
+							// Get all worklogs for this issue and filter by date
+							const worklogResponse = await jiraClient.getIssueWorklogs(
+								update.issueKey,
+							);
+							const dayWorklogs = worklogResponse.worklogs.filter(worklog => {
+								const worklogDate = new Date(worklog.started)
+									.toISOString()
+									.split('T')[0];
+								const isCorrectDate = worklogDate === dateStr;
+								const isCorrectUser =
+									!userEmail || worklog.author.emailAddress === userEmail;
+								return isCorrectDate && isCorrectUser;
+							});
 
-							for (const worklog of dayWorklogs) {
-								const proportion =
-									worklog.timeSpentSeconds / 3600 / currentTotal;
-								const newSeconds = Math.round(newTotalSeconds * proportion);
-								const newHours = newSeconds / 3600;
+							if (dayWorklogs.length > 0) {
+								// Distribute the new total time across existing worklogs proportionally
+								const currentTotal = dayWorklogs.reduce(
+									(sum: number, wl) => sum + wl.timeSpentSeconds / 3600,
+									0,
+								);
+								const newTotalSeconds = update.newHours * 3600;
 
-								await jiraClient.updateWorklog(update.issueKey, worklog.id, {
-									timeSpent: `${newHours}h`,
-									comment: worklog.comment,
-									started: worklog.started,
-								});
+								for (const worklog of dayWorklogs) {
+									const proportion =
+										worklog.timeSpentSeconds / 3600 / currentTotal;
+									const newSeconds = Math.round(newTotalSeconds * proportion);
+									const newHours = newSeconds / 3600;
+
+									await jiraClient.updateWorklog(update.issueKey, worklog.id, {
+										timeSpent: `${newHours}h`,
+										comment: worklog.comment,
+										started: worklog.started,
+									});
+								}
 							}
+							// If no worklogs found for this user on this date, skip this issue
 						}
-						// If no worklogs found for this user on this date, skip this issue
+					}
+				} else if (previewData.mode === 'create') {
+					// Mode: Create new worklogs from default stories
+					const {createResult} = previewData;
+					if (!createResult) {
+						onNotification?.('No create result found', 'error');
+						return;
+					}
+
+					for (const worklog of createResult.createdWorklogs) {
+						await jiraClient.addWorklog(worklog.issueKey, {
+							timeSpent: `${worklog.hours}h`,
+							comment: worklog.comment,
+							started: date.toISOString().replace('Z', '+0000'),
+						});
 					}
 				}
 

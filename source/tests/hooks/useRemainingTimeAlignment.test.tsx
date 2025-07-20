@@ -165,12 +165,13 @@ test('useRemainingTimeAlignment - handles no worklogs', async t => {
 			}),
 		);
 
-		// Should show error notification about no worklogs
+		// Should show error notification about no default stories configured
 		t.truthy(testState.lastNotification);
 		t.is(testState.lastNotification?.type, 'error');
 		t.true(
-			testState.lastNotification?.message.includes('No worklogs') ||
-				testState.lastNotification?.message.includes('worklogs') ||
+			testState.lastNotification?.message.includes(
+				'No default stories configured',
+			) ||
 				testState.lastNotification?.message.includes('No attendance data') ||
 				testState.lastNotification?.message.includes('attendance'),
 		);

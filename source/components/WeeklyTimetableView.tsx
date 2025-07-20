@@ -184,7 +184,9 @@ export function WeeklyTimetableView({
 		date: Date;
 		dailySummary: any;
 		previewData: {
-			result: any;
+			mode: 'update' | 'create';
+			result?: any;
+			createResult?: any;
 			attendanceHours: number;
 			currentLoggedHours: number;
 			remainingHours: number;
@@ -225,9 +227,20 @@ export function WeeklyTimetableView({
 			summary => summary.date.toDateString() === date.toDateString(),
 		);
 
+		console.log('handleAlignRemainingTime: Starting', {
+			date: date.toISOString(),
+			hasDailySummary: !!dailySummary,
+			issuesCount: dailySummary?.issues?.length || 0,
+			totalHours: dailySummary?.totalHours || 0,
+			config: config,
+		});
+
 		// Get preview data for confirmation dialog
 		const previewData = await previewAlignment(date, dailySummary || null);
-		if (!previewData) return;
+		if (!previewData) {
+			console.log('handleAlignRemainingTime: previewData is null, exiting');
+			return;
+		}
 
 		// Show confirmation dialog
 		setAlignmentConfirmation({
@@ -386,7 +399,9 @@ export function WeeklyTimetableView({
 										alignmentConfirmation.previewData.remainingHours
 									}
 									strategy={alignmentConfirmation.previewData.strategy}
+									mode={alignmentConfirmation.previewData.mode}
 									previewResult={alignmentConfirmation.previewData.result}
+									createResult={alignmentConfirmation.previewData.createResult}
 									isAligning={isAligning}
 									onConfirm={handleAlignmentConfirm}
 								/>
