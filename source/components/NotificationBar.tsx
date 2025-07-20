@@ -23,7 +23,6 @@ export function NotificationBar({notifications}: NotificationBarProps) {
 				return 'green';
 			case 'error':
 				return 'red';
-			case 'info':
 			default:
 				return 'blue';
 		}
