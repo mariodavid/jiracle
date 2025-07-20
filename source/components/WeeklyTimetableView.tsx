@@ -460,7 +460,7 @@ export function WeeklyTimetableView({
 							Week Navigation
 						</Text>
 						<Text color="gray">
-							[D] Delete Worklogs [F] Align Time [I] Check In [O] Check Out
+							[D] Delete Worklogs [F] Fill Time [I] Check In [O] Check Out
 							{isBrowserOpenSupported() && config.jiraUrl
 								? ' [Shift+O] Open in Browser'
 								: ''}

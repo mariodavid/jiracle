@@ -542,7 +542,7 @@ jiracle status
 - `D` - Delete worklogs/attendance for focused cell
 - `I` - Check in (attendance tracking)
 - `O` - Check out (attendance tracking)
-- `F` - Align remaining time (distribute attendance time across existing worklogs)
+- `F` - Fill time (distribute attendance time across existing worklogs)
 - `Shift+O` - Open focused issue in browser (when supported)
 - `T` - Go to current week
 - `R` - Refresh data from Jira
