@@ -15,7 +15,9 @@ export type FocusableItemCalculatorOptions = {
 };
 
 export class FocusableItemCalculator {
-	private static readonly DEFAULT_COLUMN_COUNT = 5; // Monday to Friday
+	private static get DEFAULT_COLUMN_COUNT() {
+		return 5;
+	} // Monday to Friday
 
 	static calculateFocusableItems(
 		options: FocusableItemCalculatorOptions,

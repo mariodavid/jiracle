@@ -138,8 +138,7 @@
 			"new-cap": "off",
 			"unicorn/no-await-expression-member": "off",
 			"@typescript-eslint/return-await": "off",
-			"no-return-await": "off",
-			"@typescript-eslint/class-literal-property-style": "off"
+			"no-return-await": "off"
 		}
 	},
 	"prettier": "@vdemedes/prettier-config",

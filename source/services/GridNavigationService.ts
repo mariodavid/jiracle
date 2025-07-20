@@ -19,7 +19,9 @@ export type NavigationResult = {
 };
 
 export class GridNavigationService {
-	private static readonly DEFAULT_COLUMN_COUNT = 5; // Monday to Friday
+	private static get DEFAULT_COLUMN_COUNT() {
+		return 5;
+	} // Monday to Friday
 
 	static navigateInDirection(
 		direction: NavigationDirection,
