@@ -1,4 +1,4 @@
-import React, {useEffect, useState, useCallback} from 'react';
+import React, {useEffect, useCallback, useState} from 'react';
 import {Box, Text, useFocusManager, useInput} from 'ink';
 import {Spinner} from '@inkjs/ui';
 import figures from 'figures';
@@ -22,6 +22,7 @@ import {
 	type FocusableItem,
 } from '../utils/FocusableItemCalculator.js';
 import {GridNavigationService} from '../services/GridNavigationService.js';
+import {useFocusManagement} from '../hooks/useFocusManagement.js';
 
 export interface TimetableGridProps {
 	data: WeeklyWorklogSummary | null;
@@ -59,12 +60,8 @@ export function TimetableGrid({
 	// Fixed minimum height container for all states
 	const MIN_HEIGHT = 25;
 
-	// Track focused cell for row/column highlighting and Enter handling
-	const [focusedCell, setFocusedCell] = useState<{
-		issueKey: string;
-		columnIndex: number;
-		isAttendance?: boolean;
-	} | null>(null);
+	// Focus management for keyboard navigation
+	const {focusedCell, handleFocusChange} = useFocusManagement();
 
 	// Attendance data state
 	const [weeklyAttendance, setWeeklyAttendance] = useState<WeeklyAttendance>(
@@ -87,17 +84,6 @@ export function TimetableGrid({
 
 		loadAttendanceData();
 	}, [attendanceManager, data, attendanceRefreshKey]);
-
-	const handleFocusChange = useCallback(
-		(issueKey: string, columnIndex: number, isFocused: boolean) => {
-			if (isFocused) {
-				const isAttendance = issueKey.startsWith('attendance-');
-				setFocusedCell({issueKey, columnIndex, isAttendance});
-			}
-			// Don't clear on blur - only update when we get a new focus
-		},
-		[],
-	);
 
 	// CALL ALL HOOKS FIRST (before any conditional returns)
 	const {focus} = useFocusManager();
