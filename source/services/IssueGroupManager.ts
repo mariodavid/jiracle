@@ -48,7 +48,7 @@ export class IssueGroupManager {
 			}
 		}
 
-		const groups = Array.from(groupMap.values());
+		const groups = [...groupMap.values()];
 
 		for (const group of groups) {
 			group.issues = this.sortIssuesByKey(group.issues);

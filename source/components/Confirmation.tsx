@@ -15,8 +15,12 @@ export function Confirmation({title, message, onConfirm}: ConfirmationProps) {
 			<Text>{message}</Text>
 			<ConfirmInput
 				submitOnEnter={false}
-				onConfirm={() => onConfirm(true)}
-				onCancel={() => onConfirm(false)}
+				onConfirm={() => {
+					onConfirm(true);
+				}}
+				onCancel={() => {
+					onConfirm(false);
+				}}
 			/>
 		</Box>
 	);

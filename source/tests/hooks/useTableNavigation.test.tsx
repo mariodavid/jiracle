@@ -257,8 +257,14 @@ test('useTableNavigation: result methods maintain hook contract', t => {
 		.__testTableNavigationResult as TableNavigationResult;
 
 	// Verify that methods can be called without throwing
-	t.notThrows(() => result.handleFocusChange('PROJECT-123', 0, true));
-	t.notThrows(() => result.setFocusedCell(null));
-	t.notThrows(() => result.clearFocus());
+	t.notThrows(() => {
+		result.handleFocusChange('PROJECT-123', 0, true);
+	});
+	t.notThrows(() => {
+		result.setFocusedCell(null);
+	});
+	t.notThrows(() => {
+		result.clearFocus();
+	});
 	t.notThrows(() => result.isCellFocused('PROJECT-123', 0));
 });

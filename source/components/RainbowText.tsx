@@ -11,7 +11,7 @@ export function RainbowText({children, bold = false}: RainbowTextProps) {
 
 	return (
 		<>
-			{children.split('').map((char, index) => (
+			{[...children].map((char, index) => (
 				<Text
 					key={`char-${index}`}
 					color={colors[index % colors.length]}

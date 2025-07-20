@@ -188,7 +188,9 @@ export function AttendanceEditForm({
 							label=""
 							value={checkIn}
 							onChange={setCheckIn}
-							onSubmit={() => setFocusArea('checkOut')}
+							onSubmit={() => {
+								setFocusArea('checkOut');
+							}}
 							compact={true}
 						/>
 					) : (
@@ -204,7 +206,9 @@ export function AttendanceEditForm({
 							label=""
 							value={checkOut}
 							onChange={setCheckOut}
-							onSubmit={() => setFocusArea('break')}
+							onSubmit={() => {
+								setFocusArea('break');
+							}}
 							compact={true}
 						/>
 					) : (
@@ -219,7 +223,9 @@ export function AttendanceEditForm({
 						<DurationInput
 							value={breakMinutes}
 							onChange={setBreakMinutes}
-							onSubmit={() => setFocusArea('submit')}
+							onSubmit={() => {
+								setFocusArea('submit');
+							}}
 							compact={true}
 							allowedUnits={['h', 'm']}
 							incrementMinutes={15}

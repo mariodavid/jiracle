@@ -15,8 +15,12 @@ export function CheckinConfirmation({onConfirm}: CheckinConfirmationProps) {
 			<Text>Do you want to check in and start work for today?</Text>
 			<ConfirmInput
 				submitOnEnter={true}
-				onConfirm={() => onConfirm(true)}
-				onCancel={() => onConfirm(false)}
+				onConfirm={() => {
+					onConfirm(true);
+				}}
+				onCancel={() => {
+					onConfirm(false);
+				}}
 			/>
 		</Box>
 	);
