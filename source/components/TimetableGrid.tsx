@@ -1,4 +1,4 @@
-import React, {useEffect, useCallback, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {Box, Text, useFocusManager} from 'ink';
 import {Spinner} from '@inkjs/ui';
 import figures from 'figures';
@@ -17,13 +17,9 @@ import {
 	truncateText,
 } from '../utils/TimetableCalculations.js';
 import {AttendanceCalculations} from '../attendance/AttendanceCalculations.js';
-import {
-	FocusableItemCalculator,
-	type FocusableItem,
-} from '../utils/FocusableItemCalculator.js';
+import {FocusableItemCalculator} from '../utils/FocusableItemCalculator.js';
 import {GridNavigationService} from '../services/GridNavigationService.js';
-import {useFocusManagement} from '../hooks/useFocusManagement.js';
-import {useKeyboardInput} from '../hooks/useKeyboardInput.js';
+import {useTableNavigation} from '../hooks/useTableNavigation.js';
 
 export interface TimetableGridProps {
 	data: WeeklyWorklogSummary | null;
@@ -60,9 +56,6 @@ export function TimetableGrid({
 }: TimetableGridProps) {
 	// Fixed minimum height container for all states
 	const MIN_HEIGHT = 25;
-
-	// Focus management for keyboard navigation
-	const {focusedCell, handleFocusChange} = useFocusManagement();
 
 	// Attendance data state
 	const [weeklyAttendance, setWeeklyAttendance] = useState<WeeklyAttendance>(
@@ -113,8 +106,21 @@ export function TimetableGrid({
 	);
 
 	// Group issues by their resolved groups using the extracted service
-
 	const issueGroups = useIssueGroups(Object.entries(issueMap), config || null);
+
+	// Unified table navigation (focus management + keyboard input)
+	const {focusedCell, handleFocusChange} = useTableNavigation({
+		isActive,
+		weekDates,
+		attendanceManager,
+		issueGroups,
+		onWeekChange,
+		onCellWorklog,
+		onCellDelete,
+		onAttendanceEdit,
+		onAttendanceDelete,
+		onOpenInBrowser,
+	});
 
 	// Helper function to check if an issue is a favorite
 	const isFavoriteIssue = (issueKey: string): boolean => {
@@ -152,18 +158,13 @@ export function TimetableGrid({
 
 	const tableWidth = 2 + 20 + 5 * 12 + 8; // Group + Issue + 5 weekdays (wider) + Total = 90
 
-	// Create a flat list of all focusable cells for arrow key navigation
-	const getAllFocusableItems = useCallback((): FocusableItem[] => {
-		return FocusableItemCalculator.calculateFocusableItems({
-			attendanceManager,
-			issueGroups,
-		});
-	}, [attendanceManager, issueGroups]);
-
 	// Set initial focus to first row and current day when component loads
 	useEffect(() => {
 		if (focusedCell === null && isActive) {
-			const focusableItems = getAllFocusableItems();
+			const focusableItems = FocusableItemCalculator.calculateFocusableItems({
+				attendanceManager,
+				issueGroups,
+			});
 
 			// Calculate preferred column index (today's weekday)
 			const today = new Date();
@@ -182,57 +183,7 @@ export function TimetableGrid({
 				focus(initialItem.focusId);
 			}
 		}
-	}, [focusedCell, isActive, getAllFocusableItems, focus]);
-
-	// Handle arrow key navigation
-	const handleArrowNavigation = useCallback(
-		(direction: 'up' | 'down' | 'left' | 'right') => {
-			if (!focusedCell) return;
-
-			const focusableItems = getAllFocusableItems();
-			const result = GridNavigationService.navigateInDirection(direction, {
-				focusedCell,
-				focusableItems,
-			});
-
-			if (result.success && result.targetItem) {
-				focus(result.targetItem.focusId);
-			}
-		},
-		[focusedCell, getAllFocusableItems, focus],
-	);
-
-	// Handle reverse tab navigation (Shift+Tab)
-	const handleReverseTabNavigation = useCallback(() => {
-		if (!focusedCell) return;
-
-		const focusableItems = getAllFocusableItems();
-		const result = GridNavigationService.navigateToNextItem(
-			{focusedCell, focusableItems},
-			'previous',
-		);
-
-		if (result.success && result.targetItem) {
-			focus(result.targetItem.focusId);
-		}
-	}, [focusedCell, getAllFocusableItems, focus]);
-
-	// Enhanced input handling with arrow key support
-	useKeyboardInput({
-		isActive,
-		focusedCell,
-		weekDates,
-		handlers: {
-			handleArrowNavigation,
-			handleReverseTabNavigation,
-			onWeekChange,
-			onCellWorklog,
-			onCellDelete,
-			onAttendanceEdit,
-			onAttendanceDelete,
-			onOpenInBrowser,
-		},
-	});
+	}, [focusedCell, isActive, attendanceManager, issueGroups, focus]);
 
 	// CONDITIONAL RENDERING AFTER ALL HOOKS
 	if (isLoading) {
