@@ -1,15 +1,15 @@
 import {
-	JiraClient,
+	type JiraClient,
 	type FavoriteIssue,
 	type JiraIssue,
 } from '../jira-client.js';
 import {formatLocalDateKey} from '../utils/date.js';
 import {uiLogger} from '../utils/logger.js';
 import {
-	WeeklyWorklogSummary,
-	DailyWorklogSummary,
-	IssueWorklogEntry,
-	IssueWithWorklogs,
+	type WeeklyWorklogSummary,
+	type DailyWorklogSummary,
+	type IssueWorklogEntry,
+	type IssueWithWorklogs,
 } from '../domain/WeeklyWorklogSummary.js';
 
 export class WeeklyWorklogSummaryUseCase {

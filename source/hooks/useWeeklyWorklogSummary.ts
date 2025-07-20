@@ -1,5 +1,5 @@
 import {useState, useEffect} from 'react';
-import {WeeklyWorklogSummary} from '../domain/WeeklyWorklogSummary.js';
+import {type WeeklyWorklogSummary} from '../domain/WeeklyWorklogSummary.js';
 import {WeeklyWorklogSummaryUseCase} from '../use-cases/WeeklyWorklogSummaryUseCase.js';
 import {JiraClient, normalizeSlidingWindowConfig} from '../jira-client.js';
 import type {JiraConfig, FavoriteIssue} from '../jira-client.js';

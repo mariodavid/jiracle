@@ -1,5 +1,5 @@
 import notifier from 'node-notifier';
-import {JiraClient, ReminderConfig} from '../jira-client.js';
+import {type JiraClient, type ReminderConfig} from '../jira-client.js';
 
 type ReminderState = {
 	notifiedTimes: Set<string>;

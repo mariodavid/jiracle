@@ -5,7 +5,7 @@ import meow from 'meow';
 import App from './app.js';
 import {
 	JiraClient,
-	WorklogRequest,
+	type WorklogRequest,
 	loadConfigWithEnvVars,
 } from './jira-client.js';
 import {readFileSync} from 'node:fs';

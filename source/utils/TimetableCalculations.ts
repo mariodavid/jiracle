@@ -1,4 +1,4 @@
-import {WeeklyWorklogSummary} from '../domain/WeeklyWorklogSummary.js';
+import {type WeeklyWorklogSummary} from '../domain/WeeklyWorklogSummary.js';
 import {formatLocalDateKey} from './date.js';
 
 export function calculateDailyTotals(
