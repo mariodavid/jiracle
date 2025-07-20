@@ -161,7 +161,7 @@ export async function executeWorklogAdd(
 	} catch (error) {
 		// Clean error messages for CLI usage
 		if (error instanceof Error) {
-			const message = error.message;
+			const {message} = error;
 
 			// Handle specific Jira API errors
 			if (message.includes('404') && message.includes('Issue Does Not Exist')) {

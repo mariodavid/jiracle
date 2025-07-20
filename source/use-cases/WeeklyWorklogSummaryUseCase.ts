@@ -258,9 +258,9 @@ export class WeeklyWorklogSummaryUseCase {
 		for (const [issueWorklogKey, worklogs] of worklogsByIssueDate.entries()) {
 			// Split by pipe character to separate issue key from date
 			const [issueKey, localDateKey] = issueWorklogKey.split('|');
-			const issue = issuesWithWorklogs.find(
+			const {issue} = issuesWithWorklogs.find(
 				iwl => iwl.issue.key === issueKey,
-			)!.issue;
+			)!;
 			const totalHours = worklogs.reduce(
 				(sum: number, wl): number => sum + wl.timeSpentSeconds / 3600,
 				0,

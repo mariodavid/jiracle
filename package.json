@@ -113,7 +113,6 @@
 			"ava/no-ignored-test-files": "off",
 			"no-await-in-loop": "off",
 			"no-negated-condition": "off",
-			"prefer-destructuring": "off",
 			"capitalized-comments": "off",
 			"complexity": "off",
 			"@typescript-eslint/no-unsafe-call": "off",

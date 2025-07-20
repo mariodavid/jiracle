@@ -69,7 +69,7 @@ export function useWorklogForm(
 
 				const attendanceManager = new AttendanceManager(config.attendance);
 				const dateKey = formatLocalDateKey(date);
-				const storage = (attendanceManager as any).storage;
+				const {storage} = attendanceManager as any;
 				const attendance = await storage.getByDate(dateKey);
 
 				if (

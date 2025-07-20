@@ -528,7 +528,7 @@ test('WeeklyWorklogSummaryUseCase includes favorite issues without worklogs', as
 	t.is(result.dailySummaries[0]!.issues.length, 2); // TEST-117 with worklog + FAV-123 with 0 hours
 
 	// Find the issues in the results
-	const issues = result.dailySummaries[0]!.issues;
+	const {issues} = result.dailySummaries[0]!;
 	const testIssue = issues.find(issue => issue.issueKey === 'TEST-117');
 	const favIssue = issues.find(issue => issue.issueKey === 'FAV-123');
 

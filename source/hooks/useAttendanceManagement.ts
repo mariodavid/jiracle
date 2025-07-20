@@ -60,7 +60,7 @@ export function useAttendanceManagement(
 				// Use local date format to avoid timezone issues
 				const dateKey = formatLocalDateKey(data.date);
 				// Load attendance data directly for this specific date
-				const storage = (attendanceManager as any).storage;
+				const {storage} = attendanceManager as any;
 				const existingData = await storage.getByDate(dateKey);
 
 				setAttendanceEdit({

@@ -110,7 +110,7 @@ export async function executeCheckOut(
 		const manager = getAttendanceManager(configPath, csvPath);
 		const attendance = await manager.checkOut(params.date, params.time);
 
-		const checkIn = attendance.checkIn;
+		const {checkIn} = attendance;
 		const checkOut = attendance.checkOut!;
 
 		let message = `✅ Checked out at ${checkOut}`;

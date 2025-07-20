@@ -104,7 +104,7 @@ export class ReminderService {
 
 	private async sendReminder(): Promise<void> {
 		try {
-			const platform = process.platform;
+			const {platform} = process;
 
 			if (platform === 'darwin') {
 				// macOS - use terminal-notifier with better styling
@@ -132,7 +132,7 @@ export class ReminderService {
 	}
 
 	private getNotificationIcon(): string {
-		const platform = process.platform;
+		const {platform} = process;
 
 		try {
 			// Try to create a temporary icon from embedded data

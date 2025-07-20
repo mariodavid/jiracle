@@ -30,7 +30,7 @@ export class IssueGroupManager {
 
 		for (const [issueKey, issueData] of issues) {
 			const resolved = resolveDefaults(this.config, issueKey);
-			const group = resolved.group;
+			const {group} = resolved;
 
 			if (group) {
 				const groupId = group.id;
