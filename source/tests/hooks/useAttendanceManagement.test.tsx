@@ -271,7 +271,7 @@ test('useAttendanceManagement handleAttendanceSubmit saves data and refreshes', 
 		capturedState.attendanceManager.updateAttendance = async (
 			_data: Attendance,
 		) => {
-			return Promise.resolve();
+			return;
 		};
 	}
 
@@ -370,7 +370,7 @@ test('useAttendanceManagement handleCheckinConfirm performs check-in', async t =
 	);
 
 	if (capturedState.attendanceManager) {
-		capturedState.attendanceManager.checkIn = async () => Promise.resolve();
+		capturedState.attendanceManager.checkIn = async () => {};
 	}
 
 	const initialRefreshKey = capturedState.attendanceRefreshKey;
@@ -461,7 +461,7 @@ test('useAttendanceManagement handleCheckoutConfirm performs check-out', async t
 	);
 
 	if (capturedState.attendanceManager) {
-		capturedState.attendanceManager.checkOut = async () => Promise.resolve();
+		capturedState.attendanceManager.checkOut = async () => {};
 	}
 
 	const initialRefreshKey = capturedState.attendanceRefreshKey;
