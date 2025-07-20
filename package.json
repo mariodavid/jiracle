@@ -168,7 +168,6 @@
 			"@typescript-eslint/return-await": "off",
 			"no-return-await": "off",
 			"@typescript-eslint/class-literal-property-style": "off",
-			"unicorn/no-array-callback-reference": "off",
 			"unicorn/no-useless-promise-resolve-reject": "off",
 			"unicorn/no-for-loop": "off"
 		}
