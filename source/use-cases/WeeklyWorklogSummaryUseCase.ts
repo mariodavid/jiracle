@@ -1,4 +1,8 @@
-import {JiraClient, type FavoriteIssue} from '../jira-client.js';
+import {
+	JiraClient,
+	type FavoriteIssue,
+	type JiraIssue,
+} from '../jira-client.js';
 import {formatLocalDateKey} from '../utils/date.js';
 import {uiLogger} from '../utils/logger.js';
 import {
@@ -87,7 +91,9 @@ export class WeeklyWorklogSummaryUseCase {
 				foundPastIssues: pastSearchResults.issues.length,
 				foundFutureIssues: futureSearchResults.issues.length,
 				totalSlidingWindowIssues: slidingWindowSearchResult.issues.length,
-				issueKeys: slidingWindowSearchResult.issues.map(issue => issue.key),
+				issueKeys: slidingWindowSearchResult.issues.map(
+					(issue: JiraIssue): string => issue.key,
+				),
 			});
 		}
 
@@ -99,9 +105,11 @@ export class WeeklyWorklogSummaryUseCase {
 
 		// Merge worklogged issues, sliding window issues, and favorite issues (avoid duplicates)
 		const allIssueKeys = new Set([
-			...searchResult.issues.map(issue => issue.key),
-			...slidingWindowSearchResult.issues.map(issue => issue.key),
-			...favoriteIssuesData.map(issue => issue.key),
+			...searchResult.issues.map((issue: JiraIssue): string => issue.key),
+			...slidingWindowSearchResult.issues.map(
+				(issue: JiraIssue): string => issue.key,
+			),
+			...favoriteIssuesData.map((issue: JiraIssue): string => issue.key),
 		]);
 
 		uiLogger.debug('Issue collection summary', {
@@ -113,7 +121,7 @@ export class WeeklyWorklogSummaryUseCase {
 
 		// Fetch detailed worklogs for each issue
 		const issuesWithWorklogs: IssueWithWorklogs[] = await Promise.all(
-			Array.from(allIssueKeys).map(async issueKey => {
+			[...allIssueKeys].map(async issueKey => {
 				// Find issue data from either worklogs search, sliding window search, or favorites
 				const worklogIssue = searchResult.issues.find(
 					issue => issue.key === issueKey,
@@ -254,7 +262,7 @@ export class WeeklyWorklogSummaryUseCase {
 				iwl => iwl.issue.key === issueKey,
 			)!.issue;
 			const totalHours = worklogs.reduce(
-				(sum, wl) => sum + wl.timeSpentSeconds / 3600,
+				(sum: number, wl): number => sum + wl.timeSpentSeconds / 3600,
 				0,
 			);
 
@@ -282,14 +290,14 @@ export class WeeklyWorklogSummaryUseCase {
 				const worklogDate = new Date(worklogs[0].started);
 				dailyWorklogMap.set(localDateKey!, {
 					date: worklogDate,
-					totalHours: totalHours,
+					totalHours,
 					issues: [issueEntry],
 				});
 			}
 		});
 
 		// Convert map to sorted array
-		return Array.from(dailyWorklogMap.values()).sort(
+		return [...dailyWorklogMap.values()].sort(
 			(a, b) => a.date.getTime() - b.date.getTime(),
 		);
 	}
@@ -358,7 +366,9 @@ export class WeeklyWorklogSummaryUseCase {
 				summary.issues.map(issue => issue.issueKey),
 			),
 		);
-		const favoriteIssueKeys = new Set(favoriteIssuesData.map(fav => fav.key));
+		const favoriteIssueKeys = new Set(
+			favoriteIssuesData.map((fav: JiraIssue): string => fav.key),
+		);
 
 		const slidingWindowIssuesWithoutCurrentWeekWorklogs =
 			slidingWindowIssues.filter(
@@ -374,7 +384,7 @@ export class WeeklyWorklogSummaryUseCase {
 			slidingWindowIssuesToAdd:
 				slidingWindowIssuesWithoutCurrentWeekWorklogs.length,
 			issueKeysToAdd: slidingWindowIssuesWithoutCurrentWeekWorklogs.map(
-				issue => issue.key,
+				(issue: JiraIssue): string => issue.key,
 			),
 		});
 

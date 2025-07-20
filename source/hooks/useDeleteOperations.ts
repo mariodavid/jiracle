@@ -201,7 +201,9 @@ export function useDeleteOperations(
 			const timer = setTimeout(() => {
 				setDeleteError(null);
 			}, 5000);
-			return () => clearTimeout(timer);
+			return () => {
+				clearTimeout(timer);
+			};
 		}
 		return undefined;
 	}, [deleteError]);

@@ -12,7 +12,7 @@ const mockConfig = {
 };
 
 const defaultProps = {
-	onBack: () => {},
+	onBack() {},
 	config: mockConfig,
 	userEmail: null,
 };
@@ -78,7 +78,7 @@ test('WeeklyTimetableView handles back navigation', t => {
 
 	const backProps = {
 		...defaultProps,
-		onBack: () => {
+		onBack() {
 			backCalled = true;
 		},
 	};
@@ -94,7 +94,7 @@ test('WeeklyTimetableView handles back navigation', t => {
 test('WeeklyTimetableView accepts config prop', t => {
 	// Test that the component accepts the required props without crashing
 	const props = {
-		onBack: () => {},
+		onBack() {},
 		config: {
 			jiraUrl: 'https://test.example.com/',
 			username: 'test',

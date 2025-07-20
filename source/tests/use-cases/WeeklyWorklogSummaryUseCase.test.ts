@@ -497,7 +497,8 @@ test('WeeklyWorklogSummaryUseCase includes favorite issues without worklogs', as
 					},
 				],
 			};
-		} else if (issueKey === 'FAV-123') {
+		}
+		if (issueKey === 'FAV-123') {
 			// No worklogs for this favorite issue
 			return {
 				startAt: 0,
@@ -1130,7 +1131,9 @@ test('WeeklyWorklogSummaryUseCase sliding window issues with very large window p
 
 	t.true(
 		diffInDays <= 4, // Allow up to 4 days difference for timezone/DST issues
-		`Expected lookback start around ${actualLookbackStartDate}, got ${capturedWindowDates[0]} (${diffInDays} days difference)`,
+		`Expected lookback start around ${actualLookbackStartDate}, got ${String(
+			capturedWindowDates[0],
+		)} (${diffInDays} days difference)`,
 	);
 
 	// Lookback end should be the day before week start
@@ -1142,7 +1145,9 @@ test('WeeklyWorklogSummaryUseCase sliding window issues with very large window p
 		endDiffInDays <= 1, // Allow up to 1 day difference for timezone issues
 		`Expected lookback end around ${
 			expectedWindowEnd.toISOString().split('T')[0]
-		}, got ${capturedWindowDates[1]} (${endDiffInDays} days difference)`,
+		}, got ${String(
+			capturedWindowDates[1],
+		)} (${endDiffInDays} days difference)`,
 	);
 
 	// Should have the old issue as 0h entry

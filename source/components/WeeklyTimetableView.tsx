@@ -106,7 +106,9 @@ export function WeeklyTimetableView({
 		config,
 		userEmail,
 		onRefresh: refresh,
-		onActiveAreaChange: (area: string) => setActiveArea(area as any),
+		onActiveAreaChange(area: string) {
+			setActiveArea(area as any);
+		},
 		data,
 	});
 
@@ -124,7 +126,9 @@ export function WeeklyTimetableView({
 	} = useAttendanceManagement({
 		config,
 		onRefresh: refresh,
-		onActiveAreaChange: (area: string) => setActiveArea(area as any),
+		onActiveAreaChange(area: string) {
+			setActiveArea(area as any);
+		},
 	});
 
 	// Delete operations state management
@@ -142,7 +146,9 @@ export function WeeklyTimetableView({
 		config,
 		userEmail,
 		onRefresh: refresh,
-		onActiveAreaChange: (area: string) => setActiveArea(area as any),
+		onActiveAreaChange(area: string) {
+			setActiveArea(area as any);
+		},
 		attendanceManager,
 		onAttendanceRefresh: refreshAttendance,
 	});
@@ -180,7 +186,9 @@ export function WeeklyTimetableView({
 			refresh();
 		}, 100);
 
-		return () => clearTimeout(timer);
+		return () => {
+			clearTimeout(timer);
+		};
 	}, []); // Empty dependency array means this runs only on mount
 
 	const handleOpenInBrowser = async (issueKey: string) => {
@@ -208,25 +216,44 @@ export function WeeklyTimetableView({
 
 		// Note: Tab navigation is now handled by normal Ink focus management
 
-		if (input === 'q') {
-			onBack();
-		} else if (input === 't') {
-			// Go to current week, but stay in the same mode (attendance or worklog)
-			navigateToCurrentWeek();
-		} else if (input === 'r') {
-			// Refresh data, but stay in the same mode
-			refresh();
-		} else if (input === 'l') {
-			handleAddWorklog();
-		} else if (input === 'i') {
-			// Start work (checkin)
-			setActiveArea('checkin-confirmation');
-		} else if (input === 'o') {
-			// End work (checkout)
-			setActiveArea('checkout-confirmation');
-		} else if (input === 'a') {
-			// Add worklog for arbitrary issue
-			handleAddWorklog();
+		switch (input) {
+			case 'q': {
+				onBack();
+				break;
+			}
+			case 't': {
+				// Go to current week, but stay in the same mode (attendance or worklog)
+				navigateToCurrentWeek();
+				break;
+			}
+			case 'r': {
+				// Refresh data, but stay in the same mode
+				refresh();
+				break;
+			}
+			case 'l': {
+				handleAddWorklog();
+				break;
+			}
+			case 'i': {
+				// Start work (checkin)
+				setActiveArea('checkin-confirmation');
+				break;
+			}
+			case 'o': {
+				// End work (checkout)
+				setActiveArea('checkout-confirmation');
+				break;
+			}
+			case 'a': {
+				// Add worklog for arbitrary issue
+				handleAddWorklog();
+				break;
+			}
+			default: {
+				// No action for other keys
+				break;
+			}
 		}
 		// Note: ESC key is handled by App.tsx to avoid conflicts
 		// Note: Arrow keys are handled by TimetableGrid for cell navigation when table is active

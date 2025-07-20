@@ -37,7 +37,7 @@ test('useIssueGroups - hook exists and returns expected structure', t => {
 		// This will throw in a non-React environment, but that's expected
 		useIssueGroups(issues, config);
 		t.fail('Hook should not work outside React context');
-	} catch (error) {
+	} catch {
 		// Expected behavior - hooks can't be called outside React components
 		t.pass('Hook correctly fails outside React context');
 	}
@@ -54,7 +54,7 @@ test('useIssueGroups - handles null config', t => {
 	try {
 		useIssueGroups(issues, null);
 		t.fail('Hook should not work outside React context');
-	} catch (error) {
+	} catch {
 		t.pass('Hook correctly fails outside React context');
 	}
 });
@@ -80,7 +80,7 @@ test('useIssueGroups - handles empty issues array', t => {
 	try {
 		useIssueGroups(issues, config);
 		t.fail('Hook should not work outside React context');
-	} catch (error) {
+	} catch {
 		t.pass('Hook correctly fails outside React context');
 	}
 });
@@ -132,7 +132,7 @@ test('useIssueGroups - accepts complex config correctly', t => {
 	try {
 		useIssueGroups(issues, config);
 		t.fail('Hook should not work outside React context');
-	} catch (error) {
+	} catch {
 		t.pass('Hook correctly fails outside React context');
 	}
 });

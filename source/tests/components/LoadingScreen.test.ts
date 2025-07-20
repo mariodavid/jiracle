@@ -2,13 +2,13 @@ import test from 'ava';
 import React from 'react';
 import {render} from 'ink-testing-library';
 import LoadingScreen from '../../components/LoadingScreen.js';
-import {delays} from '../utils/testUtils.js';
+import {InkTestHelpers} from '../utils/ink-test-helpers.js';
 
 test('should render LoadingScreen component', async t => {
 	const {lastFrame, unmount} = render(React.createElement(LoadingScreen));
 
 	// Wait for component to render
-	await new Promise(resolve => setTimeout(resolve, delays.SHORT));
+	await InkTestHelpers.delay(100);
 
 	const output = lastFrame();
 	// The component should render something (not empty)
@@ -22,7 +22,7 @@ test('should render with default loading message', async t => {
 	const {lastFrame, unmount} = render(React.createElement(LoadingScreen));
 
 	// Wait for component to render
-	await new Promise(resolve => setTimeout(resolve, delays.SHORT));
+	await InkTestHelpers.delay(100);
 
 	const output = lastFrame();
 	// Check that component renders (height changes may affect text visibility)
@@ -39,7 +39,7 @@ test('should render with custom message', async t => {
 	);
 
 	// Wait for component to render
-	await new Promise(resolve => setTimeout(resolve, delays.SHORT));
+	await InkTestHelpers.delay(100);
 
 	const output = lastFrame();
 	// Check that component renders (height changes may affect text visibility)
@@ -57,7 +57,7 @@ test('should render with very long custom message', async t => {
 	);
 
 	// Wait for component to render
-	await new Promise(resolve => setTimeout(resolve, delays.SHORT));
+	await InkTestHelpers.delay(100);
 
 	const output = lastFrame();
 	// Should render something when given a long message
@@ -71,7 +71,7 @@ test('should have correct layout structure', async t => {
 	const {lastFrame, unmount} = render(React.createElement(LoadingScreen));
 
 	// Wait for component to render
-	await new Promise(resolve => setTimeout(resolve, delays.SHORT));
+	await InkTestHelpers.delay(100);
 
 	const output = lastFrame();
 
@@ -87,7 +87,7 @@ test('should render spinner component', async t => {
 	const {lastFrame, unmount} = render(React.createElement(LoadingScreen));
 
 	// Wait for component to render
-	await new Promise(resolve => setTimeout(resolve, delays.SHORT));
+	await InkTestHelpers.delay(100);
 
 	const output = lastFrame();
 
@@ -104,7 +104,7 @@ test('should handle empty message gracefully', async t => {
 	);
 
 	// Wait for component to render
-	await new Promise(resolve => setTimeout(resolve, delays.SHORT));
+	await InkTestHelpers.delay(100);
 
 	const output = lastFrame();
 
@@ -121,7 +121,7 @@ test('should handle undefined message gracefully', async t => {
 	);
 
 	// Wait for component to render
-	await new Promise(resolve => setTimeout(resolve, delays.SHORT));
+	await InkTestHelpers.delay(100);
 
 	const output = lastFrame();
 

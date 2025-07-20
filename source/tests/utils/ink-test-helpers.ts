@@ -8,8 +8,8 @@ export const InkTestHelpers: any = {
 	createAttendanceEditFormProps(overrides: Partial<any> = {}) {
 		return {
 			date: new Date(2025, 6, 11), // July 11, 2025
-			onSubmit: () => {},
-			onCancel: () => {},
+			onSubmit() {},
+			onCancel() {},
 			...overrides,
 		};
 	},
@@ -140,7 +140,7 @@ export const InkTestHelpers: any = {
 		const {lastFrame} = this.renderAttendanceEditForm(component);
 		const output = lastFrame() || '';
 		this.assertComponentContains(output, expectedElements, t);
-		return output;
+		return output as string;
 	},
 
 	testComponentWithData(
@@ -166,6 +166,18 @@ export const InkTestHelpers: any = {
 		const {lastFrame} = render(React.createElement(component, props));
 		const output = lastFrame() || '';
 		this.assertComponentContains(output, expectedValues, t);
-		return output;
+		return output as string;
+	},
+
+	// Test timing utilities
+	delay(ms: number): Promise<void> {
+		// eslint-disable-next-line no-promise-executor-return
+		return new Promise(resolve => setTimeout(resolve, ms));
+	},
+
+	// For async effects in React components
+	waitForEffects(): Promise<void> {
+		// eslint-disable-next-line no-promise-executor-return
+		return new Promise(resolve => setImmediate(resolve));
 	},
 };

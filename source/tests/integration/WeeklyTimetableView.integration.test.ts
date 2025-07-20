@@ -13,7 +13,7 @@ const mockConfig: JiraConfig = {
 
 test('Integration: WeeklyTimetableView renders complete UI structure', t => {
 	const props = {
-		onBack: () => {},
+		onBack() {},
 		config: mockConfig,
 		userEmail: null,
 	};
@@ -45,7 +45,7 @@ test('Integration: WeeklyTimetableView renders complete UI structure', t => {
 
 test('Integration: WeeklyTimetableView handles week navigation', t => {
 	const props = {
-		onBack: () => {},
+		onBack() {},
 		config: mockConfig,
 		userEmail: null,
 	};
@@ -66,7 +66,7 @@ test('Integration: WeeklyTimetableView handles week navigation', t => {
 
 test('Integration: WeeklyTimetableView handles today navigation', t => {
 	const props = {
-		onBack: () => {},
+		onBack() {},
 		config: mockConfig,
 		userEmail: null,
 	};
@@ -84,7 +84,7 @@ test('Integration: WeeklyTimetableView handles today navigation', t => {
 
 test('Integration: WeeklyTimetableView handles refresh', t => {
 	const props = {
-		onBack: () => {},
+		onBack() {},
 		config: mockConfig,
 		userEmail: null,
 	};
@@ -103,7 +103,7 @@ test('Integration: WeeklyTimetableView handles refresh', t => {
 test('Integration: WeeklyTimetableView handles back navigation', t => {
 	let backCalled = false;
 	const props = {
-		onBack: () => {
+		onBack() {
 			backCalled = true;
 		},
 		config: mockConfig,
@@ -121,7 +121,7 @@ test('Integration: WeeklyTimetableView handles back navigation', t => {
 test('Integration: WeeklyTimetableView handles q key for back navigation', t => {
 	let backCalled = false;
 	const props = {
-		onBack: () => {
+		onBack() {
 			backCalled = true;
 		},
 		config: mockConfig,
@@ -138,7 +138,7 @@ test('Integration: WeeklyTimetableView handles q key for back navigation', t => 
 
 test('Integration: Week calculations work correctly', t => {
 	const props = {
-		onBack: () => {},
+		onBack() {},
 		config: mockConfig,
 		userEmail: null,
 	};
@@ -156,7 +156,7 @@ test('Integration: Week calculations work correctly', t => {
 
 test('Integration: TimetableGrid displays correct structure when loading', t => {
 	const props = {
-		onBack: () => {},
+		onBack() {},
 		config: mockConfig,
 		userEmail: null,
 	};
@@ -180,7 +180,7 @@ test('Integration: Error handling for invalid config', t => {
 	};
 
 	const props = {
-		onBack: () => {},
+		onBack() {},
 		config: invalidConfig,
 	};
 

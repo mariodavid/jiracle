@@ -7,6 +7,7 @@ import {
 	type ActiveArea,
 	type UseNavigationStateReturn,
 } from '../../hooks/useNavigationState.js';
+import {InkTestHelpers} from '../utils/ink-test-helpers.js';
 
 // Test component that uses the navigation hook and reports state changes
 function TestNavigationComponent({
@@ -38,7 +39,7 @@ test('useNavigationState returns initial state with defaults', (t: any) => {
 
 	render(
 		React.createElement(TestNavigationComponent, {
-			onStateChange: (state: UseNavigationStateReturn) => {
+			onStateChange(state: UseNavigationStateReturn) {
 				capturedState = state;
 			},
 		}),
@@ -68,7 +69,7 @@ test('useNavigationState uses provided initial values', (t: any) => {
 				initialWeek,
 				initialActiveArea,
 			},
-			onStateChange: (state: UseNavigationStateReturn) => {
+			onStateChange(state: UseNavigationStateReturn) {
 				capturedState = state;
 			},
 		}),
@@ -89,7 +90,7 @@ test('navigateToPreviousWeek moves week back by 7 days and returns to timetable'
 				initialWeek,
 				initialActiveArea: 'worklog-form',
 			},
-			onStateChange: (state: UseNavigationStateReturn) => {
+			onStateChange(state: UseNavigationStateReturn) {
 				capturedState = state;
 			},
 		}),
@@ -99,14 +100,14 @@ test('navigateToPreviousWeek moves week back by 7 days and returns to timetable'
 	capturedState!.navigateToPreviousWeek();
 
 	// Wait for state update
-	await new Promise(resolve => setTimeout(resolve, 100));
+	await InkTestHelpers.delay(100);
 	rerender(
 		React.createElement(TestNavigationComponent, {
 			options: {
 				initialWeek,
 				initialActiveArea: 'worklog-form',
 			},
-			onStateChange: (state: UseNavigationStateReturn) => {
+			onStateChange(state: UseNavigationStateReturn) {
 				capturedState = state;
 			},
 		}),
@@ -129,7 +130,7 @@ test('navigateToNextWeek moves week forward by 7 days and returns to timetable',
 				initialWeek,
 				initialActiveArea: 'attendance-edit',
 			},
-			onStateChange: (state: UseNavigationStateReturn) => {
+			onStateChange(state: UseNavigationStateReturn) {
 				capturedState = state;
 			},
 		}),
@@ -139,14 +140,14 @@ test('navigateToNextWeek moves week forward by 7 days and returns to timetable',
 	capturedState!.navigateToNextWeek();
 
 	// Wait for state update
-	await new Promise(resolve => setTimeout(resolve, 100));
+	await InkTestHelpers.delay(100);
 	rerender(
 		React.createElement(TestNavigationComponent, {
 			options: {
 				initialWeek,
 				initialActiveArea: 'attendance-edit',
 			},
-			onStateChange: (state: UseNavigationStateReturn) => {
+			onStateChange(state: UseNavigationStateReturn) {
 				capturedState = state;
 			},
 		}),
@@ -169,7 +170,7 @@ test('navigateToCurrentWeek sets week to current date and returns to timetable',
 				initialWeek,
 				initialActiveArea: 'delete-confirmation',
 			},
-			onStateChange: (state: UseNavigationStateReturn) => {
+			onStateChange(state: UseNavigationStateReturn) {
 				capturedState = state;
 			},
 		}),
@@ -179,14 +180,14 @@ test('navigateToCurrentWeek sets week to current date and returns to timetable',
 	capturedState!.navigateToCurrentWeek();
 
 	// Wait for state update
-	await new Promise(resolve => setTimeout(resolve, 100));
+	await InkTestHelpers.delay(100);
 	rerender(
 		React.createElement(TestNavigationComponent, {
 			options: {
 				initialWeek,
 				initialActiveArea: 'delete-confirmation',
 			},
-			onStateChange: (state: UseNavigationStateReturn) => {
+			onStateChange(state: UseNavigationStateReturn) {
 				capturedState = state;
 			},
 		}),
@@ -209,7 +210,7 @@ test('setActiveArea changes active area', async (t: any) => {
 
 	const {rerender} = render(
 		React.createElement(TestNavigationComponent, {
-			onStateChange: (state: UseNavigationStateReturn) => {
+			onStateChange(state: UseNavigationStateReturn) {
 				capturedState = state;
 			},
 		}),
@@ -219,10 +220,10 @@ test('setActiveArea changes active area', async (t: any) => {
 	capturedState!.setActiveArea('worklog-form');
 
 	// Wait for state update
-	await new Promise(resolve => setTimeout(resolve, 100));
+	await InkTestHelpers.delay(100);
 	rerender(
 		React.createElement(TestNavigationComponent, {
-			onStateChange: (state: UseNavigationStateReturn) => {
+			onStateChange(state: UseNavigationStateReturn) {
 				capturedState = state;
 			},
 		}),
@@ -239,7 +240,7 @@ test('returnToTimetable sets active area to timetable', async (t: any) => {
 			options: {
 				initialActiveArea: 'checkin-confirmation',
 			},
-			onStateChange: (state: UseNavigationStateReturn) => {
+			onStateChange(state: UseNavigationStateReturn) {
 				capturedState = state;
 			},
 		}),
@@ -249,13 +250,13 @@ test('returnToTimetable sets active area to timetable', async (t: any) => {
 	capturedState!.returnToTimetable();
 
 	// Wait for state update
-	await new Promise(resolve => setTimeout(resolve, 100));
+	await InkTestHelpers.delay(100);
 	rerender(
 		React.createElement(TestNavigationComponent, {
 			options: {
 				initialActiveArea: 'checkin-confirmation',
 			},
-			onStateChange: (state: UseNavigationStateReturn) => {
+			onStateChange(state: UseNavigationStateReturn) {
 				capturedState = state;
 			},
 		}),
@@ -280,7 +281,7 @@ test('all active area values work correctly', async (t: any) => {
 
 		const {rerender} = render(
 			React.createElement(TestNavigationComponent, {
-				onStateChange: (state: UseNavigationStateReturn) => {
+				onStateChange(state: UseNavigationStateReturn) {
 					capturedState = state;
 				},
 			}),
@@ -290,10 +291,10 @@ test('all active area values work correctly', async (t: any) => {
 		capturedState!.setActiveArea(area);
 
 		// Wait for state update
-		await new Promise(resolve => setTimeout(resolve, 50));
+		await InkTestHelpers.delay(50);
 		rerender(
 			React.createElement(TestNavigationComponent, {
-				onStateChange: (state: UseNavigationStateReturn) => {
+				onStateChange(state: UseNavigationStateReturn) {
 					capturedState = state;
 				},
 			}),
@@ -312,7 +313,7 @@ test('week navigation preserves week calculations correctly', async (t: any) => 
 			options: {
 				initialWeek: startDate,
 			},
-			onStateChange: (state: UseNavigationStateReturn) => {
+			onStateChange(state: UseNavigationStateReturn) {
 				capturedState = state;
 			},
 		}),
@@ -320,39 +321,39 @@ test('week navigation preserves week calculations correctly', async (t: any) => 
 
 	// Navigate through multiple weeks
 	capturedState!.navigateToNextWeek();
-	await new Promise(resolve => setTimeout(resolve, 50));
+	await InkTestHelpers.delay(50);
 	rerender(
 		React.createElement(TestNavigationComponent, {
 			options: {
 				initialWeek: startDate,
 			},
-			onStateChange: (state: UseNavigationStateReturn) => {
+			onStateChange(state: UseNavigationStateReturn) {
 				capturedState = state;
 			},
 		}),
 	);
 
 	capturedState!.navigateToNextWeek();
-	await new Promise(resolve => setTimeout(resolve, 50));
+	await InkTestHelpers.delay(50);
 	rerender(
 		React.createElement(TestNavigationComponent, {
 			options: {
 				initialWeek: startDate,
 			},
-			onStateChange: (state: UseNavigationStateReturn) => {
+			onStateChange(state: UseNavigationStateReturn) {
 				capturedState = state;
 			},
 		}),
 	);
 
 	capturedState!.navigateToPreviousWeek();
-	await new Promise(resolve => setTimeout(resolve, 50));
+	await InkTestHelpers.delay(50);
 	rerender(
 		React.createElement(TestNavigationComponent, {
 			options: {
 				initialWeek: startDate,
 			},
-			onStateChange: (state: UseNavigationStateReturn) => {
+			onStateChange(state: UseNavigationStateReturn) {
 				capturedState = state;
 			},
 		}),
@@ -368,7 +369,7 @@ test('hook structure and interface validation', (t: any) => {
 
 	render(
 		React.createElement(TestNavigationComponent, {
-			onStateChange: (state: UseNavigationStateReturn) => {
+			onStateChange(state: UseNavigationStateReturn) {
 				capturedState = state;
 			},
 		}),

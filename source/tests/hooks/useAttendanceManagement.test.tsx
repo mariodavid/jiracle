@@ -8,6 +8,7 @@ import {
 } from '../../hooks/useAttendanceManagement.js';
 import type {JiraConfig} from '../../jira-client.js';
 import type {Attendance} from '../../attendance/types.js';
+import {InkTestHelpers} from '../utils/ink-test-helpers.js';
 
 // Mock the AttendanceManager
 const mockConfig: JiraConfig = {
@@ -77,25 +78,25 @@ test('useAttendanceManagement returns initial state with enabled attendance', as
 
 	const mockOptions: UseAttendanceManagementOptions = {
 		config: mockConfig,
-		onRefresh: () => {},
-		onActiveAreaChange: () => {},
+		onRefresh() {},
+		onActiveAreaChange() {},
 	};
 
 	const {rerender} = render(
 		React.createElement(TestAttendanceManagementComponent, {
 			options: mockOptions,
-			onStateChange: (state: any) => {
+			onStateChange(state: any) {
 				capturedState = state;
 			},
 		}),
 	);
 
 	// Wait for manager to be initialized
-	await new Promise(resolve => setTimeout(resolve, 100));
+	await InkTestHelpers.delay(100);
 	rerender(
 		React.createElement(TestAttendanceManagementComponent, {
 			options: mockOptions,
-			onStateChange: (state: any) => {
+			onStateChange(state: any) {
 				capturedState = state;
 			},
 		}),
@@ -112,14 +113,14 @@ test('useAttendanceManagement returns null manager when attendance disabled', t 
 
 	const mockOptions: UseAttendanceManagementOptions = {
 		config: mockConfigDisabled,
-		onRefresh: () => {},
-		onActiveAreaChange: () => {},
+		onRefresh() {},
+		onActiveAreaChange() {},
 	};
 
 	render(
 		React.createElement(TestAttendanceManagementComponent, {
 			options: mockOptions,
-			onStateChange: (state: any) => {
+			onStateChange(state: any) {
 				capturedState = state;
 			},
 		}),
@@ -137,8 +138,8 @@ test('useAttendanceManagement handleAttendanceEdit sets edit state', async t => 
 
 	const mockOptions: UseAttendanceManagementOptions = {
 		config: mockConfig,
-		onRefresh: () => {},
-		onActiveAreaChange: (area: string) => {
+		onRefresh() {},
+		onActiveAreaChange(area: string) {
 			activeAreaChanged = area;
 		},
 	};
@@ -146,18 +147,18 @@ test('useAttendanceManagement handleAttendanceEdit sets edit state', async t => 
 	const {rerender} = render(
 		React.createElement(TestAttendanceManagementComponent, {
 			options: mockOptions,
-			onStateChange: (state: any) => {
+			onStateChange(state: any) {
 				capturedState = state;
 			},
 		}),
 	);
 
 	// Wait for manager to be initialized
-	await new Promise(resolve => setTimeout(resolve, 100));
+	await InkTestHelpers.delay(100);
 	rerender(
 		React.createElement(TestAttendanceManagementComponent, {
 			options: mockOptions,
-			onStateChange: (state: any) => {
+			onStateChange(state: any) {
 				capturedState = state;
 			},
 		}),
@@ -183,7 +184,7 @@ test('useAttendanceManagement handleAttendanceEdit sets edit state', async t => 
 	rerender(
 		React.createElement(TestAttendanceManagementComponent, {
 			options: mockOptions,
-			onStateChange: (state: any) => {
+			onStateChange(state: any) {
 				capturedState = state;
 			},
 		}),
@@ -200,8 +201,8 @@ test('useAttendanceManagement handleAttendanceEdit without manager does nothing'
 
 	const mockOptions: UseAttendanceManagementOptions = {
 		config: mockConfigDisabled,
-		onRefresh: () => {},
-		onActiveAreaChange: (area: string) => {
+		onRefresh() {},
+		onActiveAreaChange(area: string) {
 			activeAreaChanged = area;
 		},
 	};
@@ -209,7 +210,7 @@ test('useAttendanceManagement handleAttendanceEdit without manager does nothing'
 	const {rerender} = render(
 		React.createElement(TestAttendanceManagementComponent, {
 			options: mockOptions,
-			onStateChange: (state: any) => {
+			onStateChange(state: any) {
 				capturedState = state;
 			},
 		}),
@@ -221,7 +222,7 @@ test('useAttendanceManagement handleAttendanceEdit without manager does nothing'
 	rerender(
 		React.createElement(TestAttendanceManagementComponent, {
 			options: mockOptions,
-			onStateChange: (state: any) => {
+			onStateChange(state: any) {
 				capturedState = state;
 			},
 		}),
@@ -238,10 +239,10 @@ test('useAttendanceManagement handleAttendanceSubmit saves data and refreshes', 
 
 	const mockOptions: UseAttendanceManagementOptions = {
 		config: mockConfig,
-		onRefresh: () => {
+		onRefresh() {
 			refreshCalled = true;
 		},
-		onActiveAreaChange: (area: string) => {
+		onActiveAreaChange(area: string) {
 			activeAreaChanged = area;
 		},
 	};
@@ -249,18 +250,18 @@ test('useAttendanceManagement handleAttendanceSubmit saves data and refreshes', 
 	const {rerender} = render(
 		React.createElement(TestAttendanceManagementComponent, {
 			options: mockOptions,
-			onStateChange: (state: any) => {
+			onStateChange(state: any) {
 				capturedState = state;
 			},
 		}),
 	);
 
 	// Wait for manager to be initialized
-	await new Promise(resolve => setTimeout(resolve, 100));
+	await InkTestHelpers.delay(100);
 	rerender(
 		React.createElement(TestAttendanceManagementComponent, {
 			options: mockOptions,
-			onStateChange: (state: any) => {
+			onStateChange(state: any) {
 				capturedState = state;
 			},
 		}),
@@ -271,7 +272,7 @@ test('useAttendanceManagement handleAttendanceSubmit saves data and refreshes', 
 		capturedState.attendanceManager.updateAttendance = async (
 			_data: Attendance,
 		) => {
-			return;
+			// Empty function for test
 		};
 	}
 
@@ -289,7 +290,7 @@ test('useAttendanceManagement handleAttendanceSubmit saves data and refreshes', 
 	rerender(
 		React.createElement(TestAttendanceManagementComponent, {
 			options: mockOptions,
-			onStateChange: (state: any) => {
+			onStateChange(state: any) {
 				capturedState = state;
 			},
 		}),
@@ -307,8 +308,8 @@ test('useAttendanceManagement handleAttendanceCancel clears edit state', t => {
 
 	const mockOptions: UseAttendanceManagementOptions = {
 		config: mockConfig,
-		onRefresh: () => {},
-		onActiveAreaChange: (area: string) => {
+		onRefresh() {},
+		onActiveAreaChange(area: string) {
 			activeAreaChanged = area;
 		},
 	};
@@ -316,7 +317,7 @@ test('useAttendanceManagement handleAttendanceCancel clears edit state', t => {
 	const {rerender} = render(
 		React.createElement(TestAttendanceManagementComponent, {
 			options: mockOptions,
-			onStateChange: (state: any) => {
+			onStateChange(state: any) {
 				capturedState = state;
 			},
 		}),
@@ -327,7 +328,7 @@ test('useAttendanceManagement handleAttendanceCancel clears edit state', t => {
 	rerender(
 		React.createElement(TestAttendanceManagementComponent, {
 			options: mockOptions,
-			onStateChange: (state: any) => {
+			onStateChange(state: any) {
 				capturedState = state;
 			},
 		}),
@@ -343,8 +344,8 @@ test('useAttendanceManagement handleCheckinConfirm performs check-in', async t =
 
 	const mockOptions: UseAttendanceManagementOptions = {
 		config: mockConfig,
-		onRefresh: () => {},
-		onActiveAreaChange: (area: string) => {
+		onRefresh() {},
+		onActiveAreaChange(area: string) {
 			activeAreaChanged = area;
 		},
 	};
@@ -352,18 +353,18 @@ test('useAttendanceManagement handleCheckinConfirm performs check-in', async t =
 	const {rerender} = render(
 		React.createElement(TestAttendanceManagementComponent, {
 			options: mockOptions,
-			onStateChange: (state: any) => {
+			onStateChange(state: any) {
 				capturedState = state;
 			},
 		}),
 	);
 
 	// Wait for manager to be initialized and mock its methods
-	await new Promise(resolve => setTimeout(resolve, 100));
+	await InkTestHelpers.delay(100);
 	rerender(
 		React.createElement(TestAttendanceManagementComponent, {
 			options: mockOptions,
-			onStateChange: (state: any) => {
+			onStateChange(state: any) {
 				capturedState = state;
 			},
 		}),
@@ -380,7 +381,7 @@ test('useAttendanceManagement handleCheckinConfirm performs check-in', async t =
 	rerender(
 		React.createElement(TestAttendanceManagementComponent, {
 			options: mockOptions,
-			onStateChange: (state: any) => {
+			onStateChange(state: any) {
 				capturedState = state;
 			},
 		}),
@@ -396,8 +397,8 @@ test('useAttendanceManagement handleCheckinConfirm cancels when not confirmed', 
 
 	const mockOptions: UseAttendanceManagementOptions = {
 		config: mockConfig,
-		onRefresh: () => {},
-		onActiveAreaChange: (area: string) => {
+		onRefresh() {},
+		onActiveAreaChange(area: string) {
 			activeAreaChanged = area;
 		},
 	};
@@ -405,7 +406,7 @@ test('useAttendanceManagement handleCheckinConfirm cancels when not confirmed', 
 	const {rerender} = render(
 		React.createElement(TestAttendanceManagementComponent, {
 			options: mockOptions,
-			onStateChange: (state: any) => {
+			onStateChange(state: any) {
 				capturedState = state;
 			},
 		}),
@@ -418,7 +419,7 @@ test('useAttendanceManagement handleCheckinConfirm cancels when not confirmed', 
 	rerender(
 		React.createElement(TestAttendanceManagementComponent, {
 			options: mockOptions,
-			onStateChange: (state: any) => {
+			onStateChange(state: any) {
 				capturedState = state;
 			},
 		}),
@@ -434,8 +435,8 @@ test('useAttendanceManagement handleCheckoutConfirm performs check-out', async t
 
 	const mockOptions: UseAttendanceManagementOptions = {
 		config: mockConfig,
-		onRefresh: () => {},
-		onActiveAreaChange: (area: string) => {
+		onRefresh() {},
+		onActiveAreaChange(area: string) {
 			activeAreaChanged = area;
 		},
 	};
@@ -443,18 +444,18 @@ test('useAttendanceManagement handleCheckoutConfirm performs check-out', async t
 	const {rerender} = render(
 		React.createElement(TestAttendanceManagementComponent, {
 			options: mockOptions,
-			onStateChange: (state: any) => {
+			onStateChange(state: any) {
 				capturedState = state;
 			},
 		}),
 	);
 
 	// Wait for manager to be initialized and mock its methods
-	await new Promise(resolve => setTimeout(resolve, 100));
+	await InkTestHelpers.delay(100);
 	rerender(
 		React.createElement(TestAttendanceManagementComponent, {
 			options: mockOptions,
-			onStateChange: (state: any) => {
+			onStateChange(state: any) {
 				capturedState = state;
 			},
 		}),
@@ -471,7 +472,7 @@ test('useAttendanceManagement handleCheckoutConfirm performs check-out', async t
 	rerender(
 		React.createElement(TestAttendanceManagementComponent, {
 			options: mockOptions,
-			onStateChange: (state: any) => {
+			onStateChange(state: any) {
 				capturedState = state;
 			},
 		}),
@@ -486,14 +487,14 @@ test('useAttendanceManagement refreshAttendance increments refresh key', t => {
 
 	const mockOptions: UseAttendanceManagementOptions = {
 		config: mockConfig,
-		onRefresh: () => {},
-		onActiveAreaChange: () => {},
+		onRefresh() {},
+		onActiveAreaChange() {},
 	};
 
 	const {rerender} = render(
 		React.createElement(TestAttendanceManagementComponent, {
 			options: mockOptions,
-			onStateChange: (state: any) => {
+			onStateChange(state: any) {
 				capturedState = state;
 			},
 		}),
@@ -506,7 +507,7 @@ test('useAttendanceManagement refreshAttendance increments refresh key', t => {
 	rerender(
 		React.createElement(TestAttendanceManagementComponent, {
 			options: mockOptions,
-			onStateChange: (state: any) => {
+			onStateChange(state: any) {
 				capturedState = state;
 			},
 		}),
@@ -520,14 +521,14 @@ test('useAttendanceManagement hook structure is correct', t => {
 
 	const mockOptions: UseAttendanceManagementOptions = {
 		config: mockConfig,
-		onRefresh: () => {},
-		onActiveAreaChange: () => {},
+		onRefresh() {},
+		onActiveAreaChange() {},
 	};
 
 	render(
 		React.createElement(TestAttendanceManagementComponent, {
 			options: mockOptions,
-			onStateChange: (state: any) => {
+			onStateChange(state: any) {
 				capturedState = state;
 			},
 		}),
@@ -561,8 +562,8 @@ test('useAttendanceManagement hook structure is correct', t => {
 test('useAttendanceManagement displays state correctly in component', async t => {
 	const mockOptions: UseAttendanceManagementOptions = {
 		config: mockConfig,
-		onRefresh: () => {},
-		onActiveAreaChange: () => {},
+		onRefresh() {},
+		onActiveAreaChange() {},
 	};
 
 	const {lastFrame, rerender} = render(
@@ -572,7 +573,7 @@ test('useAttendanceManagement displays state correctly in component', async t =>
 	);
 
 	// Wait for manager to be initialized
-	await new Promise(resolve => setTimeout(resolve, 100));
+	await InkTestHelpers.delay(100);
 	rerender(
 		React.createElement(TestAttendanceManagementComponent, {
 			options: mockOptions,

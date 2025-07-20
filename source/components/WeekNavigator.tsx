@@ -52,15 +52,15 @@ function formatDateRange(start: Date, end: Date): string {
 		// Same month: "Jan 6-12, 2025"
 		const monthName = start.toLocaleDateString('en-US', {month: 'short'});
 		return `${monthName} ${start.getDate()}-${end.getDate()}, ${start.getFullYear()}`;
-	} else if (start.getFullYear() === end.getFullYear()) {
+	}
+	if (start.getFullYear() === end.getFullYear()) {
 		// Same year: "Dec 30 - Jan 5, 2025"
 		const startMonth = start.toLocaleDateString('en-US', {month: 'short'});
 		const endMonth = end.toLocaleDateString('en-US', {month: 'short'});
 		return `${startMonth} ${start.getDate()} - ${endMonth} ${end.getDate()}, ${start.getFullYear()}`;
-	} else {
-		// Different years: "Dec 30, 2024 - Jan 5, 2025"
-		return `${startFormatted} - ${endFormatted}`;
 	}
+	// Different years: "Dec 30, 2024 - Jan 5, 2025"
+	return `${startFormatted} - ${endFormatted}`;
 }
 
 function getWeekNumber(date: Date): number {

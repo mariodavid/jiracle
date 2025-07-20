@@ -13,7 +13,7 @@ const mockConfig: JiraConfig = {
 };
 
 const mockProps = {
-	onBack: () => {},
+	onBack() {},
 	config: mockConfig,
 	userEmail: 'test@example.com',
 };
@@ -130,8 +130,8 @@ test('WeeklyTimetableView renders without errors with comprehensive config', t =
 	const comprehensiveProps = {
 		...mockProps,
 		config: comprehensiveConfig,
-		onLogWork: () => {},
-		onCellWorklog: () => {},
+		onLogWork() {},
+		onCellWorklog() {},
 	};
 
 	const {lastFrame} = render(

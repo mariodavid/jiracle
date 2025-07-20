@@ -7,7 +7,7 @@ test('Confirmation renders with message only', t => {
 	const {lastFrame} = render(
 		React.createElement(Confirmation, {
 			message: 'Are you sure you want to proceed?',
-			onConfirm: () => {},
+			onConfirm() {},
 		}),
 	);
 
@@ -20,7 +20,7 @@ test('Confirmation renders with title and message', t => {
 		React.createElement(Confirmation, {
 			title: 'Confirmation Required',
 			message: 'Are you sure you want to proceed?',
-			onConfirm: () => {},
+			onConfirm() {},
 		}),
 	);
 
@@ -71,7 +71,7 @@ test('Confirmation displays proper structure without title', t => {
 	const {lastFrame} = render(
 		React.createElement(Confirmation, {
 			message: 'Delete this item?',
-			onConfirm: () => {},
+			onConfirm() {},
 		}),
 	);
 
@@ -89,7 +89,7 @@ test('Confirmation displays proper structure with title', t => {
 		React.createElement(Confirmation, {
 			title: 'Warning',
 			message: 'This action cannot be undone.',
-			onConfirm: () => {},
+			onConfirm() {},
 		}),
 	);
 

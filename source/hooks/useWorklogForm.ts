@@ -269,7 +269,7 @@ export function useWorklogForm(
 			}
 
 			// Basic issue key format validation
-			if (!/^[A-Z]+-\d+$/i.test(data.issueKey.trim())) {
+			if (!/^[a-z]+-\d+$/i.test(data.issueKey.trim())) {
 				setWorklogError(
 					'Invalid issue key format. Expected format: PROJECT-123 (e.g., DEF-123, ABC-456).',
 				);

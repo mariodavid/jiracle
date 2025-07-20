@@ -10,7 +10,7 @@ export class InputValidation {
 	isValidInputChar(char: string, currentValue: string): boolean {
 		// Create regex pattern based on allowed units
 		const unitsPattern = this.allowedUnits.join('');
-		const unitRegex = new RegExp(`[0-9.,${unitsPattern}]`);
+		const unitRegex = new RegExp(`[\\d.,${unitsPattern}]`);
 		if (!unitRegex.test(char)) return false;
 
 		const newValue = currentValue + char;
@@ -22,7 +22,7 @@ export class InputValidation {
 		if (newValue.includes('..')) return false; // Multiple dots
 		if (newValue.includes(',,')) return false; // Multiple commas
 		if (newValue.includes('.,') || newValue.includes(',.')) return false; // Mixed separators
-		if (/\d+[.,]\d+[.,]/.test(newValue)) return false; // Multiple decimal separators
+		if (/(?:\d+[.,]){2}/.test(newValue)) return false; // Multiple decimal separators
 
 		// Don't allow units at the beginning
 		if (/^[hdm]/.test(newValue)) return false;
@@ -30,7 +30,7 @@ export class InputValidation {
 		// Handle units based on current state
 		if (/[hdm]/.test(newValue)) {
 			// If we have 'h' in the string
-			if (/h/.test(newValue)) {
+			if (newValue.includes('h')) {
 				// Don't allow dots/commas after h
 				if (/h[.,]/.test(newValue)) return false;
 				// Don't allow multiple h units
@@ -42,7 +42,7 @@ export class InputValidation {
 				// After h, only allow digits followed by m (e.g., 2h30m)
 				if (/h\d/.test(newValue)) {
 					// If we have h followed by digits and another character that's not a digit or m
-					if (/h\d+[^0-9m]/.test(newValue)) return false;
+					if (/h\d+[^\dm]/.test(newValue)) return false;
 					// Don't allow other units after h+digits except m
 					if (/h\d+[hd]/.test(newValue)) return false;
 				}
@@ -51,13 +51,13 @@ export class InputValidation {
 			}
 
 			// If we have 'd' in the string
-			if (/d/.test(newValue)) {
+			if (newValue.includes('d')) {
 				// Don't allow anything after d
 				if (/d./.test(newValue)) return false;
 			}
 
 			// If we have 'm' in the string
-			if (/m/.test(newValue)) {
+			if (newValue.includes('m')) {
 				// Don't allow anything after m
 				if (/m./.test(newValue)) return false;
 			}

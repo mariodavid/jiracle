@@ -68,6 +68,19 @@
 			"assets/**",
 			"dist/**"
 		],
+		"overrides": [
+			{
+				"files": [
+					"**/*.test.ts",
+					"**/*.test.tsx",
+					"**/tests/**/*.ts",
+					"**/tests/**/*.tsx"
+				],
+				"rules": {
+					"@typescript-eslint/no-empty-function": "off"
+				}
+			}
+		],
 		"rules": {
 			"max-lines": [
 				"error",
@@ -77,23 +90,7 @@
 					"skipBlankLines": true
 				}
 			],
-			"unicorn/prefer-switch": "off",
-			"unicorn/better-regex": "off",
-			"@typescript-eslint/no-unsafe-return": "off",
 			"@typescript-eslint/restrict-template-expressions": "off",
-			"no-lonely-if": "off",
-			"no-useless-return": "off",
-			"@typescript-eslint/no-confusing-void-expression": "off",
-			"unicorn/prefer-regexp-test": "off",
-			"unicorn/prefer-optional-catch-binding": "off",
-			"unicorn/prefer-spread": "off",
-			"unicorn/prefer-string-starts-ends-with": "off",
-			"@typescript-eslint/prefer-string-starts-ends-with": "off",
-			"@typescript-eslint/prefer-includes": "off",
-			"object-shorthand": "off",
-			"@typescript-eslint/no-empty-function": "off",
-			"no-promise-executor-return": "off",
-			"no-else-return": "off",
 			"react/prop-types": "off",
 			"unicorn/expiring-todo-comments": "off",
 			"unicorn/filename-case": "off",

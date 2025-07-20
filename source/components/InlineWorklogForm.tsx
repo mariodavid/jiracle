@@ -100,52 +100,84 @@ export function InlineWorklogForm({
 			if (key.tab) {
 				if (key.shift) {
 					// Shift+Tab for reverse navigation
-					if (focusArea === 'issueKey') {
-						setFocusArea('cancel');
-					} else if (focusArea === 'date') {
-						if (isIssueKeyEditable) {
-							setFocusArea('issueKey');
-						} else {
+					switch (focusArea) {
+						case 'issueKey': {
 							setFocusArea('cancel');
+							break;
 						}
-					} else if (focusArea === 'time') {
-						if (isIssueKeyEditable) {
-							setFocusArea('date');
-						} else {
-							setFocusArea('cancel');
+						case 'date': {
+							if (isIssueKeyEditable) {
+								setFocusArea('issueKey');
+							} else {
+								setFocusArea('cancel');
+							}
+							break;
 						}
-					} else if (focusArea === 'comment') {
-						// Normalize time when leaving time field
-						normalizeTimeOnBlur(timeInputValue);
-						setFocusArea('time');
-					} else if (focusArea === 'submit') {
-						setFocusArea('comment');
-					} else if (focusArea === 'cancel') {
-						setFocusArea('submit');
+						case 'time': {
+							if (isIssueKeyEditable) {
+								setFocusArea('date');
+							} else {
+								setFocusArea('cancel');
+							}
+							break;
+						}
+						case 'comment': {
+							// Normalize time when leaving time field
+							normalizeTimeOnBlur(timeInputValue);
+							setFocusArea('time');
+							break;
+						}
+						case 'submit': {
+							setFocusArea('comment');
+							break;
+						}
+						case 'cancel': {
+							setFocusArea('submit');
+							break;
+						}
+						default: {
+							break;
+						}
 					}
 				} else {
 					// Regular Tab for forward navigation
-					if (focusArea === 'issueKey') {
-						if (isIssueKeyEditable) {
-							setFocusArea('date');
-						} else {
-							setFocusArea('time');
+					switch (focusArea) {
+						case 'issueKey': {
+							if (isIssueKeyEditable) {
+								setFocusArea('date');
+							} else {
+								setFocusArea('time');
+							}
+							break;
 						}
-					} else if (focusArea === 'date') {
-						setFocusArea('time');
-					} else if (focusArea === 'time') {
-						// Normalize time when leaving time field
-						normalizeTimeOnBlur(timeInputValue);
-						setFocusArea('comment');
-					} else if (focusArea === 'comment') {
-						setFocusArea('submit');
-					} else if (focusArea === 'submit') {
-						setFocusArea('cancel');
-					} else if (focusArea === 'cancel') {
-						if (isIssueKeyEditable) {
-							setFocusArea('issueKey');
-						} else {
+						case 'date': {
 							setFocusArea('time');
+							break;
+						}
+						case 'time': {
+							// Normalize time when leaving time field
+							normalizeTimeOnBlur(timeInputValue);
+							setFocusArea('comment');
+							break;
+						}
+						case 'comment': {
+							setFocusArea('submit');
+							break;
+						}
+						case 'submit': {
+							setFocusArea('cancel');
+							break;
+						}
+						case 'cancel': {
+							if (isIssueKeyEditable) {
+								setFocusArea('issueKey');
+							} else {
+								setFocusArea('time');
+							}
+							break;
+						}
+						default: {
+							break;
 						}
 					}
 				}
@@ -159,12 +191,23 @@ export function InlineWorklogForm({
 
 			// Handle enter in specific areas
 			if (key.return) {
-				if (focusArea === 'submit') {
-					handleSubmit();
-				} else if (focusArea === 'cancel') {
-					onCancel();
-				} else if (focusArea === 'comment') {
-					handleSubmit();
+				switch (focusArea) {
+					case 'submit': {
+						handleSubmit();
+						break;
+					}
+					case 'cancel': {
+						onCancel();
+						break;
+					}
+					case 'comment': {
+						handleSubmit();
+						break;
+					}
+					default: {
+						// No action for other focus areas (date, time, issueKey)
+						break;
+					}
 				}
 			}
 		},
@@ -244,13 +287,13 @@ export function InlineWorklogForm({
 		setDateInputValue(value);
 
 		// Only update the date state if it's a valid date format
-		if (value.match(/^\d{4}-\d{2}-\d{2}$/)) {
+		if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
 			try {
 				const newDate = new Date(value + 'T00:00:00.000Z');
 				if (!isNaN(newDate.getTime())) {
 					setCurrentDate(newDate);
 				}
-			} catch (error) {
+			} catch {
 				// Ignore invalid dates
 			}
 		}
@@ -361,7 +404,9 @@ export function InlineWorklogForm({
 						<SimpleDateInput
 							value={dateInputValue || ''}
 							onChange={handleDateChange}
-							onSubmit={() => setFocusArea('time')}
+							onSubmit={() => {
+								setFocusArea('time');
+							}}
 							isActive={focusArea === 'date'}
 						/>
 					</Box>
@@ -376,7 +421,9 @@ export function InlineWorklogForm({
 						<DurationInput
 							value={timeInputValue}
 							onChange={handleTimeInputChange}
-							onSubmit={() => setFocusArea('comment')}
+							onSubmit={() => {
+								setFocusArea('comment');
+							}}
 							compact={true}
 							config={config}
 							issueSelectionMode={isFavorite ? 'favorites' : null}

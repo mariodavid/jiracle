@@ -169,6 +169,7 @@ export function createMockFetch(responses: Record<string, any> = {}) {
 				return {
 					ok: true,
 					status: 200,
+					// eslint-disable-next-line @typescript-eslint/no-unsafe-return
 					json: async () => response,
 				} as Response;
 			}
@@ -237,7 +238,9 @@ export const hookTestUtils = {
 	createMockAsyncOperation<T>(result: T, delay: number = 100) {
 		return () =>
 			new Promise<T>(resolve => {
-				setTimeout(() => resolve(result), delay);
+				setTimeout(() => {
+					resolve(result);
+				}, delay);
 			});
 	},
 };

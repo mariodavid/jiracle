@@ -134,7 +134,7 @@ export interface WorklogEntry {
 export function normalizeTimeFormat(timeString: string): string {
 	try {
 		// Handle decimal formats with comma - convert comma to dot but preserve decimal format
-		const decimalHourMatch = timeString.match(/^(\d+(?:[,]\d+)?)h$/i);
+		const decimalHourMatch = timeString.match(/^(\d+(?:,\d+)?)h$/i);
 		if (decimalHourMatch) {
 			return decimalHourMatch[1]!.replace(',', '.') + 'h';
 		}
@@ -152,11 +152,11 @@ export function normalizeTimeFormat(timeString: string): string {
 
 		if (hours > 0 && remainingMinutes > 0) {
 			return `${hours}h ${remainingMinutes}m`;
-		} else if (hours > 0) {
-			return `${hours}h`;
-		} else {
-			return `${remainingMinutes}m`;
 		}
+		if (hours > 0) {
+			return `${hours}h`;
+		}
+		return `${remainingMinutes}m`;
 	} catch {
 		return '';
 	}
@@ -617,7 +617,7 @@ export class JiraClient {
 		}
 
 		const trimmedIssueKey = issueKey.trim();
-		if (!/^[A-Z]+-\d+$/i.test(trimmedIssueKey)) {
+		if (!/^[a-z]+-\d+$/i.test(trimmedIssueKey)) {
 			throw new Error(
 				`Invalid issue key format: "${trimmedIssueKey}". Expected format: PROJECT-123 (e.g., DEF-123, ABC-456)`,
 			);
@@ -837,7 +837,7 @@ export class JiraClient {
 		}
 
 		const trimmedIssueKey = issueKey.trim();
-		if (!/^[A-Z]+-\d+$/i.test(trimmedIssueKey)) {
+		if (!/^[a-z]+-\d+$/i.test(trimmedIssueKey)) {
 			throw new Error(
 				`Invalid issue key format: "${trimmedIssueKey}". Expected format: PROJECT-123 (e.g., DEF-123, ABC-456)`,
 			);

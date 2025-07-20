@@ -23,12 +23,12 @@ export function AttendanceEditForm({
 	// Use defaults from config only if no initial data exists
 	const getDefaultCheckIn = () => {
 		if (initialData?.checkIn) return initialData.checkIn;
-		return config?.attendance?.defaultCheckIn || '08:00';
+		return (config?.attendance?.defaultCheckIn as string) || '08:00';
 	};
 
 	const getDefaultCheckOut = () => {
 		if (initialData?.checkOut) return initialData.checkOut;
-		return config?.attendance?.defaultCheckOut || '17:00';
+		return (config?.attendance?.defaultCheckOut as string) || '17:00';
 	};
 
 	const [checkIn, setCheckIn] = useState(getDefaultCheckIn());
@@ -58,9 +58,9 @@ export function AttendanceEditForm({
 			'Nov',
 			'Dez',
 		];
-		return `${days[date.getDay()]}, ${date.getDate()}. ${
-			months[date.getMonth()]
-		}`;
+		return `${String(days[date.getDay()])}, ${date.getDate()}. ${String(
+			months[date.getMonth()],
+		)}`;
 	};
 
 	const handleSubmit = () => {
@@ -98,29 +98,57 @@ export function AttendanceEditForm({
 			if (key.tab) {
 				if (key.shift) {
 					// Shift+Tab for reverse navigation
-					if (focusArea === 'checkIn') {
-						setFocusArea('cancel');
-					} else if (focusArea === 'checkOut') {
-						setFocusArea('checkIn');
-					} else if (focusArea === 'break') {
-						setFocusArea('checkOut');
-					} else if (focusArea === 'submit') {
-						setFocusArea('break');
-					} else if (focusArea === 'cancel') {
-						setFocusArea('submit');
+					switch (focusArea) {
+						case 'checkIn': {
+							setFocusArea('cancel');
+							break;
+						}
+						case 'checkOut': {
+							setFocusArea('checkIn');
+							break;
+						}
+						case 'break': {
+							setFocusArea('checkOut');
+							break;
+						}
+						case 'submit': {
+							setFocusArea('break');
+							break;
+						}
+						case 'cancel': {
+							setFocusArea('submit');
+							break;
+						}
+						default: {
+							break;
+						}
 					}
 				} else {
 					// Regular Tab for forward navigation
-					if (focusArea === 'checkIn') {
-						setFocusArea('checkOut');
-					} else if (focusArea === 'checkOut') {
-						setFocusArea('break');
-					} else if (focusArea === 'break') {
-						setFocusArea('submit');
-					} else if (focusArea === 'submit') {
-						setFocusArea('cancel');
-					} else if (focusArea === 'cancel') {
-						setFocusArea('checkIn');
+					switch (focusArea) {
+						case 'checkIn': {
+							setFocusArea('checkOut');
+							break;
+						}
+						case 'checkOut': {
+							setFocusArea('break');
+							break;
+						}
+						case 'break': {
+							setFocusArea('submit');
+							break;
+						}
+						case 'submit': {
+							setFocusArea('cancel');
+							break;
+						}
+						case 'cancel': {
+							setFocusArea('checkIn');
+							break;
+						}
+						default: {
+							break;
+						}
 					}
 				}
 				return;
@@ -136,7 +164,6 @@ export function AttendanceEditForm({
 					// From time fields, move to submit
 					setFocusArea('submit');
 				}
-				return;
 			}
 
 			// Break field input is handled by CustomTimeInput
@@ -161,7 +188,9 @@ export function AttendanceEditForm({
 							label=""
 							value={checkIn}
 							onChange={setCheckIn}
-							onSubmit={() => setFocusArea('checkOut')}
+							onSubmit={() => {
+								setFocusArea('checkOut');
+							}}
 							compact={true}
 						/>
 					) : (
@@ -177,7 +206,9 @@ export function AttendanceEditForm({
 							label=""
 							value={checkOut}
 							onChange={setCheckOut}
-							onSubmit={() => setFocusArea('break')}
+							onSubmit={() => {
+								setFocusArea('break');
+							}}
 							compact={true}
 						/>
 					) : (
@@ -192,7 +223,9 @@ export function AttendanceEditForm({
 						<DurationInput
 							value={breakMinutes}
 							onChange={setBreakMinutes}
-							onSubmit={() => setFocusArea('submit')}
+							onSubmit={() => {
+								setFocusArea('submit');
+							}}
 							compact={true}
 							allowedUnits={['h', 'm']}
 							incrementMinutes={15}

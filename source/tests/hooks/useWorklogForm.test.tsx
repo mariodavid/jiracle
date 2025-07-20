@@ -61,14 +61,14 @@ test('useWorklogForm returns initial state', t => {
 	const mockOptions: UseWorklogFormOptions = {
 		config: mockConfig,
 		userEmail: 'test@example.com',
-		onRefresh: () => {},
-		onActiveAreaChange: () => {},
+		onRefresh() {},
+		onActiveAreaChange() {},
 	};
 
 	render(
 		React.createElement(TestWorklogFormComponent, {
 			options: mockOptions,
-			onStateChange: (state: any) => {
+			onStateChange(state: any) {
 				capturedState = state;
 			},
 		}),
@@ -88,8 +88,8 @@ test('useWorklogForm handleAddWorklog makes form visible with defaults', t => {
 	const mockOptions: UseWorklogFormOptions = {
 		config: mockConfig,
 		userEmail: 'test@example.com',
-		onRefresh: () => {},
-		onActiveAreaChange: (area: string) => {
+		onRefresh() {},
+		onActiveAreaChange(area: string) {
 			activeAreaChanged = area;
 		},
 	};
@@ -97,7 +97,7 @@ test('useWorklogForm handleAddWorklog makes form visible with defaults', t => {
 	const {rerender} = render(
 		React.createElement(TestWorklogFormComponent, {
 			options: mockOptions,
-			onStateChange: (state: any) => {
+			onStateChange(state: any) {
 				capturedState = state;
 			},
 		}),
@@ -111,7 +111,7 @@ test('useWorklogForm handleAddWorklog makes form visible with defaults', t => {
 	rerender(
 		React.createElement(TestWorklogFormComponent, {
 			options: mockOptions,
-			onStateChange: (state: any) => {
+			onStateChange(state: any) {
 				capturedState = state;
 			},
 		}),
@@ -132,8 +132,8 @@ test('useWorklogForm handleCellWorklog opens form for cell editing', async t => 
 	const mockOptions: UseWorklogFormOptions = {
 		config: mockConfig,
 		userEmail: 'test@example.com',
-		onRefresh: () => {},
-		onActiveAreaChange: (area: string) => {
+		onRefresh() {},
+		onActiveAreaChange(area: string) {
 			activeAreaChanged = area;
 		},
 		data: {
@@ -149,7 +149,7 @@ test('useWorklogForm handleCellWorklog opens form for cell editing', async t => 
 	const {rerender} = render(
 		React.createElement(TestWorklogFormComponent, {
 			options: mockOptions,
-			onStateChange: (state: any) => {
+			onStateChange(state: any) {
 				capturedState = state;
 			},
 		}),
@@ -165,7 +165,7 @@ test('useWorklogForm handleCellWorklog opens form for cell editing', async t => 
 	rerender(
 		React.createElement(TestWorklogFormComponent, {
 			options: mockOptions,
-			onStateChange: (state: any) => {
+			onStateChange(state: any) {
 				capturedState = state;
 			},
 		}),
@@ -183,8 +183,8 @@ test('useWorklogForm handleCellWorklog uses favorite defaults', async t => {
 	const mockOptions: UseWorklogFormOptions = {
 		config: mockConfig,
 		userEmail: 'test@example.com',
-		onRefresh: () => {},
-		onActiveAreaChange: () => {},
+		onRefresh() {},
+		onActiveAreaChange() {},
 		data: {
 			dailySummaries: [
 				{
@@ -198,7 +198,7 @@ test('useWorklogForm handleCellWorklog uses favorite defaults', async t => {
 	const {rerender} = render(
 		React.createElement(TestWorklogFormComponent, {
 			options: mockOptions,
-			onStateChange: (state: any) => {
+			onStateChange(state: any) {
 				capturedState = state;
 			},
 		}),
@@ -214,7 +214,7 @@ test('useWorklogForm handleCellWorklog uses favorite defaults', async t => {
 	rerender(
 		React.createElement(TestWorklogFormComponent, {
 			options: mockOptions,
-			onStateChange: (state: any) => {
+			onStateChange(state: any) {
 				capturedState = state;
 			},
 		}),
@@ -231,8 +231,8 @@ test('useWorklogForm handleWorklogCancel hides form', t => {
 	const mockOptions: UseWorklogFormOptions = {
 		config: mockConfig,
 		userEmail: 'test@example.com',
-		onRefresh: () => {},
-		onActiveAreaChange: (area: string) => {
+		onRefresh() {},
+		onActiveAreaChange(area: string) {
 			activeAreaChanged = area;
 		},
 	};
@@ -240,7 +240,7 @@ test('useWorklogForm handleWorklogCancel hides form', t => {
 	const {rerender} = render(
 		React.createElement(TestWorklogFormComponent, {
 			options: mockOptions,
-			onStateChange: (state: any) => {
+			onStateChange(state: any) {
 				capturedState = state;
 			},
 		}),
@@ -251,7 +251,7 @@ test('useWorklogForm handleWorklogCancel hides form', t => {
 	rerender(
 		React.createElement(TestWorklogFormComponent, {
 			options: mockOptions,
-			onStateChange: (state: any) => {
+			onStateChange(state: any) {
 				capturedState = state;
 			},
 		}),
@@ -263,7 +263,7 @@ test('useWorklogForm handleWorklogCancel hides form', t => {
 	rerender(
 		React.createElement(TestWorklogFormComponent, {
 			options: mockOptions,
-			onStateChange: (state: any) => {
+			onStateChange(state: any) {
 				capturedState = state;
 			},
 		}),
@@ -278,14 +278,14 @@ test('useWorklogForm clearError removes error message', t => {
 	const mockOptions: UseWorklogFormOptions = {
 		config: mockConfig,
 		userEmail: 'test@example.com',
-		onRefresh: () => {},
-		onActiveAreaChange: () => {},
+		onRefresh() {},
+		onActiveAreaChange() {},
 	};
 
 	render(
 		React.createElement(TestWorklogFormComponent, {
 			options: mockOptions,
-			onStateChange: (state: any) => {
+			onStateChange(state: any) {
 				capturedState = state;
 			},
 		}),
@@ -302,14 +302,14 @@ test('useWorklogForm hook structure is correct', t => {
 	const mockOptions: UseWorklogFormOptions = {
 		config: mockConfig,
 		userEmail: 'test@example.com',
-		onRefresh: () => {},
-		onActiveAreaChange: () => {},
+		onRefresh() {},
+		onActiveAreaChange() {},
 	};
 
 	render(
 		React.createElement(TestWorklogFormComponent, {
 			options: mockOptions,
-			onStateChange: (state: any) => {
+			onStateChange(state: any) {
 				capturedState = state;
 			},
 		}),
@@ -331,14 +331,14 @@ test('useWorklogForm worklogForm structure is correct', t => {
 	const mockOptions: UseWorklogFormOptions = {
 		config: mockConfig,
 		userEmail: 'test@example.com',
-		onRefresh: () => {},
-		onActiveAreaChange: () => {},
+		onRefresh() {},
+		onActiveAreaChange() {},
 	};
 
 	render(
 		React.createElement(TestWorklogFormComponent, {
 			options: mockOptions,
-			onStateChange: (state: any) => {
+			onStateChange(state: any) {
 				capturedState = state;
 			},
 		}),
@@ -357,8 +357,8 @@ test('useWorklogForm displays form state correctly', t => {
 	const mockOptions: UseWorklogFormOptions = {
 		config: mockConfig,
 		userEmail: 'test@example.com',
-		onRefresh: () => {},
-		onActiveAreaChange: () => {},
+		onRefresh() {},
+		onActiveAreaChange() {},
 	};
 
 	const {lastFrame} = render(
