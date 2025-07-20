@@ -490,6 +490,7 @@ export function TimetableGrid({
 					weekDates={weekDates}
 					weeklyAttendance={weeklyAttendance}
 					dailyLoggedHours={dailyLoggedHours}
+					config={config}
 				/>
 			)}
 		</Box>

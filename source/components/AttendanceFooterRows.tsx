@@ -3,28 +3,53 @@ import {Box, Text} from 'ink';
 import {formatLocalDateKey} from '../utils/date.js';
 import {formatHours} from '../utils/TimetableCalculations.js';
 import {AttendanceCalculations} from '../attendance/AttendanceCalculations.js';
+import {Duration} from '../utils/Duration.js';
 import type {WeeklyAttendance} from '../attendance/types.js';
+import type {JiraConfig} from '../jira-client.js';
 
 interface AttendanceFooterRowsProps {
 	weekDates: Date[];
 	weeklyAttendance: WeeklyAttendance;
 	dailyLoggedHours: Record<string, number>;
+	config?: JiraConfig;
 }
 
 export function AttendanceFooterRows({
 	weekDates,
 	weeklyAttendance,
 	dailyLoggedHours,
+	config,
 }: AttendanceFooterRowsProps) {
-	// Get working hours cell value (numeric hours only)
+	// Get working hours cell value (with proper break time calculation)
 	const getWorkingHoursCellValue = (dateKey: string): string => {
 		const attendance = weeklyAttendance[dateKey];
-		if (!attendance) {
+		if (!attendance || (!attendance.checkIn && !attendance.checkOut)) {
 			return '-'; // Show dash when no data exists
 		}
 
-		const workingHours = attendance.totalHours || 0;
-		return workingHours > 0 ? formatHours(workingHours) : '-';
+		// Calculate working hours using Duration class
+		const calculateWorkingHours = (
+			checkIn: string,
+			checkOut: string,
+			breakMinutes: number,
+		): string => {
+			const workingDuration = Duration.calculateWorkingDuration(
+				checkIn,
+				checkOut,
+				breakMinutes,
+			);
+			return workingDuration.toDecimalHours();
+		};
+
+		const breakMinutes =
+			attendance.breakMinutes || config?.attendance?.defaultBreakMinutes || 60; // Use configured break time or default to 60 minutes
+		const workingHours = calculateWorkingHours(
+			attendance.checkIn || '08:00',
+			attendance.checkOut || '17:00',
+			breakMinutes,
+		);
+
+		return workingHours;
 	};
 
 	// Render attendance hours row
@@ -61,10 +86,13 @@ export function AttendanceFooterRows({
 					<Box width={8} justifyContent="flex-end">
 						<Text bold color="yellow">
 							{formatHours(
-								Object.values(weeklyAttendance).reduce(
-									(sum, att) => sum + (att?.totalHours || 0),
-									0,
-								),
+								weekDates.reduce((sum, date) => {
+									const cellValue = getWorkingHoursCellValue(
+										formatLocalDateKey(date),
+									);
+									const hours = cellValue === '-' ? 0 : parseFloat(cellValue);
+									return sum + hours;
+								}, 0),
 							)}
 						</Text>
 					</Box>
@@ -91,7 +119,7 @@ export function AttendanceFooterRows({
 
 			const formattedDelta = formatHours(Math.abs(delta));
 			return delta === 0
-				? '0'
+				? '0.0'
 				: delta > 0
 				? `+${formattedDelta}`
 				: `-${formattedDelta}`;
