@@ -19,12 +19,15 @@ export function NotificationBar({notifications}: NotificationBarProps) {
 
 	const getNotificationColor = (type: Notification['type']) => {
 		switch (type) {
-			case 'success':
+			case 'success': {
 				return 'green';
-			case 'error':
+			}
+			case 'error': {
 				return 'red';
-			default:
+			}
+			default: {
 				return 'blue';
+			}
 		}
 	};
 

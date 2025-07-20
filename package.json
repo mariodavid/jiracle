@@ -125,7 +125,6 @@
 			"unicorn/prefer-set-has": "off",
 			"ava/no-async-fn-without-await": "off",
 			"ava/prefer-t-regex": "off",
-			"unicorn/switch-case-braces": "off",
 			"@typescript-eslint/prefer-ts-expect-error": "off",
 			"@typescript-eslint/ban-ts-comment": "off",
 			"@typescript-eslint/restrict-plus-operands": "off",

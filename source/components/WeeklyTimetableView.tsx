@@ -289,7 +289,7 @@ export function WeeklyTimetableView({
 				{/* Conditional content: table, form, delete confirmation, or attendance edit */}
 				{(() => {
 					switch (resolvedActiveArea) {
-						case 'worklog-form':
+						case 'worklog-form': {
 							return (
 								<WorklogFormArea
 									worklogForm={worklogForm}
@@ -300,8 +300,9 @@ export function WeeklyTimetableView({
 									onCancel={handleWorklogCancel}
 								/>
 							);
+						}
 
-						case 'delete-confirmation':
+						case 'delete-confirmation': {
 							return (
 								<DeleteWorklogConfirmationArea
 									deleteCandidate={deleteCandidate!}
@@ -310,8 +311,9 @@ export function WeeklyTimetableView({
 									formatDate={formatDate}
 								/>
 							);
+						}
 
-						case 'delete-attendance-confirmation':
+						case 'delete-attendance-confirmation': {
 							return (
 								<DeleteAttendanceConfirmationArea
 									deleteAttendanceCandidate={deleteAttendanceCandidate!}
@@ -320,18 +322,21 @@ export function WeeklyTimetableView({
 									formatDate={formatDate}
 								/>
 							);
+						}
 
-						case 'checkin-confirmation':
+						case 'checkin-confirmation': {
 							return (
 								<CheckinConfirmationArea onConfirm={handleCheckinConfirm} />
 							);
+						}
 
-						case 'checkout-confirmation':
+						case 'checkout-confirmation': {
 							return (
 								<CheckoutConfirmationArea onConfirm={handleCheckoutConfirm} />
 							);
+						}
 
-						case 'attendance-edit':
+						case 'attendance-edit': {
 							return (
 								<AttendanceEditFormArea
 									attendanceEdit={attendanceEdit!}
@@ -340,8 +345,9 @@ export function WeeklyTimetableView({
 									onCancel={handleAttendanceCancel}
 								/>
 							);
+						}
 
-						default:
+						default: {
 							return (
 								<TimetableGrid
 									data={displayData}
@@ -365,6 +371,7 @@ export function WeeklyTimetableView({
 									attendanceRefreshKey={attendanceRefreshKey}
 								/>
 							);
+						}
 					}
 				})()}
 

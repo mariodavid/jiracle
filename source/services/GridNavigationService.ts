@@ -39,20 +39,25 @@ export class GridNavigationService {
 		let newIndex: number;
 
 		switch (direction) {
-			case 'up':
+			case 'up': {
 				newIndex = this.navigateUp(focusedCell, focusableItems);
 				break;
-			case 'down':
+			}
+			case 'down': {
 				newIndex = this.navigateDown(focusedCell, focusableItems);
 				break;
-			case 'left':
+			}
+			case 'left': {
 				newIndex = this.navigateLeft(focusedCell, focusableItems, columnCount);
 				break;
-			case 'right':
+			}
+			case 'right': {
 				newIndex = this.navigateRight(focusedCell, focusableItems, columnCount);
 				break;
-			default:
+			}
+			default: {
 				return {success: false};
+			}
 		}
 
 		if (newIndex >= 0 && newIndex < focusableItems.length) {
