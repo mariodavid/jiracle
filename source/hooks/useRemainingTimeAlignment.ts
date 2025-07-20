@@ -122,63 +122,62 @@ export function useRemainingTimeAlignment(
 						remainingHours,
 						strategy,
 					};
-				} else {
-					// Mode: Create new worklogs from default stories
-					uiLogger.debug('previewAlignment: entering CREATE mode', {
-						fillConfig: config.fill,
-						hasDefaultStories: Boolean(config.fill?.defaultStories),
-						defaultStoriesLength: config.fill?.defaultStories?.length || 0,
-					});
+				}
+				// Mode: Create new worklogs from default stories
+				uiLogger.debug('previewAlignment: entering CREATE mode', {
+					fillConfig: config.fill,
+					hasDefaultStories: Boolean(config.fill?.defaultStories),
+					defaultStoriesLength: config.fill?.defaultStories?.length || 0,
+				});
 
-					const defaultStories = config.fill?.defaultStories;
-					if (!defaultStories || defaultStories.length === 0) {
-						uiLogger.debug(
-							'previewAlignment: CREATE mode failed - no default stories',
-							{
-								hasDefaultStories: Boolean(defaultStories),
-								defaultStoriesLength: defaultStories?.length || 0,
-								fillConfig: config.fill,
-							},
-						);
-						onNotification?.(
-							'No default stories configured for auto-fill',
-							'error',
-						);
-						return null;
-					}
+				const defaultStories = config.fill?.defaultStories;
+				if (!defaultStories || defaultStories.length === 0) {
+					uiLogger.debug(
+						'previewAlignment: CREATE mode failed - no default stories',
+						{
+							hasDefaultStories: Boolean(defaultStories),
+							defaultStoriesLength: defaultStories?.length || 0,
+							fillConfig: config.fill,
+						},
+					);
+					onNotification?.(
+						'No default stories configured for auto-fill',
+						'error',
+					);
+					return null;
+				}
 
-					const createResult = RemainingTimeAlignment.createDefaultWorklogs(
+				const createResult = RemainingTimeAlignment.createDefaultWorklogs(
+					attendance,
+					defaultStories,
+					config,
+				);
+
+				// Handle errors
+				if ('type' in createResult) {
+					uiLogger.debug('previewAlignment: CREATE mode failed', {
+						errorType: createResult.type,
+						errorMessage: createResult.message,
 						attendance,
 						defaultStories,
-						config,
-					);
-
-					// Handle errors
-					if ('type' in createResult) {
-						uiLogger.debug('previewAlignment: CREATE mode failed', {
-							errorType: createResult.type,
-							errorMessage: createResult.message,
-							attendance,
-							defaultStories,
-						});
-						onNotification?.(createResult.message, 'error');
-						return null;
-					}
-
-					uiLogger.debug('previewAlignment: CREATE mode successful', {
-						createdWorklogsCount: createResult.createdWorklogs.length,
-						totalDistributed: createResult.totalDistributed,
 					});
-
-					return {
-						mode: 'create' as const,
-						createResult,
-						attendanceHours,
-						currentLoggedHours: 0, // No existing worklogs
-						remainingHours: attendanceHours, // All attendance time to distribute
-						strategy,
-					};
+					onNotification?.(createResult.message, 'error');
+					return null;
 				}
+
+				uiLogger.debug('previewAlignment: CREATE mode successful', {
+					createdWorklogsCount: createResult.createdWorklogs.length,
+					totalDistributed: createResult.totalDistributed,
+				});
+
+				return {
+					mode: 'create' as const,
+					createResult,
+					attendanceHours,
+					currentLoggedHours: 0, // No existing worklogs
+					remainingHours: attendanceHours, // All attendance time to distribute
+					strategy,
+				};
 			} catch (error) {
 				console.error('Failed to preview alignment:', error);
 				onNotification?.(

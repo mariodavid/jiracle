@@ -80,12 +80,12 @@ test('useTableNavigation: handles all optional callback props', t => {
 		isActive: true,
 		weekDates: [new Date('2023-07-17'), new Date('2023-07-18')],
 		issueGroups: mockIssueGroups,
-		onWeekChange: () => {},
-		onCellWorklog: () => {},
-		onCellDelete: () => {},
-		onAttendanceEdit: () => {},
-		onAttendanceDelete: () => {},
-		onOpenInBrowser: () => {},
+		onWeekChange() {},
+		onCellWorklog() {},
+		onCellDelete() {},
+		onAttendanceEdit() {},
+		onAttendanceDelete() {},
+		onOpenInBrowser() {},
 	};
 
 	// Should not throw with all optional props
@@ -210,12 +210,12 @@ test('useTableNavigation: validates required props types', t => {
 
 test('useTableNavigation: accepts all callback function types', t => {
 	const callbacks = {
-		onWeekChange: (_direction: 'prev' | 'next') => {},
-		onCellWorklog: (_data: {issueKey: string; date: Date}) => {},
-		onCellDelete: (_data: {issueKey: string; date: Date}) => {},
-		onAttendanceEdit: (_data: {date: Date}) => {},
-		onAttendanceDelete: (_data: {date: Date}) => {},
-		onOpenInBrowser: (_issueKey: string) => {},
+		onWeekChange(_direction: 'prev' | 'next') {},
+		onCellWorklog(_data: {issueKey: string; date: Date}) {},
+		onCellDelete(_data: {issueKey: string; date: Date}) {},
+		onAttendanceEdit(_data: {date: Date}) {},
+		onAttendanceDelete(_data: {date: Date}) {},
+		onOpenInBrowser(_issueKey: string) {},
 	};
 
 	// Verify callback types are functions

@@ -45,7 +45,7 @@ test('useConfirmation returns initial state', t => {
 
 	render(
 		React.createElement(TestConfirmationComponent, {
-			onStateChange: (state: any) => {
+			onStateChange(state: any) {
 				capturedState = state;
 			},
 		}),
@@ -62,7 +62,7 @@ test('useConfirmation show() makes dialog visible with config', t => {
 
 	const {lastFrame} = render(
 		React.createElement(TestConfirmationComponent, {
-			onStateChange: (state: any) => {
+			onStateChange(state: any) {
 				capturedState = state;
 			},
 		}),
@@ -85,7 +85,7 @@ test('useConfirmation hide() resets state', t => {
 
 	render(
 		React.createElement(TestConfirmationComponent, {
-			onStateChange: (state: any) => {
+			onStateChange(state: any) {
 				capturedState = state;
 			},
 		}),
@@ -103,7 +103,7 @@ test('useConfirmation setLoading() updates loading state', t => {
 
 	render(
 		React.createElement(TestConfirmationComponent, {
-			onStateChange: (state: any) => {
+			onStateChange(state: any) {
 				capturedState = state;
 			},
 		}),
@@ -121,7 +121,7 @@ test('useConfirmation handleConfirm() function exists', t => {
 
 	render(
 		React.createElement(TestConfirmationComponent, {
-			onStateChange: (state: any) => {
+			onStateChange(state: any) {
 				capturedState = state;
 			},
 		}),
@@ -136,7 +136,7 @@ test('useConfirmation hook structure is correct', t => {
 
 	render(
 		React.createElement(TestConfirmationComponent, {
-			onStateChange: (state: any) => {
+			onStateChange(state: any) {
 				capturedState = state;
 			},
 		}),

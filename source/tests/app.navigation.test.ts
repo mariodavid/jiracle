@@ -3,6 +3,7 @@ import React from 'react';
 import {render} from 'ink-testing-library';
 import App from '../app.js';
 import type {JiraConfig} from '../jira-client.js';
+import {InkTestHelpers} from './utils/ink-test-helpers.js';
 
 // Test config that will be passed directly to the App component
 const testConfig: JiraConfig = {
@@ -20,7 +21,7 @@ test.beforeEach(() => {
 		// Mock search endpoint for both favorites and assigned issues
 		if (urlString.includes('/rest/api/2/search')) {
 			// Small delay to simulate API call
-			await new Promise(resolve => setTimeout(resolve, 100));
+			await InkTestHelpers.delay(100);
 
 			return {
 				ok: true,
@@ -96,7 +97,7 @@ test('should show weekly timetable after loading', async t => {
 	);
 
 	// Wait a bit for loading to complete
-	await new Promise(resolve => setTimeout(resolve, 3000));
+	await InkTestHelpers.delay(3000);
 
 	const output = lastFrame();
 	console.log('Test output:', output);
@@ -122,13 +123,13 @@ test('should open worklog form when log work key is pressed', async t => {
 	);
 
 	// Wait for weekly timetable
-	await new Promise(resolve => setTimeout(resolve, 3000));
+	await InkTestHelpers.delay(3000);
 
 	// Simulate pressing "L" - this should open the worklog form
 	stdin.write('l');
 
 	// Wait a bit
-	await new Promise(resolve => setTimeout(resolve, 500));
+	await InkTestHelpers.delay(500);
 
 	const output = lastFrame();
 

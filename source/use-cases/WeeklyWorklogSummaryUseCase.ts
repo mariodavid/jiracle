@@ -290,7 +290,7 @@ export class WeeklyWorklogSummaryUseCase {
 				const worklogDate = new Date(worklogs[0].started);
 				dailyWorklogMap.set(localDateKey!, {
 					date: worklogDate,
-					totalHours: totalHours,
+					totalHours,
 					issues: [issueEntry],
 				});
 			}

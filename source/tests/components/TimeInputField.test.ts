@@ -5,8 +5,8 @@ import TimeInputField from '../../components/TimeInputField.js';
 
 const defaultProps = {
 	value: '08:00',
-	onChange: () => {},
-	onSubmit: () => {},
+	onChange() {},
+	onSubmit() {},
 };
 
 test('TimeInputField renders with initial value', t => {

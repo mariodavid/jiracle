@@ -4,6 +4,7 @@ import {render} from 'ink-testing-library';
 import figures from 'figures';
 import {TimetableGrid} from '../../components/TimetableGrid.js';
 import type {WeeklyWorklogSummary} from '../../domain/WeeklyWorklogSummary.js';
+import {InkTestHelpers} from '../utils/ink-test-helpers.js';
 
 test('TimetableGrid shows loading state', t => {
 	const props = {
@@ -397,7 +398,7 @@ test.serial(
 		const {stdin, rerender} = render(React.createElement(TimetableGrid, props));
 
 		// Wait for component to mount and initial focus to be set
-		await new Promise(resolve => setTimeout(resolve, 10));
+		await InkTestHelpers.delay(10);
 		rerender(React.createElement(TimetableGrid, props));
 
 		// Simulate pressing Enter to trigger cell worklog (tests that focus is set)
@@ -482,7 +483,7 @@ test.serial(
 		const {stdin, rerender} = render(React.createElement(TimetableGrid, props));
 
 		// Wait for component to mount and initial focus to be set
-		await new Promise(resolve => setTimeout(resolve, 10));
+		await InkTestHelpers.delay(10);
 		rerender(React.createElement(TimetableGrid, props));
 
 		// Simulate pressing Enter to trigger cell worklog
@@ -571,7 +572,7 @@ test.serial(
 		const {stdin, rerender} = render(React.createElement(TimetableGrid, props));
 
 		// Wait for component to mount and initial focus to be set
-		await new Promise(resolve => setTimeout(resolve, 50));
+		await InkTestHelpers.delay(50);
 		rerender(React.createElement(TimetableGrid, props));
 
 		// Simulate pressing Enter to trigger cell worklog
@@ -637,7 +638,7 @@ test.serial(
 		const {stdin, rerender} = render(React.createElement(TimetableGrid, props));
 
 		// Wait for component to mount
-		await new Promise(resolve => setTimeout(resolve, 10));
+		await InkTestHelpers.delay(10);
 		rerender(React.createElement(TimetableGrid, props));
 
 		// Simulate pressing Enter - should not trigger cell worklog since no focus is set
@@ -1370,9 +1371,9 @@ test('TimetableGrid shows attendance with working hours calculation', async t =>
 	);
 
 	// Wait for async effects to complete - this is how ink-testing-library handles it
-	await new Promise(resolve => setImmediate(resolve));
+	await InkTestHelpers.waitForEffects();
 	rerender(React.createElement(TimetableGrid, props));
-	await new Promise(resolve => setImmediate(resolve));
+	await InkTestHelpers.waitForEffects();
 
 	const output = lastFrame()!;
 
@@ -1428,9 +1429,9 @@ test('TimetableGrid calculates working hours with different break times', async 
 	const {lastFrame, rerender} = render(
 		React.createElement(TimetableGrid, props),
 	);
-	await new Promise(resolve => setImmediate(resolve));
+	await InkTestHelpers.waitForEffects();
 	rerender(React.createElement(TimetableGrid, props));
-	await new Promise(resolve => setImmediate(resolve));
+	await InkTestHelpers.waitForEffects();
 
 	const output = lastFrame()!;
 
@@ -1494,9 +1495,9 @@ test('TimetableGrid uses config default break time when not specified', async t 
 	const {lastFrame, rerender} = render(
 		React.createElement(TimetableGrid, props),
 	);
-	await new Promise(resolve => setImmediate(resolve));
+	await InkTestHelpers.waitForEffects();
 	rerender(React.createElement(TimetableGrid, props));
-	await new Promise(resolve => setImmediate(resolve));
+	await InkTestHelpers.waitForEffects();
 
 	const output = lastFrame()!;
 
@@ -1750,9 +1751,9 @@ test('TimetableGrid shows delta row with positive values in red', async t => {
 	const {lastFrame, rerender} = render(
 		React.createElement(TimetableGrid, props),
 	);
-	await new Promise(resolve => setImmediate(resolve));
+	await InkTestHelpers.waitForEffects();
 	rerender(React.createElement(TimetableGrid, props));
-	await new Promise(resolve => setImmediate(resolve));
+	await InkTestHelpers.waitForEffects();
 
 	const output = lastFrame()!;
 
@@ -1814,9 +1815,9 @@ test('TimetableGrid shows delta row with zero values in green', async t => {
 		React.createElement(TimetableGrid, props),
 	);
 
-	await new Promise(resolve => setImmediate(resolve));
+	await InkTestHelpers.waitForEffects();
 	rerender(React.createElement(TimetableGrid, props));
-	await new Promise(resolve => setImmediate(resolve));
+	await InkTestHelpers.waitForEffects();
 
 	const output = lastFrame()!;
 
@@ -1877,9 +1878,9 @@ test('TimetableGrid shows delta row with negative values in red', async t => {
 	const {lastFrame, rerender} = render(
 		React.createElement(TimetableGrid, props),
 	);
-	await new Promise(resolve => setImmediate(resolve));
+	await InkTestHelpers.waitForEffects();
 	rerender(React.createElement(TimetableGrid, props));
-	await new Promise(resolve => setImmediate(resolve));
+	await InkTestHelpers.waitForEffects();
 
 	const output = lastFrame()!;
 
@@ -1932,9 +1933,9 @@ test('TimetableGrid shows dash in delta row when no attendance data', async t =>
 	const {lastFrame, rerender} = render(
 		React.createElement(TimetableGrid, props),
 	);
-	await new Promise(resolve => setImmediate(resolve));
+	await InkTestHelpers.waitForEffects();
 	rerender(React.createElement(TimetableGrid, props));
-	await new Promise(resolve => setImmediate(resolve));
+	await InkTestHelpers.waitForEffects();
 
 	const output = lastFrame()!;
 
@@ -2003,9 +2004,9 @@ test('TimetableGrid shows attendance and delta rows at bottom after daily total'
 	const {lastFrame, rerender} = render(
 		React.createElement(TimetableGrid, props),
 	);
-	await new Promise(resolve => setImmediate(resolve));
+	await InkTestHelpers.waitForEffects();
 	rerender(React.createElement(TimetableGrid, props));
-	await new Promise(resolve => setImmediate(resolve));
+	await InkTestHelpers.waitForEffects();
 
 	const output = lastFrame()!;
 	const lines = output.split('\n');

@@ -25,8 +25,8 @@ function TestKeyboardInputComponent({
 
 test('useKeyboardInput: hook can be instantiated', t => {
 	const mockHandlers: KeyboardInputHandlers = {
-		handleArrowNavigation: () => {},
-		handleReverseTabNavigation: () => {},
+		handleArrowNavigation() {},
+		handleReverseTabNavigation() {},
 	};
 
 	const mockOptions: KeyboardInputOptions = {
@@ -47,10 +47,10 @@ test('useKeyboardInput: hook can be instantiated', t => {
 test('useKeyboardInput: handles inactive state correctly', t => {
 	let arrowNavigationCalled = false;
 	const mockHandlers: KeyboardInputHandlers = {
-		handleArrowNavigation: () => {
+		handleArrowNavigation() {
 			arrowNavigationCalled = true;
 		},
-		handleReverseTabNavigation: () => {},
+		handleReverseTabNavigation() {},
 	};
 
 	const mockOptions: KeyboardInputOptions = {
@@ -70,14 +70,14 @@ test('useKeyboardInput: handles inactive state correctly', t => {
 
 test('useKeyboardInput: accepts all required handler functions', t => {
 	const mockHandlers: KeyboardInputHandlers = {
-		handleArrowNavigation: () => {},
-		handleReverseTabNavigation: () => {},
-		onWeekChange: () => {},
-		onCellWorklog: () => {},
-		onCellDelete: () => {},
-		onAttendanceEdit: () => {},
-		onAttendanceDelete: () => {},
-		onOpenInBrowser: () => {},
+		handleArrowNavigation() {},
+		handleReverseTabNavigation() {},
+		onWeekChange() {},
+		onCellWorklog() {},
+		onCellDelete() {},
+		onAttendanceEdit() {},
+		onAttendanceDelete() {},
+		onOpenInBrowser() {},
 	};
 
 	const mockOptions: KeyboardInputOptions = {
@@ -103,11 +103,11 @@ test('useKeyboardInput: works with focused cell for issue cells', t => {
 	};
 
 	const mockHandlers: KeyboardInputHandlers = {
-		handleArrowNavigation: () => {},
-		handleReverseTabNavigation: () => {},
-		onCellWorklog: () => {},
-		onCellDelete: () => {},
-		onOpenInBrowser: () => {},
+		handleArrowNavigation() {},
+		handleReverseTabNavigation() {},
+		onCellWorklog() {},
+		onCellDelete() {},
+		onOpenInBrowser() {},
 	};
 
 	const mockOptions: KeyboardInputOptions = {
@@ -133,10 +133,10 @@ test('useKeyboardInput: works with focused cell for attendance cells', t => {
 	};
 
 	const mockHandlers: KeyboardInputHandlers = {
-		handleArrowNavigation: () => {},
-		handleReverseTabNavigation: () => {},
-		onAttendanceEdit: () => {},
-		onAttendanceDelete: () => {},
+		handleArrowNavigation() {},
+		handleReverseTabNavigation() {},
+		onAttendanceEdit() {},
+		onAttendanceDelete() {},
 	};
 
 	const mockOptions: KeyboardInputOptions = {
@@ -157,8 +157,8 @@ test('useKeyboardInput: works with focused cell for attendance cells', t => {
 test('useKeyboardInput: interface validates correctly', t => {
 	// Test that the KeyboardInputHandlers interface allows optional handlers
 	const minimalHandlers: KeyboardInputHandlers = {
-		handleArrowNavigation: () => {},
-		handleReverseTabNavigation: () => {},
+		handleArrowNavigation() {},
+		handleReverseTabNavigation() {},
 		// All other handlers are optional
 	};
 
@@ -179,8 +179,8 @@ test('useKeyboardInput: interface validates correctly', t => {
 
 test('useKeyboardInput: handles empty weekDates array', t => {
 	const mockHandlers: KeyboardInputHandlers = {
-		handleArrowNavigation: () => {},
-		handleReverseTabNavigation: () => {},
+		handleArrowNavigation() {},
+		handleReverseTabNavigation() {},
 	};
 
 	const mockOptions: KeyboardInputOptions = {
@@ -200,14 +200,14 @@ test('useKeyboardInput: handles empty weekDates array', t => {
 
 test('useKeyboardInput: validates handler function types', t => {
 	const handlers = {
-		handleArrowNavigation: () => {},
-		handleReverseTabNavigation: () => {},
-		onWeekChange: () => {},
-		onCellWorklog: () => {},
-		onCellDelete: () => {},
-		onAttendanceEdit: () => {},
-		onAttendanceDelete: () => {},
-		onOpenInBrowser: () => {},
+		handleArrowNavigation() {},
+		handleReverseTabNavigation() {},
+		onWeekChange() {},
+		onCellWorklog() {},
+		onCellDelete() {},
+		onAttendanceEdit() {},
+		onAttendanceDelete() {},
+		onOpenInBrowser() {},
 	};
 
 	// Verify handler types are functions

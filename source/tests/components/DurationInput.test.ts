@@ -33,8 +33,8 @@ const mockIssue = {
 
 const defaultProps = {
 	value: '1h',
-	onChange: () => {},
-	onSubmit: () => {},
+	onChange() {},
+	onSubmit() {},
 };
 
 test('DurationInput renders with initial value', t => {

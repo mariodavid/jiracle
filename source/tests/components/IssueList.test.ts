@@ -2,12 +2,9 @@ import test from 'ava';
 import React from 'react';
 import {render} from 'ink-testing-library';
 import IssueList from '../../components/IssueList.js';
-import {
-	delays,
-	createMockIssue,
-	createMockIssueList,
-} from '../utils/testUtils.js';
+import {createMockIssue, createMockIssueList} from '../utils/testUtils.js';
 import type {JiraIssue} from '../../jira-client.js';
+import {InkTestHelpers} from '../utils/ink-test-helpers.js';
 
 test('should render custom title', async t => {
 	const mockIssues = createMockIssueList(2);
@@ -25,7 +22,7 @@ test('should render custom title', async t => {
 	);
 
 	// Wait for component to render
-	await new Promise(resolve => setTimeout(resolve, delays.SHORT));
+	await InkTestHelpers.delay(100);
 
 	const output = lastFrame();
 	t.true(output?.includes(customTitle) ?? false);
@@ -49,7 +46,7 @@ test('should render issue list with correct formatting', async t => {
 	);
 
 	// Wait for component to render
-	await new Promise(resolve => setTimeout(resolve, delays.SHORT));
+	await InkTestHelpers.delay(100);
 
 	const output = lastFrame();
 
@@ -77,7 +74,7 @@ test('should display ESC hint for going back to issue selection mode', async t =
 	);
 
 	// Wait for component to render
-	await new Promise(resolve => setTimeout(resolve, delays.SHORT));
+	await InkTestHelpers.delay(100);
 
 	const output = lastFrame();
 	t.true(
@@ -104,11 +101,11 @@ test('should call onSelect with correct issue key when option is selected', asyn
 	);
 
 	// Wait for component to render
-	await new Promise(resolve => setTimeout(resolve, delays.SHORT));
+	await InkTestHelpers.delay(100);
 
 	// Select first option
 	stdin.write('\r');
-	await new Promise(resolve => setTimeout(resolve, delays.SHORT));
+	await InkTestHelpers.delay(100);
 
 	t.is(selectedKey, 'TEST-123');
 
@@ -132,13 +129,13 @@ test('should handle navigation and select second issue', async t => {
 	);
 
 	// Wait for component to render
-	await new Promise(resolve => setTimeout(resolve, delays.SHORT));
+	await InkTestHelpers.delay(100);
 
 	// Navigate to second option
 	stdin.write('\u001B[B'); // Arrow down
-	await new Promise(resolve => setTimeout(resolve, delays.MEDIUM));
+	await InkTestHelpers.delay(500);
 	stdin.write('\r'); // Enter
-	await new Promise(resolve => setTimeout(resolve, delays.MEDIUM));
+	await InkTestHelpers.delay(500);
 
 	// The Select component navigation might not work reliably in tests
 	// For now, just verify that onSelect was called
@@ -163,7 +160,7 @@ test('should handle empty issue list gracefully', async t => {
 	);
 
 	// Wait for component to render
-	await new Promise(resolve => setTimeout(resolve, delays.SHORT));
+	await InkTestHelpers.delay(100);
 
 	const output = lastFrame();
 
@@ -201,7 +198,7 @@ test('should handle issues with long summaries', async t => {
 	);
 
 	// Wait for component to render
-	await new Promise(resolve => setTimeout(resolve, delays.SHORT));
+	await InkTestHelpers.delay(100);
 
 	const output = lastFrame();
 
@@ -236,7 +233,7 @@ test('should handle issues with special characters in summary', async t => {
 	);
 
 	// Wait for component to render
-	await new Promise(resolve => setTimeout(resolve, delays.SHORT));
+	await InkTestHelpers.delay(100);
 
 	const output = lastFrame();
 
@@ -263,11 +260,11 @@ test('should not call onSelect multiple times', async t => {
 	);
 
 	// Wait for component to render
-	await new Promise(resolve => setTimeout(resolve, delays.SHORT));
+	await InkTestHelpers.delay(100);
 
 	// Select first option
 	stdin.write('\r');
-	await new Promise(resolve => setTimeout(resolve, delays.SHORT));
+	await InkTestHelpers.delay(100);
 
 	t.is(callCount, 1);
 
@@ -290,7 +287,7 @@ test('should render with proper layout structure', async t => {
 	);
 
 	// Wait for component to render
-	await new Promise(resolve => setTimeout(resolve, delays.SHORT));
+	await InkTestHelpers.delay(100);
 
 	const output = lastFrame();
 

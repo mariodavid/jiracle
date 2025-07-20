@@ -8,8 +8,8 @@ const mockProps = {
 	date: new Date('2025-07-10T00:00:00.000Z'),
 	defaultTimeSpent: '1h',
 	defaultComment: '',
-	onSubmit: () => {},
-	onCancel: () => {},
+	onSubmit() {},
+	onCancel() {},
 };
 
 test('InlineWorklogForm renders basic structure', t => {
@@ -89,7 +89,7 @@ test('InlineWorklogForm prevents submit when submitting', t => {
 	const submittingProps = {
 		...mockProps,
 		isSubmitting: true,
-		onSubmit: () => {
+		onSubmit() {
 			t.fail('Should not submit when already submitting');
 		},
 	};
@@ -131,7 +131,7 @@ test('InlineWorklogForm calls onSubmit with worklogId in edit mode', t => {
 		...mockProps,
 		isEditMode: true,
 		worklogId: 'worklog-123',
-		onSubmit: (data: any) => {
+		onSubmit(data: any) {
 			submittedData = data;
 		},
 	};
@@ -159,7 +159,7 @@ test('InlineWorklogForm does not include worklogId in create mode', t => {
 	const createProps = {
 		...mockProps,
 		isEditMode: false, // Explicitly create mode
-		onSubmit: (data: any) => {
+		onSubmit(data: any) {
 			submittedData = data;
 		},
 	};
