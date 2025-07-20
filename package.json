@@ -77,8 +77,7 @@
 					"**/tests/**/*.tsx"
 				],
 				"rules": {
-					"@typescript-eslint/no-empty-function": "off",
-					"no-promise-executor-return": "off"
+					"@typescript-eslint/no-empty-function": "off"
 				}
 			}
 		],

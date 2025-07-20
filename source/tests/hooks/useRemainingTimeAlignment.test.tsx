@@ -3,6 +3,7 @@ import React, {useEffect} from 'react';
 import {Box, Text, render} from 'ink';
 import {useRemainingTimeAlignment} from '../../hooks/useRemainingTimeAlignment.js';
 import {ConfigFactory, TestPatterns} from '../utils/test-helpers.js';
+import {InkTestHelpers} from '../utils/ink-test-helpers.js';
 import type {
 	UseRemainingTimeAlignmentReturn,
 	UseRemainingTimeAlignmentOptions,
@@ -114,7 +115,7 @@ test('useRemainingTimeAlignment - handles no attendance data', async t => {
 		);
 
 		// Allow async operations to complete
-		await new Promise(resolve => setTimeout(resolve, 100));
+		await InkTestHelpers.delay(100);
 		rerender(
 			React.createElement(TestHookComponent, {
 				testState,
@@ -157,7 +158,7 @@ test('useRemainingTimeAlignment - handles no worklogs', async t => {
 		);
 
 		// Allow async operations to complete
-		await new Promise(resolve => setTimeout(resolve, 100));
+		await InkTestHelpers.delay(100);
 		rerender(
 			React.createElement(TestHookComponent, {
 				testState,
@@ -253,7 +254,7 @@ test('useRemainingTimeAlignment - handles errors gracefully', async t => {
 		);
 
 		// Allow async operations to complete
-		await new Promise(resolve => setTimeout(resolve, 200));
+		await InkTestHelpers.delay(200);
 		rerender(
 			React.createElement(TestHookComponent, {
 				testState,

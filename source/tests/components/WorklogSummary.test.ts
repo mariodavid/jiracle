@@ -2,7 +2,8 @@ import test from 'ava';
 import React from 'react';
 import {render} from 'ink-testing-library';
 import WorklogSummary from '../../components/WorklogSummary.js';
-import {delays, createMockIssue} from '../utils/testUtils.js';
+import {createMockIssue} from '../utils/testUtils.js';
+import {InkTestHelpers} from '../utils/ink-test-helpers.js';
 
 test('should render submitting variant correctly', async t => {
 	const {lastFrame, unmount} = render(
@@ -12,7 +13,7 @@ test('should render submitting variant correctly', async t => {
 	);
 
 	// Wait for component to render
-	await new Promise(resolve => setTimeout(resolve, delays.SHORT));
+	await InkTestHelpers.delay(100);
 
 	const output = lastFrame();
 	t.true(output?.includes('Submitting worklog...') ?? false);
@@ -40,7 +41,7 @@ test('should render success variant with all worklog details', async t => {
 	);
 
 	// Wait for component to render
-	await new Promise(resolve => setTimeout(resolve, delays.SHORT));
+	await InkTestHelpers.delay(100);
 
 	const output = lastFrame();
 	t.true(output?.includes('✓ Worklog successfully added!') ?? false);
@@ -68,7 +69,7 @@ test('should display default comment when comment is empty', async t => {
 	);
 
 	// Wait for component to render
-	await new Promise(resolve => setTimeout(resolve, delays.SHORT));
+	await InkTestHelpers.delay(100);
 
 	const output = lastFrame();
 	t.true(output?.includes('Comment: Worked on this issue') ?? false);
@@ -89,7 +90,7 @@ test('should display default comment when comment is undefined', async t => {
 	);
 
 	// Wait for component to render
-	await new Promise(resolve => setTimeout(resolve, delays.SHORT));
+	await InkTestHelpers.delay(100);
 
 	const output = lastFrame();
 	t.true(output?.includes('Comment: Worked on this issue') ?? false);
@@ -111,7 +112,7 @@ test('should format date correctly (only date part)', async t => {
 	);
 
 	// Wait for component to render
-	await new Promise(resolve => setTimeout(resolve, delays.SHORT));
+	await InkTestHelpers.delay(100);
 
 	const output = lastFrame();
 	t.true(output?.includes('Date: 2025-12-25') ?? false);
@@ -134,7 +135,7 @@ test('should display returning to main menu message', async t => {
 	);
 
 	// Wait for component to render
-	await new Promise(resolve => setTimeout(resolve, delays.SHORT));
+	await InkTestHelpers.delay(100);
 
 	const output = lastFrame();
 	t.true(output?.includes('Returning to main menu...') ?? false);
@@ -153,7 +154,7 @@ test('should return null when success variant but no selectedIssue', async t => 
 	);
 
 	// Wait for component to render
-	await new Promise(resolve => setTimeout(resolve, delays.SHORT));
+	await InkTestHelpers.delay(100);
 
 	const output = lastFrame();
 	// Should render nothing when no selectedIssue
@@ -174,7 +175,7 @@ test('should return null when success variant but selectedIssue is null', async 
 	);
 
 	// Wait for component to render
-	await new Promise(resolve => setTimeout(resolve, delays.SHORT));
+	await InkTestHelpers.delay(100);
 
 	const output = lastFrame();
 	// Should render nothing when selectedIssue is null
@@ -196,7 +197,7 @@ test('should handle missing selectedDate gracefully', async t => {
 	);
 
 	// Wait for component to render
-	await new Promise(resolve => setTimeout(resolve, delays.SHORT));
+	await InkTestHelpers.delay(100);
 
 	const output = lastFrame();
 	// Should still render other information
@@ -220,7 +221,7 @@ test('should handle missing selectedTime gracefully', async t => {
 	);
 
 	// Wait for component to render
-	await new Promise(resolve => setTimeout(resolve, delays.SHORT));
+	await InkTestHelpers.delay(100);
 
 	const output = lastFrame();
 	// Should still render other information
@@ -247,7 +248,7 @@ test('should handle long comments correctly', async t => {
 	);
 
 	// Wait for component to render
-	await new Promise(resolve => setTimeout(resolve, delays.SHORT));
+	await InkTestHelpers.delay(100);
 
 	const output = lastFrame();
 	t.true(output?.includes('Comment: This is a very long comment') ?? false);
@@ -271,7 +272,7 @@ test('should handle special characters in comment', async t => {
 	);
 
 	// Wait for component to render
-	await new Promise(resolve => setTimeout(resolve, delays.SHORT));
+	await InkTestHelpers.delay(100);
 
 	const output = lastFrame();
 	t.true(output?.includes('Comment: Fixed bug with special chars') ?? false);

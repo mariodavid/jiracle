@@ -7,6 +7,7 @@ import {
 	type ActiveArea,
 	type UseNavigationStateReturn,
 } from '../../hooks/useNavigationState.js';
+import {InkTestHelpers} from '../utils/ink-test-helpers.js';
 
 // Test component that uses the navigation hook and reports state changes
 function TestNavigationComponent({
@@ -99,7 +100,7 @@ test('navigateToPreviousWeek moves week back by 7 days and returns to timetable'
 	capturedState!.navigateToPreviousWeek();
 
 	// Wait for state update
-	await new Promise(resolve => setTimeout(resolve, 100));
+	await InkTestHelpers.delay(100);
 	rerender(
 		React.createElement(TestNavigationComponent, {
 			options: {
@@ -139,7 +140,7 @@ test('navigateToNextWeek moves week forward by 7 days and returns to timetable',
 	capturedState!.navigateToNextWeek();
 
 	// Wait for state update
-	await new Promise(resolve => setTimeout(resolve, 100));
+	await InkTestHelpers.delay(100);
 	rerender(
 		React.createElement(TestNavigationComponent, {
 			options: {
@@ -179,7 +180,7 @@ test('navigateToCurrentWeek sets week to current date and returns to timetable',
 	capturedState!.navigateToCurrentWeek();
 
 	// Wait for state update
-	await new Promise(resolve => setTimeout(resolve, 100));
+	await InkTestHelpers.delay(100);
 	rerender(
 		React.createElement(TestNavigationComponent, {
 			options: {
@@ -219,7 +220,7 @@ test('setActiveArea changes active area', async (t: any) => {
 	capturedState!.setActiveArea('worklog-form');
 
 	// Wait for state update
-	await new Promise(resolve => setTimeout(resolve, 100));
+	await InkTestHelpers.delay(100);
 	rerender(
 		React.createElement(TestNavigationComponent, {
 			onStateChange(state: UseNavigationStateReturn) {
@@ -249,7 +250,7 @@ test('returnToTimetable sets active area to timetable', async (t: any) => {
 	capturedState!.returnToTimetable();
 
 	// Wait for state update
-	await new Promise(resolve => setTimeout(resolve, 100));
+	await InkTestHelpers.delay(100);
 	rerender(
 		React.createElement(TestNavigationComponent, {
 			options: {
@@ -290,7 +291,7 @@ test('all active area values work correctly', async (t: any) => {
 		capturedState!.setActiveArea(area);
 
 		// Wait for state update
-		await new Promise(resolve => setTimeout(resolve, 50));
+		await InkTestHelpers.delay(50);
 		rerender(
 			React.createElement(TestNavigationComponent, {
 				onStateChange(state: UseNavigationStateReturn) {
@@ -320,7 +321,7 @@ test('week navigation preserves week calculations correctly', async (t: any) => 
 
 	// Navigate through multiple weeks
 	capturedState!.navigateToNextWeek();
-	await new Promise(resolve => setTimeout(resolve, 50));
+	await InkTestHelpers.delay(50);
 	rerender(
 		React.createElement(TestNavigationComponent, {
 			options: {
@@ -333,7 +334,7 @@ test('week navigation preserves week calculations correctly', async (t: any) => 
 	);
 
 	capturedState!.navigateToNextWeek();
-	await new Promise(resolve => setTimeout(resolve, 50));
+	await InkTestHelpers.delay(50);
 	rerender(
 		React.createElement(TestNavigationComponent, {
 			options: {
@@ -346,7 +347,7 @@ test('week navigation preserves week calculations correctly', async (t: any) => 
 	);
 
 	capturedState!.navigateToPreviousWeek();
-	await new Promise(resolve => setTimeout(resolve, 50));
+	await InkTestHelpers.delay(50);
 	rerender(
 		React.createElement(TestNavigationComponent, {
 			options: {

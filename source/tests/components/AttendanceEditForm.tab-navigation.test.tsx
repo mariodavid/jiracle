@@ -2,6 +2,7 @@ import test from 'ava';
 import React from 'react';
 import {render} from 'ink-testing-library';
 import {AttendanceEditForm} from '../../components/AttendanceEditForm.js';
+import {InkTestHelpers} from '../utils/ink-test-helpers.js';
 
 const mockProps = {
 	date: new Date('2025-07-11T00:00:00.000Z'),
@@ -141,17 +142,17 @@ test('AttendanceEditForm Escape cancels from any focus area', async t => {
 	);
 
 	// Allow component to fully initialize focus and input handling
-	await new Promise(resolve => setTimeout(resolve, 100));
+	await InkTestHelpers.delay(100);
 
 	// Verify tab works first
 	stdin.write('\t'); // checkIn -> checkOut
-	await new Promise(resolve => setTimeout(resolve, 50));
+	await InkTestHelpers.delay(50);
 	let output = lastFrame() || '';
 	t.true(output.includes('Ende:')); // Should be on checkOut field
 
 	// Now try escape
 	stdin.write('\x1B'); // Hex escape sequence
-	await new Promise(resolve => setTimeout(resolve, 100)); // Allow event processing
+	await InkTestHelpers.delay(100); // Allow event processing
 	t.true(cancelled);
 
 	// Reset and test from original position
@@ -159,9 +160,9 @@ test('AttendanceEditForm Escape cancels from any focus area', async t => {
 	const {stdin: stdin2} = render(
 		React.createElement(AttendanceEditForm, cancelProps),
 	);
-	await new Promise(resolve => setTimeout(resolve, 100));
+	await InkTestHelpers.delay(100);
 	stdin2.write('\x1B'); // Escape from checkIn field
-	await new Promise(resolve => setTimeout(resolve, 100));
+	await InkTestHelpers.delay(100);
 	t.true(cancelled);
 });
 
@@ -177,22 +178,22 @@ test('AttendanceEditForm Enter submits from submit button', async t => {
 	const {stdin} = render(React.createElement(AttendanceEditForm, submitProps));
 
 	// Allow component to fully initialize focus and input handling
-	await new Promise(resolve => setTimeout(resolve, 100));
+	await InkTestHelpers.delay(100);
 
 	// Navigate to submit button using Tab (checkIn -> checkOut -> break -> submit)
 	stdin.write('\t'); // checkIn -> checkOut
-	await new Promise(resolve => setTimeout(resolve, 50));
+	await InkTestHelpers.delay(50);
 	stdin.write('\t'); // checkOut -> break
-	await new Promise(resolve => setTimeout(resolve, 50));
+	await InkTestHelpers.delay(50);
 	stdin.write('\t'); // break -> submit
-	await new Promise(resolve => setTimeout(resolve, 50));
+	await InkTestHelpers.delay(50);
 
 	// Verify we haven't submitted yet
 	t.false(submitted, 'Should not submit before Enter key');
 
 	// Now press Enter to submit
 	stdin.write('\r');
-	await new Promise(resolve => setTimeout(resolve, 100));
+	await InkTestHelpers.delay(100);
 
 	// Now we should have submitted
 	t.true(submitted, 'Enter on submit button should trigger submit');

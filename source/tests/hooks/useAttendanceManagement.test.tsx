@@ -8,6 +8,7 @@ import {
 } from '../../hooks/useAttendanceManagement.js';
 import type {JiraConfig} from '../../jira-client.js';
 import type {Attendance} from '../../attendance/types.js';
+import {InkTestHelpers} from '../utils/ink-test-helpers.js';
 
 // Mock the AttendanceManager
 const mockConfig: JiraConfig = {
@@ -91,7 +92,7 @@ test('useAttendanceManagement returns initial state with enabled attendance', as
 	);
 
 	// Wait for manager to be initialized
-	await new Promise(resolve => setTimeout(resolve, 100));
+	await InkTestHelpers.delay(100);
 	rerender(
 		React.createElement(TestAttendanceManagementComponent, {
 			options: mockOptions,
@@ -153,7 +154,7 @@ test('useAttendanceManagement handleAttendanceEdit sets edit state', async t => 
 	);
 
 	// Wait for manager to be initialized
-	await new Promise(resolve => setTimeout(resolve, 100));
+	await InkTestHelpers.delay(100);
 	rerender(
 		React.createElement(TestAttendanceManagementComponent, {
 			options: mockOptions,
@@ -256,7 +257,7 @@ test('useAttendanceManagement handleAttendanceSubmit saves data and refreshes', 
 	);
 
 	// Wait for manager to be initialized
-	await new Promise(resolve => setTimeout(resolve, 100));
+	await InkTestHelpers.delay(100);
 	rerender(
 		React.createElement(TestAttendanceManagementComponent, {
 			options: mockOptions,
@@ -359,7 +360,7 @@ test('useAttendanceManagement handleCheckinConfirm performs check-in', async t =
 	);
 
 	// Wait for manager to be initialized and mock its methods
-	await new Promise(resolve => setTimeout(resolve, 100));
+	await InkTestHelpers.delay(100);
 	rerender(
 		React.createElement(TestAttendanceManagementComponent, {
 			options: mockOptions,
@@ -450,7 +451,7 @@ test('useAttendanceManagement handleCheckoutConfirm performs check-out', async t
 	);
 
 	// Wait for manager to be initialized and mock its methods
-	await new Promise(resolve => setTimeout(resolve, 100));
+	await InkTestHelpers.delay(100);
 	rerender(
 		React.createElement(TestAttendanceManagementComponent, {
 			options: mockOptions,
@@ -572,7 +573,7 @@ test('useAttendanceManagement displays state correctly in component', async t =>
 	);
 
 	// Wait for manager to be initialized
-	await new Promise(resolve => setTimeout(resolve, 100));
+	await InkTestHelpers.delay(100);
 	rerender(
 		React.createElement(TestAttendanceManagementComponent, {
 			options: mockOptions,

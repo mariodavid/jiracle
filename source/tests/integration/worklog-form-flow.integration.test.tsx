@@ -2,6 +2,7 @@ import test from 'ava';
 import React from 'react';
 import {render} from 'ink-testing-library';
 import {WeeklyTimetableView} from '../../components/WeeklyTimetableView.js';
+import {InkTestHelpers} from '../utils/ink-test-helpers.js';
 
 // Simple waitFor utility for integration tests
 const waitFor = async (
@@ -14,7 +15,7 @@ const waitFor = async (
 		if (condition()) {
 			return;
 		}
-		await new Promise(resolve => setTimeout(resolve, interval));
+		await InkTestHelpers.delay(interval);
 	}
 	throw new Error('Condition not met within timeout');
 };
@@ -140,7 +141,7 @@ test('Integration: API calls are made', async t => {
 	render(React.createElement(WeeklyTimetableView, props));
 
 	// Wait for API calls
-	await new Promise(resolve => setTimeout(resolve, 200));
+	await InkTestHelpers.delay(200);
 
 	// Should have made at least one API call for loading data
 	t.true(mockFetchCallCount >= 1);
@@ -202,7 +203,7 @@ test('Integration: Component accepts different configurations', async t => {
 	});
 
 	// Wait for potential API calls
-	await new Promise(resolve => setTimeout(resolve, 200));
+	await InkTestHelpers.delay(200);
 
 	// Verify component renders correctly with different config
 	const output = lastFrame()!;

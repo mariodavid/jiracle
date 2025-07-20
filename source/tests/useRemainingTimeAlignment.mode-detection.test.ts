@@ -3,6 +3,7 @@ import React, {useEffect} from 'react';
 import {Box, Text, render} from 'ink';
 import {useRemainingTimeAlignment} from '../hooks/useRemainingTimeAlignment.js';
 import {ConfigFactory, TestPatterns} from './utils/test-helpers.js';
+import {InkTestHelpers} from './utils/ink-test-helpers.js';
 import type {
 	UseRemainingTimeAlignmentReturn,
 	UseRemainingTimeAlignmentOptions,
@@ -153,7 +154,7 @@ test('useRemainingTimeAlignment - detects CREATE mode when all issues have zero 
 		);
 
 		// Allow async operations to complete
-		await new Promise(resolve => setTimeout(resolve, 100));
+		await InkTestHelpers.delay(100);
 		rerender(
 			React.createElement(TestHookComponent, {
 				testState,
@@ -285,7 +286,7 @@ test('useRemainingTimeAlignment - detects UPDATE mode when issues have actual ho
 		);
 
 		// Allow async operations to complete
-		await new Promise(resolve => setTimeout(resolve, 100));
+		await InkTestHelpers.delay(100);
 		rerender(
 			React.createElement(TestHookComponent, {
 				testState,
@@ -376,7 +377,7 @@ test('useRemainingTimeAlignment - handles mixed scenario correctly', async t => 
 		);
 
 		// Allow async operations to complete
-		await new Promise(resolve => setTimeout(resolve, 100));
+		await InkTestHelpers.delay(100);
 		rerender(
 			React.createElement(TestHookComponent, {
 				testState,
