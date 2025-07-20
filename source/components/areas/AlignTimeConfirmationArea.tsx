@@ -1,7 +1,10 @@
 import React from 'react';
 import {ConfirmationDialog} from '../ConfirmationDialog.js';
 import {AlignTimeConfirmation} from '../AlignTimeConfirmation.js';
-import type {AlignmentResult} from '../../services/RemainingTimeAlignment.js';
+import type {
+	AlignmentResult,
+	CreateWorklogsResult,
+} from '../../services/RemainingTimeAlignment.js';
 
 export interface AlignTimeConfirmationAreaProps {
 	dayLabel: string;
@@ -9,7 +12,9 @@ export interface AlignTimeConfirmationAreaProps {
 	currentLoggedHours: number;
 	remainingHours: number;
 	strategy: 'even' | 'proportional';
-	previewResult: AlignmentResult;
+	mode: 'update' | 'create';
+	previewResult?: AlignmentResult;
+	createResult?: CreateWorklogsResult;
 	isAligning: boolean;
 	onConfirm: (confirmed: boolean) => void;
 }
@@ -20,16 +25,21 @@ export function AlignTimeConfirmationArea({
 	currentLoggedHours,
 	remainingHours,
 	strategy,
+	mode,
 	previewResult,
+	createResult,
 	isAligning,
 	onConfirm,
 }: AlignTimeConfirmationAreaProps) {
+	const loadingText =
+		mode === 'create' ? 'Creating worklogs...' : 'Aligning time...';
+
 	return (
 		<ConfirmationDialog
 			width={80}
 			borderColor="cyan"
 			isLoading={isAligning}
-			loadingText="Aligning time..."
+			loadingText={loadingText}
 		>
 			<AlignTimeConfirmation
 				dayLabel={dayLabel}
@@ -37,7 +47,9 @@ export function AlignTimeConfirmationArea({
 				currentLoggedHours={currentLoggedHours}
 				remainingHours={remainingHours}
 				strategy={strategy}
+				mode={mode}
 				previewResult={previewResult}
+				createResult={createResult}
 				onConfirm={onConfirm}
 			/>
 		</ConfirmationDialog>

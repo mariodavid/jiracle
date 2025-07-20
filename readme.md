@@ -176,7 +176,14 @@ Create a configuration file at `~/.config/jiracle.json`:
 
 ### Time Alignment
 
-When you have attendance tracking enabled, Jiracle can automatically distribute the remaining time between your attendance hours and logged work across your existing worklogs. This helps ensure your logged time matches your actual working hours without manual calculation.
+When you have attendance tracking enabled, Jiracle can automatically distribute time across your worklogs in two different modes:
+
+1. **Update existing worklogs** - Distribute remaining time across worklogs you've already created
+2. **Auto-fill with default stories** - Create new worklogs from configured default stories when only attendance data exists
+
+#### Mode 1: Update Existing Worklogs
+
+When you already have worklogs for a day, Jiracle can distribute the remaining time between your attendance hours and logged work across your existing worklogs.
 
 **How it works:**
 
@@ -186,11 +193,31 @@ When you have attendance tracking enabled, Jiracle can automatically distribute 
 4. The remaining time is distributed across **only existing worklogs** for that day
 5. No new worklogs are created - only existing ones are updated
 
+#### Mode 2: Auto-Fill with Default Stories
+
+When you have attendance data but no existing worklogs (or only zero-hour entries), Jiracle can automatically create worklogs using predefined default stories with percentage-based distribution.
+
+**How it works:**
+
+1. Configure default stories in your configuration (see below)
+2. Navigate to any cell for a day with attendance but no logged worklogs
+3. Press `F` to trigger auto-fill for that day
+4. Jiracle creates new worklogs based on your default stories and attendance hours
+5. Each story gets time allocated according to its percentage of your total attendance
+
 **Configuration:**
 
 ```json
 {
-	"alignRemainingStrategy": "even"
+	"alignRemainingStrategy": "even",
+	"fill": {
+		"alignRemainingStrategy": "proportional",
+		"defaultStories": [
+			{"issueKey": "PROJ-123", "percentage": 60},
+			{"issueKey": "PROJ-456", "percentage": 30},
+			{"issueKey": "ADMIN-001", "percentage": 10}
+		]
+	}
 }
 ```
 
@@ -201,7 +228,19 @@ When you have attendance tracking enabled, Jiracle can automatically distribute 
 | `"even"`         | Distributes remaining time equally across all existing worklogs   |
 | `"proportional"` | Distributes remaining time proportionally based on existing hours |
 
-**Example scenario:**
+**Auto-Fill Example:**
+
+- **Attendance**: 8.5 hours (08:00-17:00 with 30min break)
+- **No existing worklogs** (or only zero-hour entries)
+- **Default stories**: PROJ-123 (60%), PROJ-456 (30%), ADMIN-001 (10%)
+
+**Result:**
+
+- PROJ-123: 5.1h (60% of 8.5h)
+- PROJ-456: 2.55h (30% of 8.5h)
+- ADMIN-001: 0.85h (10% of 8.5h)
+
+**Update Existing Example:**
 
 - **Attendance**: 8.5 hours (08:00-17:00 with 30min break)
 - **Current worklogs**: PROJ-123 (2h), PROJ-456 (1h) = 3h total
@@ -218,20 +257,37 @@ When you have attendance tracking enabled, Jiracle can automatically distribute 
 - PROJ-123 gets 2/3 of remaining: 2h → 5.67h (+3.67h)
 - PROJ-456 gets 1/3 of remaining: 1h → 2.83h (+1.83h)
 
-**Key features:**
+**Configuration Options:**
 
-- **Existing worklogs only**: Never creates new worklogs, only updates existing ones
+| Option                        | Level | Description                                          |
+| ----------------------------- | ----- | ---------------------------------------------------- |
+| `alignRemainingStrategy`      | Root  | Strategy for updating existing worklogs (fallback)   |
+| `fill.alignRemainingStrategy` | Fill  | Strategy for updating existing worklogs (priority)   |
+| `fill.defaultStories`         | Fill  | Array of default issues with percentage distribution |
+
+**Default Stories Configuration:**
+
+- **Percentages must sum to 100%** - Configuration validation ensures proper distribution
+- **Comments auto-resolved** - Uses existing comment hierarchy (favorites > projects > global > fallback)
+- **Flexible percentages** - Support for decimal percentages (e.g., 33.33%, 33.33%, 33.34%)
+
+**Key Features:**
+
+- **Smart mode detection**: Automatically chooses between update and auto-fill based on existing worklogs
 - **Day-specific**: Only affects the day of the focused column
-- **Smart filtering**: Ignores issues with 0 hours logged
-- **User feedback**: Shows notification with distribution summary
+- **Backward compatible**: Works with existing `alignRemainingStrategy` configuration
+- **Comment inheritance**: Auto-fill uses your configured comment hierarchy
+- **Configuration validation**: Validates percentages and prevents duplicate issue keys
+- **User feedback**: Shows different confirmations for update vs. auto-fill modes
 - **Debug logging**: Detailed calculation logs for troubleshooting
 
-**Usage tips:**
+**Usage Tips:**
 
-- Log rough time estimates first, then use alignment to match attendance
-- Works great for end-of-day time reconciliation
-- Use "proportional" when you want to maintain relative time ratios
-- Use "even" for equal distribution regardless of current amounts
+- **For regular work patterns**: Configure default stories for typical daily work distribution
+- **For existing worklogs**: Log rough time estimates first, then use alignment to match attendance
+- **End-of-day reconciliation**: Use auto-fill when you only tracked attendance during the day
+- **Mixed approach**: Use auto-fill for planned work, then manually add specific worklogs as needed
+- **Strategy selection**: Use "proportional" to maintain relative time ratios, "even" for equal distribution
 
 ### Sliding Window
 
