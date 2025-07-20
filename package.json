@@ -78,7 +78,6 @@
 				}
 			],
 			"@typescript-eslint/restrict-template-expressions": "off",
-			"@typescript-eslint/prefer-string-starts-ends-with": "off",
 			"@typescript-eslint/prefer-includes": "off",
 			"object-shorthand": "off",
 			"@typescript-eslint/no-empty-function": "off",
