@@ -14,7 +14,7 @@
 		"start": "npm run build && node dist/cli.js",
 		"test": "npm run build && prettier --check . && ava",
 		"lint": "xo",
-		"lint:fix": "xo --fix", 
+		"lint:fix": "xo --fix",
 		"quality:check": "npm run lint",
 		"release": "release-it"
 	},
@@ -63,9 +63,19 @@
 	},
 	"xo": {
 		"prettier": true,
-		"ignores": ["assets/**", "dist/**"],
+		"ignores": [
+			"assets/**",
+			"dist/**"
+		],
 		"rules": {
-			"max-lines": ["error", {"max": 700, "skipComments": true, "skipBlankLines": true}],
+			"max-lines": [
+				"error",
+				{
+					"max": 700,
+					"skipComments": true,
+					"skipBlankLines": true
+				}
+			],
 			"react/prop-types": "off",
 			"unicorn/expiring-todo-comments": "off",
 			"unicorn/filename-case": "off",
