@@ -56,7 +56,7 @@ function validateDate(date: string): void {
 }
 
 function validateTime(time: string): void {
-	if (!/^([01][0-9]|2[0-3]):[0-5][0-9]$/.test(time)) {
+	if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(time)) {
 		throw new Error('Time must be in HH:MM format (e.g., 08:30, 17:00)');
 	}
 }

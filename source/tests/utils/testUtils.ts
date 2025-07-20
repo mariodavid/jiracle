@@ -169,6 +169,7 @@ export function createMockFetch(responses: Record<string, any> = {}) {
 				return {
 					ok: true,
 					status: 200,
+					// eslint-disable-next-line @typescript-eslint/no-unsafe-return
 					json: async () => response,
 				} as Response;
 			}

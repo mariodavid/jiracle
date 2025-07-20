@@ -317,7 +317,10 @@ export function TimetableGrid({
 									</Text>
 								</Box>
 								{weekDates.map((_, index) => (
-									<Box key={`header-${group.group?.id}-${index}`} width={12}>
+									<Box
+										key={`header-${String(group.group?.id || 'null')}-${index}`}
+										width={12}
+									>
 										<Text> </Text>
 									</Box>
 								))}
@@ -334,7 +337,12 @@ export function TimetableGrid({
 									<Text color="yellow">{'─'.repeat(20)}</Text>
 								</Box>
 								{weekDates.map((_, index) => (
-									<Box key={`underline-${group.group?.id}-${index}`} width={12}>
+									<Box
+										key={`underline-${String(
+											group.group?.id || 'null',
+										)}-${index}`}
+										width={12}
+									>
 										<Text color="yellow">{'─'.repeat(12)}</Text>
 									</Box>
 								))}
@@ -417,7 +425,10 @@ export function TimetableGrid({
 									<Text color="gray">{'─'.repeat(20)}</Text>
 								</Box>
 								{weekDates.map((_, index) => (
-									<Box key={`sep-${group.group?.id}-${index}`} width={12}>
+									<Box
+										key={`sep-${String(group.group?.id || 'null')}-${index}`}
+										width={12}
+									>
 										<Text color="gray">{'─'.repeat(12)}</Text>
 									</Box>
 								))}
