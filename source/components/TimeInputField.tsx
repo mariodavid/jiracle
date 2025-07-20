@@ -125,10 +125,10 @@ export default function TimeInputField({
 			}
 		} else if (/^\d{1,2}:$/.test(normalizedValue)) {
 			// Hours with colon, add 00
-			normalizedValue = normalizedValue + '00';
+			normalizedValue += '00';
 		} else if (/^\d{1,2}:\d{1}$/.test(normalizedValue)) {
 			// Hours with single minute digit, pad
-			normalizedValue = normalizedValue + '0';
+			normalizedValue += '0';
 		} else if (/^\d{1}:\d{2}$/.test(normalizedValue)) {
 			// Single hour digit with minutes (8:30), pad hour
 			const match = normalizedValue.match(/^(\d{1}):(\d{2})$/);
