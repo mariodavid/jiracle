@@ -1,6 +1,6 @@
 import test from 'ava';
 import React from 'react';
-import {Box} from 'ink';
+import {Box, Text} from 'ink';
 import {render} from 'ink-testing-library';
 import {
 	useKeyboardInput,
@@ -16,7 +16,11 @@ function TestKeyboardInputComponent({
 	options: KeyboardInputOptions;
 }) {
 	useKeyboardInput(options);
-	return <Box>Test Component</Box>;
+	return (
+		<Box>
+			<Text>Test Component</Text>
+		</Box>
+	);
 }
 
 test('useKeyboardInput: hook can be instantiated', t => {

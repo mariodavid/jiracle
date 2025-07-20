@@ -52,3 +52,8 @@ export function useNotification(): UseNotificationReturn {
 		clearNotifications,
 	};
 }
+
+// Test helper function to reset the counter between tests
+export function resetNotificationCounter() {
+	notificationIdCounter = 0;
+}

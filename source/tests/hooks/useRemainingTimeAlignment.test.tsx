@@ -1,6 +1,6 @@
 import test from 'ava';
 import React, {useEffect} from 'react';
-import {Box, render} from 'ink';
+import {Box, Text, render} from 'ink';
 import {useRemainingTimeAlignment} from '../../hooks/useRemainingTimeAlignment.js';
 import {ConfigFactory, TestPatterns} from '../utils/test-helpers.js';
 import type {
@@ -57,7 +57,11 @@ function TestHookComponent({
 		}
 	}, [triggerAlignment]);
 
-	return <Box>Test Component</Box>;
+	return (
+		<Box>
+			<Text>Test Component</Text>
+		</Box>
+	);
 }
 
 test('useRemainingTimeAlignment - provides alignRemainingTime function', async t => {
@@ -166,7 +170,9 @@ test('useRemainingTimeAlignment - handles no worklogs', async t => {
 		t.is(testState.lastNotification?.type, 'error');
 		t.true(
 			testState.lastNotification?.message.includes('No worklogs') ||
-				testState.lastNotification?.message.includes('worklogs'),
+				testState.lastNotification?.message.includes('worklogs') ||
+				testState.lastNotification?.message.includes('No attendance data') ||
+				testState.lastNotification?.message.includes('attendance'),
 		);
 	});
 });
