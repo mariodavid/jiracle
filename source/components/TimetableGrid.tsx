@@ -1,5 +1,5 @@
-import React, {useEffect, useState, useCallback} from 'react';
-import {Box, Text, useFocusManager, useInput} from 'ink';
+import React, {useEffect, useState} from 'react';
+import {Box, Text, useFocusManager} from 'ink';
 import {Spinner} from '@inkjs/ui';
 import figures from 'figures';
 import {WeeklyWorklogSummary} from '../domain/WeeklyWorklogSummary.js';
@@ -17,6 +17,9 @@ import {
 	truncateText,
 } from '../utils/TimetableCalculations.js';
 import {AttendanceCalculations} from '../attendance/AttendanceCalculations.js';
+import {FocusableItemCalculator} from '../utils/FocusableItemCalculator.js';
+import {GridNavigationService} from '../services/GridNavigationService.js';
+import {useTableNavigation} from '../hooks/useTableNavigation.js';
 
 export interface TimetableGridProps {
 	data: WeeklyWorklogSummary | null;
@@ -56,13 +59,6 @@ export function TimetableGrid({
 	// Fixed minimum height container for all states
 	const MIN_HEIGHT = 25;
 
-	// Track focused cell for row/column highlighting and Enter handling
-	const [focusedCell, setFocusedCell] = useState<{
-		issueKey: string;
-		columnIndex: number;
-		isAttendance?: boolean;
-	} | null>(null);
-
 	// Attendance data state
 	const [weeklyAttendance, setWeeklyAttendance] = useState<WeeklyAttendance>(
 		{},
@@ -84,17 +80,6 @@ export function TimetableGrid({
 
 		loadAttendanceData();
 	}, [attendanceManager, data, attendanceRefreshKey]);
-
-	const handleFocusChange = useCallback(
-		(issueKey: string, columnIndex: number, isFocused: boolean) => {
-			if (isFocused) {
-				const isAttendance = issueKey.startsWith('attendance-');
-				setFocusedCell({issueKey, columnIndex, isAttendance});
-			}
-			// Don't clear on blur - only update when we get a new focus
-		},
-		[],
-	);
 
 	// CALL ALL HOOKS FIRST (before any conditional returns)
 	const {focus} = useFocusManager();
@@ -123,8 +108,21 @@ export function TimetableGrid({
 	);
 
 	// Group issues by their resolved groups using the extracted service
-
 	const issueGroups = useIssueGroups(Object.entries(issueMap), config || null);
+
+	// Unified table navigation (focus management + keyboard input)
+	const {focusedCell, handleFocusChange} = useTableNavigation({
+		isActive,
+		weekDates,
+		attendanceManager,
+		issueGroups,
+		onWeekChange,
+		onCellWorklog,
+		onCellDelete,
+		onAttendanceEdit,
+		onAttendanceDelete,
+		onOpenInBrowser,
+	});
 
 	// Helper function to check if an issue is a favorite
 	const isFavoriteIssue = (issueKey: string): boolean => {
@@ -162,323 +160,32 @@ export function TimetableGrid({
 
 	const tableWidth = 2 + 20 + 5 * 12 + 8; // Group + Issue + 5 weekdays (wider) + Total = 90
 
-	// Create a flat list of all focusable cells for arrow key navigation
-	const getAllFocusableItems = useCallback(() => {
-		const items: Array<{
-			focusId: string;
-			issueKey: string;
-			columnIndex: number;
-			isAttendance: boolean;
-		}> = [];
-
-		// Add attendance cells first (they appear at the top)
-		if (attendanceManager) {
-			for (let columnIndex = 0; columnIndex < 5; columnIndex++) {
-				items.push({
-					focusId: `attendance-attendance-${columnIndex}`,
-					issueKey: 'attendance-attendance',
-					columnIndex,
-					isAttendance: true,
-				});
-				// Note: attendance-hours row is not focusable, so we don't add it here
-			}
-		}
-
-		// Add issue cells after attendance rows
-		for (const group of issueGroups) {
-			for (const [issueKey] of group.issues) {
-				for (let columnIndex = 0; columnIndex < 5; columnIndex++) {
-					items.push({
-						focusId: `issue-${issueKey}-${columnIndex}`,
-						issueKey,
-						columnIndex,
-						isAttendance: false,
-					});
-				}
-			}
-		}
-
-		// Note: attendance-hours row is not focusable, so we don't add it here
-
-		return items;
-	}, [attendanceManager, issueGroups]);
-
 	// Set initial focus to first row and current day when component loads
 	useEffect(() => {
 		if (focusedCell === null && isActive) {
-			const focusableItems = getAllFocusableItems();
-			if (focusableItems.length > 0) {
-				// Find current day column index (0=Monday, 1=Tuesday, ..., 4=Friday)
-				const today = new Date();
-				const todayDayOfWeek = today.getDay(); // 0=Sunday, 1=Monday, ..., 6=Saturday
+			const focusableItems = FocusableItemCalculator.calculateFocusableItems({
+				attendanceManager,
+				issueGroups,
+			});
 
-				// Convert to our week format (0=Monday, 1=Tuesday, ..., 4=Friday)
-				// Monday=1->0, Tuesday=2->1, Wednesday=3->2, Thursday=4->3, Friday=5->4
-				// For weekend days (Saturday=6, Sunday=0), default to Monday (0)
-				let todayColumnIndex = 0; // Default to Monday
-				if (todayDayOfWeek >= 1 && todayDayOfWeek <= 5) {
-					todayColumnIndex = todayDayOfWeek - 1; // Convert to 0-based weekday index
-				}
+			// Calculate preferred column index (today's weekday)
+			const today = new Date();
+			const todayDayOfWeek = today.getDay(); // 0=Sunday, 1=Monday, ..., 6=Saturday
+			const todayColumnIndex =
+				todayDayOfWeek >= 1 && todayDayOfWeek <= 5
+					? todayDayOfWeek - 1 // Monday=0, Tuesday=1, ..., Friday=4
+					: 0; // Default to Monday for weekends
 
-				// Find the first item for today's column
-				const todayFirstItem = focusableItems.find(
-					item => item.columnIndex === todayColumnIndex,
-				);
-
-				if (todayFirstItem) {
-					focus(todayFirstItem.focusId);
-				} else {
-					// Fallback to first item if today's column is not found
-					const firstItem = focusableItems[0];
-					if (firstItem) {
-						focus(firstItem.focusId);
-					}
-				}
-			}
-		}
-	}, [focusedCell, isActive, getAllFocusableItems, focus]);
-
-	// Handle arrow key navigation
-	const handleArrowNavigation = useCallback(
-		(direction: 'up' | 'down' | 'left' | 'right') => {
-			if (!focusedCell) return;
-
-			const focusableItems = getAllFocusableItems();
-			const currentIndex = focusableItems.findIndex(
-				item =>
-					item.issueKey === focusedCell.issueKey &&
-					item.columnIndex === focusedCell.columnIndex,
+			const initialItem = GridNavigationService.findInitialFocusItem(
+				focusableItems,
+				todayColumnIndex,
 			);
 
-			if (currentIndex === -1) return;
-
-			let newIndex: number;
-
-			switch (direction) {
-				case 'up': {
-					// Move to previous row (same column) with wraparound
-					const currentColumnIndex = focusedCell.columnIndex;
-					const sameDayItems = focusableItems.filter(
-						item => item.columnIndex === currentColumnIndex,
-					);
-					const currentRowIndex = sameDayItems.findIndex(
-						item => item.issueKey === focusedCell.issueKey,
-					);
-
-					// Wrap to bottom if at top, otherwise go up
-					const targetRowIndex =
-						currentRowIndex > 0 ? currentRowIndex - 1 : sameDayItems.length - 1; // Wrap to bottom row
-
-					const targetItem = sameDayItems[targetRowIndex];
-					if (targetItem) {
-						newIndex = focusableItems.findIndex(
-							item =>
-								item.issueKey === targetItem.issueKey &&
-								item.columnIndex === targetItem.columnIndex,
-						);
-					} else {
-						return;
-					}
-					break;
-				}
-				case 'down': {
-					// Move to next row (same column) with wraparound
-					const currentColumnIndex = focusedCell.columnIndex;
-					const sameDayItems = focusableItems.filter(
-						item => item.columnIndex === currentColumnIndex,
-					);
-					const currentRowIndex = sameDayItems.findIndex(
-						item => item.issueKey === focusedCell.issueKey,
-					);
-
-					// Wrap to top if at bottom, otherwise go down
-					const targetRowIndex =
-						currentRowIndex < sameDayItems.length - 1 ? currentRowIndex + 1 : 0; // Wrap to top row
-
-					const targetItem = sameDayItems[targetRowIndex];
-					if (targetItem) {
-						newIndex = focusableItems.findIndex(
-							item =>
-								item.issueKey === targetItem.issueKey &&
-								item.columnIndex === targetItem.columnIndex,
-						);
-					} else {
-						return;
-					}
-					break;
-				}
-				case 'left': {
-					// Move to previous column (same row) with wraparound
-					const targetColumnIndex =
-						focusedCell.columnIndex > 0 ? focusedCell.columnIndex - 1 : 4; // Wrap to rightmost column
-
-					newIndex = focusableItems.findIndex(
-						item =>
-							item.issueKey === focusedCell.issueKey &&
-							item.columnIndex === targetColumnIndex,
-					);
-					break;
-				}
-				case 'right': {
-					// Move to next column (same row) with wraparound
-					const targetColumnIndex =
-						focusedCell.columnIndex < 4 ? focusedCell.columnIndex + 1 : 0; // Wrap to leftmost column
-
-					newIndex = focusableItems.findIndex(
-						item =>
-							item.issueKey === focusedCell.issueKey &&
-							item.columnIndex === targetColumnIndex,
-					);
-					break;
-				}
+			if (initialItem) {
+				focus(initialItem.focusId);
 			}
-
-			if (newIndex >= 0 && newIndex < focusableItems.length) {
-				const targetItem = focusableItems[newIndex];
-				if (targetItem) {
-					focus(targetItem.focusId);
-				}
-			}
-		},
-		[focusedCell, getAllFocusableItems, focus],
-	);
-
-	// Handle reverse tab navigation (Shift+Tab)
-	const handleReverseTabNavigation = useCallback(() => {
-		if (!focusedCell) return;
-
-		const focusableItems = getAllFocusableItems();
-		const currentIndex = focusableItems.findIndex(
-			item =>
-				item.issueKey === focusedCell.issueKey &&
-				item.columnIndex === focusedCell.columnIndex,
-		);
-
-		if (currentIndex === -1) return;
-
-		// Move to previous item with wraparound
-		const newIndex =
-			currentIndex > 0 ? currentIndex - 1 : focusableItems.length - 1;
-		const targetItem = focusableItems[newIndex];
-		if (targetItem) {
-			focus(targetItem.focusId);
 		}
-	}, [focusedCell, getAllFocusableItems, focus]);
-
-	// Enhanced input handling with arrow key support
-	useInput((_input, key) => {
-		// Only handle input when table is active
-		if (!isActive) {
-			return;
-		}
-
-		// Arrow key navigation (without shift)
-		if (!key.shift && key.upArrow) {
-			handleArrowNavigation('up');
-			return;
-		}
-
-		if (!key.shift && key.downArrow) {
-			handleArrowNavigation('down');
-			return;
-		}
-
-		if (!key.shift && key.leftArrow) {
-			handleArrowNavigation('left');
-			return;
-		}
-
-		if (!key.shift && key.rightArrow) {
-			handleArrowNavigation('right');
-			return;
-		}
-
-		// Week navigation with Shift+Arrow
-		if (key.shift && key.leftArrow && onWeekChange) {
-			onWeekChange('prev');
-			return;
-		}
-
-		if (key.shift && key.rightArrow && onWeekChange) {
-			onWeekChange('next');
-			return;
-		}
-
-		// Shift+Tab for reverse tab navigation
-		if (key.shift && key.tab) {
-			handleReverseTabNavigation();
-			return;
-		}
-
-		// Handle Enter for worklog editing (only for issue cells, not attendance)
-		if (
-			key.return &&
-			onCellWorklog &&
-			focusedCell &&
-			!focusedCell.isAttendance
-		) {
-			const date = weekDates[focusedCell.columnIndex];
-			if (date) {
-				onCellWorklog({issueKey: focusedCell.issueKey, date});
-			}
-			return;
-		}
-
-		// Handle Enter for attendance editing
-		if (
-			key.return &&
-			onAttendanceEdit &&
-			focusedCell &&
-			focusedCell.isAttendance
-		) {
-			const date = weekDates[focusedCell.columnIndex];
-			if (date) {
-				onAttendanceEdit({date});
-			}
-			return;
-		}
-
-		// Handle 'd' for delete
-		if ((_input === 'd' || _input === 'D') && focusedCell) {
-			const date = weekDates[focusedCell.columnIndex];
-			if (date) {
-				if (focusedCell.isAttendance && onAttendanceDelete) {
-					// Delete attendance record
-					onAttendanceDelete({date});
-				} else if (!focusedCell.isAttendance && onCellDelete) {
-					// Delete worklog
-					onCellDelete({issueKey: focusedCell.issueKey, date});
-				}
-			}
-			return;
-		}
-
-		// Handle 'O' for opening focused issue in browser
-		if (
-			(_input === 'o' || _input === 'O') &&
-			onOpenInBrowser &&
-			focusedCell &&
-			!focusedCell.isAttendance
-		) {
-			onOpenInBrowser(focusedCell.issueKey);
-			return;
-		}
-
-		// Handle 'F' for aligning remaining time
-		if (
-			(_input === 'f' || _input === 'F') &&
-			onAlignRemainingTime &&
-			focusedCell
-		) {
-			const date = weekDates[focusedCell.columnIndex];
-			if (date) {
-				onAlignRemainingTime(date);
-			}
-			return;
-		}
-
-		// Note: Tab key is still handled by Ink's default focus system
-	});
+	}, [focusedCell, isActive, attendanceManager, issueGroups, focus]);
 
 	// CONDITIONAL RENDERING AFTER ALL HOOKS
 	if (isLoading) {
