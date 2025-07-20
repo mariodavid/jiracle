@@ -55,27 +55,27 @@ test('AttendanceEditForm handles Shift+Tab navigation backward', t => {
 	t.true(output.includes('Beginn:'));
 
 	// Shift+Tab should go to cancel (backward from checkIn)
-	stdin.write('\u001b[Z'); // Shift+Tab escape sequence
+	stdin.write('\u001B[Z'); // Shift+Tab escape sequence
 	output = lastFrame() || '';
 	t.true(output.includes('[Abbrechen]'));
 
 	// Shift+Tab should go to submit
-	stdin.write('\u001b[Z');
+	stdin.write('\u001B[Z');
 	output = lastFrame() || '';
 	t.true(output.includes('[Speichern]'));
 
 	// Shift+Tab should go to break
-	stdin.write('\u001b[Z');
+	stdin.write('\u001B[Z');
 	output = lastFrame() || '';
 	t.true(output.includes('Pause:'));
 
 	// Shift+Tab should go to checkOut
-	stdin.write('\u001b[Z');
+	stdin.write('\u001B[Z');
 	output = lastFrame() || '';
 	t.true(output.includes('Ende:'));
 
 	// Shift+Tab should go back to checkIn
-	stdin.write('\u001b[Z');
+	stdin.write('\u001B[Z');
 	output = lastFrame() || '';
 	t.true(output.includes('Beginn:'));
 });
@@ -96,7 +96,7 @@ test('AttendanceEditForm Tab and Shift+Tab navigation cycles correctly', t => {
 	t.true(output.includes('Pause:'));
 
 	// Shift+Tab backward to checkOut
-	stdin.write('\u001b[Z'); // break -> checkOut
+	stdin.write('\u001B[Z'); // break -> checkOut
 	output = lastFrame() || '';
 	t.true(output.includes('Ende:'));
 
@@ -111,7 +111,7 @@ test('AttendanceEditForm Tab and Shift+Tab navigation cycles correctly', t => {
 	t.true(output.includes('[Speichern]'));
 
 	// Shift+Tab backward to break
-	stdin.write('\u001b[Z'); // submit -> break
+	stdin.write('\u001B[Z'); // submit -> break
 	output = lastFrame() || '';
 	t.true(output.includes('Pause:'));
 });
