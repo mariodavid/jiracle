@@ -1,10 +1,10 @@
 import React from 'react';
 import {Confirmation} from './Confirmation.js';
 
-interface DeleteAttendanceConfirmationProps {
+type DeleteAttendanceConfirmationProps = {
 	dayLabel: string;
 	onConfirm: (confirmed: boolean) => void;
-}
+};
 
 export function DeleteAttendanceConfirmation({
 	dayLabel,

@@ -4,13 +4,13 @@ import type {IssueWorklogEntry} from '../domain/WeeklyWorklogSummary.js';
  * Utility functions for detecting editable worklogs
  */
 
-export interface WorklogDetectionResult {
+export type WorklogDetectionResult = {
 	hasWorklog: boolean;
 	isEditable: boolean;
 	worklogId?: string;
 	comment?: string;
 	timeSpent?: string;
-}
+};
 
 /**
  * Detects if a worklog exists for the given issue and determines if it's editable

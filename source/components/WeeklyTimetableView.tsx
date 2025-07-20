@@ -30,11 +30,11 @@ import {
 	generateJiraIssueUrl,
 } from '../utils/browser.js';
 
-export interface WeeklyTimetableViewProps {
+export type WeeklyTimetableViewProps = {
 	onBack: () => void;
 	config: JiraConfig;
 	userEmail?: string | null;
-}
+};
 
 export function WeeklyTimetableView({
 	onBack,

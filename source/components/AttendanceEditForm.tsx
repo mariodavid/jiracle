@@ -5,13 +5,13 @@ import DurationInput from './WorklogForm/DurationInput.js';
 import {Duration} from '../utils/Duration.js';
 import type {Attendance} from '../attendance/types.js';
 
-interface AttendanceEditFormProps {
+type AttendanceEditFormProps = {
 	date: Date;
 	initialData?: Attendance;
 	onSubmit: (data: Attendance) => void;
 	onCancel: () => void;
 	config?: any;
-}
+};
 
 export function AttendanceEditForm({
 	date,

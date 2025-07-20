@@ -1,10 +1,10 @@
 import React from 'react';
 import {Box, Text} from 'ink';
 
-interface TitleBarProps {
+type TitleBarProps = {
 	title: string;
 	color?: 'cyan' | 'red';
-}
+};
 
 export function TitleBar({title, color = 'cyan'}: TitleBarProps) {
 	return (

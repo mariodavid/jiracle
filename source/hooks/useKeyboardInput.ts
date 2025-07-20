@@ -1,7 +1,7 @@
 import {useInput} from 'ink';
 import type {FocusedCell} from './useFocusManagement.js';
 
-export interface KeyboardInputHandlers {
+export type KeyboardInputHandlers = {
 	handleArrowNavigation: (direction: 'up' | 'down' | 'left' | 'right') => void;
 	handleReverseTabNavigation: () => void;
 	onWeekChange?: (direction: 'prev' | 'next') => void;
@@ -10,14 +10,14 @@ export interface KeyboardInputHandlers {
 	onAttendanceEdit?: (data: {date: Date}) => void;
 	onAttendanceDelete?: (data: {date: Date}) => void;
 	onOpenInBrowser?: (issueKey: string) => void;
-}
+};
 
-export interface KeyboardInputOptions {
+export type KeyboardInputOptions = {
 	isActive: boolean;
 	focusedCell: FocusedCell | null;
 	weekDates: Date[];
 	handlers: KeyboardInputHandlers;
-}
+};
 
 export function useKeyboardInput({
 	isActive,

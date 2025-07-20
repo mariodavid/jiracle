@@ -1,12 +1,12 @@
 import {useState, useCallback} from 'react';
 
-export interface FocusedCell {
+export type FocusedCell = {
 	issueKey: string;
 	columnIndex: number;
 	isAttendance?: boolean;
-}
+};
 
-export interface UseFocusManagementResult {
+export type UseFocusManagementResult = {
 	focusedCell: FocusedCell | null;
 	handleFocusChange: (
 		issueKey: string,
@@ -16,7 +16,7 @@ export interface UseFocusManagementResult {
 	setFocusedCell: (cell: FocusedCell | null) => void;
 	clearFocus: () => void;
 	isCellFocused: (issueKey: string, columnIndex: number) => boolean;
-}
+};
 
 export function useFocusManagement(): UseFocusManagementResult {
 	const [focusedCell, setFocusedCell] = useState<FocusedCell | null>(null);

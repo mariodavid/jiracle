@@ -2,13 +2,13 @@ import React from 'react';
 import {Box, Text} from 'ink';
 import {getStartOfWeek, getEndOfWeek} from '../utils/date.js';
 
-export interface WeekNavigatorProps {
+export type WeekNavigatorProps = {
 	currentWeek: Date;
 	onPreviousWeek: () => void;
 	onNextWeek: () => void;
 	onCurrentWeek: () => void;
 	activeArea: 'prev-week' | 'timetable' | 'next-week';
-}
+};
 
 // Helper function to get week title - exported for use in TitleBar
 export function getWeekTitle(currentWeek: Date): string {

@@ -6,7 +6,7 @@ import type {JiraConfig} from '../jira-client.js';
 import {resolveDefaults} from '../jira-client.js';
 import {uiLogger} from '../utils/logger.js';
 
-interface InlineWorklogFormProps {
+type InlineWorklogFormProps = {
 	issueKey: string;
 	date: Date;
 	defaultTimeSpent?: string;
@@ -27,7 +27,7 @@ interface InlineWorklogFormProps {
 	// Edit mode props
 	isEditMode?: boolean;
 	worklogId?: string;
-}
+};
 
 type FocusArea = 'issueKey' | 'date' | 'time' | 'comment' | 'submit' | 'cancel';
 

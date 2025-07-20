@@ -21,7 +21,7 @@ import {FocusableItemCalculator} from '../utils/FocusableItemCalculator.js';
 import {GridNavigationService} from '../services/GridNavigationService.js';
 import {useTableNavigation} from '../hooks/useTableNavigation.js';
 
-export interface TimetableGridProps {
+export type TimetableGridProps = {
 	data: WeeklyWorklogSummary | null;
 	isLoading: boolean;
 	onWeekChange?: (direction: 'prev' | 'next') => void;
@@ -35,7 +35,7 @@ export interface TimetableGridProps {
 	config?: JiraConfig;
 	attendanceManager?: AttendanceManager;
 	attendanceRefreshKey?: number;
-}
+};
 
 const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
 
@@ -526,11 +526,11 @@ function generateWeekDates(weekStart: Date): Date[] {
 	return dates;
 }
 
-interface IssueData {
+type IssueData = {
 	summary: string;
 	dailyHours: Record<string, number>;
 	weekTotal: number;
-}
+};
 
 function buildIssueMap(data: WeeklyWorklogSummary): Record<string, IssueData> {
 	const issueMap: Record<string, IssueData> = {};

@@ -13,7 +13,7 @@ import {
 } from '../utils/worklog-detection.js';
 import {AttendanceManager} from '../attendance/AttendanceManager.js';
 
-export interface WorklogFormData {
+export type WorklogFormData = {
 	issueKey: string;
 	date: Date;
 	timeSpent: string;
@@ -23,17 +23,17 @@ export interface WorklogFormData {
 	// Edit mode fields
 	isEditMode?: boolean;
 	worklogId?: string;
-}
+};
 
-export interface UseWorklogFormOptions {
+export type UseWorklogFormOptions = {
 	config: JiraConfig;
 	userEmail?: string | null;
 	onRefresh: () => void;
 	onActiveAreaChange: (area: string) => void;
 	data?: any; // WeeklyWorklogSummary data for worklog detection
-}
+};
 
-export interface UseWorklogFormReturn {
+export type UseWorklogFormReturn = {
 	// State
 	worklogForm: WorklogFormData;
 	worklogSubmitting: boolean;
@@ -51,7 +51,7 @@ export interface UseWorklogFormReturn {
 	}) => Promise<void>;
 	handleWorklogCancel: () => void;
 	clearError: () => void;
-}
+};
 
 export function useWorklogForm(
 	options: UseWorklogFormOptions,

@@ -1,11 +1,11 @@
 import React from 'react';
 import {Confirmation} from './Confirmation.js';
 
-interface DeleteWorklogConfirmationProps {
+type DeleteWorklogConfirmationProps = {
 	issueKey: string;
 	dayLabel: string;
 	onConfirm: (confirmed: boolean) => void;
-}
+};
 
 export function DeleteWorklogConfirmation({
 	issueKey,

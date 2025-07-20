@@ -2,9 +2,9 @@ import React from 'react';
 import {Box, Text} from 'ink';
 import type {Notification} from '../hooks/useNotification.js';
 
-export interface NotificationBarProps {
+export type NotificationBarProps = {
 	notifications: Notification[];
-}
+};
 
 export function NotificationBar({notifications}: NotificationBarProps) {
 	if (notifications.length === 0) {

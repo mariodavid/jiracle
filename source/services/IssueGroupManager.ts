@@ -1,11 +1,11 @@
 import type {JiraConfig, Group} from '../jira-client.js';
 import {resolveDefaults} from '../jira-client.js';
 
-export interface IssueGroup {
+export type IssueGroup = {
 	group: Group | null;
 	issues: Array<[string, any]>;
 	totalHours: number;
-}
+};
 
 export class IssueGroupManager {
 	constructor(private config: JiraConfig | null) {}

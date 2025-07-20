@@ -5,12 +5,12 @@ import type {AttendanceEditState} from '../../hooks/useAttendanceManagement.js';
 import type {Attendance} from '../../attendance/types.js';
 import type {JiraConfig} from '../../jira-client.js';
 
-export interface AttendanceEditFormAreaProps {
+export type AttendanceEditFormAreaProps = {
 	attendanceEdit: AttendanceEditState;
 	config: JiraConfig;
 	onSubmit: (data: Attendance) => void;
 	onCancel: () => void;
-}
+};
 
 export function AttendanceEditFormArea({
 	attendanceEdit,

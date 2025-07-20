@@ -3,12 +3,12 @@ import {ConfirmationDialog} from '../ConfirmationDialog.js';
 import {DeleteAttendanceConfirmation} from '../DeleteAttendanceConfirmation.js';
 import type {DeleteAttendanceCandidate} from '../../hooks/useDeleteOperations.js';
 
-export interface DeleteAttendanceConfirmationAreaProps {
+export type DeleteAttendanceConfirmationAreaProps = {
 	deleteAttendanceCandidate: DeleteAttendanceCandidate;
 	isDeletingAttendance: boolean;
 	onConfirm: (confirmed: boolean) => void;
 	formatDate: (date: Date) => string;
-}
+};
 
 export function DeleteAttendanceConfirmationArea({
 	deleteAttendanceCandidate,

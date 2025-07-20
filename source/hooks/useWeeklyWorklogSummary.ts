@@ -8,12 +8,12 @@ import type {JiraConfig, FavoriteIssue} from '../jira-client.js';
 const weekDataCache = new Map<string, WeeklyWorklogSummary>();
 const loadingCache = new Set<string>();
 
-export interface UseWeeklyWorklogSummaryResult {
+export type UseWeeklyWorklogSummaryResult = {
 	data: WeeklyWorklogSummary | null;
 	isLoading: boolean;
 	error: string | null;
 	refresh: () => void;
-}
+};
 
 export function useWeeklyWorklogSummary(
 	weekStart: Date,

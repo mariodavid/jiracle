@@ -1,12 +1,12 @@
 import {useState, useCallback} from 'react';
 
-export interface Notification {
+export type Notification = {
 	message: string;
 	type: 'success' | 'error' | 'info';
 	id: number;
-}
+};
 
-export interface UseNotificationReturn {
+export type UseNotificationReturn = {
 	notifications: Notification[];
 	showNotification: (
 		message: string,
@@ -14,7 +14,7 @@ export interface UseNotificationReturn {
 	) => void;
 	dismissNotification: (id: number) => void;
 	clearNotifications: () => void;
-}
+};
 
 let notificationIdCounter = 0;
 

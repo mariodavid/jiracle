@@ -1,10 +1,10 @@
 import notifier from 'node-notifier';
 import {JiraClient, ReminderConfig} from '../jira-client.js';
 
-interface ReminderState {
+type ReminderState = {
 	notifiedTimes: Set<string>;
 	lastCheckDate: string;
-}
+};
 
 export class ReminderService {
 	private interval: NodeJS.Timeout | null = null;

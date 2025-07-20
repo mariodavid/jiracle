@@ -4,25 +4,25 @@ import {formatLocalDateKey} from '../utils/date.js';
 import {uiLogger} from '../utils/logger.js';
 import type {AttendanceManager} from '../attendance/AttendanceManager.js';
 
-export interface DeleteCandidate {
+export type DeleteCandidate = {
 	issueKey: string;
 	date: Date;
-}
+};
 
-export interface DeleteAttendanceCandidate {
+export type DeleteAttendanceCandidate = {
 	date: Date;
-}
+};
 
-export interface UseDeleteOperationsOptions {
+export type UseDeleteOperationsOptions = {
 	config: JiraConfig;
 	userEmail?: string | null;
 	onRefresh: () => void;
 	onActiveAreaChange: (area: string) => void;
 	attendanceManager?: AttendanceManager | null;
 	onAttendanceRefresh?: () => void;
-}
+};
 
-export interface UseDeleteOperationsReturn {
+export type UseDeleteOperationsReturn = {
 	// State
 	deleteCandidate: DeleteCandidate | null;
 	deleteAttendanceCandidate: DeleteAttendanceCandidate | null;
@@ -36,7 +36,7 @@ export interface UseDeleteOperationsReturn {
 	handleDeleteConfirm: (confirmed: boolean) => Promise<void>;
 	handleDeleteAttendanceConfirm: (confirmed: boolean) => Promise<void>;
 	clearDeleteError: () => void;
-}
+};
 
 export function useDeleteOperations(
 	options: UseDeleteOperationsOptions,

@@ -5,19 +5,19 @@ import type {
 import type {AttendanceEditState} from './useAttendanceManagement.js';
 import type {WorklogFormData} from './useWorklogForm.js';
 
-export interface UseTitleResolverOptions {
+export type UseTitleResolverOptions = {
 	currentWeek: Date;
 	worklogForm: WorklogFormData;
 	deleteCandidate: DeleteCandidate | null;
 	deleteAttendanceCandidate: DeleteAttendanceCandidate | null;
 	attendanceEdit: AttendanceEditState | null;
 	activeArea: string;
-}
+};
 
-export interface UseTitleResolverReturn {
+export type UseTitleResolverReturn = {
 	title: string;
 	titleColor?: 'red' | 'cyan';
-}
+};
 
 export function useTitleResolver({
 	currentWeek,

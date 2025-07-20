@@ -2,9 +2,9 @@ import React from 'react';
 import {ConfirmationDialog} from '../ConfirmationDialog.js';
 import {CheckoutConfirmation} from '../CheckoutConfirmation.js';
 
-export interface CheckoutConfirmationAreaProps {
+export type CheckoutConfirmationAreaProps = {
 	onConfirm: (confirmed: boolean) => void;
-}
+};
 
 export function CheckoutConfirmationArea({
 	onConfirm,

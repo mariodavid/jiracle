@@ -79,17 +79,17 @@ const cli = meow(
 	},
 );
 
-export interface WorklogAddParams {
+export type WorklogAddParams = {
 	issue: string;
 	date: string;
 	time: string;
 	comment: string;
-}
+};
 
-export interface WorklogAddResult {
+export type WorklogAddResult = {
 	success: boolean;
 	message: string;
-}
+};
 
 export async function executeWorklogAdd(
 	params: WorklogAddParams,

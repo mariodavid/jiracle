@@ -1,13 +1,13 @@
 import React from 'react';
 import {Box, Text} from 'ink';
 
-interface MenuCardProps {
+type MenuCardProps = {
 	title: string;
 	description: string;
 	icon: string;
 	selected: boolean;
 	width?: number;
-}
+};
 
 const MenuCard: React.FC<MenuCardProps> = ({
 	title,

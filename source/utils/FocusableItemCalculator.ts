@@ -1,18 +1,18 @@
 import type {AttendanceManager} from '../attendance/AttendanceManager.js';
 import type {IssueGroup} from '../services/IssueGroupManager.js';
 
-export interface FocusableItem {
+export type FocusableItem = {
 	focusId: string;
 	issueKey: string;
 	columnIndex: number;
 	isAttendance: boolean;
-}
+};
 
-export interface FocusableItemCalculatorOptions {
+export type FocusableItemCalculatorOptions = {
 	attendanceManager: AttendanceManager | null | undefined;
 	issueGroups: IssueGroup[];
 	columnCount?: number;
-}
+};
 
 export class FocusableItemCalculator {
 	private static readonly DEFAULT_COLUMN_COUNT = 5; // Monday to Friday

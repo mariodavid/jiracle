@@ -6,13 +6,13 @@ import type {
 } from './useDeleteOperations.js';
 import type {AttendanceEditState} from './useAttendanceManagement.js';
 
-export interface UseActiveAreaResolverOptions {
+export type UseActiveAreaResolverOptions = {
 	activeArea: ActiveArea;
 	worklogForm: WorklogFormData;
 	deleteCandidate: DeleteCandidate | null;
 	deleteAttendanceCandidate: DeleteAttendanceCandidate | null;
 	attendanceEdit: AttendanceEditState | null;
-}
+};
 
 export type ResolvedActiveArea =
 	| 'worklog-form'

@@ -13,7 +13,7 @@ import {
 import type {AttendanceManager} from '../attendance/AttendanceManager.js';
 import type {IssueGroup} from '../services/IssueGroupManager.js';
 
-export interface TableNavigationProps {
+export type TableNavigationProps = {
 	isActive: boolean;
 	weekDates: Date[];
 	attendanceManager?: AttendanceManager;
@@ -24,9 +24,9 @@ export interface TableNavigationProps {
 	onAttendanceEdit?: (data: {date: Date}) => void;
 	onAttendanceDelete?: (data: {date: Date}) => void;
 	onOpenInBrowser?: (issueKey: string) => void;
-}
+};
 
-export interface TableNavigationResult {
+export type TableNavigationResult = {
 	focusedCell: FocusedCell | null;
 	handleFocusChange: (
 		issueKey: string,
@@ -36,7 +36,7 @@ export interface TableNavigationResult {
 	setFocusedCell: (cell: FocusedCell | null) => void;
 	clearFocus: () => void;
 	isCellFocused: (issueKey: string, columnIndex: number) => boolean;
-}
+};
 
 export function useTableNavigation({
 	isActive,

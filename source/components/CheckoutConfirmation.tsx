@@ -2,9 +2,9 @@ import React from 'react';
 import {Box, Text} from 'ink';
 import {ConfirmInput} from '@inkjs/ui';
 
-interface CheckoutConfirmationProps {
+type CheckoutConfirmationProps = {
 	onConfirm: (confirmed: boolean) => void;
-}
+};
 
 export function CheckoutConfirmation({onConfirm}: CheckoutConfirmationProps) {
 	return (

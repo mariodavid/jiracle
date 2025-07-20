@@ -1,26 +1,26 @@
 import {useState, useCallback} from 'react';
 
-export interface ConfirmationConfig {
+export type ConfirmationConfig = {
 	width?: number;
 	borderColor?: string;
 	paddingX?: number;
 	paddingY?: number;
 	loadingText?: string;
-}
+};
 
-export interface ConfirmationState {
+export type ConfirmationState = {
 	isVisible: boolean;
 	isLoading: boolean;
 	config: ConfirmationConfig;
 	onConfirm: ((confirmed: boolean) => void) | null;
-}
+};
 
-export interface ConfirmationActions {
+export type ConfirmationActions = {
 	show: (config?: ConfirmationConfig) => Promise<boolean>;
 	hide: () => void;
 	setLoading: (loading: boolean) => void;
 	handleConfirm: (confirmed: boolean) => void;
-}
+};
 
 export function useConfirmation(): ConfirmationState & ConfirmationActions {
 	const [state, setState] = useState<ConfirmationState>({

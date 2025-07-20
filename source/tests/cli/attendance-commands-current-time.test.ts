@@ -1,8 +1,8 @@
 import test, {type TestFn} from 'ava';
 
-interface TestContext {
+type TestContext = {
 	testCsvPath: string;
-}
+};
 
 const testWithContext = test as TestFn<TestContext>;
 import {readFile, unlink} from 'node:fs/promises';

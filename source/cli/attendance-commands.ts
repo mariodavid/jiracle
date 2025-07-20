@@ -4,24 +4,24 @@ import {homedir} from 'node:os';
 import {join} from 'node:path';
 import type {JiraConfig} from '../jira-client.js';
 
-export interface AttendanceCommandResult {
+export type AttendanceCommandResult = {
 	success: boolean;
 	message: string;
-}
+};
 
-export interface CheckInParams {
+export type CheckInParams = {
 	date?: string;
 	time?: string;
-}
+};
 
-export interface CheckOutParams {
+export type CheckOutParams = {
 	date?: string;
 	time?: string;
-}
+};
 
-export interface StatusParams {
+export type StatusParams = {
 	date?: string;
-}
+};
 
 function getAttendanceManager(
 	configPath?: string,

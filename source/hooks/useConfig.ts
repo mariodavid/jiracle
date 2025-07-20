@@ -7,12 +7,12 @@ import {join} from 'node:path';
 import type {Step} from '../types/index.js';
 import {ReminderService} from '../services/ReminderService.js';
 
-export interface UseConfigResult {
+export type UseConfigResult = {
 	step: Step;
 	error: string | null;
 	config: JiraConfig | null;
 	userEmail: string | null;
-}
+};
 
 export function useConfig(providedConfig?: JiraConfig): UseConfigResult {
 	const [config, setConfig] = useState<JiraConfig | null>(null);
