@@ -94,7 +94,6 @@
 			"unicorn/expiring-todo-comments": "off",
 			"unicorn/filename-case": "off",
 			"unicorn/prevent-abbreviations": "off",
-			"unicorn/prefer-type-error": "off",
 			"unicorn/prefer-string-slice": "off",
 			"unicorn/no-empty-file": "off",
 			"unicorn/no-array-for-each": "off",

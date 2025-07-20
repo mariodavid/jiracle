@@ -188,7 +188,7 @@ export async function executeWorklogAdd(
 				throw new Error(message.split(' - ')[0]);
 			}
 		} else {
-			throw new Error('Unknown error occurred');
+			throw new TypeError('Unknown error occurred');
 		}
 	}
 }
