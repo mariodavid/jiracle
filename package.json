@@ -134,7 +134,6 @@
 			"unicorn/no-hex-escape": "off",
 			"@typescript-eslint/no-inferrable-types": "off",
 			"unicorn/no-new-array": "off",
-			"unicorn/explicit-length-check": "off",
 			"unicorn/prefer-set-has": "off",
 			"ava/no-async-fn-without-await": "off",
 			"ava/prefer-t-regex": "off",

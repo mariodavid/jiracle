@@ -134,7 +134,7 @@ test('should handle concurrent access simulation', async t => {
 		await Promise.all(promises);
 
 		const result = await storage1.readAll();
-		t.true(result.length >= 1); // At least one should succeed
+		t.true(result.length > 0); // At least one should succeed
 	});
 });
 
