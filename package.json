@@ -77,6 +77,7 @@
 					"skipBlankLines": true
 				}
 			],
+			"@typescript-eslint/restrict-template-expressions": "off",
 			"@typescript-eslint/no-confusing-void-expression": "off",
 			"unicorn/prefer-regexp-test": "off",
 			"unicorn/prefer-optional-catch-binding": "off",

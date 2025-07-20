@@ -204,11 +204,8 @@ export function InlineWorklogForm({
 						handleSubmit();
 						break;
 					}
-					case 'date':
-					case 'time':
-					case 'issueKey':
 					default: {
-						// No action for other focus areas
+						// No action for other focus areas (date, time, issueKey)
 						break;
 					}
 				}

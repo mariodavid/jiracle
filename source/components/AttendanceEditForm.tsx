@@ -58,9 +58,9 @@ export function AttendanceEditForm({
 			'Nov',
 			'Dez',
 		];
-		return `${days[date.getDay()]}, ${date.getDate()}. ${
-			months[date.getMonth()]
-		}`;
+		return `${String(days[date.getDay()])}, ${date.getDate()}. ${String(
+			months[date.getMonth()],
+		)}`;
 	};
 
 	const handleSubmit = () => {
