@@ -48,18 +48,6 @@ export function normalizeSlidingWindowConfig(
 	};
 }
 
-export type AlignRemainingStrategy = 'even' | 'proportional';
-
-export interface DefaultStory {
-	issueKey: string;
-	percentage: number;
-}
-
-export interface FillConfig {
-	alignRemainingStrategy?: AlignRemainingStrategy;
-	defaultStories?: DefaultStory[];
-}
-
 export interface JiraConfig {
 	jiraUrl: string;
 	username: string;
@@ -74,10 +62,6 @@ export interface JiraConfig {
 	attendance?: AttendanceConfig;
 	// Sliding window configuration - only bidirectional object format
 	slidingWindowDays?: SlidingWindowConfig;
-	// Backward compatibility - alignRemainingStrategy at root level
-	alignRemainingStrategy?: AlignRemainingStrategy;
-	// New fill configuration section
-	fill?: FillConfig;
 }
 
 export interface JiraIssueField {
@@ -324,65 +308,6 @@ export function extractIssueKeyFromInput(input: string): string | null {
 
 	// If no pattern matches, it's invalid
 	return null;
-}
-
-// Helper functions for fill configuration
-
-/**
- * Resolves the align remaining strategy from config with backward compatibility
- */
-export function resolveAlignRemainingStrategy(
-	config: JiraConfig,
-): AlignRemainingStrategy {
-	// Priority: fill.alignRemainingStrategy > root alignRemainingStrategy > default 'even'
-	return (
-		config.fill?.alignRemainingStrategy ??
-		config.alignRemainingStrategy ??
-		'even'
-	);
-}
-
-/**
- * Validates that default stories percentages sum to 100%
- */
-export function validateDefaultStories(defaultStories: DefaultStory[]): {
-	valid: boolean;
-	error?: string;
-} {
-	if (!defaultStories || defaultStories.length === 0) {
-		return {valid: false, error: 'No default stories configured'};
-	}
-
-	const totalPercentage = defaultStories.reduce(
-		(sum, story) => sum + story.percentage,
-		0,
-	);
-
-	if (Math.abs(totalPercentage - 100) > 0.01) {
-		return {
-			valid: false,
-			error: `Default stories percentages must sum to 100%, got ${totalPercentage}%`,
-		};
-	}
-
-	// Check for duplicate issue keys
-	const issueKeys = defaultStories.map(story => story.issueKey);
-	const uniqueKeys = new Set(issueKeys);
-	if (issueKeys.length !== uniqueKeys.size) {
-		return {valid: false, error: 'Duplicate issue keys in default stories'};
-	}
-
-	// Check for invalid percentages
-	for (const story of defaultStories) {
-		if (story.percentage <= 0 || story.percentage > 100) {
-			return {
-				valid: false,
-				error: `Invalid percentage for ${story.issueKey}: ${story.percentage}%. Must be between 0 and 100.`,
-			};
-		}
-	}
-
-	return {valid: true};
 }
 
 export class JiraClient {
