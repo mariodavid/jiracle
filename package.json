@@ -156,7 +156,6 @@
 			"@typescript-eslint/ban-ts-comment": "off",
 			"@typescript-eslint/restrict-plus-operands": "off",
 			"no-eq-null": "off",
-			"eqeqeq": "off",
 			"@typescript-eslint/no-floating-promises": "off",
 			"unicorn/prefer-module": "off",
 			"max-params": "off",
@@ -167,9 +166,7 @@
 			"unicorn/no-await-expression-member": "off",
 			"@typescript-eslint/return-await": "off",
 			"no-return-await": "off",
-			"@typescript-eslint/class-literal-property-style": "off",
-			"unicorn/no-useless-promise-resolve-reject": "off",
-			"unicorn/no-for-loop": "off"
+			"@typescript-eslint/class-literal-property-style": "off"
 		}
 	},
 	"prettier": "@vdemedes/prettier-config",
