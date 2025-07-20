@@ -113,7 +113,7 @@ export class AttendanceCSVStorage {
 		if (checkOut && checkOut !== '') {
 			attendance.checkOut = checkOut;
 		}
-		if (totalHours && totalHours !== '' && !isNaN(Number(totalHours))) {
+		if (totalHours && totalHours !== '' && !Number.isNaN(Number(totalHours))) {
 			attendance.totalHours = Number(totalHours);
 		}
 		if (notes && notes !== '') {

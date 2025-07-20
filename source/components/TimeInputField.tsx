@@ -85,8 +85,8 @@ export default function TimeInputField({
 		const match = timeStr.match(/^(\d{1,2}):(\d{2})$/);
 		if (!match) return 8 * 60; // Default to 08:00
 
-		const hours = parseInt(match[1]!, 10);
-		const minutes = parseInt(match[2]!, 10);
+		const hours = Number.parseInt(match[1]!, 10);
+		const minutes = Number.parseInt(match[2]!, 10);
 
 		if (hours < 0 || hours > 23 || minutes < 0 || minutes > 59) {
 			return 8 * 60; // Default to 08:00
@@ -118,7 +118,7 @@ export default function TimeInputField({
 		// If incomplete, try to complete it
 		if (/^\d{1,2}$/.test(normalizedValue)) {
 			// Just hours, add :00
-			const hours = parseInt(normalizedValue, 10);
+			const hours = Number.parseInt(normalizedValue, 10);
 			if (hours >= 0 && hours <= 23) {
 				normalizedValue = `${hours.toString().padStart(2, '0')}:00`;
 			}
@@ -132,8 +132,8 @@ export default function TimeInputField({
 			// Single hour digit with minutes (8:30), pad hour
 			const match = normalizedValue.match(/^(\d):(\d{2})$/);
 			if (match) {
-				const hours = parseInt(match[1]!, 10);
-				const minutes = parseInt(match[2]!, 10);
+				const hours = Number.parseInt(match[1]!, 10);
+				const minutes = Number.parseInt(match[2]!, 10);
 				if (hours >= 0 && hours <= 23 && minutes >= 0 && minutes <= 59) {
 					normalizedValue = `${hours.toString().padStart(2, '0')}:${minutes
 						.toString()
@@ -145,8 +145,8 @@ export default function TimeInputField({
 		// Validate final format
 		const match = normalizedValue.match(/^(\d{1,2}):(\d{2})$/);
 		if (match) {
-			const hours = parseInt(match[1]!, 10);
-			const minutes = parseInt(match[2]!, 10);
+			const hours = Number.parseInt(match[1]!, 10);
+			const minutes = Number.parseInt(match[2]!, 10);
 
 			if (hours >= 0 && hours <= 23 && minutes >= 0 && minutes <= 59) {
 				normalizedValue = `${hours.toString().padStart(2, '0')}:${minutes

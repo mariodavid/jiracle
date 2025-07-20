@@ -10,27 +10,27 @@ export class TimeParsingService {
 		// Handle combined format (2h30m, 1h15m, etc.)
 		const combinedMatch = timeStr.match(/^(\d+)h(\d+)m$/i);
 		if (combinedMatch && combinedMatch[1] && combinedMatch[2]) {
-			const hours = parseFloat(combinedMatch[1]);
-			const minutes = parseFloat(combinedMatch[2]);
+			const hours = Number.parseFloat(combinedMatch[1]);
+			const minutes = Number.parseFloat(combinedMatch[2]);
 			return hours + minutes / 60;
 		}
 
 		// Handle days (1d = 8h)
 		const dayMatch = timeStr.match(/^(\d+(?:[.,]\d+)?)d$/i);
 		if (dayMatch && dayMatch[1]) {
-			return parseFloat(dayMatch[1].replace(',', '.')) * 8;
+			return Number.parseFloat(dayMatch[1].replace(',', '.')) * 8;
 		}
 
 		// Handle hours (1h, 2.5h, etc.)
 		const hourMatch = timeStr.match(/^(\d+(?:[.,]\d+)?)h?$/i);
 		if (hourMatch && hourMatch[1]) {
-			return parseFloat(hourMatch[1].replace(',', '.'));
+			return Number.parseFloat(hourMatch[1].replace(',', '.'));
 		}
 
 		// Handle minutes (30m, 90m, etc.)
 		const minuteMatch = timeStr.match(/^(\d+)m$/i);
 		if (minuteMatch && minuteMatch[1]) {
-			return parseFloat(minuteMatch[1]) / 60;
+			return Number.parseFloat(minuteMatch[1]) / 60;
 		}
 
 		// Default to 1 hour if unparseable
@@ -53,7 +53,7 @@ export class TimeParsingService {
 		// If user just entered numbers, add unit based on smart logic
 		if (/^\d+([.,]\d+)?$/.test(normalizedValue)) {
 			const hasDecimal = /[.,]/.test(normalizedValue);
-			const numericValue = parseFloat(normalizedValue.replace(',', '.'));
+			const numericValue = Number.parseFloat(normalizedValue.replace(',', '.'));
 
 			// Smart unit selection:
 			// - If has decimal (1.5, 2,5): always hours

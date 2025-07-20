@@ -111,7 +111,7 @@ export async function executeWorklogAdd(
 	// Additional date validation - check if it's a valid date
 	const testDate = new Date(date);
 	if (
-		isNaN(testDate.getTime()) ||
+		Number.isNaN(testDate.getTime()) ||
 		testDate.toISOString().split('T')[0] !== date
 	) {
 		throw new Error('Date must be in YYYY-MM-DD format');
