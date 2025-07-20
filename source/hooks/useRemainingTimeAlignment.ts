@@ -77,9 +77,7 @@ export function useRemainingTimeAlignment(
 				// Determine mode: update existing worklogs vs create new ones
 				// Only consider it "existing worklogs" if there are issues with actual hours > 0
 				const hasExistingWorklogs =
-					dailySummary &&
-					dailySummary.issues.length > 0 &&
-					dailySummary.issues.some(issue => issue.hours > 0);
+					dailySummary && dailySummary.issues.some(issue => issue.hours > 0);
 
 				uiLogger.debug('previewAlignment: determining mode', {
 					hasDailySummary: !!dailySummary,
@@ -194,6 +192,68 @@ export function useRemainingTimeAlignment(
 		[config, onNotification],
 	);
 
+	// Helper function to update a single worklog with ID
+	const updateSingleWorklog = useCallback(
+		async (
+			jiraClient: JiraClient,
+			update: {issueKey: string; newHours: number},
+			issueEntry: {worklogId: string; comment?: string},
+			date: Date,
+		) => {
+			await jiraClient.updateWorklog(update.issueKey, issueEntry.worklogId, {
+				timeSpent: `${update.newHours}h`,
+				comment: issueEntry.comment || '',
+				started: date.toISOString().replace('Z', '+0000'),
+			});
+		},
+		[],
+	);
+
+	// Helper function to update multiple worklogs proportionally
+	const updateMultipleWorklogs = useCallback(
+		async (
+			jiraClient: JiraClient,
+			update: {issueKey: string; newHours: number},
+			dateStr: string,
+		) => {
+			const worklogResponse = await jiraClient.getIssueWorklogs(
+				update.issueKey,
+			);
+			const dayWorklogs = worklogResponse.worklogs.filter(worklog => {
+				const worklogDate = new Date(worklog.started)
+					.toISOString()
+					.split('T')[0];
+				const isCorrectDate = worklogDate === dateStr;
+				const isCorrectUser =
+					!userEmail || worklog.author.emailAddress === userEmail;
+				return isCorrectDate && isCorrectUser;
+			});
+
+			if (dayWorklogs.length === 0) {
+				return; // Skip if no worklogs found for this user on this date
+			}
+
+			const currentTotal = dayWorklogs.reduce(
+				(sum: number, wl) => sum + wl.timeSpentSeconds / 3600,
+				0,
+			);
+			const newTotalSeconds = update.newHours * 3600;
+
+			for (const worklog of dayWorklogs) {
+				const proportion = worklog.timeSpentSeconds / 3600 / currentTotal;
+				const newSeconds = Math.round(newTotalSeconds * proportion);
+				const newHours = newSeconds / 3600;
+
+				await jiraClient.updateWorklog(update.issueKey, worklog.id, {
+					timeSpent: `${newHours}h`,
+					comment: worklog.comment,
+					started: worklog.started,
+				});
+			}
+		},
+		[userEmail],
+	);
+
 	const alignRemainingTime = useCallback(
 		async (date: Date, dailySummary: DailyWorklogSummary | null) => {
 			try {
@@ -204,7 +264,7 @@ export function useRemainingTimeAlignment(
 				}
 
 				const jiraClient = new JiraClient(config);
-				const dateStr = date.toISOString().split('T')[0];
+				const dateStr = date.toISOString().split('T')[0]!;
 
 				if (previewData.mode === 'update') {
 					// Mode: Update existing worklogs
@@ -222,53 +282,15 @@ export function useRemainingTimeAlignment(
 
 						if (issueEntry?.worklogId) {
 							// Simple case: single worklog with ID, just update it
-							await jiraClient.updateWorklog(
-								update.issueKey,
-								issueEntry.worklogId,
-								{
-									timeSpent: `${update.newHours}h`,
-									comment: issueEntry.comment || '',
-									started: date.toISOString().replace('Z', '+0000'),
-								},
+							await updateSingleWorklog(
+								jiraClient,
+								update,
+								issueEntry as {worklogId: string; comment?: string},
+								date,
 							);
 						} else {
 							// Complex case: multiple worklogs for this issue on this date
-							// Get all worklogs for this issue and filter by date
-							const worklogResponse = await jiraClient.getIssueWorklogs(
-								update.issueKey,
-							);
-							const dayWorklogs = worklogResponse.worklogs.filter(worklog => {
-								const worklogDate = new Date(worklog.started)
-									.toISOString()
-									.split('T')[0];
-								const isCorrectDate = worklogDate === dateStr;
-								const isCorrectUser =
-									!userEmail || worklog.author.emailAddress === userEmail;
-								return isCorrectDate && isCorrectUser;
-							});
-
-							if (dayWorklogs.length > 0) {
-								// Distribute the new total time across existing worklogs proportionally
-								const currentTotal = dayWorklogs.reduce(
-									(sum: number, wl) => sum + wl.timeSpentSeconds / 3600,
-									0,
-								);
-								const newTotalSeconds = update.newHours * 3600;
-
-								for (const worklog of dayWorklogs) {
-									const proportion =
-										worklog.timeSpentSeconds / 3600 / currentTotal;
-									const newSeconds = Math.round(newTotalSeconds * proportion);
-									const newHours = newSeconds / 3600;
-
-									await jiraClient.updateWorklog(update.issueKey, worklog.id, {
-										timeSpent: `${newHours}h`,
-										comment: worklog.comment,
-										started: worklog.started,
-									});
-								}
-							}
-							// If no worklogs found for this user on this date, skip this issue
+							await updateMultipleWorklogs(jiraClient, update, dateStr);
 						}
 					}
 				} else if (previewData.mode === 'create') {
@@ -288,9 +310,6 @@ export function useRemainingTimeAlignment(
 					}
 				}
 
-				// Don't show success notification anymore - confirmation dialog replaces it
-				// onNotification?.(result.message, 'success');
-
 				// Refresh the data
 				onRefresh();
 			} catch (error) {
@@ -302,7 +321,14 @@ export function useRemainingTimeAlignment(
 				);
 			}
 		},
-		[previewAlignment, config, userEmail, onRefresh, onNotification],
+		[
+			previewAlignment,
+			config,
+			updateSingleWorklog,
+			updateMultipleWorklogs,
+			onRefresh,
+			onNotification,
+		],
 	);
 
 	return {
