@@ -44,7 +44,7 @@ export default function TimeInputField({
 		if (newValue.length === 1 && !/\d/.test(newValue)) return false;
 		if (newValue.length === 2) {
 			// Two characters: either HH or H:
-			if (!/:/.test(newValue)) {
+			if (!newValue.includes(':')) {
 				// Two digit hour (00-23)
 				if (!/^[01]\d|2[0-3]$/.test(newValue)) return false;
 			} else if (!/^\d:$/.test(newValue)) {

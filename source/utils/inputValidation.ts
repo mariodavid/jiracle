@@ -30,7 +30,7 @@ export class InputValidation {
 		// Handle units based on current state
 		if (/[hdm]/.test(newValue)) {
 			// If we have 'h' in the string
-			if (/h/.test(newValue)) {
+			if (newValue.includes('h')) {
 				// Don't allow dots/commas after h
 				if (/h[.,]/.test(newValue)) return false;
 				// Don't allow multiple h units
@@ -51,13 +51,13 @@ export class InputValidation {
 			}
 
 			// If we have 'd' in the string
-			if (/d/.test(newValue)) {
+			if (newValue.includes('d')) {
 				// Don't allow anything after d
 				if (/d./.test(newValue)) return false;
 			}
 
 			// If we have 'm' in the string
-			if (/m/.test(newValue)) {
+			if (newValue.includes('m')) {
 				// Don't allow anything after m
 				if (/m./.test(newValue)) return false;
 			}
