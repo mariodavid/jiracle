@@ -205,8 +205,7 @@ test('TimetableGrid sorts groups by name and issues within groups by key', t => 
 	let defIndex = -1;
 	let monIndex = -1;
 
-	for (let i = 0; i < lines.length; i++) {
-		const line = lines[i];
+	for (const [i, line] of lines.entries()) {
 		if (line && line.includes('ABC-5417')) {
 			abcIndex = i;
 		} else if (line && line.includes('DEF-2456')) {
@@ -325,8 +324,7 @@ test('TimetableGrid handles mixed group assignments correctly', t => {
 	let defIndex = -1;
 	let monIndex = -1;
 
-	for (let i = 0; i < lines.length; i++) {
-		const line = lines[i];
+	for (const [i, line] of lines.entries()) {
 		if (line && line.includes('ABC-5417')) {
 			abcIndex = i;
 		} else if (line && line.includes('DEF-2456')) {
