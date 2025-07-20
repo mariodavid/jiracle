@@ -1,5 +1,5 @@
 import React, {useEffect, useCallback, useState} from 'react';
-import {Box, Text, useFocusManager, useInput} from 'ink';
+import {Box, Text, useFocusManager} from 'ink';
 import {Spinner} from '@inkjs/ui';
 import figures from 'figures';
 import {WeeklyWorklogSummary} from '../domain/WeeklyWorklogSummary.js';
@@ -23,6 +23,7 @@ import {
 } from '../utils/FocusableItemCalculator.js';
 import {GridNavigationService} from '../services/GridNavigationService.js';
 import {useFocusManagement} from '../hooks/useFocusManagement.js';
+import {useKeyboardInput} from '../hooks/useKeyboardInput.js';
 
 export interface TimetableGridProps {
 	data: WeeklyWorklogSummary | null;
@@ -217,105 +218,20 @@ export function TimetableGrid({
 	}, [focusedCell, getAllFocusableItems, focus]);
 
 	// Enhanced input handling with arrow key support
-	useInput((_input, key) => {
-		// Only handle input when table is active
-		if (!isActive) {
-			return;
-		}
-
-		// Arrow key navigation (without shift)
-		if (!key.shift && key.upArrow) {
-			handleArrowNavigation('up');
-			return;
-		}
-
-		if (!key.shift && key.downArrow) {
-			handleArrowNavigation('down');
-			return;
-		}
-
-		if (!key.shift && key.leftArrow) {
-			handleArrowNavigation('left');
-			return;
-		}
-
-		if (!key.shift && key.rightArrow) {
-			handleArrowNavigation('right');
-			return;
-		}
-
-		// Week navigation with Shift+Arrow
-		if (key.shift && key.leftArrow && onWeekChange) {
-			onWeekChange('prev');
-			return;
-		}
-
-		if (key.shift && key.rightArrow && onWeekChange) {
-			onWeekChange('next');
-			return;
-		}
-
-		// Shift+Tab for reverse tab navigation
-		if (key.shift && key.tab) {
-			handleReverseTabNavigation();
-			return;
-		}
-
-		// Handle Enter for worklog editing (only for issue cells, not attendance)
-		if (
-			key.return &&
-			onCellWorklog &&
-			focusedCell &&
-			!focusedCell.isAttendance
-		) {
-			const date = weekDates[focusedCell.columnIndex];
-			if (date) {
-				onCellWorklog({issueKey: focusedCell.issueKey, date});
-			}
-			return;
-		}
-
-		// Handle Enter for attendance editing
-		if (
-			key.return &&
-			onAttendanceEdit &&
-			focusedCell &&
-			focusedCell.isAttendance
-		) {
-			const date = weekDates[focusedCell.columnIndex];
-			if (date) {
-				onAttendanceEdit({date});
-			}
-			return;
-		}
-
-		// Handle 'd' for delete
-		if ((_input === 'd' || _input === 'D') && focusedCell) {
-			const date = weekDates[focusedCell.columnIndex];
-			if (date) {
-				if (focusedCell.isAttendance && onAttendanceDelete) {
-					// Delete attendance record
-					onAttendanceDelete({date});
-				} else if (!focusedCell.isAttendance && onCellDelete) {
-					// Delete worklog
-					onCellDelete({issueKey: focusedCell.issueKey, date});
-				}
-			}
-			return;
-		}
-
-		// Handle 'O' for opening focused issue in browser
-		if (
-			(_input === 'o' || _input === 'O') &&
-			onOpenInBrowser &&
-			focusedCell &&
-			!focusedCell.isAttendance
-		) {
-			onOpenInBrowser(focusedCell.issueKey);
-			return;
-		}
-
-		// Note: Tab key is still handled by Ink's default focus system
+	useKeyboardInput({
+		isActive,
+		focusedCell,
+		weekDates,
+		handlers: {
+			handleArrowNavigation,
+			handleReverseTabNavigation,
+			onWeekChange,
+			onCellWorklog,
+			onCellDelete,
+			onAttendanceEdit,
+			onAttendanceDelete,
+			onOpenInBrowser,
+		},
 	});
 
 	// CONDITIONAL RENDERING AFTER ALL HOOKS
