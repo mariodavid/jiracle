@@ -31,7 +31,7 @@ testWithContext.afterEach.always(async t => {
 	if (existsSync(csvPath)) {
 		await unlink(csvPath);
 	}
-	delete process.env['JIRACLE_ATTENDANCE_CSV_PATH'];
+	delete process.env.JIRACLE_ATTENDANCE_CSV_PATH;
 });
 
 testWithContext('checkin uses current time when no time specified', async t => {
