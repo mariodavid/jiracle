@@ -302,10 +302,10 @@ test('findInitialFocusItem: returns first item when no preferred column', t => {
 	t.is(result!.columnIndex, items[0]!.columnIndex);
 });
 
-test('findInitialFocusItem: returns null for empty grid', t => {
+test('findInitialFocusItem: returns undefined for empty grid', t => {
 	const result = GridNavigationService.findInitialFocusItem([]);
 
-	t.is(result, null);
+	t.is(result, undefined);
 });
 
 // Test edge cases

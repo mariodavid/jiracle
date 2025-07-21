@@ -7,7 +7,7 @@ import type {JiraConfig} from '../jira-client.js';
 
 export function useIssueGroups(
 	issues: Array<[string, any]>,
-	config: JiraConfig | null,
+	config: JiraConfig | undefined,
 ): IssueGroup[] {
 	const issueGroupManager = useMemo(
 		() => new IssueGroupManager(config),

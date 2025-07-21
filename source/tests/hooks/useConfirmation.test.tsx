@@ -11,7 +11,7 @@ function TestConfirmationComponent({
 	onStateChange?: (state: any) => void;
 }) {
 	const confirmation = useConfirmation();
-	const [lastResult, setLastResult] = useState<boolean | null>(null);
+	const [lastResult, setLastResult] = useState<boolean | undefined>(undefined);
 
 	// Report state changes to test
 	React.useEffect(() => {

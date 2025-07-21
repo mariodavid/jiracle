@@ -182,10 +182,10 @@ export function getFavoriteDefaultTime(
 	return favorite?.defaultTime;
 }
 
-export function extractProjectKey(issueKey: string): string | null {
+export function extractProjectKey(issueKey: string): string | undefined {
 	// Extract project key from issue key (e.g., "DEF-2457" → "DEF")
 	const match = issueKey.match(/^([A-Z]+)-\d+$/);
-	return match ? match[1] ?? null : null;
+	return match ? match[1] ?? undefined : undefined;
 }
 
 export type ResolvedDefaults = {
@@ -281,12 +281,12 @@ export function resolveDefaults(
 	};
 }
 
-export function extractIssueKeyFromInput(input: string): string | null {
+export function extractIssueKeyFromInput(input: string): string | undefined {
 	// Trim whitespace
 	const trimmed = input.trim();
 
 	if (!trimmed) {
-		return null;
+		return undefined;
 	}
 
 	// Check if it's a URL
@@ -297,7 +297,7 @@ export function extractIssueKeyFromInput(input: string): string | null {
 			return match[1];
 		}
 		// If it contains /browse/ but no valid issue key, it's invalid
-		return null;
+		return undefined;
 	}
 
 	// Check if it's already an issue key (PROJECT-123 format)
@@ -307,7 +307,7 @@ export function extractIssueKeyFromInput(input: string): string | null {
 	}
 
 	// If no pattern matches, it's invalid
-	return null;
+	return undefined;
 }
 
 export class JiraClient {

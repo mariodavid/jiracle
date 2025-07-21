@@ -9,18 +9,19 @@ import {ReminderService} from '../services/ReminderService.js';
 
 export type UseConfigResult = {
 	step: Step;
-	error: string | null;
-	config: JiraConfig | null;
-	userEmail: string | null;
+	error: string | undefined;
+	config: JiraConfig | undefined;
+	userEmail: string | undefined;
 };
 
 export function useConfig(providedConfig?: JiraConfig): UseConfigResult {
-	const [config, setConfig] = useState<JiraConfig | null>(null);
-	const [userEmail, setUserEmail] = useState<string | null>(null);
+	const [config, setConfig] = useState<JiraConfig | undefined>(undefined);
+	const [userEmail, setUserEmail] = useState<string | undefined>(undefined);
 	const [step, setStep] = useState<Step>('loading');
-	const [error, setError] = useState<string | null>(null);
-	const [reminderService, setReminderService] =
-		useState<ReminderService | null>(null);
+	const [error, setError] = useState<string | undefined>(undefined);
+	const [reminderService, setReminderService] = useState<
+		ReminderService | undefined
+	>(undefined);
 
 	useEffect(() => {
 		async function loadConfigAndUser() {
@@ -43,8 +44,8 @@ export function useConfig(providedConfig?: JiraConfig): UseConfigResult {
 				// Get current user email
 				const userResponse = await jiraClient
 					.getCurrentUser()
-					.catch(() => null);
-				const userEmailAddress = userResponse?.emailAddress || null;
+					.catch(() => undefined);
+				const userEmailAddress = userResponse?.emailAddress || undefined;
 				setUserEmail(userEmailAddress);
 
 				// Start reminder service if enabled

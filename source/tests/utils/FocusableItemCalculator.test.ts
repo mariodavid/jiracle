@@ -15,7 +15,7 @@ const createIssueGroup = (
 	issueKeys: string[],
 	groupName?: string,
 ): IssueGroup => ({
-	group: groupName ? {id: groupName, name: groupName} : null,
+	group: groupName ? {id: groupName, name: groupName} : undefined,
 	issues: issueKeys.map(key => [key, {summary: `Summary for ${key}`}]),
 	totalHours: 0,
 });
@@ -23,7 +23,7 @@ const createIssueGroup = (
 const createOptions = (
 	overrides: Partial<FocusableItemCalculatorOptions> = {},
 ): FocusableItemCalculatorOptions => ({
-	attendanceManager: null,
+	attendanceManager: undefined,
 	issueGroups: [],
 	...overrides,
 });

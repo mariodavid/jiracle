@@ -20,7 +20,7 @@ type InlineWorklogFormProps = {
 	}) => void;
 	onCancel: () => void;
 	isSubmitting?: boolean;
-	error?: string | null;
+	error?: string | undefined;
 	config?: JiraConfig;
 	isFavorite?: boolean;
 	isIssueKeyEditable?: boolean;
@@ -39,7 +39,7 @@ export function InlineWorklogForm({
 	onSubmit,
 	onCancel,
 	isSubmitting = false,
-	error = null,
+	error = undefined,
 	config,
 	isFavorite = false,
 	isIssueKeyEditable = false,
@@ -422,7 +422,7 @@ export function InlineWorklogForm({
 							value={timeInputValue}
 							compact={true}
 							config={config}
-							issueSelectionMode={isFavorite ? 'favorites' : null}
+							issueSelectionMode={isFavorite ? 'favorites' : undefined}
 							incrementMinutes={60}
 							onChange={handleTimeInputChange}
 							onSubmit={() => {

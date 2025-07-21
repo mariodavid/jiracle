@@ -28,7 +28,7 @@ test('useFocusManagement: returns initial state with null focused cell', t => {
 	// @ts-expect-error
 	const hook = globalThis.__testHookResult as UseFocusManagementResult;
 	t.truthy(hook);
-	t.is(hook.focusedCell, null);
+	t.is(hook.focusedCell, undefined);
 	t.is(typeof hook.handleFocusChange, 'function');
 	t.is(typeof hook.setFocusedCell, 'function');
 	t.is(typeof hook.clearFocus, 'function');

@@ -15,20 +15,20 @@ export type DeleteAttendanceCandidate = {
 
 export type UseDeleteOperationsOptions = {
 	config: JiraConfig;
-	userEmail?: string | null;
+	userEmail?: string | undefined;
 	onRefresh: () => void;
 	onActiveAreaChange: (area: string) => void;
-	attendanceManager?: AttendanceManager | null;
+	attendanceManager?: AttendanceManager | undefined;
 	onAttendanceRefresh?: () => void;
 };
 
 export type UseDeleteOperationsReturn = {
 	// State
-	deleteCandidate: DeleteCandidate | null;
-	deleteAttendanceCandidate: DeleteAttendanceCandidate | null;
+	deleteCandidate: DeleteCandidate | undefined;
+	deleteAttendanceCandidate: DeleteAttendanceCandidate | undefined;
 	isDeleting: boolean;
 	isDeletingAttendance: boolean;
-	deleteError: string | null;
+	deleteError: string | undefined;
 
 	// Actions
 	handleCellDelete: (data: {issueKey: string; date: Date}) => void;
@@ -50,13 +50,15 @@ export function useDeleteOperations(
 		onAttendanceRefresh,
 	} = options;
 
-	const [deleteCandidate, setDeleteCandidate] =
-		useState<DeleteCandidate | null>(null);
-	const [deleteAttendanceCandidate, setDeleteAttendanceCandidate] =
-		useState<DeleteAttendanceCandidate | null>(null);
+	const [deleteCandidate, setDeleteCandidate] = useState<
+		DeleteCandidate | undefined
+	>(undefined);
+	const [deleteAttendanceCandidate, setDeleteAttendanceCandidate] = useState<
+		DeleteAttendanceCandidate | undefined
+	>(undefined);
 	const [isDeleting, setIsDeleting] = useState(false);
 	const [isDeletingAttendance, setIsDeletingAttendance] = useState(false);
-	const [deleteError, setDeleteError] = useState<string | null>(null);
+	const [deleteError, setDeleteError] = useState<string | undefined>(undefined);
 
 	const handleCellDelete = useCallback(
 		(data: {issueKey: string; date: Date}) => {
@@ -77,13 +79,13 @@ export function useDeleteOperations(
 	const handleDeleteConfirm = useCallback(
 		async (confirmed: boolean) => {
 			if (!confirmed || !deleteCandidate) {
-				setDeleteCandidate(null);
+				setDeleteCandidate(undefined);
 				onActiveAreaChange('timetable');
 				return;
 			}
 
 			setIsDeleting(true);
-			setDeleteError(null);
+			setDeleteError(undefined);
 
 			try {
 				const jiraClient = new JiraClient(config);
@@ -131,7 +133,7 @@ export function useDeleteOperations(
 				setDeleteError(`Failed to delete worklogs: ${errorMessage}`);
 			} finally {
 				setIsDeleting(false);
-				setDeleteCandidate(null);
+				setDeleteCandidate(undefined);
 				onActiveAreaChange('timetable');
 			}
 		},
@@ -141,13 +143,13 @@ export function useDeleteOperations(
 	const handleDeleteAttendanceConfirm = useCallback(
 		async (confirmed: boolean) => {
 			if (!confirmed || !deleteAttendanceCandidate || !attendanceManager) {
-				setDeleteAttendanceCandidate(null);
+				setDeleteAttendanceCandidate(undefined);
 				onActiveAreaChange('timetable');
 				return;
 			}
 
 			setIsDeletingAttendance(true);
-			setDeleteError(null);
+			setDeleteError(undefined);
 
 			try {
 				const targetDateString = formatLocalDateKey(
@@ -178,7 +180,7 @@ export function useDeleteOperations(
 				setDeleteError(`Failed to delete attendance: ${errorMessage}`);
 			} finally {
 				setIsDeletingAttendance(false);
-				setDeleteAttendanceCandidate(null);
+				setDeleteAttendanceCandidate(undefined);
 				onActiveAreaChange('timetable');
 			}
 		},
@@ -192,14 +194,14 @@ export function useDeleteOperations(
 	);
 
 	const clearDeleteError = useCallback(() => {
-		setDeleteError(null);
+		setDeleteError(undefined);
 	}, []);
 
 	// Auto-hide delete error alert after 5 seconds
 	useEffect(() => {
 		if (deleteError) {
 			const timer = setTimeout(() => {
-				setDeleteError(null);
+				setDeleteError(undefined);
 			}, 5000);
 			return () => {
 				clearTimeout(timer);

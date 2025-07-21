@@ -61,7 +61,7 @@ test('IssueGroupManager - groups issues by resolved groups', t => {
 	t.is(frontendGroup!.group!.name, 'Frontend Team');
 
 	// Ungrouped issues
-	const ungroupedGroup = groups.find(g => g.group === null);
+	const ungroupedGroup = groups.find(g => g.group === undefined);
 	t.truthy(ungroupedGroup);
 	t.is(ungroupedGroup!.issues.length, 1);
 	t.is(ungroupedGroup!.issues[0]?.[0], 'OTHER-789');
@@ -69,7 +69,7 @@ test('IssueGroupManager - groups issues by resolved groups', t => {
 });
 
 test('IssueGroupManager - handles null config gracefully', t => {
-	const manager = new IssueGroupManager(null);
+	const manager = new IssueGroupManager(undefined);
 	const issues: Array<[string, any]> = [
 		['PROJ-123', {weekTotal: 8}],
 		['PROJ-456', {weekTotal: 6}],
@@ -78,7 +78,7 @@ test('IssueGroupManager - handles null config gracefully', t => {
 	const groups = manager.groupIssuesByResolvedGroup(issues);
 
 	t.is(groups.length, 1);
-	t.is(groups[0]?.group, null);
+	t.is(groups[0]?.group, undefined);
 	t.is(groups[0]?.issues.length, 2);
 	t.is(groups[0]?.totalHours, 14);
 });
@@ -161,7 +161,7 @@ test('IssueGroupManager - sorts issues within groups by key', t => {
 });
 
 test('IssueGroupManager - handles different project prefixes in sorting', t => {
-	const manager = new IssueGroupManager(null);
+	const manager = new IssueGroupManager(undefined);
 	const issues: Array<[string, any]> = [
 		['ZEBRA-456', {weekTotal: 6}],
 		['ALPHA-123', {weekTotal: 8}],
@@ -231,7 +231,7 @@ test('IssueGroupManager - handles empty issues array', t => {
 });
 
 test('IssueGroupManager - handles issues with malformed keys', t => {
-	const manager = new IssueGroupManager(null);
+	const manager = new IssueGroupManager(undefined);
 	const issues: Array<[string, any]> = [
 		['PROJ', {weekTotal: 8}], // No number
 		['123', {weekTotal: 6}], // No project
@@ -282,7 +282,7 @@ test('IssueGroupManager - preserves ungrouped issues at the end', t => {
 
 	t.is(groups.length, 2);
 	t.is(groups[0]?.group?.name, 'Team'); // Grouped comes first
-	t.is(groups[1]?.group, null); // Ungrouped comes last
+	t.is(groups[1]?.group, undefined); // Ungrouped comes last
 	t.is(groups[1]?.issues.length, 1);
 	t.is(groups[1]?.issues[0]?.[0], 'OTHER-456');
 });

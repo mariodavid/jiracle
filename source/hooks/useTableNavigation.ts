@@ -27,13 +27,13 @@ export type TableNavigationProps = {
 };
 
 export type TableNavigationResult = {
-	focusedCell: FocusedCell | null;
+	focusedCell: FocusedCell | undefined;
 	handleFocusChange: (
 		issueKey: string,
 		columnIndex: number,
 		isFocused: boolean,
 	) => void;
-	setFocusedCell: (cell: FocusedCell | null) => void;
+	setFocusedCell: (cell: FocusedCell | undefined) => void;
 	clearFocus: () => void;
 	isCellFocused: (issueKey: string, columnIndex: number) => boolean;
 };

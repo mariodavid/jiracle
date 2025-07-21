@@ -75,19 +75,19 @@ function formatTime(time: string): string {
 
 function parseTime(
 	timeString: string,
-): {hours: number; minutes: number; totalMinutes: number} | null {
+): {hours: number; minutes: number; totalMinutes: number} | undefined {
 	const timeRegex = /^(\d{2}):(\d{2})$/;
 	const match = timeString.match(timeRegex);
 
 	if (!match) {
-		return null;
+		return undefined;
 	}
 
 	const hours = Number.parseInt(match[1]!, 10);
 	const minutes = Number.parseInt(match[2]!, 10);
 
 	if (hours < 0 || hours > 23 || minutes < 0 || minutes > 59) {
-		return null;
+		return undefined;
 	}
 
 	return {
@@ -98,12 +98,12 @@ function parseTime(
 }
 
 function calculateStatus(
-	attendance: Attendance | null,
+	attendance: Attendance | undefined,
 	shouldHours: number,
 ): AttendanceStatus {
 	if (!attendance) {
 		return {
-			today: null,
+			today: undefined,
 			totalHours: 0,
 			shouldHours,
 			difference: -shouldHours,
@@ -177,8 +177,8 @@ function calculateDailyDeltas(
 	weeklyAttendance: WeeklyAttendance,
 	dailyLoggedHours: Record<string, number>,
 	weekDates: string[],
-): Record<string, number | null> {
-	const deltas: Record<string, number | null> = {};
+): Record<string, number | undefined> {
+	const deltas: Record<string, number | undefined> = {};
 
 	for (const date of weekDates) {
 		const attendance = weeklyAttendance[date];
@@ -186,7 +186,7 @@ function calculateDailyDeltas(
 
 		if (!attendance?.checkIn || !attendance.checkOut) {
 			// No attendance data available or incomplete
-			deltas[date] = null;
+			deltas[date] = undefined;
 		} else {
 			const attendanceHours =
 				attendance.totalHours || calculateTotalHours(attendance) || 0;
@@ -198,13 +198,13 @@ function calculateDailyDeltas(
 }
 
 function isValidTimeString(time: string): boolean {
-	return parseTime(time) !== null;
+	return parseTime(time) !== undefined;
 }
 
-function addMinutes(time: string, minutes: number): string | null {
+function addMinutes(time: string, minutes: number): string | undefined {
 	const parsed = parseTime(time);
 	if (!parsed) {
-		return null;
+		return undefined;
 	}
 
 	const totalMinutes = parsed.totalMinutes + minutes;
@@ -219,12 +219,12 @@ function addMinutes(time: string, minutes: number): string | null {
 function timeDifferenceInMinutes(
 	startTime: string,
 	endTime: string,
-): number | null {
+): number | undefined {
 	const start = parseTime(startTime);
 	const end = parseTime(endTime);
 
 	if (!start || !end) {
-		return null;
+		return undefined;
 	}
 
 	return end.totalMinutes - start.totalMinutes;

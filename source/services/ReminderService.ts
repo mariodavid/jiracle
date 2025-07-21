@@ -10,7 +10,7 @@ type ReminderState = {
 };
 
 export class ReminderService {
-	private interval: NodeJS.Timeout | null = null;
+	private interval: NodeJS.Timeout | undefined = undefined;
 	private state: ReminderState;
 	private readonly checkIntervalMs = 60 * 1000; // Check every 60 seconds
 
@@ -40,7 +40,7 @@ export class ReminderService {
 	stop(): void {
 		if (this.interval) {
 			clearInterval(this.interval);
-			this.interval = null;
+			this.interval = undefined;
 		}
 	}
 

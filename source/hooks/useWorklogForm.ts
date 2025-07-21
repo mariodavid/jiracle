@@ -31,7 +31,7 @@ export type WorklogFormData = {
 
 export type UseWorklogFormOptions = {
 	config: JiraConfig;
-	userEmail?: string | null;
+	userEmail?: string | undefined;
 	onRefresh: () => void;
 	onActiveAreaChange: (area: string) => void;
 	data?: WeeklyWorklogSummary; // WeeklyWorklogSummary data for worklog detection
@@ -41,7 +41,7 @@ export type UseWorklogFormReturn = {
 	// State
 	worklogForm: WorklogFormData;
 	worklogSubmitting: boolean;
-	worklogError: string | null;
+	worklogError: string | undefined;
 
 	// Actions
 	handleCellWorklog: (cellData: {issueKey: string; date: Date}) => void;
@@ -68,7 +68,7 @@ export function useWorklogForm(
 			try {
 				// Check if attendance is enabled and get attendance data
 				if (!config.attendance?.enabled) {
-					return null; // No attendance tracking, can't calculate remaining time
+					return undefined; // No attendance tracking, can't calculate remaining time
 				}
 
 				const attendanceManager = new AttendanceManager(config.attendance);
@@ -78,7 +78,7 @@ export function useWorklogForm(
 				const attendance = allAttendance.find(a => a.date === dateKey);
 
 				if (!attendance?.totalHours || attendance.totalHours <= 0) {
-					return null; // No attendance data for this date
+					return undefined; // No attendance data for this date
 				}
 
 				// Find daily summary for this date
@@ -108,7 +108,7 @@ export function useWorklogForm(
 				return Math.max(0, remainingTime);
 			} catch (error: unknown) {
 				console.error('Failed to calculate remaining time:', error);
-				return null;
+				return undefined;
 			}
 		},
 		[config, data],
@@ -124,7 +124,9 @@ export function useWorklogForm(
 	});
 
 	const [worklogSubmitting, setWorklogSubmitting] = useState(false);
-	const [worklogError, setWorklogError] = useState<string | null>(null);
+	const [worklogError, setWorklogError] = useState<string | undefined>(
+		undefined,
+	);
 
 	const handleCellWorklog = useCallback(
 		(cellData: {issueKey: string; date: Date}) => {
@@ -161,7 +163,7 @@ export function useWorklogForm(
 					isEditMode: detectionResult.isEditable,
 					worklogId: detectionResult.worklogId,
 				});
-				setWorklogError(null);
+				setWorklogError(undefined);
 				onActiveAreaChange('worklog-form');
 			} else {
 				// New entry mode: calculate remaining time first, then show form
@@ -169,7 +171,7 @@ export function useWorklogForm(
 					.then(remainingTime => {
 						let suggestedTime: string;
 
-						if (remainingTime !== null && remainingTime > 0) {
+						if (remainingTime !== undefined && remainingTime > 0) {
 							// Use remaining time as suggestion
 							const hours = Math.floor(remainingTime);
 							const minutes = Math.round((remainingTime - hours) * 60);
@@ -188,7 +190,7 @@ export function useWorklogForm(
 								remainingTime,
 								suggestion: suggestedTime,
 							});
-						} else if (remainingTime !== null && remainingTime === 0) {
+						} else if (remainingTime !== undefined && remainingTime === 0) {
 							// Remaining time is 0 (all attendance hours already logged),
 							// use config defaults for "clock out" workflow
 							suggestedTime = defaults.time;
@@ -217,7 +219,7 @@ export function useWorklogForm(
 							isIssueKeyEditable: false,
 							isEditMode: false,
 						});
-						setWorklogError(null);
+						setWorklogError(undefined);
 						onActiveAreaChange('worklog-form');
 					})
 					.catch(error => {
@@ -232,7 +234,7 @@ export function useWorklogForm(
 							isIssueKeyEditable: false,
 							isEditMode: false,
 						});
-						setWorklogError(null);
+						setWorklogError(undefined);
 						onActiveAreaChange('worklog-form');
 					});
 			}
@@ -251,7 +253,7 @@ export function useWorklogForm(
 			isVisible: true,
 			isIssueKeyEditable: true, // Allow editing issue key in add mode
 		});
-		setWorklogError(null); // Clear any previous error
+		setWorklogError(undefined); // Clear any previous error
 		onActiveAreaChange('worklog-form');
 	}, [config, onActiveAreaChange]);
 
@@ -293,7 +295,7 @@ export function useWorklogForm(
 			}
 
 			setWorklogSubmitting(true);
-			setWorklogError(null);
+			setWorklogError(undefined);
 
 			try {
 				const jiraClient = new JiraClient(config);
@@ -366,7 +368,7 @@ export function useWorklogForm(
 	}, [onActiveAreaChange]);
 
 	const clearError = useCallback(() => {
-		setWorklogError(null);
+		setWorklogError(undefined);
 	}, []);
 
 	return {

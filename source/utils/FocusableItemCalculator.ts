@@ -9,7 +9,7 @@ export type FocusableItem = {
 };
 
 export type FocusableItemCalculatorOptions = {
-	attendanceManager: AttendanceManager | null | undefined;
+	attendanceManager: AttendanceManager | undefined | undefined;
 	issueGroups: IssueGroup[];
 	columnCount?: number;
 };

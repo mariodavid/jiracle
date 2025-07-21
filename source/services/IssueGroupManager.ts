@@ -2,19 +2,19 @@ import type {JiraConfig, Group} from '../jira-client.js';
 import {resolveDefaults} from '../jira-client.js';
 
 export type IssueGroup = {
-	group: Group | null;
+	group: Group | undefined;
 	issues: Array<[string, any]>;
 	totalHours: number;
 };
 
 export class IssueGroupManager {
-	constructor(private config: JiraConfig | null) {}
+	constructor(private config: JiraConfig | undefined) {}
 
 	groupIssuesByResolvedGroup(issues: Array<[string, any]>): IssueGroup[] {
 		if (!this.config) {
 			return [
 				{
-					group: null,
+					group: undefined,
 					issues: this.sortIssuesByKey(issues),
 					totalHours: issues.reduce(
 						(sum: number, [, issueData]: [string, any]): number =>
@@ -61,7 +61,7 @@ export class IssueGroupManager {
 
 		if (ungroupedIssues.length > 0) {
 			groups.push({
-				group: null,
+				group: undefined,
 				issues: this.sortIssuesByKey(ungroupedIssues),
 				totalHours: ungroupedIssues.reduce(
 					(sum: number, [, issueData]: [string, any]): number =>

@@ -36,7 +36,7 @@ test('WorklogFormArea renders with worklog form', t => {
 		<WorklogFormArea
 			worklogForm={mockWorklogForm}
 			worklogSubmitting={false}
-			worklogError={null}
+			worklogError={undefined}
 			config={mockConfig}
 			onSubmit={mockOnSubmit}
 			onCancel={mockOnCancel}
@@ -56,7 +56,7 @@ test('WorklogFormArea shows loading state when submitting', t => {
 		<WorklogFormArea
 			worklogForm={mockWorklogForm}
 			worklogSubmitting={true}
-			worklogError={null}
+			worklogError={undefined}
 			config={mockConfig}
 			onSubmit={mockOnSubmit}
 			onCancel={mockOnCancel}
@@ -97,7 +97,7 @@ test('WorklogFormArea handles submit callback', t => {
 		<WorklogFormArea
 			worklogForm={mockWorklogForm}
 			worklogSubmitting={false}
-			worklogError={null}
+			worklogError={undefined}
 			config={mockConfig}
 			onSubmit={mockOnSubmit}
 			onCancel={mockOnCancel}
@@ -117,7 +117,7 @@ test('WorklogFormArea handles cancel callback', t => {
 		<WorklogFormArea
 			worklogForm={mockWorklogForm}
 			worklogSubmitting={false}
-			worklogError={null}
+			worklogError={undefined}
 			config={mockConfig}
 			onSubmit={mockOnSubmit}
 			onCancel={mockOnCancel}
@@ -142,7 +142,7 @@ test('WorklogFormArea shows favorite indicator for favorite issues', t => {
 		<WorklogFormArea
 			worklogForm={favoriteWorklogForm}
 			worklogSubmitting={false}
-			worklogError={null}
+			worklogError={undefined}
 			config={mockConfig}
 			onSubmit={mockOnSubmit}
 			onCancel={mockOnCancel}
@@ -168,7 +168,7 @@ test('WorklogFormArea handles edit mode correctly', t => {
 		<WorklogFormArea
 			worklogForm={editWorklogForm}
 			worklogSubmitting={false}
-			worklogError={null}
+			worklogError={undefined}
 			config={mockConfig}
 			onSubmit={mockOnSubmit}
 			onCancel={mockOnCancel}
@@ -189,7 +189,7 @@ test('WorklogFormArea uses correct styling and layout', t => {
 		<WorklogFormArea
 			worklogForm={mockWorklogForm}
 			worklogSubmitting={false}
-			worklogError={null}
+			worklogError={undefined}
 			config={mockConfig}
 			onSubmit={mockOnSubmit}
 			onCancel={mockOnCancel}

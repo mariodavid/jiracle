@@ -56,7 +56,7 @@ test('useTableNavigation: returns expected interface structure', t => {
 	const result = (globalThis as any)
 		.__testTableNavigationResult as TableNavigationResult;
 	t.truthy(result);
-	t.is(result.focusedCell, null);
+	t.is(result.focusedCell, undefined);
 	t.is(typeof result.handleFocusChange, 'function');
 	t.is(typeof result.setFocusedCell, 'function');
 	t.is(typeof result.clearFocus, 'function');
@@ -66,7 +66,7 @@ test('useTableNavigation: returns expected interface structure', t => {
 test('useTableNavigation: handles all optional callback props', t => {
 	const mockIssueGroups: IssueGroup[] = [
 		{
-			group: null,
+			group: undefined,
 			issues: [
 				['PROJECT-123', {summary: 'Test issue', dailyHours: {}, weekTotal: 0}],
 			],
@@ -133,7 +133,7 @@ test('useTableNavigation: handles inactive state', t => {
 	const result = (globalThis as any)
 		.__testTableNavigationResult as TableNavigationResult;
 	t.truthy(result);
-	t.is(result.focusedCell, null);
+	t.is(result.focusedCell, undefined);
 });
 
 test('useTableNavigation: works with complex issue groups', t => {
@@ -157,7 +157,7 @@ test('useTableNavigation: works with complex issue groups', t => {
 			totalHours: 24,
 		},
 		{
-			group: null,
+			group: undefined,
 			issues: [
 				[
 					'PROJECT-789',
@@ -256,7 +256,7 @@ test('useTableNavigation: result methods maintain hook contract', t => {
 		result.handleFocusChange('PROJECT-123', 0, true);
 	});
 	t.notThrows(() => {
-		result.setFocusedCell(null);
+		result.setFocusedCell(undefined);
 	});
 	t.notThrows(() => {
 		result.clearFocus();

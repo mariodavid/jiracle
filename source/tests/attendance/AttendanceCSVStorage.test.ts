@@ -97,7 +97,7 @@ test('should get attendance by date', async t => {
 	t.is(result?.breakMinutes, 30);
 
 	const notFound = await storage.getByDate('2025-07-12');
-	t.is(notFound, null);
+	t.is(notFound, undefined);
 
 	cleanup(csvPath);
 });

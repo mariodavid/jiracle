@@ -33,7 +33,7 @@ import {TimetableGrid} from './TimetableGrid.js';
 export type WeeklyTimetableViewProps = {
 	onBack: () => void;
 	config: JiraConfig;
-	userEmail?: string | null;
+	userEmail?: string | undefined;
 };
 
 export function WeeklyTimetableView({

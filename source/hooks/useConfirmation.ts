@@ -12,7 +12,7 @@ export type ConfirmationState = {
 	isVisible: boolean;
 	isLoading: boolean;
 	config: ConfirmationConfig;
-	onConfirm: ((confirmed: boolean) => void) | null;
+	onConfirm: ((confirmed: boolean) => void) | undefined;
 };
 
 export type ConfirmationActions = {
@@ -27,7 +27,7 @@ export function useConfirmation(): ConfirmationState & ConfirmationActions {
 		isVisible: false,
 		isLoading: false,
 		config: {},
-		onConfirm: null,
+		onConfirm: undefined,
 	});
 
 	const show = useCallback(
@@ -49,7 +49,7 @@ export function useConfirmation(): ConfirmationState & ConfirmationActions {
 			isVisible: false,
 			isLoading: false,
 			config: {},
-			onConfirm: null,
+			onConfirm: undefined,
 		});
 	}, []);
 

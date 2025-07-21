@@ -5,7 +5,7 @@ import type {JiraIssue} from '../jira-client.js';
 
 type WorklogSummaryProps = {
 	variant: 'success' | 'submitting';
-	selectedIssue?: JiraIssue | null;
+	selectedIssue?: JiraIssue | undefined;
 	selectedTime?: string;
 	comment?: string;
 	selectedDate?: string;

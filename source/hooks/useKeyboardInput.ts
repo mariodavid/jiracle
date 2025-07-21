@@ -14,7 +14,7 @@ export type KeyboardInputHandlers = {
 
 export type KeyboardInputOptions = {
 	isActive: boolean;
-	focusedCell: FocusedCell | null;
+	focusedCell: FocusedCell | undefined;
 	weekDates: Date[];
 	handlers: KeyboardInputHandlers;
 };

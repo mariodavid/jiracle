@@ -167,7 +167,7 @@ test('should return null when success variant but selectedIssue is null', async 
 	const {lastFrame, unmount} = render(
 		React.createElement(WorklogSummary, {
 			variant: 'success',
-			selectedIssue: null,
+			selectedIssue: undefined,
 			selectedTime: '1h',
 			comment: 'Test comment',
 			selectedDate: '2025-01-09T12:00:00.000Z',

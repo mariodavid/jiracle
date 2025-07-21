@@ -92,7 +92,10 @@ export const assertions = {
 	/**
 	 * Asserts that output contains all given strings
 	 */
-	containsAll(output: string | null | undefined, texts: string[]): boolean {
+	containsAll(
+		output: string | undefined | undefined,
+		texts: string[],
+	): boolean {
 		if (!output) return false;
 		return texts.every(text => output.includes(text));
 	},
@@ -100,7 +103,10 @@ export const assertions = {
 	/**
 	 * Asserts that output contains any of the given strings
 	 */
-	containsAny(output: string | null | undefined, texts: string[]): boolean {
+	containsAny(
+		output: string | undefined | undefined,
+		texts: string[],
+	): boolean {
 		if (!output) return false;
 		return texts.some(text => output.includes(text));
 	},
@@ -108,7 +114,10 @@ export const assertions = {
 	/**
 	 * Asserts that output does not contain any of the given strings
 	 */
-	containsNone(output: string | null | undefined, texts: string[]): boolean {
+	containsNone(
+		output: string | undefined | undefined,
+		texts: string[],
+	): boolean {
 		if (!output) return true;
 		return !texts.some(text => output.includes(text));
 	},

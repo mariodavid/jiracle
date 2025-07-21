@@ -22,7 +22,7 @@ import {AttendanceRows} from './AttendanceRows.js';
 import {FocusableCell} from './FocusableCell.js';
 
 export type TimetableGridProps = {
-	data: WeeklyWorklogSummary | null;
+	data: WeeklyWorklogSummary | undefined;
 	isLoading: boolean;
 	onWeekChange?: (direction: 'prev' | 'next') => void;
 	onCellWorklog?: (data: {issueKey: string; date: Date}) => void;
@@ -99,7 +99,10 @@ export function TimetableGrid({
 	}
 
 	// Group issues by their resolved groups using the extracted service
-	const issueGroups = useIssueGroups(Object.entries(issueMap), config || null);
+	const issueGroups = useIssueGroups(
+		Object.entries(issueMap),
+		config || undefined,
+	);
 
 	// Unified table navigation (focus management + keyboard input)
 	const {focusedCell, handleFocusChange} = useTableNavigation({

@@ -15,7 +15,7 @@ test('Integration: WeeklyTimetableView renders complete UI structure', t => {
 	const props = {
 		onBack() {},
 		config: mockConfig,
-		userEmail: null,
+		userEmail: undefined,
 	};
 
 	const {lastFrame} = render(React.createElement(WeeklyTimetableView, props));
@@ -47,7 +47,7 @@ test('Integration: WeeklyTimetableView handles week navigation', t => {
 	const props = {
 		onBack() {},
 		config: mockConfig,
-		userEmail: null,
+		userEmail: undefined,
 	};
 
 	const {lastFrame} = render(React.createElement(WeeklyTimetableView, props));
@@ -68,7 +68,7 @@ test('Integration: WeeklyTimetableView handles today navigation', t => {
 	const props = {
 		onBack() {},
 		config: mockConfig,
-		userEmail: null,
+		userEmail: undefined,
 	};
 
 	const {lastFrame, stdin} = render(
@@ -86,7 +86,7 @@ test('Integration: WeeklyTimetableView handles refresh', t => {
 	const props = {
 		onBack() {},
 		config: mockConfig,
-		userEmail: null,
+		userEmail: undefined,
 	};
 
 	const {lastFrame, stdin} = render(
@@ -107,7 +107,7 @@ test('Integration: WeeklyTimetableView handles back navigation', t => {
 			backCalled = true;
 		},
 		config: mockConfig,
-		userEmail: null,
+		userEmail: undefined,
 	};
 
 	const {stdin} = render(React.createElement(WeeklyTimetableView, props));
@@ -125,7 +125,7 @@ test('Integration: WeeklyTimetableView handles q key for back navigation', t => 
 			backCalled = true;
 		},
 		config: mockConfig,
-		userEmail: null,
+		userEmail: undefined,
 	};
 
 	const {stdin} = render(React.createElement(WeeklyTimetableView, props));
@@ -140,7 +140,7 @@ test('Integration: Week calculations work correctly', t => {
 	const props = {
 		onBack() {},
 		config: mockConfig,
-		userEmail: null,
+		userEmail: undefined,
 	};
 
 	const {lastFrame} = render(React.createElement(WeeklyTimetableView, props));
@@ -158,7 +158,7 @@ test('Integration: TimetableGrid displays correct structure when loading', t => 
 	const props = {
 		onBack() {},
 		config: mockConfig,
-		userEmail: null,
+		userEmail: undefined,
 	};
 
 	const {lastFrame} = render(React.createElement(WeeklyTimetableView, props));

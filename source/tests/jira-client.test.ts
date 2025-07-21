@@ -209,13 +209,13 @@ test('extractIssueKeyFromInput extracts issue keys from URLs correctly', t => {
 	);
 
 	// Test invalid inputs (should return null)
-	t.is(extractIssueKeyFromInput('invalid-input'), null);
-	t.is(extractIssueKeyFromInput('123-ABC'), null);
-	t.is(extractIssueKeyFromInput('https://example.com/other/path'), null);
-	t.is(extractIssueKeyFromInput(''), null);
+	t.is(extractIssueKeyFromInput('invalid-input'), undefined);
+	t.is(extractIssueKeyFromInput('123-ABC'), undefined);
+	t.is(extractIssueKeyFromInput('https://example.com/other/path'), undefined);
+	t.is(extractIssueKeyFromInput(''), undefined);
 
 	// Test edge cases
-	t.is(extractIssueKeyFromInput('https://jira.example.com/browse/'), null);
-	t.is(extractIssueKeyFromInput('browse/DEF-1234'), null); // Missing slash
-	t.is(extractIssueKeyFromInput('https://google.com/'), null); // Invalid URL
+	t.is(extractIssueKeyFromInput('https://jira.example.com/browse/'), undefined);
+	t.is(extractIssueKeyFromInput('browse/DEF-1234'), undefined); // Missing slash
+	t.is(extractIssueKeyFromInput('https://google.com/'), undefined); // Invalid URL
 });

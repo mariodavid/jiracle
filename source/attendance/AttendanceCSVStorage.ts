@@ -57,9 +57,9 @@ export class AttendanceCSVStorage {
 		await writeFile(this.csvPath, lines.join('\n') + '\n');
 	}
 
-	async getByDate(date: string): Promise<Attendance | null> {
+	async getByDate(date: string): Promise<Attendance | undefined> {
 		const attendances = await this.readAll();
-		return attendances.find(a => a.date === date) || null;
+		return attendances.find(a => a.date === date) || undefined;
 	}
 
 	async getByDateRange(

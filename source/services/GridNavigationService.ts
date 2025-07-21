@@ -22,9 +22,9 @@ export class GridNavigationService {
 	static findInitialFocusItem(
 		focusableItems: FocusableItem[],
 		preferredColumnIndex?: number,
-	): FocusableItem | null {
+	): FocusableItem | undefined {
 		if (focusableItems.length === 0) {
-			return null;
+			return undefined;
 		}
 
 		// Try to find item in preferred column
@@ -38,7 +38,7 @@ export class GridNavigationService {
 		}
 
 		// Fallback to first item
-		return focusableItems[0] || null;
+		return focusableItems[0] || undefined;
 	}
 
 	private static get DEFAULT_COLUMN_COUNT() {

@@ -7,12 +7,14 @@ import type {JiraConfig} from '../jira-client.js';
 
 // Mock fetch setup
 const originalFetch = global.fetch;
-let mockFetchResponse: {
-	status: number;
-	ok: boolean;
-	json?: () => Promise<any>;
-	text?: () => Promise<string>;
-} | null = null;
+let mockFetchResponse:
+	| {
+			status: number;
+			ok: boolean;
+			json?: () => Promise<any>;
+			text?: () => Promise<string>;
+	  }
+	| undefined = undefined;
 
 function setupMockFetch(response: typeof mockFetchResponse) {
 	mockFetchResponse = response;
@@ -31,7 +33,7 @@ function setupMockFetch(response: typeof mockFetchResponse) {
 
 function restoreFetch() {
 	global.fetch = originalFetch;
-	mockFetchResponse = null;
+	mockFetchResponse = undefined;
 }
 
 // Test config setup
