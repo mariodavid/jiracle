@@ -121,7 +121,6 @@
 			"no-eq-null": "off",
 			"@typescript-eslint/no-floating-promises": "off",
 			"unicorn/prefer-module": "off",
-			"new-cap": "off",
 			"unicorn/no-await-expression-member": "off",
 			"@typescript-eslint/return-await": "off",
 			"no-return-await": "off"
