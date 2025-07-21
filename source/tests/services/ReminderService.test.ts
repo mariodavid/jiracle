@@ -1,3 +1,4 @@
+import process from 'node:process';
 import test from 'ava';
 import {ReminderService} from '../../services/ReminderService.js';
 import type {JiraClient, ReminderConfig} from '../../jira-client.js';
