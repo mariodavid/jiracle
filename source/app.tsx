@@ -21,9 +21,9 @@ export default function App({config}: Props) {
 	if (step === 'weekly-timetable' && currentConfig) {
 		return (
 			<WeeklyTimetableView
-				onBack={exit}
 				config={currentConfig}
 				userEmail={userEmail}
+				onBack={exit}
 			/>
 		);
 	}

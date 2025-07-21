@@ -384,13 +384,13 @@ export function InlineWorklogForm({
 					<Box marginTop={1}>
 						<TextInput
 							defaultValue={currentIssueKey}
+							placeholder="e.g. DEF-123, AD-456..."
+							isDisabled={focusArea !== 'issueKey'}
 							onChange={setCurrentIssueKey}
 							onSubmit={value => {
 								setCurrentIssueKey(value);
 								setFocusArea('date');
 							}}
-							placeholder="e.g. DEF-123, AD-456..."
-							isDisabled={focusArea !== 'issueKey'}
 						/>
 					</Box>
 				</Box>
@@ -403,11 +403,11 @@ export function InlineWorklogForm({
 					<Box marginTop={1}>
 						<SimpleDateInput
 							value={dateInputValue || ''}
+							isActive={focusArea === 'date'}
 							onChange={handleDateChange}
 							onSubmit={() => {
 								setFocusArea('time');
 							}}
-							isActive={focusArea === 'date'}
 						/>
 					</Box>
 				</Box>
@@ -420,14 +420,14 @@ export function InlineWorklogForm({
 					{focusArea === 'time' ? (
 						<DurationInput
 							value={timeInputValue}
-							onChange={handleTimeInputChange}
-							onSubmit={() => {
-								setFocusArea('comment');
-							}}
 							compact={true}
 							config={config}
 							issueSelectionMode={isFavorite ? 'favorites' : null}
 							incrementMinutes={60}
+							onChange={handleTimeInputChange}
+							onSubmit={() => {
+								setFocusArea('comment');
+							}}
 						/>
 					) : (
 						<Box>
@@ -443,10 +443,10 @@ export function InlineWorklogForm({
 				<Box marginTop={1}>
 					<TextInput
 						defaultValue={comment}
-						onChange={setComment}
-						onSubmit={handleSubmit}
 						placeholder="Enter work description..."
 						isDisabled={focusArea !== 'comment'}
+						onChange={setComment}
+						onSubmit={handleSubmit}
 					/>
 				</Box>
 			</Box>

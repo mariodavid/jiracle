@@ -43,8 +43,8 @@ test('DeleteWorklogConfirmationArea renders with issue key and formatted date', 
 		<DeleteWorklogConfirmationArea
 			deleteCandidate={mockDeleteCandidate}
 			isDeleting={false}
-			onConfirm={mockOnConfirm}
 			formatDate={mockFormatDate}
+			onConfirm={mockOnConfirm}
 		/>,
 	);
 
@@ -61,8 +61,8 @@ test('DeleteWorklogConfirmationArea shows loading state', t => {
 		<DeleteWorklogConfirmationArea
 			deleteCandidate={mockDeleteCandidate}
 			isDeleting={true}
-			onConfirm={mockOnConfirm}
 			formatDate={mockFormatDate}
+			onConfirm={mockOnConfirm}
 		/>,
 	);
 
@@ -84,8 +84,8 @@ test('DeleteWorklogConfirmationArea handles confirmation callback', t => {
 		<DeleteWorklogConfirmationArea
 			deleteCandidate={mockDeleteCandidate}
 			isDeleting={false}
-			onConfirm={mockOnConfirm}
 			formatDate={mockFormatDate}
+			onConfirm={mockOnConfirm}
 		/>,
 	);
 
@@ -103,8 +103,8 @@ test('DeleteWorklogConfirmationArea uses correct dialog styling', t => {
 		<DeleteWorklogConfirmationArea
 			deleteCandidate={mockDeleteCandidate}
 			isDeleting={false}
-			onConfirm={mockOnConfirm}
 			formatDate={mockFormatDate}
+			onConfirm={mockOnConfirm}
 		/>,
 	);
 
@@ -126,8 +126,8 @@ test('DeleteWorklogConfirmationArea handles different issue keys', t => {
 		<DeleteWorklogConfirmationArea
 			deleteCandidate={differentCandidate}
 			isDeleting={false}
-			onConfirm={mockOnConfirm}
 			formatDate={mockFormatDate}
+			onConfirm={mockOnConfirm}
 		/>,
 	);
 

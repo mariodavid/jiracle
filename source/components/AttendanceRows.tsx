@@ -78,9 +78,9 @@ export function AttendanceRows({
 										isActive={true}
 										issueKey={`attendance-${row.key}`}
 										columnIndex={index}
-										onFocusChange={onFocusChange}
 										width={12}
 										rightAlign={true}
+										onFocusChange={onFocusChange}
 									/>
 								) : (
 									<Box

@@ -187,11 +187,11 @@ export function AttendanceEditForm({
 						<TimeInputField
 							label=""
 							value={checkIn}
+							compact={true}
 							onChange={setCheckIn}
 							onSubmit={() => {
 								setFocusArea('checkOut');
 							}}
-							compact={true}
 						/>
 					) : (
 						<Text color="gray">{checkIn}</Text>
@@ -205,11 +205,11 @@ export function AttendanceEditForm({
 						<TimeInputField
 							label=""
 							value={checkOut}
+							compact={true}
 							onChange={setCheckOut}
 							onSubmit={() => {
 								setFocusArea('break');
 							}}
-							compact={true}
 						/>
 					) : (
 						<Text color="gray">{checkOut}</Text>
@@ -222,13 +222,13 @@ export function AttendanceEditForm({
 					{focusArea === 'break' ? (
 						<DurationInput
 							value={breakMinutes}
+							compact={true}
+							allowedUnits={['h', 'm']}
+							incrementMinutes={15}
 							onChange={setBreakMinutes}
 							onSubmit={() => {
 								setFocusArea('submit');
 							}}
-							compact={true}
-							allowedUnits={['h', 'm']}
-							incrementMinutes={15}
 						/>
 					) : (
 						<Text color="gray">{breakMinutes}</Text>

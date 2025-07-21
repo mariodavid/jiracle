@@ -21,8 +21,8 @@ test('WeeklyTimetableView has auto-focus behavior after week navigation', t => {
 	const {lastFrame} = render(
 		<WeeklyTimetableView
 			config={mockConfig}
-			onBack={() => {}}
 			userEmail="test@example.com"
+			onBack={() => {}}
 		/>,
 	);
 
@@ -47,8 +47,8 @@ test('WeeklyTimetableView week navigation functions set correct focus state', t 
 	const {lastFrame} = render(
 		<WeeklyTimetableView
 			config={mockConfig}
-			onBack={() => {}}
 			userEmail="test@example.com"
+			onBack={() => {}}
 		/>,
 	);
 
@@ -75,8 +75,8 @@ test('WeeklyTimetableView focus management integration', t => {
 	const {lastFrame} = render(
 		<WeeklyTimetableView
 			config={mockConfig}
-			onBack={() => {}}
 			userEmail="test@example.com"
+			onBack={() => {}}
 		/>,
 	);
 

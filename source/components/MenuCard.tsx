@@ -28,7 +28,7 @@ const MenuCard: React.FC<MenuCardProps> = ({
 			borderColor={selected ? 'cyan' : 'gray'}
 		>
 			<Box justifyContent="center">
-				<Text color={selected ? 'cyan' : 'white'} bold>
+				<Text bold color={selected ? 'cyan' : 'white'}>
 					{icon} {title}
 				</Text>
 			</Box>

@@ -30,9 +30,9 @@ export function AttendanceEditFormArea({
 				<AttendanceEditForm
 					date={attendanceEdit.date}
 					initialData={attendanceEdit.data}
+					config={config}
 					onSubmit={onSubmit}
 					onCancel={onCancel}
-					config={config}
 				/>
 			</Box>
 		</Box>

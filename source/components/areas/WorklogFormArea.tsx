@@ -43,8 +43,6 @@ export function WorklogFormArea({
 					date={worklogForm.date}
 					defaultTimeSpent={worklogForm.timeSpent}
 					defaultComment={worklogForm.comment}
-					onSubmit={onSubmit}
-					onCancel={onCancel}
 					isSubmitting={worklogSubmitting}
 					error={worklogError}
 					config={config}
@@ -54,6 +52,8 @@ export function WorklogFormArea({
 					isIssueKeyEditable={worklogForm.isIssueKeyEditable}
 					isEditMode={worklogForm.isEditMode}
 					worklogId={worklogForm.worklogId}
+					onSubmit={onSubmit}
+					onCancel={onCancel}
 				/>
 			</Box>
 		</Box>

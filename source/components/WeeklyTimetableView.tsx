@@ -307,8 +307,8 @@ export function WeeklyTimetableView({
 								<DeleteWorklogConfirmationArea
 									deleteCandidate={deleteCandidate!}
 									isDeleting={isDeleting}
-									onConfirm={handleDeleteConfirm}
 									formatDate={formatDate}
+									onConfirm={handleDeleteConfirm}
 								/>
 							);
 						}
@@ -318,8 +318,8 @@ export function WeeklyTimetableView({
 								<DeleteAttendanceConfirmationArea
 									deleteAttendanceCandidate={deleteAttendanceCandidate!}
 									isDeletingAttendance={isDeletingAttendance}
-									onConfirm={handleDeleteAttendanceConfirm}
 									formatDate={formatDate}
+									onConfirm={handleDeleteAttendanceConfirm}
 								/>
 							);
 						}
@@ -352,6 +352,11 @@ export function WeeklyTimetableView({
 								<TimetableGrid
 									data={displayData}
 									isLoading={displayLoading}
+									isActive={activeArea === 'timetable'}
+									favoriteIssues={config.favorites}
+									config={config}
+									attendanceManager={attendanceManager || undefined}
+									attendanceRefreshKey={attendanceRefreshKey}
 									onWeekChange={direction => {
 										if (direction === 'prev') {
 											navigateToPreviousWeek();
@@ -364,11 +369,6 @@ export function WeeklyTimetableView({
 									onAttendanceEdit={handleAttendanceEdit}
 									onAttendanceDelete={handleDeleteAttendance}
 									onOpenInBrowser={handleOpenInBrowser}
-									isActive={activeArea === 'timetable'}
-									favoriteIssues={config.favorites}
-									config={config}
-									attendanceManager={attendanceManager || undefined}
-									attendanceRefreshKey={attendanceRefreshKey}
 								/>
 							);
 						}

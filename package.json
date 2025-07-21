@@ -64,6 +64,9 @@
 	},
 	"xo": {
 		"prettier": true,
+		"extends": [
+			"xo-react"
+		],
 		"ignores": [
 			"assets/**",
 			"dist/**"
@@ -105,6 +108,15 @@
 			"@typescript-eslint/no-extraneous-class": "off",
 			"@typescript-eslint/prefer-readonly": "off",
 			"import/order": "error",
+			"react/prefer-read-only-props": "off",
+			"react/function-component-definition": "off",
+			"react/jsx-boolean-value": "off",
+			"react-hooks/exhaustive-deps": "off",
+			"react-hooks/rules-of-hooks": "off",
+			"react/no-children-prop": "off",
+			"react/no-array-index-key": "off",
+			"react/no-unused-prop-types": "off",
+			"react/boolean-prop-naming": "off",
 			"n/prefer-global/process": "off",
 			"ava/no-ignored-test-files": "off",
 			"no-await-in-loop": "off",

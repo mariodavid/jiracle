@@ -378,8 +378,8 @@ export function TimetableGrid({
 												isActive={true}
 												issueKey={issueKey}
 												columnIndex={index}
-												onFocusChange={handleFocusChange}
 												width={12}
+												onFocusChange={handleFocusChange}
 											/>
 										) : (
 											<Box
@@ -403,7 +403,7 @@ export function TimetableGrid({
 									</Box>
 								</Box>
 								<Box paddingLeft={2}>
-									<Text color="gray" dimColor>
+									<Text dimColor color="gray">
 										{truncateText(issueData.summary, 50)}
 									</Text>
 								</Box>

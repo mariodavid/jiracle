@@ -42,8 +42,8 @@ test('DeleteAttendanceConfirmationArea renders with formatted date', t => {
 		<DeleteAttendanceConfirmationArea
 			deleteAttendanceCandidate={mockDeleteAttendanceCandidate}
 			isDeletingAttendance={false}
-			onConfirm={mockOnConfirm}
 			formatDate={mockFormatDate}
+			onConfirm={mockOnConfirm}
 		/>,
 	);
 
@@ -59,8 +59,8 @@ test('DeleteAttendanceConfirmationArea shows loading state', t => {
 		<DeleteAttendanceConfirmationArea
 			deleteAttendanceCandidate={mockDeleteAttendanceCandidate}
 			isDeletingAttendance={true}
-			onConfirm={mockOnConfirm}
 			formatDate={mockFormatDate}
+			onConfirm={mockOnConfirm}
 		/>,
 	);
 
@@ -82,8 +82,8 @@ test('DeleteAttendanceConfirmationArea handles confirmation callback', t => {
 		<DeleteAttendanceConfirmationArea
 			deleteAttendanceCandidate={mockDeleteAttendanceCandidate}
 			isDeletingAttendance={false}
-			onConfirm={mockOnConfirm}
 			formatDate={mockFormatDate}
+			onConfirm={mockOnConfirm}
 		/>,
 	);
 
@@ -107,8 +107,8 @@ test('DeleteAttendanceConfirmationArea handles cancellation callback', t => {
 		<DeleteAttendanceConfirmationArea
 			deleteAttendanceCandidate={mockDeleteAttendanceCandidate}
 			isDeletingAttendance={false}
-			onConfirm={mockOnConfirm}
 			formatDate={mockFormatDate}
+			onConfirm={mockOnConfirm}
 		/>,
 	);
 
@@ -130,8 +130,8 @@ test('DeleteAttendanceConfirmationArea handles different dates', t => {
 		<DeleteAttendanceConfirmationArea
 			deleteAttendanceCandidate={differentCandidate}
 			isDeletingAttendance={false}
-			onConfirm={mockOnConfirm}
 			formatDate={mockFormatDate}
+			onConfirm={mockOnConfirm}
 		/>,
 	);
 
@@ -147,8 +147,8 @@ test('DeleteAttendanceConfirmationArea uses correct dialog styling', t => {
 		<DeleteAttendanceConfirmationArea
 			deleteAttendanceCandidate={mockDeleteAttendanceCandidate}
 			isDeletingAttendance={false}
-			onConfirm={mockOnConfirm}
 			formatDate={mockFormatDate}
+			onConfirm={mockOnConfirm}
 		/>,
 	);
 
