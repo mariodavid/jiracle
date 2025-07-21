@@ -9,10 +9,8 @@ import type {
 
 export class AttendanceManager {
 	private storage: AttendanceCSVStorage;
-	private config: AttendanceConfig;
 
-	constructor(config: AttendanceConfig, csvPath?: string) {
-		this.config = config;
+	constructor(private config: AttendanceConfig, csvPath?: string) {
 		const finalCsvPath =
 			csvPath || config.csvPath || process.env['JIRACLE_ATTENDANCE_CSV_PATH'];
 		this.storage = new AttendanceCSVStorage(finalCsvPath);
