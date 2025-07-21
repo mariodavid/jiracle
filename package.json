@@ -116,7 +116,6 @@
 			"react/boolean-prop-naming": "off",
 			"import/first": "error",
 			"@typescript-eslint/consistent-type-assertions": "off",
-			"unicorn/no-await-expression-member": "off",
 			"@typescript-eslint/return-await": "off",
 			"no-return-await": "off"
 		}

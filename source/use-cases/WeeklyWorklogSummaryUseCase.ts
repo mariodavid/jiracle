@@ -33,8 +33,8 @@ export class WeeklyWorklogSummaryUseCase {
 		const jql = this.buildJqlQuery(weekStart, weekEnd);
 
 		// Get current user's email for filtering (use provided email or fetch from API)
-		const currentUserEmail =
-			userEmail || (await this.jiraClient.getCurrentUser()).emailAddress;
+		const currentUser = await this.jiraClient.getCurrentUser();
+		const currentUserEmail = userEmail || currentUser.emailAddress;
 
 		// Search for issues with worklogs in the date range
 		const searchResult = await this.jiraClient.searchIssuesWithWorklogs(jql);
