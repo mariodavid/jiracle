@@ -35,7 +35,7 @@ test.beforeEach(() => {
 
 	global.fetch = async (url: RequestInfo | URL, options?: RequestInit) => {
 		mockFetchCallCount++;
-		const urlString = url.toString();
+		const urlString = String(url);
 
 		// Mock worklog submission
 		if (urlString.includes('/worklog') && options?.method === 'POST') {
