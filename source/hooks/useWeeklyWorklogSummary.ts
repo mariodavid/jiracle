@@ -93,7 +93,7 @@ export function useWeeklyWorklogSummary(
 
 	useEffect(() => {
 		if (!skipAutoLoad) {
-			fetchData();
+			void fetchData();
 		}
 	}, [weekStart, weekEnd, config, skipAutoLoad, userEmail, favoriteIssues]);
 
@@ -112,7 +112,7 @@ export function useWeeklyWorklogSummary(
 			normalizedWindow.past
 		}:${normalizedWindow.future}`;
 		weekDataCache.delete(cacheKey);
-		fetchData();
+		void fetchData();
 	};
 
 	return {data, isLoading, error, refresh};
