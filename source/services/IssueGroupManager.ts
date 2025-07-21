@@ -43,7 +43,7 @@ export class IssueGroupManager {
 				}
 
 				groupMap.get(groupId)!.issues.push([issueKey, issueData]);
-				groupMap.get(groupId)!.totalHours += issueData.weekTotal;
+				groupMap.get(groupId)!.totalHours += issueData.weekTotal as number;
 			} else {
 				ungroupedIssues.push([issueKey, issueData]);
 			}

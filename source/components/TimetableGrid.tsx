@@ -76,7 +76,7 @@ export function TimetableGrid({
 			}
 		};
 
-		loadAttendanceData();
+		void loadAttendanceData();
 	}, [attendanceManager, data, attendanceRefreshKey]);
 
 	// CALL ALL HOOKS FIRST (before any conditional returns)
