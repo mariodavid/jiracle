@@ -117,7 +117,6 @@
 			"import/first": "error",
 			"@typescript-eslint/consistent-type-assertions": "off",
 			"@typescript-eslint/ban-ts-comment": "off",
-			"@typescript-eslint/restrict-plus-operands": "off",
 			"no-eq-null": "off",
 			"unicorn/prefer-module": "off",
 			"max-params": "off",
