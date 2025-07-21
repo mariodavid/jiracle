@@ -116,7 +116,6 @@
 			"react/boolean-prop-naming": "off",
 			"import/first": "error",
 			"@typescript-eslint/consistent-type-assertions": "off",
-			"unicorn/prefer-set-has": "off",
 			"ava/no-async-fn-without-await": "off",
 			"ava/prefer-t-regex": "off",
 			"@typescript-eslint/prefer-ts-expect-error": "off",
