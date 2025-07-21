@@ -223,7 +223,7 @@ test('useNotification - notifications have unique IDs', t => {
 	t.is(ids.length, uniqueIds.size, 'All IDs should be unique');
 });
 
-test('useNotification - auto-dismissal timing differs by type', async t => {
+test('useNotification - auto-dismissal timing differs by type', t => {
 	// This test is more about documenting the behavior
 	// The actual auto-dismissal is time-based and hard to test reliably
 	let hookResult: UseNotificationReturn | undefined;

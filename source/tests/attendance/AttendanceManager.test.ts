@@ -335,7 +335,7 @@ test('should format status messages correctly', async t => {
 	cleanup(csvPath);
 });
 
-test('should handle config updates', async t => {
+test('should handle config updates', t => {
 	const csvPath = createTempCSVPath();
 	const manager = new AttendanceManager(defaultConfig, csvPath);
 

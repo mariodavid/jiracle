@@ -417,7 +417,7 @@ test('useDeleteOperations displays state correctly in component', t => {
 	t.true(output.includes('DeleteError: none'));
 });
 
-test('useDeleteOperations auto-clears error after timeout', async t => {
+test('useDeleteOperations auto-clears error after timeout', t => {
 	// This test verifies that the error clearing mechanism exists
 	// The actual timeout behavior would be harder to test reliably
 	let capturedState: any;
