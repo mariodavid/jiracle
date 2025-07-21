@@ -12,7 +12,7 @@ function TestFocusManagementComponent() {
 	const focusManagement = useFocusManagement();
 
 	// Store hook result in a global variable for testing (test-only pattern)
-	// @ts-expect-error
+	// @ts-expect-error: Test-only global variable to access hook state
 	globalThis.__testHookResult = focusManagement;
 
 	return (
@@ -25,7 +25,7 @@ function TestFocusManagementComponent() {
 test('useFocusManagement: returns initial state with null focused cell', t => {
 	render(React.createElement(TestFocusManagementComponent));
 
-	// @ts-expect-error
+	// @ts-expect-error: Test-only global variable to access hook state
 	const hook = globalThis.__testHookResult as UseFocusManagementResult;
 	t.truthy(hook);
 	t.is(hook.focusedCell, undefined);
