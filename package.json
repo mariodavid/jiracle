@@ -119,7 +119,6 @@
 			"@typescript-eslint/ban-ts-comment": "off",
 			"@typescript-eslint/restrict-plus-operands": "off",
 			"no-eq-null": "off",
-			"@typescript-eslint/no-floating-promises": "off",
 			"unicorn/prefer-module": "off",
 			"max-params": "off",
 			"@typescript-eslint/no-require-imports": "off",
