@@ -1,8 +1,11 @@
 import {useCallback} from 'react';
 import {useFocusManager} from 'ink';
-import {GridNavigationService} from '../services/GridNavigationService.js';
 import {
-	FocusableItemCalculator,
+	navigateInDirection,
+	navigateToNextItem,
+} from '../services/GridNavigationService.js';
+import {
+	calculateFocusableItems,
 	type FocusableItem,
 } from '../utils/FocusableItemCalculator.js';
 import type {AttendanceManager} from '../attendance/AttendanceManager.js';
@@ -64,7 +67,7 @@ export function useTableNavigation({
 
 	// Helper function to get all focusable items
 	const getAllFocusableItems = useCallback((): FocusableItem[] => {
-		return FocusableItemCalculator.calculateFocusableItems({
+		return calculateFocusableItems({
 			attendanceManager,
 			issueGroups,
 		});
@@ -76,7 +79,7 @@ export function useTableNavigation({
 			if (!focusedCell) return;
 
 			const focusableItems = getAllFocusableItems();
-			const result = GridNavigationService.navigateInDirection(direction, {
+			const result = navigateInDirection(direction, {
 				focusedCell,
 				focusableItems,
 			});
@@ -93,7 +96,7 @@ export function useTableNavigation({
 		if (!focusedCell) return;
 
 		const focusableItems = getAllFocusableItems();
-		const result = GridNavigationService.navigateToNextItem(
+		const result = navigateToNextItem(
 			{focusedCell, focusableItems},
 			'previous',
 		);

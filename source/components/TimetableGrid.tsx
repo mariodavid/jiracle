@@ -14,8 +14,8 @@ import {
 	formatHours,
 	truncateText,
 } from '../utils/TimetableCalculations.js';
-import {FocusableItemCalculator} from '../utils/FocusableItemCalculator.js';
-import {GridNavigationService} from '../services/GridNavigationService.js';
+import {calculateFocusableItems} from '../utils/FocusableItemCalculator.js';
+import {findInitialFocusItem} from '../services/GridNavigationService.js';
 import {useTableNavigation} from '../hooks/useTableNavigation.js';
 import {AttendanceFooterRows} from './AttendanceFooterRows.js';
 import {AttendanceRows} from './AttendanceRows.js';
@@ -157,7 +157,7 @@ export function TimetableGrid({
 	// Set initial focus to first row and current day when component loads
 	useEffect(() => {
 		if (focusedCell === undefined && isActive) {
-			const focusableItems = FocusableItemCalculator.calculateFocusableItems({
+			const focusableItems = calculateFocusableItems({
 				attendanceManager,
 				issueGroups,
 			});
@@ -170,7 +170,7 @@ export function TimetableGrid({
 					? todayDayOfWeek - 1 // Monday=0, Tuesday=1, ..., Friday=4
 					: 0; // Default to Monday for weekends
 
-			const initialItem = GridNavigationService.findInitialFocusItem(
+			const initialItem = findInitialFocusItem(
 				focusableItems,
 				todayColumnIndex,
 			);
