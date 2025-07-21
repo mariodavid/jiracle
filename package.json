@@ -115,8 +115,7 @@
 			"react/no-unused-prop-types": "off",
 			"react/boolean-prop-naming": "off",
 			"import/first": "error",
-			"@typescript-eslint/consistent-type-assertions": "off",
-			"no-return-await": "off"
+			"@typescript-eslint/consistent-type-assertions": "off"
 		}
 	},
 	"prettier": "@vdemedes/prettier-config",
