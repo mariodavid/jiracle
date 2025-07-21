@@ -74,7 +74,7 @@ export class ReminderService {
 						await this.sendReminder();
 						this.state.notifiedTimes.add(reminderTime);
 					}
-				} catch (error) {
+				} catch (error: unknown) {
 					console.error('Failed to check worklog status:', error);
 				}
 			}
@@ -128,7 +128,7 @@ export class ReminderService {
 					wait: false,
 				} as any); // Type assertion to bypass strict typing
 			}
-		} catch (error) {
+		} catch (error: unknown) {
 			// Silently handle notification errors to avoid breaking the app
 			console.error('Notification error (non-critical):', error);
 		}

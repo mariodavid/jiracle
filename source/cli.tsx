@@ -159,7 +159,7 @@ export async function executeWorklogAdd(
 			success: true,
 			message: `✅ Successfully logged ${time} to ${issue} on ${date}`,
 		};
-	} catch (error) {
+	} catch (error: unknown) {
 		// Clean error messages for CLI usage
 		if (error instanceof Error) {
 			const {message} = error;
@@ -214,7 +214,7 @@ async function handleWorklogAdd() {
 		const result = await executeWorklogAdd({issue, date, time, comment});
 		console.log(result.message);
 		process.exit(0);
-	} catch (error) {
+	} catch (error: unknown) {
 		console.error(
 			`Error: ${error instanceof Error ? error.message : String(error)}`,
 		);
@@ -244,7 +244,7 @@ async function handleCheckIn() {
 			console.error(`Error: ${result.message}`);
 			process.exit(1);
 		}
-	} catch (error) {
+	} catch (error: unknown) {
 		console.error(
 			`Error: ${error instanceof Error ? error.message : String(error)}`,
 		);
@@ -274,7 +274,7 @@ async function handleCheckOut() {
 			console.error(`Error: ${result.message}`);
 			process.exit(1);
 		}
-	} catch (error) {
+	} catch (error: unknown) {
 		console.error(
 			`Error: ${error instanceof Error ? error.message : String(error)}`,
 		);
@@ -300,7 +300,7 @@ async function handleStatus() {
 			console.error(`Error: ${result.message}`);
 			process.exit(1);
 		}
-	} catch (error) {
+	} catch (error: unknown) {
 		console.error(
 			`Error: ${error instanceof Error ? error.message : String(error)}`,
 		);

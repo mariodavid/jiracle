@@ -84,7 +84,7 @@ export async function executeCheckIn(
 			success: true,
 			message: `✅ Checked in at ${time}`,
 		};
-	} catch (error) {
+	} catch (error: unknown) {
 		return {
 			success: false,
 			message:
@@ -123,7 +123,7 @@ export async function executeCheckOut(
 			success: true,
 			message,
 		};
-	} catch (error) {
+	} catch (error: unknown) {
 		return {
 			success: false,
 			message:
@@ -155,7 +155,7 @@ export async function executeStatus(
 			success: true,
 			message: `${dateLabel}: ${statusMessage}`,
 		};
-	} catch (error) {
+	} catch (error: unknown) {
 		return {
 			success: false,
 			message:

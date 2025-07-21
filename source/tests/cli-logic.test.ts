@@ -124,7 +124,7 @@ test('executeWorklogAdd - validates date format', async t => {
 			try {
 				await executeWorklogAdd({...validParams, date: validDate}, configPath);
 				t.fail('Should have thrown due to no fetch mock, not date validation');
-			} catch (error) {
+			} catch (error: unknown) {
 				// Should not be date validation error
 				t.false(
 					(error as Error).message.includes(
@@ -163,7 +163,7 @@ test('executeWorklogAdd - validates time format', async t => {
 			try {
 				await executeWorklogAdd({...validParams, time: validTime}, configPath);
 				t.fail('Should have thrown due to no fetch mock, not time validation');
-			} catch (error) {
+			} catch (error: unknown) {
 				// Should not be time validation error
 				t.false((error as Error).message.includes('Time must be in format'));
 			}

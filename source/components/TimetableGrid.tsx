@@ -71,7 +71,7 @@ export function TimetableGrid({
 				const weekStart = new Date(data.weekStart);
 				const weekly = await attendanceManager.getWeeklyAttendance(weekStart);
 				setWeeklyAttendance(weekly);
-			} catch (error) {
+			} catch (error: unknown) {
 				console.error('Failed to load attendance data:', error);
 			}
 		};

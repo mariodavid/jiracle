@@ -7,7 +7,7 @@ import open from 'open';
 export async function openInBrowser(url: string): Promise<void> {
 	try {
 		await open(url);
-	} catch (error) {
+	} catch (error: unknown) {
 		throw new Error(
 			`Failed to open browser: ${
 				error instanceof Error ? error.message : 'Unknown error'

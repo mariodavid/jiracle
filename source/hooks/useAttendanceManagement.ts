@@ -68,7 +68,7 @@ export function useAttendanceManagement(
 					data: existingData || undefined,
 				});
 				onActiveAreaChange('attendance-edit');
-			} catch (error) {
+			} catch (error: unknown) {
 				console.error('Failed to load attendance data:', error);
 				// Still allow editing with defaults
 				setAttendanceEdit({
@@ -93,7 +93,7 @@ export function useAttendanceManagement(
 				onRefresh();
 				// Force attendance data refresh in TimetableGrid
 				setAttendanceRefreshKey(prev => prev + 1);
-			} catch (error) {
+			} catch (error: unknown) {
 				console.error('Failed to save attendance:', error);
 			}
 		},
@@ -116,7 +116,7 @@ export function useAttendanceManagement(
 				await attendanceManager.checkIn();
 				setAttendanceRefreshKey(prev => prev + 1); // Trigger refresh
 				onActiveAreaChange('timetable');
-			} catch (error) {
+			} catch (error: unknown) {
 				console.error('Error checking in:', error);
 				onActiveAreaChange('timetable');
 			}
@@ -135,7 +135,7 @@ export function useAttendanceManagement(
 				await attendanceManager.checkOut();
 				setAttendanceRefreshKey(prev => prev + 1); // Trigger refresh
 				onActiveAreaChange('timetable');
-			} catch (error) {
+			} catch (error: unknown) {
 				console.error('Error checking out:', error);
 				onActiveAreaChange('timetable');
 			}

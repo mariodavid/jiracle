@@ -58,7 +58,7 @@ export function useConfig(providedConfig?: JiraConfig): UseConfigResult {
 				}
 
 				setStep('weekly-timetable');
-			} catch (error_) {
+			} catch (error_: unknown) {
 				setError(error_ instanceof Error ? error_.message : 'Unknown error');
 				setStep('error');
 			}

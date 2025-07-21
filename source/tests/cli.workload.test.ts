@@ -18,11 +18,12 @@ function runCli(args: string[]): {
 			stdio: ['pipe', 'pipe', 'pipe'],
 		});
 		return {stdout, stderr: '', exitCode: 0};
-	} catch (error: any) {
+	} catch (error: unknown) {
+		const err = error as any;
 		return {
-			stdout: error.stdout || '',
-			stderr: error.stderr || '',
-			exitCode: error.status || 1,
+			stdout: err.stdout || '',
+			stderr: err.stderr || '',
+			exitCode: err.status || 1,
 		};
 	}
 }

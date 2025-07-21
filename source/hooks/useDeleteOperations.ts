@@ -124,7 +124,7 @@ export function useDeleteOperations(
 				uiLogger.info(
 					`Successfully deleted ${worklogsToDelete.length} worklogs for ${deleteCandidate.issueKey}`,
 				);
-			} catch (error) {
+			} catch (error: unknown) {
 				console.error('Error deleting worklogs:', error);
 				const errorMessage =
 					error instanceof Error ? error.message : 'Unknown error occurred';
@@ -171,7 +171,7 @@ export function useDeleteOperations(
 				} else {
 					setDeleteError('No attendance found for the selected date');
 				}
-			} catch (error) {
+			} catch (error: unknown) {
 				console.error('Error deleting attendance:', error);
 				const errorMessage =
 					error instanceof Error ? error.message : 'Unknown error occurred';

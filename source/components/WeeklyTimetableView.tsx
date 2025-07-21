@@ -196,7 +196,7 @@ export function WeeklyTimetableView({
 		try {
 			const url = generateJiraIssueUrl(config.jiraUrl, issueKey);
 			await openInBrowser(url);
-		} catch (error) {
+		} catch (error: unknown) {
 			console.error('Failed to open browser:', error);
 		}
 	};

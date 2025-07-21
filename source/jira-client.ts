@@ -457,7 +457,7 @@ export class JiraClient {
 			});
 
 			return data.issues;
-		} catch (error) {
+		} catch (error: unknown) {
 			this.logger.error('Error fetching assigned issues', {
 				method: 'POST',
 				url: searchUrl,
@@ -535,7 +535,7 @@ export class JiraClient {
 				.filter((issue): issue is JiraIssue => issue !== undefined);
 
 			return sortedIssues;
-		} catch (error) {
+		} catch (error: unknown) {
 			this.logger.error('Error fetching favorite issues', {
 				method: 'POST',
 				url: searchUrl,
@@ -582,7 +582,7 @@ export class JiraClient {
 			});
 
 			return await (response.json() as Promise<JiraIssue>);
-		} catch (error) {
+		} catch (error: unknown) {
 			this.logger.error('Error fetching issue', {
 				method: 'GET',
 				url: issueUrl,
@@ -689,7 +689,7 @@ export class JiraClient {
 				status: response.status,
 				timestamp: new Date().toISOString(),
 			});
-		} catch (error) {
+		} catch (error: unknown) {
 			this.logger.error('Error adding worklog', {
 				method: 'POST',
 				url: worklogUrl,
@@ -741,7 +741,7 @@ export class JiraClient {
 			});
 
 			return data;
-		} catch (error) {
+		} catch (error: unknown) {
 			this.logger.error('Error fetching issue worklogs', {
 				method: 'GET',
 				url: worklogUrl,
@@ -791,7 +791,7 @@ export class JiraClient {
 				worklogId,
 				status: response.status,
 			});
-		} catch (error) {
+		} catch (error: unknown) {
 			this.logger.error('Error deleting worklog', {
 				method: 'DELETE',
 				url: deleteUrl,
@@ -912,7 +912,7 @@ export class JiraClient {
 				status: response.status,
 				timestamp: new Date().toISOString(),
 			});
-		} catch (error) {
+		} catch (error: unknown) {
 			this.logger.error('Error updating worklog', {
 				method: 'PUT',
 				url: updateUrl,
@@ -974,7 +974,7 @@ export class JiraClient {
 			});
 
 			return data;
-		} catch (error) {
+		} catch (error: unknown) {
 			this.logger.error('Error searching issues with worklogs', {
 				method: 'POST',
 				url: searchUrl,
@@ -1021,7 +1021,7 @@ export class JiraClient {
 			});
 
 			return data;
-		} catch (error) {
+		} catch (error: unknown) {
 			this.logger.error('Error fetching current user', {
 				method: 'GET',
 				url: myselfUrl,
@@ -1054,7 +1054,7 @@ export class JiraClient {
 			});
 
 			return hasWorklogs;
-		} catch (error) {
+		} catch (error: unknown) {
 			this.logger.error('Error checking worklogs for today', {
 				date: todayFormatted,
 				error: error instanceof Error ? error.message : 'Unknown error',

@@ -38,7 +38,7 @@ export class AttendanceCSVStorage {
 			return dataLines
 				.filter(line => line.trim() && line.split(',').length >= 4) // Must have at least date and breakMinutes
 				.map(line => this.parseCSVLine(line));
-		} catch (error) {
+		} catch (error: unknown) {
 			console.error('Error reading CSV:', error);
 			return [];
 		}

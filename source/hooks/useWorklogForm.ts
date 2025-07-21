@@ -106,7 +106,7 @@ export function useWorklogForm(
 
 				// Don't suggest negative time
 				return Math.max(0, remainingTime);
-			} catch (error) {
+			} catch (error: unknown) {
 				console.error('Failed to calculate remaining time:', error);
 				return null;
 			}
@@ -349,7 +349,7 @@ export function useWorklogForm(
 				uiLogger.debug(
 					'useWorklogForm: Worklog submission completed successfully',
 				);
-			} catch (error) {
+			} catch (error: unknown) {
 				setWorklogError(
 					error instanceof Error ? error.message : 'Failed to submit worklog',
 				);
