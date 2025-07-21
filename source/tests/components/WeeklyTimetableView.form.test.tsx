@@ -60,16 +60,17 @@ test('WeeklyTimetableView renders with correct structure and content', t => {
 			output!.includes('█') ||
 			output!.includes('JIRACLE'));
 
-	// If no recognizable elements, that's still okay as long as it doesn't crash
-	if (!hasAnyUIElements) {
+	// If we have recognizable elements, that's great
+	if (hasAnyUIElements) {
+		t.true(hasAnyUIElements, 'Should render some recognizable UI elements');
+	} else {
+		// If no recognizable elements, that's still okay as long as it doesn't crash
 		console.log(
 			'No UI elements found, but component rendered without crashing',
 		);
 		t.pass(
 			'Component renders without error, even if no expected UI elements found',
 		);
-	} else {
-		t.true(hasAnyUIElements, 'Should render some recognizable UI elements');
 	}
 });
 

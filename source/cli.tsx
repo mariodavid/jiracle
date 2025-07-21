@@ -2,6 +2,7 @@
 import {readFileSync} from 'node:fs';
 import {homedir} from 'node:os';
 import {join} from 'node:path';
+import process from 'node:process';
 import React from 'react';
 import {render} from 'ink';
 import meow from 'meow';

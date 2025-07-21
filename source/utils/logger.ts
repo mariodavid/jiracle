@@ -1,4 +1,5 @@
 import {join} from 'node:path';
+import process from 'node:process';
 import winston from 'winston';
 
 // Create a shared logger for UI components

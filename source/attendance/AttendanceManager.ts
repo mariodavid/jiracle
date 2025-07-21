@@ -1,3 +1,4 @@
+import process from 'node:process';
 import {AttendanceCSVStorage} from './AttendanceCSVStorage.js';
 import {AttendanceCalculations} from './AttendanceCalculations.js';
 import type {
@@ -123,8 +124,14 @@ export class AttendanceManager {
 
 		const weeklyAttendance: WeeklyAttendance = {};
 
-		for (const date of weekDates) {
-			const attendance = await this.storage.getByDate(date);
+		const attendances = await Promise.all(
+			weekDates.map(async date => ({
+				date,
+				attendance: await this.storage.getByDate(date),
+			})),
+		);
+
+		for (const {date, attendance} of attendances) {
 			if (attendance) {
 				weeklyAttendance[date] = attendance;
 			}
@@ -209,10 +216,10 @@ export class AttendanceManager {
 		// Recalculate total hours
 		const calculatedHours =
 			AttendanceCalculations.calculateTotalHours(attendance);
-		if (calculatedHours !== undefined) {
-			attendance.totalHours = calculatedHours;
-		} else {
+		if (calculatedHours === undefined) {
 			delete attendance.totalHours;
+		} else {
+			attendance.totalHours = calculatedHours;
 		}
 
 		await this.storage.upsert(attendance);
