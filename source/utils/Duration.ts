@@ -3,12 +3,6 @@
  * Supports formats like: 1h, 30m, 1h15m, 2.5h, 45, etc.
  */
 export class Duration {
-	private minutes: number;
-
-	constructor(input: string | number) {
-		this.minutes = Duration.parseToMinutes(input);
-	}
-
 	/**
 	 * Parse various time formats to minutes
 	 */
@@ -95,38 +89,6 @@ export class Duration {
 	}
 
 	/**
-	 * Get duration in minutes
-	 */
-	toMinutes(): number {
-		return this.minutes;
-	}
-
-	/**
-	 * Get duration in hours (decimal)
-	 */
-	toHours(): number {
-		return this.minutes / 60;
-	}
-
-	/**
-	 * Format as readable string (e.g., "1h15m", "30m", "2h")
-	 */
-	toString(): string {
-		if (this.minutes === 0) return '0m';
-
-		const hours = Math.floor(this.minutes / 60);
-		const remainingMinutes = this.minutes % 60;
-
-		if (hours > 0 && remainingMinutes > 0) {
-			return `${hours}h${remainingMinutes}m`;
-		}
-		if (hours > 0) {
-			return `${hours}h`;
-		}
-		return `${remainingMinutes}m`;
-	}
-
-	/**
 	 * Create Duration from minutes
 	 */
 	static fromMinutes(minutes: number): Duration {
@@ -163,6 +125,44 @@ export class Duration {
 		const workingMinutes = totalMinutes - breakMinutes;
 
 		return new Duration(Math.max(0, workingMinutes));
+	}
+
+	private minutes: number;
+
+	constructor(input: string | number) {
+		this.minutes = Duration.parseToMinutes(input);
+	}
+
+	/**
+	 * Get duration in minutes
+	 */
+	toMinutes(): number {
+		return this.minutes;
+	}
+
+	/**
+	 * Get duration in hours (decimal)
+	 */
+	toHours(): number {
+		return this.minutes / 60;
+	}
+
+	/**
+	 * Format as readable string (e.g., "1h15m", "30m", "2h")
+	 */
+	toString(): string {
+		if (this.minutes === 0) return '0m';
+
+		const hours = Math.floor(this.minutes / 60);
+		const remainingMinutes = this.minutes % 60;
+
+		if (hours > 0 && remainingMinutes > 0) {
+			return `${hours}h${remainingMinutes}m`;
+		}
+		if (hours > 0) {
+			return `${hours}h`;
+		}
+		return `${remainingMinutes}m`;
 	}
 
 	/**

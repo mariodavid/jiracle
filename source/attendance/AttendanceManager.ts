@@ -236,15 +236,6 @@ export class AttendanceManager {
 		return true;
 	}
 
-	private getCurrentDate(): string {
-		return new Date().toISOString().split('T')[0]!;
-	}
-
-	private getCurrentTime(): string {
-		const now = new Date();
-		return now.toTimeString().slice(0, 5);
-	}
-
 	// Utility methods for UI
 	async hasCheckedInToday(): Promise<boolean> {
 		const today = this.getCurrentDate();
@@ -314,5 +305,14 @@ export class AttendanceManager {
 		}
 
 		return parts.join(' ');
+	}
+
+	private getCurrentDate(): string {
+		return new Date().toISOString().split('T')[0]!;
+	}
+
+	private getCurrentTime(): string {
+		const now = new Date();
+		return now.toTimeString().slice(0, 5);
 	}
 }

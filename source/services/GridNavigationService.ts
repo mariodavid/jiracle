@@ -19,6 +19,28 @@ export type NavigationResult = {
 };
 
 export class GridNavigationService {
+	static findInitialFocusItem(
+		focusableItems: FocusableItem[],
+		preferredColumnIndex?: number,
+	): FocusableItem | null {
+		if (focusableItems.length === 0) {
+			return null;
+		}
+
+		// Try to find item in preferred column
+		if (preferredColumnIndex !== undefined) {
+			const preferredItem = focusableItems.find(
+				item => item.columnIndex === preferredColumnIndex,
+			);
+			if (preferredItem) {
+				return preferredItem;
+			}
+		}
+
+		// Fallback to first item
+		return focusableItems[0] || null;
+	}
+
 	private static get DEFAULT_COLUMN_COUNT() {
 		return 5;
 	} // Monday to Friday
@@ -211,27 +233,5 @@ export class GridNavigationService {
 				item.issueKey === focusedCell.issueKey &&
 				item.columnIndex === targetColumnIndex,
 		);
-	}
-
-	static findInitialFocusItem(
-		focusableItems: FocusableItem[],
-		preferredColumnIndex?: number,
-	): FocusableItem | null {
-		if (focusableItems.length === 0) {
-			return null;
-		}
-
-		// Try to find item in preferred column
-		if (preferredColumnIndex !== undefined) {
-			const preferredItem = focusableItems.find(
-				item => item.columnIndex === preferredColumnIndex,
-			);
-			if (preferredItem) {
-				return preferredItem;
-			}
-		}
-
-		// Fallback to first item
-		return focusableItems[0] || null;
 	}
 }
