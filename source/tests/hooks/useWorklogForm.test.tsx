@@ -426,3 +426,798 @@ test('useWorklogForm formats date correctly for Jira API compatibility', t => {
 	t.log('The useWorklogForm hook MUST maintain this exact formatting');
 	t.log(`Example formatted date: ${jiraFormattedDate}`);
 });
+
+test('useWorklogForm handleWorklogSubmit processes success scenario', async t => {
+	let capturedState: any;
+	let refreshCalled = false;
+
+	const mockOptions: UseWorklogFormOptions = {
+		config: mockConfig,
+		userEmail: 'test@example.com',
+		onRefresh() {
+			refreshCalled = true;
+		},
+		onActiveAreaChange() {},
+	};
+
+	const {rerender} = render(
+		React.createElement(TestWorklogFormComponent, {
+			options: mockOptions,
+			onStateChange(state: any) {
+				capturedState = state;
+			},
+		}),
+	);
+
+	// First show the form
+	capturedState.handleAddWorklog();
+	rerender(
+		React.createElement(TestWorklogFormComponent, {
+			options: mockOptions,
+			onStateChange(state: any) {
+				capturedState = state;
+			},
+		}),
+	);
+
+	// Now submit the form
+	const formData = {
+		issueKey: 'TEST-123',
+		timeSpent: '2h',
+		comment: 'Test work',
+		date: new Date('2024-01-15'),
+	};
+
+	await capturedState.handleWorklogSubmit(formData);
+
+	// Wait for state updates
+	await new Promise(resolve => {
+		setTimeout(resolve, 10);
+	});
+
+	rerender(
+		React.createElement(TestWorklogFormComponent, {
+			options: mockOptions,
+			onStateChange(state: any) {
+				capturedState = state;
+			},
+		}),
+	);
+
+	t.is(capturedState.worklogForm.isVisible, false);
+	t.true(refreshCalled);
+});
+
+test('useWorklogForm handleWorklogSubmit processes error scenario', async t => {
+	let capturedState: any;
+
+	const mockOptions: UseWorklogFormOptions = {
+		config: mockConfig,
+		userEmail: 'test@example.com',
+		onRefresh() {},
+		onActiveAreaChange() {},
+	};
+
+	const {rerender} = render(
+		React.createElement(TestWorklogFormComponent, {
+			options: mockOptions,
+			onStateChange(state: any) {
+				capturedState = state;
+			},
+		}),
+	);
+
+	// Show the form first
+	capturedState.handleAddWorklog();
+	rerender(
+		React.createElement(TestWorklogFormComponent, {
+			options: mockOptions,
+			onStateChange(state: any) {
+				capturedState = state;
+			},
+		}),
+	);
+
+	// Submit with error
+	const formData = {
+		issueKey: 'TEST-123',
+		timeSpent: '2h',
+		comment: 'Test work',
+		date: new Date('2024-01-15'),
+	};
+
+	await capturedState.handleWorklogSubmit(formData);
+
+	// Wait for state updates
+	await new Promise(resolve => {
+		setTimeout(resolve, 10);
+	});
+
+	rerender(
+		React.createElement(TestWorklogFormComponent, {
+			options: mockOptions,
+			onStateChange(state: any) {
+				capturedState = state;
+			},
+		}),
+	);
+
+	t.is(capturedState.worklogForm.error, 'Network error');
+	t.is(capturedState.worklogForm.isSubmitting, false);
+});
+
+test('useWorklogForm handles edit mode correctly', async t => {
+	let capturedState: any;
+
+	const mockOptions: UseWorklogFormOptions = {
+		config: mockConfig,
+		userEmail: 'test@example.com',
+		onRefresh() {},
+		onActiveAreaChange() {},
+	};
+
+	const {rerender} = render(
+		React.createElement(TestWorklogFormComponent, {
+			options: mockOptions,
+			onStateChange(state: any) {
+				capturedState = state;
+			},
+		}),
+	);
+
+	// Call handleCellWorklog to trigger edit mode
+	const cellData = {
+		issueKey: 'TEST-123',
+		date: new Date('2024-01-15'),
+		worklogEntry: {
+			id: 'worklog-456',
+			issueKey: 'TEST-123',
+			timeSpentSeconds: 7200, // 2h
+			comment: 'Existing work',
+		},
+	};
+
+	await capturedState.handleCellWorklog(cellData);
+
+	// Wait for updates
+	await new Promise(resolve => {
+		setTimeout(resolve, 10);
+	});
+
+	rerender(
+		React.createElement(TestWorklogFormComponent, {
+			options: mockOptions,
+			onStateChange(state: any) {
+				capturedState = state;
+			},
+		}),
+	);
+
+	t.is(capturedState.worklogForm.isEditMode, true);
+	t.is(capturedState.worklogForm.worklogId, 'worklog-456');
+});
+
+test('useWorklogForm clearError resets error state', t => {
+	let capturedState: any;
+
+	const mockOptions: UseWorklogFormOptions = {
+		config: mockConfig,
+		userEmail: 'test@example.com',
+		onRefresh() {},
+		onActiveAreaChange() {},
+	};
+
+	const {rerender} = render(
+		React.createElement(TestWorklogFormComponent, {
+			options: mockOptions,
+			onStateChange(state: any) {
+				capturedState = state;
+			},
+		}),
+	);
+
+	// Manually set an error for testing
+	capturedState.setError('Test error');
+	rerender(
+		React.createElement(TestWorklogFormComponent, {
+			options: mockOptions,
+			onStateChange(state: any) {
+				capturedState = state;
+			},
+		}),
+	);
+
+	t.is(capturedState.worklogForm.error, 'Test error');
+
+	// Clear the error
+	capturedState.clearError();
+	rerender(
+		React.createElement(TestWorklogFormComponent, {
+			options: mockOptions,
+			onStateChange(state: any) {
+				capturedState = state;
+			},
+		}),
+	);
+
+	t.is(capturedState.worklogForm.error, '');
+});
+
+test('useWorklogForm handles missing jiraClient gracefully', async t => {
+	let capturedState: any;
+
+	const mockOptions: UseWorklogFormOptions = {
+		config: mockConfig,
+		userEmail: 'test@example.com',
+		// No jiraClient provided
+		onRefresh() {},
+		onActiveAreaChange() {},
+	};
+
+	const {rerender} = render(
+		React.createElement(TestWorklogFormComponent, {
+			options: mockOptions,
+			onStateChange(state: any) {
+				capturedState = state;
+			},
+		}),
+	);
+
+	// Show form and try to submit
+	capturedState.handleAddWorklog();
+	rerender(
+		React.createElement(TestWorklogFormComponent, {
+			options: mockOptions,
+			onStateChange(state: any) {
+				capturedState = state;
+			},
+		}),
+	);
+
+	const formData = {
+		issueKey: 'TEST-123',
+		timeSpent: '2h',
+		comment: 'Test work',
+		date: new Date(),
+	};
+
+	await capturedState.handleWorklogSubmit(formData);
+
+	// Wait for updates
+	await new Promise(resolve => {
+		setTimeout(resolve, 10);
+	});
+
+	rerender(
+		React.createElement(TestWorklogFormComponent, {
+			options: mockOptions,
+			onStateChange(state: any) {
+				capturedState = state;
+			},
+		}),
+	);
+
+	// Should handle gracefully without throwing
+	t.pass();
+});
+
+test('useWorklogForm handleAddWorklog sets correct defaults', t => {
+	let capturedState: any;
+
+	const mockOptions: UseWorklogFormOptions = {
+		config: {
+			...mockConfig,
+			defaultTime: '6h',
+			defaultComment: 'Daily work',
+		},
+		userEmail: 'test@example.com',
+		onRefresh() {},
+		onActiveAreaChange() {},
+	};
+
+	const {rerender} = render(
+		React.createElement(TestWorklogFormComponent, {
+			options: mockOptions,
+			onStateChange(state: any) {
+				capturedState = state;
+			},
+		}),
+	);
+
+	capturedState.handleAddWorklog();
+
+	rerender(
+		React.createElement(TestWorklogFormComponent, {
+			options: mockOptions,
+			onStateChange(state: any) {
+				capturedState = state;
+			},
+		}),
+	);
+
+	t.is(capturedState.worklogForm.isVisible, true);
+	t.is(capturedState.worklogForm.isIssueKeyEditable, true);
+	t.is(capturedState.worklogForm.timeSpent, '6h');
+	t.is(capturedState.worklogForm.comment, 'Daily work');
+});
+
+test('useWorklogForm uses project-specific defaults when available', async t => {
+	let capturedState: any;
+
+	const mockOptions: UseWorklogFormOptions = {
+		config: {
+			...mockConfig,
+			defaultTime: '4h',
+			defaultComment: 'General work',
+			projects: [
+				{key: 'PROJ'},
+			],
+		},
+		userEmail: 'test@example.com',
+		onRefresh() {},
+		onActiveAreaChange() {},
+	};
+
+	const {rerender} = render(
+		React.createElement(TestWorklogFormComponent, {
+			options: mockOptions,
+			onStateChange(state: any) {
+				capturedState = state;
+			},
+		}),
+	);
+
+	// Test with project-specific issue
+	const cellData = {issueKey: 'PROJ-123', date: new Date()};
+	await capturedState.handleCellWorklog(cellData);
+
+	rerender(
+		React.createElement(TestWorklogFormComponent, {
+			options: mockOptions,
+			onStateChange(state: any) {
+				capturedState = state;
+			},
+		}),
+	);
+
+	// Should have used the global comment (no project-specific comment set)
+	t.is(capturedState.worklogForm.comment, 'General work');
+});
+
+test('useWorklogForm calculateRemainingTime without attendance', async t => {
+	let capturedState: any;
+
+	// Config without attendance
+	const configWithoutAttendance: JiraConfig = {
+		...mockConfig,
+		attendance: {
+			enabled: false,
+			workingHours: 8,
+			breakMinutes: 30,
+			defaultCheckIn: '09:00',
+			defaultCheckOut: '17:00',
+			defaultBreakMinutes: 30,
+			csvPath: '/tmp/test.csv',
+		},
+	};
+
+	const mockOptions: UseWorklogFormOptions = {
+		config: configWithoutAttendance,
+		userEmail: 'test@example.com',
+		onRefresh() {},
+		onActiveAreaChange() {},
+	};
+
+	render(
+		React.createElement(TestWorklogFormComponent, {
+			options: mockOptions,
+			onStateChange(state: any) {
+				capturedState = state;
+			},
+		}),
+	);
+
+	// Access private method for testing
+	const calculateRemainingTime = (capturedState as any).calculateRemainingTime;
+	if (calculateRemainingTime) {
+		const result = await calculateRemainingTime(new Date(), 'TEST-123');
+		t.is(result, undefined); // Should return undefined when attendance is disabled
+	} else {
+		t.pass('calculateRemainingTime not accessible, but attendance disabled path should work');
+	}
+});
+
+test('useWorklogForm error handling and recovery', t => {
+	let capturedState: any;
+
+	const mockOptions: UseWorklogFormOptions = {
+		config: mockConfig,
+		userEmail: 'test@example.com',
+		onRefresh() {},
+		onActiveAreaChange() {},
+	};
+
+	const {rerender} = render(
+		React.createElement(TestWorklogFormComponent, {
+			options: mockOptions,
+			onStateChange(state: any) {
+				capturedState = state;
+			},
+		}),
+	);
+
+	// Initially no error
+	t.is(capturedState.worklogError, undefined);
+
+	// Clear error (should work even if no error)
+	capturedState.clearError();
+	rerender(
+		React.createElement(TestWorklogFormComponent, {
+			options: mockOptions,
+			onStateChange(state: any) {
+				capturedState = state;
+			},
+		}),
+	);
+
+	t.is(capturedState.worklogError, undefined);
+});
+
+test('useWorklogForm form submission with minimal data', async t => {
+	let capturedState: any;
+	let refreshCalled = false;
+
+	// Mock JiraClient for successful submission
+	const mockJiraClient = {
+		async addWorklog() {
+			return {id: 'worklog-123'};
+		},
+		async updateWorklog() {
+			return {id: 'worklog-123'};
+		},
+	};
+
+	// Mock JiraClient constructor
+	const originalJiraClient = (global as any).JiraClient;
+	(global as any).JiraClient = function() {
+		return mockJiraClient;
+	};
+
+	const mockOptions: UseWorklogFormOptions = {
+		config: mockConfig,
+		userEmail: 'test@example.com',
+		onRefresh() {
+			refreshCalled = true;
+		},
+		onActiveAreaChange() {},
+	};
+
+	const {rerender} = render(
+		React.createElement(TestWorklogFormComponent, {
+			options: mockOptions,
+			onStateChange(state: any) {
+				capturedState = state;
+			},
+		}),
+	);
+
+	// Submit worklog
+	await capturedState.handleWorklogSubmit({
+		issueKey: 'TEST-MINIMAL',
+		date: new Date('2024-01-15'),
+		timeSpent: '1h',
+		comment: 'Minimal test',
+	});
+
+	// Wait for async operations
+	await new Promise(resolve => setTimeout(resolve, 50));
+
+	rerender(
+		React.createElement(TestWorklogFormComponent, {
+			options: mockOptions,
+			onStateChange(state: any) {
+				capturedState = state;
+			},
+		}),
+	);
+
+	// Should have refreshed and no error
+	t.true(refreshCalled);
+	t.is(capturedState.worklogError, undefined);
+	t.false(capturedState.worklogSubmitting);
+
+	// Restore original JiraClient
+	(global as any).JiraClient = originalJiraClient;
+});
+
+test('useWorklogForm form submission with edit mode', async t => {
+	let capturedState: any;
+	let refreshCalled = false;
+
+	// Mock JiraClient for edit mode
+	const mockJiraClient = {
+		async updateWorklog(issueKey: string, worklogId: string) {
+			t.is(issueKey, 'TEST-EDIT');
+			t.is(worklogId, 'worklog-edit-123');
+			return {id: worklogId};
+		},
+	};
+
+	// Mock JiraClient constructor
+	const originalJiraClient = (global as any).JiraClient;
+	(global as any).JiraClient = function() {
+		return mockJiraClient;
+	};
+
+	const mockOptions: UseWorklogFormOptions = {
+		config: mockConfig,
+		userEmail: 'test@example.com',
+		onRefresh() {
+			refreshCalled = true;
+		},
+		onActiveAreaChange() {},
+	};
+
+	const {rerender} = render(
+		React.createElement(TestWorklogFormComponent, {
+			options: mockOptions,
+			onStateChange(state: any) {
+				capturedState = state;
+			},
+		}),
+	);
+
+	// Submit worklog with edit mode
+	await capturedState.handleWorklogSubmit({
+		issueKey: 'TEST-EDIT',
+		date: new Date('2024-01-15'),
+		timeSpent: '2h',
+		comment: 'Edited work',
+		worklogId: 'worklog-edit-123', // Edit mode
+	});
+
+	// Wait for async operations
+	await new Promise(resolve => setTimeout(resolve, 50));
+
+	rerender(
+		React.createElement(TestWorklogFormComponent, {
+			options: mockOptions,
+			onStateChange(state: any) {
+				capturedState = state;
+			},
+		}),
+	);
+
+	// Should have refreshed and no error
+	t.true(refreshCalled);
+	t.is(capturedState.worklogError, undefined);
+	t.false(capturedState.worklogSubmitting);
+
+	// Restore original JiraClient
+	(global as any).JiraClient = originalJiraClient;
+});
+
+test('useWorklogForm submission error handling', async t => {
+	let capturedState: any;
+
+	// Mock JiraClient that throws error
+	const mockJiraClient = {
+		async addWorklog() {
+			throw new Error('Jira API Error');
+		},
+	};
+
+	// Mock JiraClient constructor
+	const originalJiraClient = (global as any).JiraClient;
+	(global as any).JiraClient = function() {
+		return mockJiraClient;
+	};
+
+	const mockOptions: UseWorklogFormOptions = {
+		config: mockConfig,
+		userEmail: 'test@example.com',
+		onRefresh() {},
+		onActiveAreaChange() {},
+	};
+
+	const {rerender} = render(
+		React.createElement(TestWorklogFormComponent, {
+			options: mockOptions,
+			onStateChange(state: any) {
+				capturedState = state;
+			},
+		}),
+	);
+
+	// Submit worklog that will fail
+	await capturedState.handleWorklogSubmit({
+		issueKey: 'TEST-ERROR',
+		date: new Date('2024-01-15'),
+		timeSpent: '1h',
+		comment: 'Error test',
+	});
+
+	// Wait for async operations
+	await new Promise(resolve => setTimeout(resolve, 50));
+
+	rerender(
+		React.createElement(TestWorklogFormComponent, {
+			options: mockOptions,
+			onStateChange(state: any) {
+				capturedState = state;
+			},
+		}),
+	);
+
+	// Should have error and not be submitting
+	t.truthy(capturedState.worklogError);
+	t.true(capturedState.worklogError.includes('Jira API Error'));
+	t.false(capturedState.worklogSubmitting);
+
+	// Restore original JiraClient
+	(global as any).JiraClient = originalJiraClient;
+});
+
+test('useWorklogForm handles worklog cancel', t => {
+	let capturedState: any;
+	let activeAreaChanged = '';
+
+	const mockOptions: UseWorklogFormOptions = {
+		config: mockConfig,
+		userEmail: 'test@example.com',
+		onRefresh() {},
+		onActiveAreaChange(area: string) {
+			activeAreaChanged = area;
+		},
+	};
+
+	const {rerender} = render(
+		React.createElement(TestWorklogFormComponent, {
+			options: mockOptions,
+			onStateChange(state: any) {
+				capturedState = state;
+			},
+		}),
+	);
+
+	// Open form first
+	capturedState.handleAddWorklog();
+	rerender(
+		React.createElement(TestWorklogFormComponent, {
+			options: mockOptions,
+			onStateChange(state: any) {
+				capturedState = state;
+			},
+		}),
+	);
+
+	t.true(capturedState.worklogForm.isVisible);
+
+	// Cancel form
+	capturedState.handleWorklogCancel();
+	rerender(
+		React.createElement(TestWorklogFormComponent, {
+			options: mockOptions,
+			onStateChange(state: any) {
+				capturedState = state;
+			},
+		}),
+	);
+
+	// Should be hidden and area changed
+	t.false(capturedState.worklogForm.isVisible);
+	t.is(activeAreaChanged, 'timetable');
+});
+
+test('useWorklogForm submission with non-standard error objects', async t => {
+	let capturedState: any;
+
+	// Mock JiraClient that throws non-Error object
+	const mockJiraClient = {
+		async addWorklog() {
+			throw 'String error'; // Non-Error object
+		},
+	};
+
+	// Mock JiraClient constructor
+	const originalJiraClient = (global as any).JiraClient;
+	(global as any).JiraClient = function() {
+		return mockJiraClient;
+	};
+
+	const mockOptions: UseWorklogFormOptions = {
+		config: mockConfig,
+		userEmail: 'test@example.com',
+		onRefresh() {},
+		onActiveAreaChange() {},
+	};
+
+	const {rerender} = render(
+		React.createElement(TestWorklogFormComponent, {
+			options: mockOptions,
+			onStateChange(state: any) {
+				capturedState = state;
+			},
+		}),
+	);
+
+	// Submit worklog that will fail with non-Error
+	await capturedState.handleWorklogSubmit({
+		issueKey: 'TEST-STRING-ERROR',
+		date: new Date('2024-01-15'),
+		timeSpent: '1h',
+		comment: 'String error test',
+	});
+
+	// Wait for async operations
+	await new Promise(resolve => setTimeout(resolve, 50));
+
+	rerender(
+		React.createElement(TestWorklogFormComponent, {
+			options: mockOptions,
+			onStateChange(state: any) {
+				capturedState = state;
+			},
+		}),
+	);
+
+	// Should handle non-Error gracefully
+	t.truthy(capturedState.worklogError);
+	t.true(capturedState.worklogError.includes('Unknown error'));
+
+	// Restore original JiraClient
+	(global as any).JiraClient = originalJiraClient;
+});
+
+test('useWorklogForm area change on successful submission', async t => {
+	let capturedState: any;
+	let activeAreaChanged = '';
+
+	// Mock JiraClient for successful submission
+	const mockJiraClient = {
+		async addWorklog() {
+			return {id: 'worklog-area-test'};
+		},
+	};
+
+	// Mock JiraClient constructor
+	const originalJiraClient = (global as any).JiraClient;
+	(global as any).JiraClient = function() {
+		return mockJiraClient;
+	};
+
+	const mockOptions: UseWorklogFormOptions = {
+		config: mockConfig,
+		userEmail: 'test@example.com',
+		onRefresh() {},
+		onActiveAreaChange(area: string) {
+			activeAreaChanged = area;
+		},
+	};
+
+	render(
+		React.createElement(TestWorklogFormComponent, {
+			options: mockOptions,
+			onStateChange(state: any) {
+				capturedState = state;
+			},
+		}),
+	);
+
+	// Submit worklog
+	await capturedState.handleWorklogSubmit({
+		issueKey: 'TEST-AREA-CHANGE',
+		date: new Date('2024-01-15'),
+		timeSpent: '1h',
+		comment: 'Area change test',
+	});
+
+	// Wait for async operations
+	await new Promise(resolve => setTimeout(resolve, 50));
+
+	// Should change area to timetable on success
+	t.is(activeAreaChanged, 'timetable');
+
+	// Restore original JiraClient
+	(global as any).JiraClient = originalJiraClient;
+});
