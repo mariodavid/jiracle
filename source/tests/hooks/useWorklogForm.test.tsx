@@ -1648,7 +1648,10 @@ test('useWorklogForm handleCellWorklog with hours and minutes suggestion', async
 	);
 
 	// Call handleCellWorklog to trigger the hours+minutes suggestion path
-	const cellData = {issueKey: 'TEST-HOURS-MINUTES', date: new Date('2024-01-15')};
+	const cellData = {
+		issueKey: 'TEST-HOURS-MINUTES',
+		date: new Date('2024-01-15'),
+	};
 	await capturedState.handleCellWorklog(cellData);
 
 	// Wait for async operations
@@ -1736,7 +1739,10 @@ test('useWorklogForm handleCellWorklog with minutes only suggestion', async t =>
 	);
 
 	// Call handleCellWorklog to trigger the minutes-only suggestion path
-	const cellData = {issueKey: 'TEST-MINUTES-ONLY', date: new Date('2024-01-15')};
+	const cellData = {
+		issueKey: 'TEST-MINUTES-ONLY',
+		date: new Date('2024-01-15'),
+	};
 	await capturedState.handleCellWorklog(cellData);
 
 	// Wait for async operations
