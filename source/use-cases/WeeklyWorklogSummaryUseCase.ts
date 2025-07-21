@@ -2,6 +2,7 @@ import {
 	type JiraClient,
 	type FavoriteIssue,
 	type JiraIssue,
+	type WorklogEntry,
 } from '../jira-client.js';
 import {formatLocalDateKey} from '../utils/date.js';
 import {uiLogger} from '../utils/logger.js';
@@ -33,7 +34,7 @@ export class WeeklyWorklogSummaryUseCase {
 		const searchResult = await this.jiraClient.searchIssuesWithWorklogs(jql);
 
 		// If sliding window is configured, fetch additional issues from the window period
-		let slidingWindowSearchResult = {issues: [] as any[]};
+		let slidingWindowSearchResult: {issues: JiraIssue[]} = {issues: []};
 		if (
 			slidingWindowConfig &&
 			(slidingWindowConfig.past > 0 || slidingWindowConfig.future > 0)
@@ -75,7 +76,7 @@ export class WeeklyWorklogSummaryUseCase {
 					: {issues: []};
 
 			// Merge past and future results, avoiding duplicates
-			const allSlidingWindowIssues = [
+			const allSlidingWindowIssues: JiraIssue[] = [
 				...pastSearchResults.issues,
 				...futureSearchResults.issues.filter(
 					futureIssue =>
@@ -123,12 +124,13 @@ export class WeeklyWorklogSummaryUseCase {
 		const issuesWithWorklogs: IssueWithWorklogs[] = await Promise.all(
 			[...allIssueKeys].map(async issueKey => {
 				// Find issue data from either worklogs search, sliding window search, or favorites
-				const worklogIssue = searchResult.issues.find(
+				const worklogIssue: JiraIssue | undefined = searchResult.issues.find(
 					issue => issue.key === issueKey,
 				);
-				const slidingWindowIssue = slidingWindowSearchResult.issues.find(
-					issue => issue.key === issueKey,
-				);
+				const slidingWindowIssue: JiraIssue | undefined =
+					slidingWindowSearchResult.issues.find(
+						issue => issue.key === issueKey,
+					);
 				const favoriteIssue = favoriteIssuesData.find(
 					issue => issue.key === issueKey,
 				);
@@ -138,15 +140,21 @@ export class WeeklyWorklogSummaryUseCase {
 					throw new Error(`Issue data not found for ${issueKey}`);
 				}
 
+				// For favorites that don't have full issue data, fetch it
+				const fullIssueData: JiraIssue =
+					'id' in issueData && 'fields' in issueData
+						? issueData
+						: await this.jiraClient.fetchIssue(issueKey);
+
 				const worklogResponse = await this.jiraClient.getIssueWorklogs(
 					issueKey,
 				);
 				return {
 					issue: {
-						id: issueData.id,
-						key: issueData.key,
+						id: fullIssueData.id,
+						key: fullIssueData.key,
 						fields: {
-							summary: issueData.fields.summary,
+							summary: fullIssueData.fields.summary,
 						},
 					},
 					worklogs: worklogResponse.worklogs,
@@ -211,7 +219,7 @@ export class WeeklyWorklogSummaryUseCase {
 	private async fetchSlidingWindowIssues(
 		startDate: Date,
 		endDate: Date,
-	): Promise<{issues: any[]}> {
+	): Promise<{issues: JiraIssue[]}> {
 		const dateRange = {
 			from: startDate.toISOString().split('T')[0],
 			to: endDate.toISOString().split('T')[0],
@@ -232,7 +240,7 @@ export class WeeklyWorklogSummaryUseCase {
 		const dailyWorklogMap = new Map<string, DailyWorklogSummary>();
 
 		// Track worklogs by issue/date for aggregation logic
-		const worklogsByIssueDate = new Map<string, any[]>();
+		const worklogsByIssueDate = new Map<string, WorklogEntry[]>();
 
 		for (const {issue, worklogs} of issuesWithWorklogs) {
 			const filteredWorklogs = worklogs
@@ -272,10 +280,11 @@ export class WeeklyWorklogSummaryUseCase {
 				issueSummary: issue.fields.summary,
 				hours: totalHours,
 				// Only include worklog ID and comment if there's exactly one worklog for this issue/date
-				...(worklogs.length === 1 && {
-					worklogId: worklogs[0].id,
-					comment: worklogs[0].comment,
-				}),
+				...(worklogs.length === 1 &&
+					worklogs[0] && {
+						worklogId: worklogs[0].id,
+						comment: worklogs[0].comment,
+					}),
 			};
 
 			const existingSummary = dailyWorklogMap.get(localDateKey!);
@@ -286,8 +295,10 @@ export class WeeklyWorklogSummaryUseCase {
 					totalHours: existingSummary.totalHours + totalHours,
 				});
 			} else {
-				// Get date from the first worklog
-				const worklogDate = new Date(worklogs[0].started);
+				// Get date from the first worklog or fallback to current date
+				const worklogDate = worklogs[0]
+					? new Date(worklogs[0].started)
+					: new Date();
 				dailyWorklogMap.set(localDateKey!, {
 					date: worklogDate,
 					totalHours,
@@ -345,9 +356,14 @@ export class WeeklyWorklogSummaryUseCase {
 		// Add favorite issues with 0 hours to the first day
 		const firstDay = dailySummaries[0]!;
 		for (const favorite of favoriteIssuesWithoutWorklogs) {
+			let summary: string;
+			summary =
+				'fields' in favorite
+					? (favorite as JiraIssue).fields.summary
+					: (favorite as FavoriteIssue).alias || favorite.key;
 			firstDay.issues.push({
 				issueKey: favorite.key,
-				issueSummary: favorite.fields.summary,
+				issueSummary: summary,
 				hours: 0,
 			});
 		}
@@ -356,8 +372,8 @@ export class WeeklyWorklogSummaryUseCase {
 	private addSlidingWindowIssuesWithoutWorklogs(
 		dailySummaries: DailyWorklogSummary[],
 		_issuesWithWorklogs: IssueWithWorklogs[],
-		slidingWindowIssues: any[],
-		favoriteIssuesData: any[],
+		slidingWindowIssues: JiraIssue[],
+		favoriteIssuesData: Array<JiraIssue | FavoriteIssue>,
 		weekStart: Date,
 	): void {
 		// Find issues that have worklogs in current week or are already favorites
@@ -367,7 +383,9 @@ export class WeeklyWorklogSummaryUseCase {
 			),
 		);
 		const favoriteIssueKeys = new Set(
-			favoriteIssuesData.map((fav: JiraIssue): string => fav.key),
+			favoriteIssuesData.map(
+				(fav: JiraIssue | FavoriteIssue): string => fav.key,
+			),
 		);
 
 		const slidingWindowIssuesWithoutCurrentWeekWorklogs =

@@ -137,12 +137,16 @@ test('useWorklogForm handleCellWorklog opens form for cell editing', async t => 
 			activeAreaChanged = area;
 		},
 		data: {
+			weekStart: new Date('2024-01-15'),
+			weekEnd: new Date('2024-01-21'),
 			dailySummaries: [
 				{
 					date: new Date('2024-01-15'),
 					issues: [],
+					totalHours: 0,
 				},
 			],
+			weekTotal: 0,
 		},
 	};
 
@@ -188,12 +192,16 @@ test('useWorklogForm handleCellWorklog uses favorite defaults', async t => {
 		onRefresh() {},
 		onActiveAreaChange() {},
 		data: {
+			weekStart: new Date('2024-01-15'),
+			weekEnd: new Date('2024-01-21'),
 			dailySummaries: [
 				{
 					date: new Date('2024-01-15'),
 					issues: [],
+					totalHours: 0,
 				},
 			],
+			weekTotal: 0,
 		},
 	};
 

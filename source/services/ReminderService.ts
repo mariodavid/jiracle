@@ -1,3 +1,6 @@
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 import notifier from 'node-notifier';
 import {type JiraClient, type ReminderConfig} from '../jira-client.js';
 
@@ -155,10 +158,6 @@ export class ReminderService {
 	}
 
 	private createTemporaryIcon(): string {
-		const fs = require('node:fs');
-		const os = require('node:os');
-		const path = require('node:path');
-
 		// Base64 encoded PNG icon (32x32 pixels) - simple clock with "J"
 		const iconBase64 =
 			'iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsQAAA7EAZUrDhsAAANCSURBVFhH7ZdNiFxVFIafM+/e2123u6u7q7ozk0kmM5lJJpnJJJNkMjOZZJJJZjKZTCaZzGQymUwmk8lkMplMJpPJZDKZTCaZzGQymUwmk8lkMplMJpPJZDKZTCaZmUwmk8lkMplMJpPJZDKZTCaZmUwmk8lkMplMJpPJZDKZTCaZmUwmk8lkMplMJpNJ';
@@ -168,6 +167,6 @@ export class ReminderService {
 		const iconPath = path.join(tempDir, 'jiracle-notification-icon.png');
 
 		fs.writeFileSync(iconPath, iconData);
-		return iconPath as string;
+		return iconPath;
 	}
 }

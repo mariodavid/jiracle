@@ -11,6 +11,10 @@ import {
 	detectWorklogForEdit,
 	findWorklogEntryForIssue,
 } from '../utils/worklog-detection.js';
+import type {
+	WeeklyWorklogSummary,
+	DailyWorklogSummary,
+} from '../domain/WeeklyWorklogSummary.js';
 import {AttendanceManager} from '../attendance/AttendanceManager.js';
 
 export type WorklogFormData = {
@@ -30,7 +34,7 @@ export type UseWorklogFormOptions = {
 	userEmail?: string | null;
 	onRefresh: () => void;
 	onActiveAreaChange: (area: string) => void;
-	data?: any; // WeeklyWorklogSummary data for worklog detection
+	data?: WeeklyWorklogSummary; // WeeklyWorklogSummary data for worklog detection
 };
 
 export type UseWorklogFormReturn = {
@@ -69,8 +73,9 @@ export function useWorklogForm(
 
 				const attendanceManager = new AttendanceManager(config.attendance);
 				const dateKey = formatLocalDateKey(date);
-				const {storage} = attendanceManager as any;
-				const attendance = await storage.getByDate(dateKey);
+				// Use getAllAttendance and filter instead of accessing private storage
+				const allAttendance = await attendanceManager.getAllAttendance();
+				const attendance = allAttendance.find(a => a.date === dateKey);
 
 				if (
 					!attendance ||
@@ -82,12 +87,13 @@ export function useWorklogForm(
 
 				// Find daily summary for this date
 				const dailySummary = data?.dailySummaries.find(
-					(summary: any) => formatLocalDateKey(summary.date) === dateKey,
+					(summary: DailyWorklogSummary) =>
+						formatLocalDateKey(summary.date) === dateKey,
 				);
 
 				if (!dailySummary) {
 					// No worklogs yet, return full attendance time
-					return attendance.totalHours as number;
+					return attendance.totalHours || 0;
 				}
 
 				// Calculate total time already logged for other issues

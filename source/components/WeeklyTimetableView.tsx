@@ -109,7 +109,7 @@ export function WeeklyTimetableView({
 		onActiveAreaChange(area: string) {
 			setActiveArea(area as any);
 		},
-		data,
+		data: data || undefined,
 	});
 
 	// Attendance management state

@@ -10,6 +10,7 @@ import App from './app.js';
 import {
 	JiraClient,
 	type WorklogRequest,
+	type JiraConfig,
 	loadConfigWithEnvVars,
 } from './jira-client.js';
 import {
@@ -127,7 +128,7 @@ export async function executeWorklogAdd(
 		const configFilePath =
 			configPath || join(homedir(), '.config', 'jiracle.json');
 		const configData = readFileSync(configFilePath, 'utf8');
-		const baseConfig = JSON.parse(configData);
+		const baseConfig = JSON.parse(configData) as JiraConfig;
 		const config = loadConfigWithEnvVars(baseConfig);
 
 		// Create a silent logger for CLI usage to avoid debug output

@@ -34,7 +34,7 @@ export function useConfig(providedConfig?: JiraConfig): UseConfigResult {
 					// Load config from ~/.config/jiracle.json
 					const configPath = join(homedir(), '.config', 'jiracle.json');
 					const configData = readFileSync(configPath, 'utf8');
-					parsedConfig = JSON.parse(configData);
+					parsedConfig = JSON.parse(configData) as JiraConfig;
 				}
 
 				const jiraClient = new JiraClient(parsedConfig);

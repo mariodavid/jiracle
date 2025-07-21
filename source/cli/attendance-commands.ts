@@ -30,7 +30,7 @@ function getAttendanceManager(
 	const configFilePath =
 		configPath || join(homedir(), '.config', 'jiracle.json');
 	const configData = readFileSync(configFilePath, 'utf8');
-	const config: JiraConfig = JSON.parse(configData);
+	const config: JiraConfig = JSON.parse(configData) as JiraConfig;
 
 	if (!config.attendance || !config.attendance.enabled) {
 		throw new Error(
