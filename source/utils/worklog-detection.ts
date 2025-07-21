@@ -63,9 +63,11 @@ function formatHoursAsTimeSpent(hours: number): string {
 	if (wholeHours > 0 && minutes > 0) {
 		return `${wholeHours}h ${minutes}m`;
 	}
+
 	if (wholeHours > 0) {
 		return `${wholeHours}h`;
 	}
+
 	return `${minutes}m`;
 }
 

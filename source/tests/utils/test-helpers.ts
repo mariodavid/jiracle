@@ -121,6 +121,7 @@ export class TempFileManager {
 				unlinkSync(file);
 			}
 		}
+
 		this.files = [];
 	}
 }

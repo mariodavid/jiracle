@@ -149,10 +149,12 @@ export class ReminderService {
 			// MacOS - use system clock/time icon
 			return '/System/Library/CoreServices/Clock.app/Contents/Resources/Clock.icns';
 		}
+
 		if (platform === 'win32') {
 			// Windows - use system clock icon
 			return 'C:\\Windows\\System32\\shell32.dll,176';
 		}
+
 		// Linux - use a common system icon
 		return '/usr/share/icons/gnome/48x48/status/appointment-soon.png';
 	}

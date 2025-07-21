@@ -153,9 +153,11 @@ export function normalizeTimeFormat(timeString: string): string {
 		if (hours > 0 && remainingMinutes > 0) {
 			return `${hours}h ${remainingMinutes}m`;
 		}
+
 		if (hours > 0) {
 			return `${hours}h`;
 		}
+
 		return `${remainingMinutes}m`;
 	} catch {
 		return '';
@@ -296,6 +298,7 @@ export function extractIssueKeyFromInput(input: string): string | undefined {
 		if (match?.[1]) {
 			return match[1];
 		}
+
 		// If it contains /browse/ but no valid issue key, it's invalid
 		return undefined;
 	}

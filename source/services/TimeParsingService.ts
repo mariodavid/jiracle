@@ -83,6 +83,7 @@ function generateTimeMarks(incrementMinutes: number): number[] {
 	for (let min = 0; min <= 24 * 60; min += incrementMinutes) {
 		marks.push(min);
 	}
+
 	return marks;
 }
 

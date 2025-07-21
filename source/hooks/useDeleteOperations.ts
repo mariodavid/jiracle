@@ -207,6 +207,7 @@ export function useDeleteOperations(
 				clearTimeout(timer);
 			};
 		}
+
 		return undefined;
 	}, [deleteError]);
 

@@ -52,6 +52,7 @@ export default function TimeInputField({
 				return false;
 			}
 		}
+
 		if (newValue.length === 3) {
 			// Three characters: either HH: or H:M
 			if (newValue[2] === ':') {
@@ -62,6 +63,7 @@ export default function TimeInputField({
 				return false;
 			}
 		}
+
 		if (newValue.length === 4) {
 			// Four characters: either HH:M or H:MM
 			if (/^\d:/.test(newValue)) {
@@ -72,6 +74,7 @@ export default function TimeInputField({
 				return false;
 			}
 		}
+
 		if (
 			newValue.length === 5 && // Five characters: HH:MM format
 			!/^[01]\d:[0-5]\d|2[0-3]:[0-5]\d$/.test(newValue)

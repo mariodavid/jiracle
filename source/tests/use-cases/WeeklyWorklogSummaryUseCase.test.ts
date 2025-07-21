@@ -498,6 +498,7 @@ test('WeeklyWorklogSummaryUseCase includes favorite issues without worklogs', as
 				],
 			};
 		}
+
 		if (issueKey === 'FAV-123') {
 			// No worklogs for this favorite issue
 			return {
@@ -507,6 +508,7 @@ test('WeeklyWorklogSummaryUseCase includes favorite issues without worklogs', as
 				worklogs: [],
 			};
 		}
+
 		return {startAt: 0, maxResults: 20, total: 0, worklogs: []};
 	};
 
@@ -633,6 +635,7 @@ test('WeeklyWorklogSummaryUseCase includes sliding window issues', async t => {
 				],
 			};
 		}
+
 		return {startAt: 0, maxResults: 20, total: 0, worklogs: []};
 	};
 

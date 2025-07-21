@@ -31,6 +31,7 @@ testWithContext.afterEach.always(async t => {
 	if (existsSync(csvPath)) {
 		await unlink(csvPath);
 	}
+
 	delete process.env['JIRACLE_ATTENDANCE_CSV_PATH'];
 });
 

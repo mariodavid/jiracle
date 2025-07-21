@@ -67,18 +67,22 @@ export class GridNavigationService {
 				newIndex = this.navigateUp(focusedCell, focusableItems);
 				break;
 			}
+
 			case 'down': {
 				newIndex = this.navigateDown(focusedCell, focusableItems);
 				break;
 			}
+
 			case 'left': {
 				newIndex = this.navigateLeft(focusedCell, focusableItems, columnCount);
 				break;
 			}
+
 			case 'right': {
 				newIndex = this.navigateRight(focusedCell, focusableItems, columnCount);
 				break;
 			}
+
 			default: {
 				return {success: false};
 			}

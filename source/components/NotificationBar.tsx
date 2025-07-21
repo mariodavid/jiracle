@@ -22,9 +22,11 @@ export function NotificationBar({notifications}: NotificationBarProps) {
 			case 'success': {
 				return 'green';
 			}
+
 			case 'error': {
 				return 'red';
 			}
+
 			default: {
 				return 'blue';
 			}

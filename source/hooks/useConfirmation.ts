@@ -65,6 +65,7 @@ export function useConfirmation(): ConfirmationState & ConfirmationActions {
 			if (state.onConfirm) {
 				state.onConfirm(confirmed);
 			}
+
 			hide();
 		},
 		[state.onConfirm, hide],

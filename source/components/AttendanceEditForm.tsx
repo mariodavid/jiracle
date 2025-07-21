@@ -103,22 +103,27 @@ export function AttendanceEditForm({
 							setFocusArea('cancel');
 							break;
 						}
+
 						case 'checkOut': {
 							setFocusArea('checkIn');
 							break;
 						}
+
 						case 'break': {
 							setFocusArea('checkOut');
 							break;
 						}
+
 						case 'submit': {
 							setFocusArea('break');
 							break;
 						}
+
 						case 'cancel': {
 							setFocusArea('submit');
 							break;
 						}
+
 						default: {
 							break;
 						}
@@ -130,27 +135,33 @@ export function AttendanceEditForm({
 							setFocusArea('checkOut');
 							break;
 						}
+
 						case 'checkOut': {
 							setFocusArea('break');
 							break;
 						}
+
 						case 'break': {
 							setFocusArea('submit');
 							break;
 						}
+
 						case 'submit': {
 							setFocusArea('cancel');
 							break;
 						}
+
 						case 'cancel': {
 							setFocusArea('checkIn');
 							break;
 						}
+
 						default: {
 							break;
 						}
 					}
 				}
+
 				return;
 			}
 

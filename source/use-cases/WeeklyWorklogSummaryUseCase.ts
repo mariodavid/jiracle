@@ -258,6 +258,7 @@ export class WeeklyWorklogSummaryUseCase {
 				if (!worklogsByIssueDate.has(issueWorklogKey)) {
 					worklogsByIssueDate.set(issueWorklogKey, []);
 				}
+
 				worklogsByIssueDate.get(issueWorklogKey)!.push(worklog);
 			}
 		}
@@ -368,6 +369,7 @@ export class WeeklyWorklogSummaryUseCase {
 			} else {
 				summary = favorite.key;
 			}
+
 			firstDay.issues.push({
 				issueKey: favorite.key,
 				issueSummary: summary,

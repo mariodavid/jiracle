@@ -526,6 +526,7 @@ function generateWeekDates(weekStart: Date): Date[] {
 		dates.push(date);
 		current.setDate(current.getDate() + 1);
 	}
+
 	return dates;
 }
 

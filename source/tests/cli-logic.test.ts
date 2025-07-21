@@ -14,7 +14,7 @@ let mockFetchResponse:
 			json?: () => Promise<any>;
 			text?: () => Promise<string>;
 	  }
-	| undefined = undefined;
+	| undefined;
 
 function setupMockFetch(response: typeof mockFetchResponse) {
 	mockFetchResponse = response;
@@ -22,6 +22,7 @@ function setupMockFetch(response: typeof mockFetchResponse) {
 		if (!mockFetchResponse) {
 			throw new Error('No mock response configured');
 		}
+
 		return {
 			...mockFetchResponse,
 			headers: {

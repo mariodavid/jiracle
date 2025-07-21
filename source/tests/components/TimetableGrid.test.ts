@@ -345,7 +345,9 @@ test.serial(
 			if (args.length === 0) {
 				return mockDate;
 			}
-			return new originalDate(...(args as []));
+
+			// @ts-expect-error: Dynamic Date constructor call
+			return new originalDate(...args);
 		} as any;
 
 		MockDate.now = () => mockDate.getTime();
@@ -430,7 +432,9 @@ test.serial(
 			if (args.length === 0) {
 				return mockDate;
 			}
-			return new originalDate(...(args as []));
+
+			// @ts-expect-error: Dynamic Date constructor call
+			return new originalDate(...args);
 		} as any;
 
 		MockDate.now = () => mockDate.getTime();
@@ -519,7 +523,9 @@ test.serial(
 			if (args.length === 0) {
 				return mockDate;
 			}
-			return new originalDate(...(args as []));
+
+			// @ts-expect-error: Dynamic Date constructor call
+			return new originalDate(...args);
 		} as any;
 
 		MockDate.now = () => mockDate.getTime();

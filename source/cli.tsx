@@ -319,14 +319,17 @@ if (cli.input.length > 0) {
 				await handleCheckIn();
 				break;
 			}
+
 			case 'checkout': {
 				await handleCheckOut();
 				break;
 			}
+
 			case 'status': {
 				await handleStatus();
 				break;
 			}
+
 			default: {
 				console.error(`Unknown command: ${cli.input.join(' ')}`);
 				process.exit(1);
