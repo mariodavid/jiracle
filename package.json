@@ -111,7 +111,6 @@
 			"react/no-array-index-key": "off",
 			"react/no-unused-prop-types": "off",
 			"react/boolean-prop-naming": "off",
-			"n/prefer-global/process": "off",
 			"ava/no-ignored-test-files": "off",
 			"no-await-in-loop": "off",
 			"no-negated-condition": "off",

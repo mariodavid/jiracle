@@ -2,6 +2,7 @@ import {readFile, unlink} from 'node:fs/promises';
 import {existsSync} from 'node:fs';
 import {join} from 'node:path';
 import {tmpdir} from 'node:os';
+import process from 'node:process';
 import test, {type TestFn} from 'ava';
 import {
 	executeCheckIn,

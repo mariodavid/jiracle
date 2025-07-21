@@ -1,3 +1,4 @@
+import process from 'node:process';
 import {AttendanceCSVStorage} from './AttendanceCSVStorage.js';
 import {AttendanceCalculations} from './AttendanceCalculations.js';
 import type {
