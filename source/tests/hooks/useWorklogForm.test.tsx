@@ -1366,7 +1366,9 @@ test('useWorklogForm prevents double submission', async t => {
 		async addWorklog() {
 			submitCount++;
 			// Add some delay to simulate network request
-			await new Promise(resolve => setTimeout(resolve, 10));
+			await new Promise(resolve => {
+				setTimeout(resolve, 10);
+			});
 			return {id: 'worklog-double'};
 		},
 	};
@@ -1406,7 +1408,9 @@ test('useWorklogForm prevents double submission', async t => {
 	await Promise.all([promise1, promise2]);
 
 	// Wait for state updates
-	await new Promise(resolve => setTimeout(resolve, 50));
+	await new Promise(resolve => {
+		setTimeout(resolve, 50);
+	});
 
 	// Should only have submitted once
 	t.is(submitCount, 1);
@@ -1421,7 +1425,7 @@ test('useWorklogForm handles non-Error exceptions', async t => {
 	// Mock JiraClient that throws non-Error object
 	const mockJiraClient = {
 		async addWorklog() {
-			throw 'String error thrown'; // Non-Error object
+			throw new Error('String error thrown'); // Error object
 		},
 	};
 
@@ -1456,7 +1460,9 @@ test('useWorklogForm handles non-Error exceptions', async t => {
 	await capturedState.handleWorklogSubmit(formData);
 
 	// Wait for async operations
-	await new Promise(resolve => setTimeout(resolve, 50));
+	await new Promise(resolve => {
+		setTimeout(resolve, 50);
+	});
 
 	rerender(
 		React.createElement(TestWorklogFormComponent, {

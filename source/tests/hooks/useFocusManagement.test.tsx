@@ -38,14 +38,14 @@ test('useFocusManagement: returns initial state with null focused cell', t => {
 test('useFocusManagement: handleFocusChange sets focus when isFocused is true', t => {
 	const {rerender} = render(React.createElement(TestFocusManagementComponent));
 
-	// @ts-expect-error
+	// @ts-expect-error: Test-only global variable to access hook state
 	let hook = globalThis.__testHookResult as UseFocusManagementResult;
 
 	// Call handleFocusChange with isFocused = true
 	hook.handleFocusChange('PROJECT-123', 2, true);
 	rerender(React.createElement(TestFocusManagementComponent));
 
-	// @ts-expect-error
+	// @ts-expect-error: Test-only global variable to access hook state
 	hook = globalThis.__testHookResult as UseFocusManagementResult;
 	t.truthy(hook.focusedCell);
 	t.is(hook.focusedCell?.issueKey, 'PROJECT-123');
@@ -56,14 +56,14 @@ test('useFocusManagement: handleFocusChange sets focus when isFocused is true', 
 test('useFocusManagement: handleFocusChange ignores blur events (isFocused=false)', t => {
 	const {rerender} = render(React.createElement(TestFocusManagementComponent));
 
-	// @ts-expect-error
+	// @ts-expect-error: Test-only global variable to access hook state
 	let hook = globalThis.__testHookResult as UseFocusManagementResult;
 
 	// First set a focus
 	hook.handleFocusChange('PROJECT-456', 1, true);
 	rerender(React.createElement(TestFocusManagementComponent));
 
-	// @ts-expect-error
+	// @ts-expect-error: Test-only global variable to access hook state
 	hook = globalThis.__testHookResult as UseFocusManagementResult;
 	t.truthy(hook.focusedCell);
 	t.is(hook.focusedCell?.issueKey, 'PROJECT-456');
@@ -72,7 +72,7 @@ test('useFocusManagement: handleFocusChange ignores blur events (isFocused=false
 	hook.handleFocusChange('PROJECT-456', 1, false);
 	rerender(React.createElement(TestFocusManagementComponent));
 
-	// @ts-expect-error
+	// @ts-expect-error: Test-only global variable to access hook state
 	hook = globalThis.__testHookResult as UseFocusManagementResult;
 	// Focus should still be there (blur ignored)
 	t.truthy(hook.focusedCell);
@@ -82,14 +82,14 @@ test('useFocusManagement: handleFocusChange ignores blur events (isFocused=false
 test('useFocusManagement: handleFocusChange detects attendance cells', t => {
 	const {rerender} = render(React.createElement(TestFocusManagementComponent));
 
-	// @ts-expect-error
+	// @ts-expect-error: Test-only global variable to access hook state
 	let hook = globalThis.__testHookResult as UseFocusManagementResult;
 
 	// Focus on an attendance cell (starts with 'attendance-')
 	hook.handleFocusChange('attendance-row', 0, true);
 	rerender(React.createElement(TestFocusManagementComponent));
 
-	// @ts-expect-error
+	// @ts-expect-error: Test-only global variable to access hook state
 	hook = globalThis.__testHookResult as UseFocusManagementResult;
 	t.truthy(hook.focusedCell);
 	t.is(hook.focusedCell?.issueKey, 'attendance-row');
@@ -100,7 +100,7 @@ test('useFocusManagement: handleFocusChange detects attendance cells', t => {
 test('useFocusManagement: setFocusedCell directly sets the focused cell', t => {
 	const {rerender} = render(React.createElement(TestFocusManagementComponent));
 
-	// @ts-expect-error
+	// @ts-expect-error: Test-only global variable to access hook state
 	let hook = globalThis.__testHookResult as UseFocusManagementResult;
 
 	// Set focus directly
@@ -111,7 +111,7 @@ test('useFocusManagement: setFocusedCell directly sets the focused cell', t => {
 	});
 	rerender(React.createElement(TestFocusManagementComponent));
 
-	// @ts-expect-error
+	// @ts-expect-error: Test-only global variable to access hook state
 	hook = globalThis.__testHookResult as UseFocusManagementResult;
 	t.truthy(hook.focusedCell);
 	t.is(hook.focusedCell?.issueKey, 'DIRECT-789');
@@ -122,7 +122,7 @@ test('useFocusManagement: setFocusedCell directly sets the focused cell', t => {
 test('useFocusManagement: setFocusedCell can set to undefined', t => {
 	const {rerender} = render(React.createElement(TestFocusManagementComponent));
 
-	// @ts-expect-error
+	// @ts-expect-error: Test-only global variable to access hook state
 	let hook = globalThis.__testHookResult as UseFocusManagementResult;
 
 	// Set a focus first
@@ -133,7 +133,7 @@ test('useFocusManagement: setFocusedCell can set to undefined', t => {
 	});
 	rerender(React.createElement(TestFocusManagementComponent));
 
-	// @ts-expect-error
+	// @ts-expect-error: Test-only global variable to access hook state
 	hook = globalThis.__testHookResult as UseFocusManagementResult;
 	t.truthy(hook.focusedCell);
 
@@ -141,7 +141,7 @@ test('useFocusManagement: setFocusedCell can set to undefined', t => {
 	hook.setFocusedCell(undefined);
 	rerender(React.createElement(TestFocusManagementComponent));
 
-	// @ts-expect-error
+	// @ts-expect-error: Test-only global variable to access hook state
 	hook = globalThis.__testHookResult as UseFocusManagementResult;
 	t.is(hook.focusedCell, undefined);
 });
@@ -149,14 +149,14 @@ test('useFocusManagement: setFocusedCell can set to undefined', t => {
 test('useFocusManagement: clearFocus clears the focused cell', t => {
 	const {rerender} = render(React.createElement(TestFocusManagementComponent));
 
-	// @ts-expect-error
+	// @ts-expect-error: Test-only global variable to access hook state
 	let hook = globalThis.__testHookResult as UseFocusManagementResult;
 
 	// Set a focus first
 	hook.handleFocusChange('CLEAR-TEST', 1, true);
 	rerender(React.createElement(TestFocusManagementComponent));
 
-	// @ts-expect-error
+	// @ts-expect-error: Test-only global variable to access hook state
 	hook = globalThis.__testHookResult as UseFocusManagementResult;
 	t.truthy(hook.focusedCell);
 
@@ -164,7 +164,7 @@ test('useFocusManagement: clearFocus clears the focused cell', t => {
 	hook.clearFocus();
 	rerender(React.createElement(TestFocusManagementComponent));
 
-	// @ts-expect-error
+	// @ts-expect-error: Test-only global variable to access hook state
 	hook = globalThis.__testHookResult as UseFocusManagementResult;
 	t.is(hook.focusedCell, undefined);
 });
@@ -172,14 +172,14 @@ test('useFocusManagement: clearFocus clears the focused cell', t => {
 test('useFocusManagement: isCellFocused returns true for focused cell', t => {
 	const {rerender} = render(React.createElement(TestFocusManagementComponent));
 
-	// @ts-expect-error
+	// @ts-expect-error: Test-only global variable to access hook state
 	let hook = globalThis.__testHookResult as UseFocusManagementResult;
 
 	// Set focus on specific cell
 	hook.handleFocusChange('FOCUS-CHECK', 2, true);
 	rerender(React.createElement(TestFocusManagementComponent));
 
-	// @ts-expect-error
+	// @ts-expect-error: Test-only global variable to access hook state
 	hook = globalThis.__testHookResult as UseFocusManagementResult;
 
 	// Check if the focused cell is correctly identified
@@ -194,7 +194,7 @@ test('useFocusManagement: isCellFocused returns true for focused cell', t => {
 test('useFocusManagement: isCellFocused returns false when no cell is focused', t => {
 	render(React.createElement(TestFocusManagementComponent));
 
-	// @ts-expect-error
+	// @ts-expect-error: Test-only global variable to access hook state
 	const hook = globalThis.__testHookResult as UseFocusManagementResult;
 
 	// No cell is focused initially
@@ -205,14 +205,14 @@ test('useFocusManagement: isCellFocused returns false when no cell is focused', 
 test('useFocusManagement: focus changes update isCellFocused correctly', t => {
 	const {rerender} = render(React.createElement(TestFocusManagementComponent));
 
-	// @ts-expect-error
+	// @ts-expect-error: Test-only global variable to access hook state
 	let hook = globalThis.__testHookResult as UseFocusManagementResult;
 
 	// Focus first cell
 	hook.handleFocusChange('SWITCH-A', 0, true);
 	rerender(React.createElement(TestFocusManagementComponent));
 
-	// @ts-expect-error
+	// @ts-expect-error: Test-only global variable to access hook state
 	hook = globalThis.__testHookResult as UseFocusManagementResult;
 	t.true(hook.isCellFocused('SWITCH-A', 0));
 	t.false(hook.isCellFocused('SWITCH-B', 1));
@@ -221,7 +221,7 @@ test('useFocusManagement: focus changes update isCellFocused correctly', t => {
 	hook.handleFocusChange('SWITCH-B', 1, true);
 	rerender(React.createElement(TestFocusManagementComponent));
 
-	// @ts-expect-error
+	// @ts-expect-error: Test-only global variable to access hook state
 	hook = globalThis.__testHookResult as UseFocusManagementResult;
 	t.false(hook.isCellFocused('SWITCH-A', 0));
 	t.true(hook.isCellFocused('SWITCH-B', 1));
@@ -230,14 +230,14 @@ test('useFocusManagement: focus changes update isCellFocused correctly', t => {
 test('useFocusManagement: handles attendance cell identification correctly', t => {
 	const {rerender} = render(React.createElement(TestFocusManagementComponent));
 
-	// @ts-expect-error
+	// @ts-expect-error: Test-only global variable to access hook state
 	let hook = globalThis.__testHookResult as UseFocusManagementResult;
 
 	// Test regular issue (should not be attendance)
 	hook.handleFocusChange('REGULAR-123', 0, true);
 	rerender(React.createElement(TestFocusManagementComponent));
 
-	// @ts-expect-error
+	// @ts-expect-error: Test-only global variable to access hook state
 	hook = globalThis.__testHookResult as UseFocusManagementResult;
 	t.truthy(hook.focusedCell);
 	t.false(hook.focusedCell?.isAttendance);
@@ -246,7 +246,7 @@ test('useFocusManagement: handles attendance cell identification correctly', t =
 	hook.handleFocusChange('attendance-something', 1, true);
 	rerender(React.createElement(TestFocusManagementComponent));
 
-	// @ts-expect-error
+	// @ts-expect-error: Test-only global variable to access hook state
 	hook = globalThis.__testHookResult as UseFocusManagementResult;
 	t.truthy(hook.focusedCell);
 	t.true(hook.focusedCell?.isAttendance);
@@ -255,7 +255,7 @@ test('useFocusManagement: handles attendance cell identification correctly', t =
 	hook.handleFocusChange('attendance', 2, true);
 	rerender(React.createElement(TestFocusManagementComponent));
 
-	// @ts-expect-error
+	// @ts-expect-error: Test-only global variable to access hook state
 	hook = globalThis.__testHookResult as UseFocusManagementResult;
 	t.truthy(hook.focusedCell);
 	t.false(hook.focusedCell?.isAttendance); // Should be false, needs 'attendance-' prefix
