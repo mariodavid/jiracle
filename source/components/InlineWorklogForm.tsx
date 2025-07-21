@@ -86,149 +86,154 @@ export function InlineWorklogForm({
 		}
 	}, [isSubmitting]);
 
+	const handleReverseTabNavigation = () => {
+		switch (focusArea) {
+			case 'issueKey': {
+				setFocusArea('cancel');
+				break;
+			}
+
+			case 'date': {
+				if (isIssueKeyEditable) {
+					setFocusArea('issueKey');
+				} else {
+					setFocusArea('cancel');
+				}
+
+				break;
+			}
+
+			case 'time': {
+				if (isIssueKeyEditable) {
+					setFocusArea('date');
+				} else {
+					setFocusArea('cancel');
+				}
+
+				break;
+			}
+
+			case 'comment': {
+				normalizeTimeOnBlur(timeInputValue);
+				setFocusArea('time');
+				break;
+			}
+
+			case 'submit': {
+				setFocusArea('comment');
+				break;
+			}
+
+			case 'cancel': {
+				setFocusArea('submit');
+				break;
+			}
+
+			default: {
+				break;
+			}
+		}
+	};
+
+	const handleForwardTabNavigation = () => {
+		switch (focusArea) {
+			case 'issueKey': {
+				if (isIssueKeyEditable) {
+					setFocusArea('date');
+				} else {
+					setFocusArea('time');
+				}
+
+				break;
+			}
+
+			case 'date': {
+				setFocusArea('time');
+				break;
+			}
+
+			case 'time': {
+				normalizeTimeOnBlur(timeInputValue);
+				setFocusArea('comment');
+				break;
+			}
+
+			case 'comment': {
+				setFocusArea('submit');
+				break;
+			}
+
+			case 'submit': {
+				setFocusArea('cancel');
+				break;
+			}
+
+			case 'cancel': {
+				if (isIssueKeyEditable) {
+					setFocusArea('issueKey');
+				} else {
+					setFocusArea('time');
+				}
+
+				break;
+			}
+
+			default: {
+				break;
+			}
+		}
+	};
+
+	const handleEnterKey = () => {
+		switch (focusArea) {
+			case 'submit': {
+				handleSubmit();
+				break;
+			}
+
+			case 'cancel': {
+				onCancel();
+				break;
+			}
+
+			case 'comment': {
+				handleSubmit();
+				break;
+			}
+
+			default: {
+				// No action for other focus areas (date, time, issueKey)
+				break;
+			}
+		}
+	};
+
 	useInput(
 		(_, key) => {
 			if (!isFocused) return;
 
-			// Escape to cancel
 			if (key.escape) {
 				onCancel();
 				return;
 			}
 
-			// Tab navigation between areas
 			if (key.tab) {
 				if (key.shift) {
-					// Shift+Tab for reverse navigation
-					switch (focusArea) {
-						case 'issueKey': {
-							setFocusArea('cancel');
-							break;
-						}
-
-						case 'date': {
-							if (isIssueKeyEditable) {
-								setFocusArea('issueKey');
-							} else {
-								setFocusArea('cancel');
-							}
-
-							break;
-						}
-
-						case 'time': {
-							if (isIssueKeyEditable) {
-								setFocusArea('date');
-							} else {
-								setFocusArea('cancel');
-							}
-
-							break;
-						}
-
-						case 'comment': {
-							// Normalize time when leaving time field
-							normalizeTimeOnBlur(timeInputValue);
-							setFocusArea('time');
-							break;
-						}
-
-						case 'submit': {
-							setFocusArea('comment');
-							break;
-						}
-
-						case 'cancel': {
-							setFocusArea('submit');
-							break;
-						}
-
-						default: {
-							break;
-						}
-					}
+					handleReverseTabNavigation();
 				} else {
-					// Regular Tab for forward navigation
-					switch (focusArea) {
-						case 'issueKey': {
-							if (isIssueKeyEditable) {
-								setFocusArea('date');
-							} else {
-								setFocusArea('time');
-							}
-
-							break;
-						}
-
-						case 'date': {
-							setFocusArea('time');
-							break;
-						}
-
-						case 'time': {
-							// Normalize time when leaving time field
-							normalizeTimeOnBlur(timeInputValue);
-							setFocusArea('comment');
-							break;
-						}
-
-						case 'comment': {
-							setFocusArea('submit');
-							break;
-						}
-
-						case 'submit': {
-							setFocusArea('cancel');
-							break;
-						}
-
-						case 'cancel': {
-							if (isIssueKeyEditable) {
-								setFocusArea('issueKey');
-							} else {
-								setFocusArea('time');
-							}
-
-							break;
-						}
-
-						default: {
-							break;
-						}
-					}
+					handleForwardTabNavigation();
 				}
 
 				return;
 			}
 
-			// Ctrl+Enter submits from anywhere
 			if (key.ctrl && key.return) {
 				handleSubmit();
+				return;
 			}
 
-			// Handle enter in specific areas
 			if (key.return) {
-				switch (focusArea) {
-					case 'submit': {
-						handleSubmit();
-						break;
-					}
-
-					case 'cancel': {
-						onCancel();
-						break;
-					}
-
-					case 'comment': {
-						handleSubmit();
-						break;
-					}
-
-					default: {
-						// No action for other focus areas (date, time, issueKey)
-						break;
-					}
-				}
+				handleEnterKey();
 			}
 		},
 		{isActive: isFocused},

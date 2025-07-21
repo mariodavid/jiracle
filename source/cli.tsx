@@ -93,13 +93,9 @@ export type WorklogAddResult = {
 	message: string;
 };
 
-export async function executeWorklogAdd(
-	params: WorklogAddParams,
-	configPath?: string,
-): Promise<WorklogAddResult> {
+function validateWorklogParams(params: WorklogAddParams): void {
 	const {issue, date, time, comment} = params;
 
-	// Parameter validation
 	if (!issue || !date || !time || !comment) {
 		throw new Error(
 			'All flags are required: --issue, --date, --time, --comment',
@@ -110,7 +106,6 @@ export async function executeWorklogAdd(
 		throw new Error('Date must be in YYYY-MM-DD format');
 	}
 
-	// Additional date validation - check if it's a valid date
 	const testDate = new Date(date);
 	if (
 		Number.isNaN(testDate.getTime()) ||
@@ -124,26 +119,75 @@ export async function executeWorklogAdd(
 			'Time must be in format like "5h", "30m", "2.5h", or "1:30"',
 		);
 	}
+}
+
+function loadConfig(configPath?: string): JiraConfig {
+	const configFilePath =
+		configPath || join(homedir(), '.config', 'jiracle.json');
+	const configData = readFileSync(configFilePath, 'utf8');
+	const baseConfig = JSON.parse(configData) as JiraConfig;
+	return loadConfigWithEnvVars(baseConfig);
+}
+
+function createSilentLogger(): winston.Logger {
+	return winston.createLogger({
+		level: 'error',
+		format: winston.format.simple(),
+		transports: [
+			new winston.transports.Console({
+				silent: true,
+			}),
+		],
+	});
+}
+
+function handleWorklogError(error: unknown, issue: string): never {
+	if (error instanceof Error) {
+		const {message} = error;
+
+		if (message.includes('404') && message.includes('Issue Does Not Exist')) {
+			throw new Error(`Issue '${issue}' does not exist`);
+		}
+
+		if (message.includes('401') || message.includes('Unauthorized')) {
+			throw new Error('Invalid Jira credentials or insufficient permissions');
+		}
+
+		if (message.includes('403') || message.includes('Forbidden')) {
+			throw new Error(`Access denied to issue '${issue}'`);
+		}
+
+		if (message.includes('400') && message.includes('Bad Request')) {
+			throw new Error(
+				'Invalid request (check time format or other parameters)',
+			);
+		}
+
+		if (message.includes('ENOTFOUND') || message.includes('fetch failed')) {
+			throw new Error('Cannot connect to Jira server (check URL and network)');
+		}
+
+		if (message.includes('JSON')) {
+			throw new Error('Invalid configuration file format');
+		}
+
+		throw new Error(message.split(' - ')[0]);
+	}
+
+	throw new TypeError('Unknown error occurred');
+}
+
+export async function executeWorklogAdd(
+	params: WorklogAddParams,
+	configPath?: string,
+): Promise<WorklogAddResult> {
+	const {issue, date, time, comment} = params;
+
+	validateWorklogParams(params);
 
 	try {
-		const configFilePath =
-			configPath || join(homedir(), '.config', 'jiracle.json');
-		const configData = readFileSync(configFilePath, 'utf8');
-		const baseConfig = JSON.parse(configData) as JiraConfig;
-		const config = loadConfigWithEnvVars(baseConfig);
-
-		// Create a silent logger for CLI usage to avoid debug output
-		const silentLogger = winston.createLogger({
-			level: 'error',
-			format: winston.format.simple(),
-			transports: [
-				new winston.transports.Console({
-					silent: true,
-				}),
-			],
-		});
-
-		const client = new JiraClient(config, silentLogger);
+		const config = loadConfig(configPath);
+		const client = new JiraClient(config, createSilentLogger());
 
 		const workDate = new Date(date);
 		workDate.setHours(9, 0, 0, 0);
@@ -156,42 +200,13 @@ export async function executeWorklogAdd(
 		};
 
 		await client.addWorklog(issue, worklogData);
+
 		return {
 			success: true,
 			message: `✅ Successfully logged ${time} to ${issue} on ${date}`,
 		};
 	} catch (error: unknown) {
-		// Clean error messages for CLI usage
-		if (error instanceof Error) {
-			const {message} = error;
-
-			// Handle specific Jira API errors
-			if (message.includes('404') && message.includes('Issue Does Not Exist')) {
-				throw new Error(`Issue '${issue}' does not exist`);
-			} else if (message.includes('401') || message.includes('Unauthorized')) {
-				throw new Error('Invalid Jira credentials or insufficient permissions');
-			} else if (message.includes('403') || message.includes('Forbidden')) {
-				throw new Error(`Access denied to issue '${issue}'`);
-			} else if (message.includes('400') && message.includes('Bad Request')) {
-				throw new Error(
-					'Invalid request (check time format or other parameters)',
-				);
-			} else if (
-				message.includes('ENOTFOUND') ||
-				message.includes('fetch failed')
-			) {
-				throw new Error(
-					'Cannot connect to Jira server (check URL and network)',
-				);
-			} else if (message.includes('JSON')) {
-				throw new Error('Invalid configuration file format');
-			} else {
-				// Generic error message without debug info
-				throw new Error(message.split(' - ')[0]);
-			}
-		} else {
-			throw new TypeError('Unknown error occurred');
-		}
+		handleWorklogError(error, issue);
 	}
 }
 

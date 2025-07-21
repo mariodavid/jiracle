@@ -137,7 +137,7 @@ export const delays = {
  */
 export function createMockFetch(responses: Record<string, any> = {}) {
 	return async (url: string | URL | Request, _init?: RequestInit) => {
-		const urlString = url.toString();
+		const urlString = String(url);
 
 		// Default responses
 		if (urlString.includes('/rest/api/2/search')) {

@@ -82,6 +82,7 @@
 				"rules": {
 					"@typescript-eslint/no-empty-function": "off",
 					"@typescript-eslint/no-unsafe-assignment": "off",
+					"@typescript-eslint/no-unsafe-call": "off",
 					"ava/no-ignored-test-files": "off",
 					"no-await-in-loop": "off"
 				}
@@ -113,12 +114,7 @@
 			"react/no-array-index-key": "off",
 			"react/no-unused-prop-types": "off",
 			"react/boolean-prop-naming": "off",
-			"complexity": "off",
-			"@typescript-eslint/no-unsafe-call": "off",
 			"import/first": "error",
-			"@typescript-eslint/no-dynamic-delete": "off",
-			"no-misleading-character-class": "off",
-			"@typescript-eslint/no-base-to-string": "off",
 			"@typescript-eslint/consistent-type-assertions": "off",
 			"@typescript-eslint/promise-function-async": "off",
 			"unicorn/no-hex-escape": "off",

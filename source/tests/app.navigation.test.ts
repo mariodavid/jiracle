@@ -16,7 +16,7 @@ const testConfig: JiraConfig = {
 // Mock fetch globally for all tests
 test.beforeEach(() => {
 	global.fetch = async (url: string | URL | Request) => {
-		const urlString = url.toString();
+		const urlString = String(url);
 
 		// Mock search endpoint for both favorites and assigned issues
 		if (urlString.includes('/rest/api/2/search')) {
