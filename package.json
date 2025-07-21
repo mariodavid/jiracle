@@ -116,7 +116,6 @@
 			"react/boolean-prop-naming": "off",
 			"import/first": "error",
 			"@typescript-eslint/consistent-type-assertions": "off",
-			"no-eq-null": "off",
 			"max-params": "off",
 			"@typescript-eslint/no-require-imports": "off",
 			"@typescript-eslint/no-var-requires": "off",
