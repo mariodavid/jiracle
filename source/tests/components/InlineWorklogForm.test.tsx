@@ -461,9 +461,7 @@ test('InlineWorklogForm handles Ctrl+Enter submission from any field', t => {
 		},
 	};
 
-	const {stdin} = render(
-		React.createElement(InlineWorklogForm, testProps),
-	);
+	const {stdin} = render(React.createElement(InlineWorklogForm, testProps));
 
 	// Ctrl+Enter from time field should submit
 	stdin.write('2h');
@@ -482,9 +480,7 @@ test('InlineWorklogForm handles Enter key on submit button', t => {
 		},
 	};
 
-	const {stdin} = render(
-		React.createElement(InlineWorklogForm, testProps),
-	);
+	const {stdin} = render(React.createElement(InlineWorklogForm, testProps));
 
 	// Navigate to submit button and press Enter
 	stdin.write('\t'); // To comment
@@ -504,9 +500,7 @@ test('InlineWorklogForm handles Enter key on cancel button', t => {
 		},
 	};
 
-	const {stdin} = render(
-		React.createElement(InlineWorklogForm, testProps),
-	);
+	const {stdin} = render(React.createElement(InlineWorklogForm, testProps));
 
 	// Navigate to cancel button and press Enter
 	stdin.write('\t'); // To comment
@@ -579,11 +573,9 @@ test('InlineWorklogForm handles Escape key for cancel', t => {
 		},
 	};
 
-	const {stdin} = render(
-		React.createElement(InlineWorklogForm, testProps),
-	);
+	const {stdin} = render(React.createElement(InlineWorklogForm, testProps));
 
-	stdin.write('\u001b'); // Escape key
+	stdin.write('\u001B'); // Escape key
 
 	t.true(cancelled);
 });
@@ -600,7 +592,7 @@ test('InlineWorklogForm handles Shift+Tab navigation in reverse', t => {
 	stdin.write('\t'); // To comment
 	stdin.write('\t'); // To submit
 	stdin.write('\t'); // To cancel
-	stdin.write('\u001b[Z'); // Shift+Tab should go to submit
+	stdin.write('\u001B[Z'); // Shift+Tab should go to submit
 
 	// Test passes if no errors thrown
 	t.pass();
@@ -645,9 +637,7 @@ test('InlineWorklogForm handles worklog ID in edit mode', t => {
 		},
 	};
 
-	const {stdin} = render(
-		React.createElement(InlineWorklogForm, editModeProps),
-	);
+	const {stdin} = render(React.createElement(InlineWorklogForm, editModeProps));
 
 	// Submit the form
 	stdin.write('Test comment');
@@ -706,12 +696,10 @@ test('InlineWorklogForm handles Shift+Tab reverse navigation', t => {
 		isIssueKeyEditable: true,
 	};
 
-	const {stdin} = render(
-		React.createElement(InlineWorklogForm, editableProps),
-	);
+	const {stdin} = render(React.createElement(InlineWorklogForm, editableProps));
 
 	// Test Shift+Tab reverse navigation
-	stdin.write('\u001b[Z'); // Shift+Tab sequence
+	stdin.write('\u001B[Z'); // Shift+Tab sequence
 	t.pass('Shift+Tab navigation handled');
 });
 
@@ -726,8 +714,8 @@ test('InlineWorklogForm handles Escape key to cancel', t => {
 	const {stdin} = render(React.createElement(InlineWorklogForm, cancelProps));
 
 	// Test Escape key
-	stdin.write('\u001b'); // Escape key
-	
+	stdin.write('\u001B'); // Escape key
+
 	// Note: In a real test environment with proper key handling, this would trigger cancel
 	t.pass('Escape key handling implemented');
 });
@@ -807,8 +795,8 @@ test('InlineWorklogForm handles decimal time inputs', t => {
 
 test('InlineWorklogForm handles complex time formats', t => {
 	const timeFormats = ['1h 30m', '90m', '0.5h'];
-	
-	timeFormats.forEach(timeFormat => {
+
+	for (const timeFormat of timeFormats) {
 		const timeProps = {
 			...mockProps,
 			defaultTimeSpent: timeFormat,
@@ -821,7 +809,7 @@ test('InlineWorklogForm handles complex time formats', t => {
 
 		// Should handle various time formats
 		t.true(output.includes(timeFormat));
-	});
+	}
 });
 
 test('InlineWorklogForm handles date formatting correctly', t => {
@@ -843,7 +831,8 @@ test('InlineWorklogForm handles date formatting correctly', t => {
 test('InlineWorklogForm handles long error messages gracefully', t => {
 	const longErrorProps = {
 		...mockProps,
-		error: 'This is a very long error message that should be displayed properly without breaking the layout or causing any rendering issues in the terminal interface',
+		error:
+			'This is a very long error message that should be displayed properly without breaking the layout or causing any rendering issues in the terminal interface',
 	};
 
 	const {lastFrame} = render(
@@ -859,14 +848,14 @@ test('InlineWorklogForm handles long error messages gracefully', t => {
 test('InlineWorklogForm handles Enter key in different focus areas', t => {
 	const submitProps = {
 		...mockProps,
-		onSubmit: () => {}, // Mock submit
+		onSubmit() {}, // Mock submit
 	};
 
 	const {stdin} = render(React.createElement(InlineWorklogForm, submitProps));
 
 	// Test Enter key press
 	stdin.write('\r'); // Enter key
-	
+
 	t.pass('Enter key handling implemented for different focus areas');
 });
 
@@ -882,31 +871,35 @@ test('InlineWorklogForm handles Ctrl+Enter submission from anywhere', t => {
 
 	// Test Ctrl+Enter combination
 	stdin.write('\u0001\r'); // Ctrl+A (as proxy for Ctrl+Enter testing)
-	
+
 	t.pass('Ctrl+Enter submission handling implemented');
 });
 
 test('InlineWorklogForm handles time input field changes', t => {
-	const {stdin, lastFrame} = render(React.createElement(InlineWorklogForm, mockProps));
+	const {stdin, lastFrame} = render(
+		React.createElement(InlineWorklogForm, mockProps),
+	);
 
 	// Navigate to time field and enter new value
 	stdin.write('2h'); // Enter time value
-	
+
 	const output = lastFrame() || '';
-	
+
 	// Time field should be present and functional
 	t.true(output.includes('Time spent:'));
 	t.pass('Time input field changes handled');
 });
 
 test('InlineWorklogForm handles comment field input', t => {
-	const {stdin, lastFrame} = render(React.createElement(InlineWorklogForm, mockProps));
+	const {stdin, lastFrame} = render(
+		React.createElement(InlineWorklogForm, mockProps),
+	);
 
 	// Navigate to comment field and enter text
 	stdin.write('Test comment input');
-	
+
 	const output = lastFrame() || '';
-	
+
 	// Comment field should be present
 	t.true(output.includes('Comment:'));
 	t.pass('Comment field input handled');
@@ -918,7 +911,7 @@ test('InlineWorklogForm normalizes time input on blur', t => {
 	// Enter just numbers (should be normalized to add 'h')
 	stdin.write('2'); // Just number input
 	stdin.write('\t'); // Tab away to trigger blur normalization
-	
+
 	t.pass('Time input normalization on blur implemented');
 });
 
@@ -953,11 +946,11 @@ test('InlineWorklogForm handles issue key editing when enabled', t => {
 	);
 
 	const output = lastFrame() || '';
-	
+
 	// Should show issue key field when editable
 	t.true(output.includes('Issue:'));
 	t.true(output.includes('EDIT-456'));
-	
+
 	// Test editing issue key
 	stdin.write('NEW-789');
 	t.pass('Issue key editing handled when enabled');
@@ -975,11 +968,11 @@ test('InlineWorklogForm handles date editing when issue key is editable', t => {
 	);
 
 	const output = lastFrame() || '';
-	
+
 	// Should show date field when issue key is editable
 	t.true(output.includes('Date:'));
 	t.true(output.includes('2024-06-15'));
-	
+
 	// Test editing date
 	stdin.write('2024-07-20');
 	t.pass('Date editing handled when enabled');
@@ -991,7 +984,9 @@ test('InlineWorklogForm maintains focus state correctly', t => {
 		isIssueKeyEditable: false, // Should start with time focused
 	};
 
-	const {lastFrame} = render(React.createElement(InlineWorklogForm, focusProps));
+	const {lastFrame} = render(
+		React.createElement(InlineWorklogForm, focusProps),
+	);
 	const output = lastFrame() || '';
 
 	// Should render with proper initial focus (time field)

@@ -737,14 +737,14 @@ test('useDeleteOperations handleDeleteConfirm processes actual deletion with Jir
 				},
 			],
 		}),
-		deleteWorklog: async () => {
+		async deleteWorklog() {
 			// Simulate successful deletion
 		},
 	};
 
 	// Mock JiraClient constructor
 	const originalJiraClient = (global as any).JiraClient;
-	(global as any).JiraClient = function() {
+	(global as any).JiraClient = function () {
 		return mockJiraClient;
 	};
 
@@ -785,7 +785,9 @@ test('useDeleteOperations handleDeleteConfirm processes actual deletion with Jir
 	await capturedState.handleDeleteConfirm(true);
 
 	// Wait for async operations
-	await new Promise(resolve => setTimeout(resolve, 50));
+	await new Promise(resolve => {
+		setTimeout(resolve, 50);
+	});
 
 	rerender(
 		React.createElement(TestDeleteOperationsComponent, {
@@ -811,14 +813,14 @@ test('useDeleteOperations handleDeleteConfirm handles API errors', async t => {
 
 	// Mock JiraClient that throws error
 	const mockJiraClient = {
-		getIssueWorklogs: async () => {
+		async getIssueWorklogs() {
 			throw new Error('API Error');
 		},
 	};
 
 	// Mock JiraClient constructor
 	const originalJiraClient = (global as any).JiraClient;
-	(global as any).JiraClient = function() {
+	(global as any).JiraClient = function () {
 		return mockJiraClient;
 	};
 
@@ -859,7 +861,9 @@ test('useDeleteOperations handleDeleteConfirm handles API errors', async t => {
 	await capturedState.handleDeleteConfirm(true);
 
 	// Wait for async operations
-	await new Promise(resolve => setTimeout(resolve, 50));
+	await new Promise(resolve => {
+		setTimeout(resolve, 50);
+	});
 
 	rerender(
 		React.createElement(TestDeleteOperationsComponent, {
@@ -914,7 +918,7 @@ test('useDeleteOperations filters worklogs by user and date correctly', async t 
 				},
 			],
 		}),
-		deleteWorklog: async (issueKey: string, worklogId: string) => {
+		async deleteWorklog(issueKey: string, worklogId: string) {
 			// Should only be called for worklog-1
 			t.is(issueKey, 'TEST-FILTER');
 			t.is(worklogId, 'worklog-1');
@@ -923,7 +927,7 @@ test('useDeleteOperations filters worklogs by user and date correctly', async t 
 
 	// Mock JiraClient constructor
 	const originalJiraClient = (global as any).JiraClient;
-	(global as any).JiraClient = function() {
+	(global as any).JiraClient = function () {
 		return mockJiraClient;
 	};
 
@@ -962,7 +966,9 @@ test('useDeleteOperations filters worklogs by user and date correctly', async t 
 	await capturedState.handleDeleteConfirm(true);
 
 	// Wait for async operations
-	await new Promise(resolve => setTimeout(resolve, 50));
+	await new Promise(resolve => {
+		setTimeout(resolve, 50);
+	});
 
 	// Restore original JiraClient
 	(global as any).JiraClient = originalJiraClient;
@@ -1013,7 +1019,9 @@ test('useDeleteOperations handles attendanceManager deletion error', async t => 
 	await capturedState.handleDeleteAttendanceConfirm(true);
 
 	// Wait for async operations
-	await new Promise(resolve => setTimeout(resolve, 50));
+	await new Promise(resolve => {
+		setTimeout(resolve, 50);
+	});
 
 	rerender(
 		React.createElement(TestDeleteOperationsComponent, {
@@ -1076,7 +1084,9 @@ test('useDeleteOperations handles attendance deletion when attendanceManager ret
 	await capturedState.handleDeleteAttendanceConfirm(true);
 
 	// Wait for async operations
-	await new Promise(resolve => setTimeout(resolve, 50));
+	await new Promise(resolve => {
+		setTimeout(resolve, 50);
+	});
 
 	rerender(
 		React.createElement(TestDeleteOperationsComponent, {

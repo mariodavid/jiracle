@@ -177,8 +177,8 @@ test('WeeklyTimetableView displays week information', t => {
 	// Should show week-related content
 	t.true(
 		output.includes('Week') ||
-		output.includes('KW') || // German week number format
-		output.includes('Loading')
+			output.includes('KW') || // German week number format
+			output.includes('Loading'),
 	);
 });
 
@@ -303,9 +303,7 @@ test('WeeklyTimetableView handles complete config', t => {
 		apiToken: 'test-token',
 		defaultTime: '8h',
 		defaultComment: 'Daily work',
-		projects: [
-			{key: 'PROJ'},
-		],
+		projects: [{key: 'PROJ'}],
 		favorites: [
 			{key: 'FAV-123', defaultTime: '4h', defaultComment: 'Favorite task'},
 		],
@@ -390,8 +388,8 @@ test('WeeklyTimetableView handles error states gracefully', t => {
 	// Should handle errors gracefully and still show basic structure
 	t.true(
 		output.includes('Error') ||
-		output.includes('Loading') ||
-		output.includes('Week')
+			output.includes('Loading') ||
+			output.includes('Week'),
 	);
 });
 
@@ -414,9 +412,9 @@ test('WeeklyTimetableView shows proper week range display', t => {
 	// Should show week range information
 	t.true(
 		output.includes('Week') ||
-		output.includes('-') || // Date range separator
-		output.includes('KW') ||
-		output.includes('Loading')
+			output.includes('-') || // Date range separator
+			output.includes('KW') ||
+			output.includes('Loading'),
 	);
 });
 
@@ -441,8 +439,8 @@ test('WeeklyTimetableView component integration points', t => {
 	t.true(output.length > 0);
 	t.true(
 		output.includes('Week') ||
-		output.includes('Loading') ||
-		output.includes('Error')
+			output.includes('Loading') ||
+			output.includes('Error'),
 	);
 	t.pass('Component integration points work correctly');
 });

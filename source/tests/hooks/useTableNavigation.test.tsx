@@ -271,7 +271,12 @@ test('useTableNavigation: handles focus state changes correctly', t => {
 		issueGroups: [
 			{
 				group: undefined,
-				issues: [['PROJECT-123', {summary: 'Test issue', dailyHours: {}, weekTotal: 0}]],
+				issues: [
+					[
+						'PROJECT-123',
+						{summary: 'Test issue', dailyHours: {}, weekTotal: 0},
+					],
+				],
 				totalHours: 0,
 			},
 		],
@@ -281,17 +286,25 @@ test('useTableNavigation: handles focus state changes correctly', t => {
 		React.createElement(TestTableNavigationComponent, {options: mockOptions}),
 	);
 
-	let result = (globalThis as any).__testTableNavigationResult as TableNavigationResult;
-	
+	let result = (globalThis as any)
+		.__testTableNavigationResult as TableNavigationResult;
+
 	// Initially no cell is focused
 	t.is(result.focusedCell, undefined);
 	t.false(result.isCellFocused('PROJECT-123', 0));
 
 	// Set focus programmatically
-	result.setFocusedCell({issueKey: 'PROJECT-123', columnIndex: 0, isAttendance: false});
-	rerender(React.createElement(TestTableNavigationComponent, {options: mockOptions}));
+	result.setFocusedCell({
+		issueKey: 'PROJECT-123',
+		columnIndex: 0,
+		isAttendance: false,
+	});
+	rerender(
+		React.createElement(TestTableNavigationComponent, {options: mockOptions}),
+	);
 
-	result = (globalThis as any).__testTableNavigationResult as TableNavigationResult;
+	result = (globalThis as any)
+		.__testTableNavigationResult as TableNavigationResult;
 	t.truthy(result.focusedCell);
 	t.is(result.focusedCell?.issueKey, 'PROJECT-123');
 	t.is(result.focusedCell?.columnIndex, 0);
@@ -299,9 +312,12 @@ test('useTableNavigation: handles focus state changes correctly', t => {
 
 	// Clear focus
 	result.clearFocus();
-	rerender(React.createElement(TestTableNavigationComponent, {options: mockOptions}));
+	rerender(
+		React.createElement(TestTableNavigationComponent, {options: mockOptions}),
+	);
 
-	result = (globalThis as any).__testTableNavigationResult as TableNavigationResult;
+	result = (globalThis as any)
+		.__testTableNavigationResult as TableNavigationResult;
 	t.is(result.focusedCell, undefined);
 	t.false(result.isCellFocused('PROJECT-123', 0));
 });
@@ -313,7 +329,12 @@ test('useTableNavigation: handles focus changes through handleFocusChange method
 		issueGroups: [
 			{
 				group: undefined,
-				issues: [['PROJECT-456', {summary: 'Another test issue', dailyHours: {}, weekTotal: 4}]],
+				issues: [
+					[
+						'PROJECT-456',
+						{summary: 'Another test issue', dailyHours: {}, weekTotal: 4},
+					],
+				],
 				totalHours: 4,
 			},
 		],
@@ -323,13 +344,17 @@ test('useTableNavigation: handles focus changes through handleFocusChange method
 		React.createElement(TestTableNavigationComponent, {options: mockOptions}),
 	);
 
-	let result = (globalThis as any).__testTableNavigationResult as TableNavigationResult;
+	let result = (globalThis as any)
+		.__testTableNavigationResult as TableNavigationResult;
 
 	// Focus a cell using handleFocusChange
 	result.handleFocusChange('PROJECT-456', 0, true);
-	rerender(React.createElement(TestTableNavigationComponent, {options: mockOptions}));
+	rerender(
+		React.createElement(TestTableNavigationComponent, {options: mockOptions}),
+	);
 
-	result = (globalThis as any).__testTableNavigationResult as TableNavigationResult;
+	result = (globalThis as any)
+		.__testTableNavigationResult as TableNavigationResult;
 	t.truthy(result.focusedCell);
 	t.is(result.focusedCell?.issueKey, 'PROJECT-456');
 	t.is(result.focusedCell?.columnIndex, 0);
@@ -339,12 +364,20 @@ test('useTableNavigation: handles focus changes through handleFocusChange method
 test('useTableNavigation: handles attendance cells correctly', t => {
 	const mockAttendanceManager = {
 		isEnabled: true,
-		async checkIn() { return true; },
-		async checkOut() { return true; },
+		async checkIn() {
+			return true;
+		},
+		async checkOut() {
+			return true;
+		},
 		getAttendanceForDate: async () => null,
 		getWeeklyAttendance: async () => ({}),
-		async deleteAttendance() { return true; },
-		async updateAttendance() { return true; },
+		async deleteAttendance() {
+			return true;
+		},
+		async updateAttendance() {
+			return true;
+		},
 	};
 
 	const mockOptions: TableNavigationProps = {
@@ -361,13 +394,21 @@ test('useTableNavigation: handles attendance cells correctly', t => {
 		React.createElement(TestTableNavigationComponent, {options: mockOptions}),
 	);
 
-	let result = (globalThis as any).__testTableNavigationResult as TableNavigationResult;
+	let result = (globalThis as any)
+		.__testTableNavigationResult as TableNavigationResult;
 
 	// Set focus on an attendance cell
-	result.setFocusedCell({issueKey: 'attendance-attendance', columnIndex: 0, isAttendance: true});
-	rerender(React.createElement(TestTableNavigationComponent, {options: mockOptions}));
+	result.setFocusedCell({
+		issueKey: 'attendance-attendance',
+		columnIndex: 0,
+		isAttendance: true,
+	});
+	rerender(
+		React.createElement(TestTableNavigationComponent, {options: mockOptions}),
+	);
 
-	result = (globalThis as any).__testTableNavigationResult as TableNavigationResult;
+	result = (globalThis as any)
+		.__testTableNavigationResult as TableNavigationResult;
 	t.truthy(result.focusedCell);
 	t.true(result.focusedCell?.isAttendance);
 	t.true(result.isCellFocused('attendance-attendance', 0));
@@ -388,7 +429,12 @@ test('useTableNavigation: handles multiple week dates correctly', t => {
 		issueGroups: [
 			{
 				group: undefined,
-				issues: [['WEEK-123', {summary: 'Week test issue', dailyHours: {}, weekTotal: 20}]],
+				issues: [
+					[
+						'WEEK-123',
+						{summary: 'Week test issue', dailyHours: {}, weekTotal: 20},
+					],
+				],
 				totalHours: 20,
 			},
 		],
@@ -398,17 +444,25 @@ test('useTableNavigation: handles multiple week dates correctly', t => {
 		React.createElement(TestTableNavigationComponent, {options: mockOptions}),
 	);
 
-	const result = (globalThis as any).__testTableNavigationResult as TableNavigationResult;
+	const result = (globalThis as any)
+		.__testTableNavigationResult as TableNavigationResult;
 
 	// Test focusing on different days
 	for (let columnIndex = 0; columnIndex < weekDates.length; columnIndex++) {
-		result.setFocusedCell({issueKey: 'WEEK-123', columnIndex, isAttendance: false});
-		rerender(React.createElement(TestTableNavigationComponent, {options: mockOptions}));
+		result.setFocusedCell({
+			issueKey: 'WEEK-123',
+			columnIndex,
+			isAttendance: false,
+		});
+		rerender(
+			React.createElement(TestTableNavigationComponent, {options: mockOptions}),
+		);
 
-		const updatedResult = (globalThis as any).__testTableNavigationResult as TableNavigationResult;
+		const updatedResult = (globalThis as any)
+			.__testTableNavigationResult as TableNavigationResult;
 		t.is(updatedResult.focusedCell?.columnIndex, columnIndex);
 		t.true(updatedResult.isCellFocused('WEEK-123', columnIndex));
-		
+
 		// Other columns should not be focused
 		for (let otherColumn = 0; otherColumn < weekDates.length; otherColumn++) {
 			if (otherColumn !== columnIndex) {
@@ -430,12 +484,24 @@ test('useTableNavigation: handles callback invocation patterns', t => {
 		isActive: true,
 		weekDates: [new Date('2023-07-17')],
 		issueGroups: [],
-		onWeekChange() { weekChangeCallCount++; },
-		onCellWorklog() { cellWorklogCallCount++; },
-		onCellDelete() { cellDeleteCallCount++; },
-		onAttendanceEdit() { attendanceEditCallCount++; },
-		onAttendanceDelete() { attendanceDeleteCallCount++; },
-		onOpenInBrowser() { openInBrowserCallCount++; },
+		onWeekChange() {
+			weekChangeCallCount++;
+		},
+		onCellWorklog() {
+			cellWorklogCallCount++;
+		},
+		onCellDelete() {
+			cellDeleteCallCount++;
+		},
+		onAttendanceEdit() {
+			attendanceEditCallCount++;
+		},
+		onAttendanceDelete() {
+			attendanceDeleteCallCount++;
+		},
+		onOpenInBrowser() {
+			openInBrowserCallCount++;
+		},
 	};
 
 	render(
@@ -462,14 +528,19 @@ test('useTableNavigation: handles edge cases with empty data', t => {
 		React.createElement(TestTableNavigationComponent, {options: mockOptions}),
 	);
 
-	const result = (globalThis as any).__testTableNavigationResult as TableNavigationResult;
+	const result = (globalThis as any)
+		.__testTableNavigationResult as TableNavigationResult;
 	t.truthy(result);
 	t.is(result.focusedCell, undefined);
-	
+
 	// Methods should still work even with empty data
 	t.notThrows(() => {
 		result.handleFocusChange('EMPTY-123', 0, true);
-		result.setFocusedCell({issueKey: 'EMPTY-456', columnIndex: 0, isAttendance: false});
+		result.setFocusedCell({
+			issueKey: 'EMPTY-456',
+			columnIndex: 0,
+			isAttendance: false,
+		});
 		result.clearFocus();
 		result.isCellFocused('EMPTY-789', 0);
 	});
@@ -485,8 +556,14 @@ test('useTableNavigation: handles mixed issue groups with different structures',
 				desiredAmount: 32,
 			},
 			issues: [
-				['DEV-101', {summary: 'Feature A', dailyHours: {'2023-07-17': 4}, weekTotal: 4}],
-				['DEV-102', {summary: 'Feature B', dailyHours: {'2023-07-18': 6}, weekTotal: 6}],
+				[
+					'DEV-101',
+					{summary: 'Feature A', dailyHours: {'2023-07-17': 4}, weekTotal: 4},
+				],
+				[
+					'DEV-102',
+					{summary: 'Feature B', dailyHours: {'2023-07-18': 6}, weekTotal: 6},
+				],
 			],
 			totalHours: 10,
 		},
@@ -494,7 +571,10 @@ test('useTableNavigation: handles mixed issue groups with different structures',
 		{
 			group: undefined,
 			issues: [
-				['MISC-201', {summary: 'Miscellaneous task', dailyHours: {}, weekTotal: 2}],
+				[
+					'MISC-201',
+					{summary: 'Miscellaneous task', dailyHours: {}, weekTotal: 2},
+				],
 			],
 			totalHours: 2,
 		},
@@ -513,28 +593,43 @@ test('useTableNavigation: handles mixed issue groups with different structures',
 	const mockOptions: TableNavigationProps = {
 		isActive: true,
 		weekDates: [
-		new Date('2023-07-17'),
-		new Date('2023-07-18'),
-		new Date('2023-07-19'),
-	],
-	issueGroups: mockIssueGroups,
+			new Date('2023-07-17'),
+			new Date('2023-07-18'),
+			new Date('2023-07-19'),
+		],
+		issueGroups: mockIssueGroups,
 	};
 
 	const {rerender} = render(
 		React.createElement(TestTableNavigationComponent, {options: mockOptions}),
 	);
 
-	let result = (globalThis as any).__testTableNavigationResult as TableNavigationResult;
+	let result = (globalThis as any)
+		.__testTableNavigationResult as TableNavigationResult;
 
 	// Test focusing on issues from different groups
-	result.setFocusedCell({issueKey: 'DEV-101', columnIndex: 0, isAttendance: false});
-	rerender(React.createElement(TestTableNavigationComponent, {options: mockOptions}));
-	result = (globalThis as any).__testTableNavigationResult as TableNavigationResult;
+	result.setFocusedCell({
+		issueKey: 'DEV-101',
+		columnIndex: 0,
+		isAttendance: false,
+	});
+	rerender(
+		React.createElement(TestTableNavigationComponent, {options: mockOptions}),
+	);
+	result = (globalThis as any)
+		.__testTableNavigationResult as TableNavigationResult;
 	t.is(result.focusedCell?.issueKey, 'DEV-101');
 
-	result.setFocusedCell({issueKey: 'MISC-201', columnIndex: 1, isAttendance: false});
-	rerender(React.createElement(TestTableNavigationComponent, {options: mockOptions}));
-	result = (globalThis as any).__testTableNavigationResult as TableNavigationResult;
+	result.setFocusedCell({
+		issueKey: 'MISC-201',
+		columnIndex: 1,
+		isAttendance: false,
+	});
+	rerender(
+		React.createElement(TestTableNavigationComponent, {options: mockOptions}),
+	);
+	result = (globalThis as any)
+		.__testTableNavigationResult as TableNavigationResult;
 	t.is(result.focusedCell?.issueKey, 'MISC-201');
 	t.is(result.focusedCell?.columnIndex, 1);
 });
@@ -546,28 +641,50 @@ test('useTableNavigation: maintains state consistency across rerenders', t => {
 		issueGroups: [
 			{
 				group: undefined,
-				issues: [['CONSISTENT-123', {summary: 'Consistency test', dailyHours: {}, weekTotal: 8}]],
+				issues: [
+					[
+						'CONSISTENT-123',
+						{summary: 'Consistency test', dailyHours: {}, weekTotal: 8},
+					],
+				],
 				totalHours: 8,
 			},
 		],
 	};
 
 	const {rerender} = render(
-		React.createElement(TestTableNavigationComponent, {options: initialOptions}),
+		React.createElement(TestTableNavigationComponent, {
+			options: initialOptions,
+		}),
 	);
 
 	// Set initial focus
-	let result = (globalThis as any).__testTableNavigationResult as TableNavigationResult;
-	result.setFocusedCell({issueKey: 'CONSISTENT-123', columnIndex: 0, isAttendance: false});
-	rerender(React.createElement(TestTableNavigationComponent, {options: initialOptions}));
+	let result = (globalThis as any)
+		.__testTableNavigationResult as TableNavigationResult;
+	result.setFocusedCell({
+		issueKey: 'CONSISTENT-123',
+		columnIndex: 0,
+		isAttendance: false,
+	});
+	rerender(
+		React.createElement(TestTableNavigationComponent, {
+			options: initialOptions,
+		}),
+	);
 
-	result = (globalThis as any).__testTableNavigationResult as TableNavigationResult;
+	result = (globalThis as any)
+		.__testTableNavigationResult as TableNavigationResult;
 	t.truthy(result.focusedCell);
 	const initialFocusState = result.focusedCell;
 
 	// Rerender with same options - focus should be maintained
-	rerender(React.createElement(TestTableNavigationComponent, {options: initialOptions}));
-	result = (globalThis as any).__testTableNavigationResult as TableNavigationResult;
+	rerender(
+		React.createElement(TestTableNavigationComponent, {
+			options: initialOptions,
+		}),
+	);
+	result = (globalThis as any)
+		.__testTableNavigationResult as TableNavigationResult;
 	t.deepEqual(result.focusedCell, initialFocusState);
 
 	// Rerender with different but equivalent options
@@ -576,14 +693,24 @@ test('useTableNavigation: maintains state consistency across rerenders', t => {
 		issueGroups: [
 			{
 				group: undefined,
-				issues: [['CONSISTENT-123', {summary: 'Consistency test', dailyHours: {}, weekTotal: 8}]],
+				issues: [
+					[
+						'CONSISTENT-123',
+						{summary: 'Consistency test', dailyHours: {}, weekTotal: 8},
+					],
+				],
 				totalHours: 8,
 			},
 		],
 	};
 
-	rerender(React.createElement(TestTableNavigationComponent, {options: equivalentOptions}));
-	result = (globalThis as any).__testTableNavigationResult as TableNavigationResult;
+	rerender(
+		React.createElement(TestTableNavigationComponent, {
+			options: equivalentOptions,
+		}),
+	);
+	result = (globalThis as any)
+		.__testTableNavigationResult as TableNavigationResult;
 	// Focus state should still be maintained
 	t.truthy(result.focusedCell);
 	t.is(result.focusedCell?.issueKey, 'CONSISTENT-123');

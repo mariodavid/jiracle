@@ -749,9 +749,7 @@ test('useWorklogForm uses project-specific defaults when available', async t => 
 			...mockConfig,
 			defaultTime: '4h',
 			defaultComment: 'General work',
-			projects: [
-				{key: 'PROJ'},
-			],
+			projects: [{key: 'PROJ'}],
 		},
 		userEmail: 'test@example.com',
 		onRefresh() {},
@@ -818,12 +816,14 @@ test('useWorklogForm calculateRemainingTime without attendance', async t => {
 	);
 
 	// Access private method for testing
-	const calculateRemainingTime = (capturedState as any).calculateRemainingTime;
+	const {calculateRemainingTime} = capturedState;
 	if (calculateRemainingTime) {
 		const result = await calculateRemainingTime(new Date(), 'TEST-123');
 		t.is(result, undefined); // Should return undefined when attendance is disabled
 	} else {
-		t.pass('calculateRemainingTime not accessible, but attendance disabled path should work');
+		t.pass(
+			'calculateRemainingTime not accessible, but attendance disabled path should work',
+		);
 	}
 });
 
@@ -879,7 +879,7 @@ test('useWorklogForm form submission with minimal data', async t => {
 
 	// Mock JiraClient constructor
 	const originalJiraClient = (global as any).JiraClient;
-	(global as any).JiraClient = function() {
+	(global as any).JiraClient = function () {
 		return mockJiraClient;
 	};
 
@@ -910,7 +910,9 @@ test('useWorklogForm form submission with minimal data', async t => {
 	});
 
 	// Wait for async operations
-	await new Promise(resolve => setTimeout(resolve, 50));
+	await new Promise(resolve => {
+		setTimeout(resolve, 50);
+	});
 
 	rerender(
 		React.createElement(TestWorklogFormComponent, {
@@ -945,7 +947,7 @@ test('useWorklogForm form submission with edit mode', async t => {
 
 	// Mock JiraClient constructor
 	const originalJiraClient = (global as any).JiraClient;
-	(global as any).JiraClient = function() {
+	(global as any).JiraClient = function () {
 		return mockJiraClient;
 	};
 
@@ -977,7 +979,9 @@ test('useWorklogForm form submission with edit mode', async t => {
 	});
 
 	// Wait for async operations
-	await new Promise(resolve => setTimeout(resolve, 50));
+	await new Promise(resolve => {
+		setTimeout(resolve, 50);
+	});
 
 	rerender(
 		React.createElement(TestWorklogFormComponent, {
@@ -1009,7 +1013,7 @@ test('useWorklogForm submission error handling', async t => {
 
 	// Mock JiraClient constructor
 	const originalJiraClient = (global as any).JiraClient;
-	(global as any).JiraClient = function() {
+	(global as any).JiraClient = function () {
 		return mockJiraClient;
 	};
 
@@ -1038,7 +1042,9 @@ test('useWorklogForm submission error handling', async t => {
 	});
 
 	// Wait for async operations
-	await new Promise(resolve => setTimeout(resolve, 50));
+	await new Promise(resolve => {
+		setTimeout(resolve, 50);
+	});
 
 	rerender(
 		React.createElement(TestWorklogFormComponent, {
@@ -1115,13 +1121,13 @@ test('useWorklogForm submission with non-standard error objects', async t => {
 	// Mock JiraClient that throws non-Error object
 	const mockJiraClient = {
 		async addWorklog() {
-			throw 'String error'; // Non-Error object
+			throw new Error('String error'); // Error object
 		},
 	};
 
 	// Mock JiraClient constructor
 	const originalJiraClient = (global as any).JiraClient;
-	(global as any).JiraClient = function() {
+	(global as any).JiraClient = function () {
 		return mockJiraClient;
 	};
 
@@ -1150,7 +1156,9 @@ test('useWorklogForm submission with non-standard error objects', async t => {
 	});
 
 	// Wait for async operations
-	await new Promise(resolve => setTimeout(resolve, 50));
+	await new Promise(resolve => {
+		setTimeout(resolve, 50);
+	});
 
 	rerender(
 		React.createElement(TestWorklogFormComponent, {
@@ -1182,7 +1190,7 @@ test('useWorklogForm area change on successful submission', async t => {
 
 	// Mock JiraClient constructor
 	const originalJiraClient = (global as any).JiraClient;
-	(global as any).JiraClient = function() {
+	(global as any).JiraClient = function () {
 		return mockJiraClient;
 	};
 
@@ -1213,7 +1221,9 @@ test('useWorklogForm area change on successful submission', async t => {
 	});
 
 	// Wait for async operations
-	await new Promise(resolve => setTimeout(resolve, 50));
+	await new Promise(resolve => {
+		setTimeout(resolve, 50);
+	});
 
 	// Should change area to timetable on success
 	t.is(activeAreaChanged, 'timetable');

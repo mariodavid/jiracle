@@ -104,7 +104,11 @@ test('useFocusManagement: setFocusedCell directly sets the focused cell', t => {
 	let hook = globalThis.__testHookResult as UseFocusManagementResult;
 
 	// Set focus directly
-	hook.setFocusedCell({issueKey: 'DIRECT-789', columnIndex: 3, isAttendance: false});
+	hook.setFocusedCell({
+		issueKey: 'DIRECT-789',
+		columnIndex: 3,
+		isAttendance: false,
+	});
 	rerender(React.createElement(TestFocusManagementComponent));
 
 	// @ts-expect-error
@@ -122,7 +126,11 @@ test('useFocusManagement: setFocusedCell can set to undefined', t => {
 	let hook = globalThis.__testHookResult as UseFocusManagementResult;
 
 	// Set a focus first
-	hook.setFocusedCell({issueKey: 'TEMP-001', columnIndex: 0, isAttendance: false});
+	hook.setFocusedCell({
+		issueKey: 'TEMP-001',
+		columnIndex: 0,
+		isAttendance: false,
+	});
 	rerender(React.createElement(TestFocusManagementComponent));
 
 	// @ts-expect-error
@@ -176,7 +184,7 @@ test('useFocusManagement: isCellFocused returns true for focused cell', t => {
 
 	// Check if the focused cell is correctly identified
 	t.true(hook.isCellFocused('FOCUS-CHECK', 2));
-	
+
 	// Other cells should not be focused
 	t.false(hook.isCellFocused('FOCUS-CHECK', 0));
 	t.false(hook.isCellFocused('FOCUS-CHECK', 1));

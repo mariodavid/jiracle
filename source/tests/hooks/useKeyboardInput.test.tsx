@@ -267,7 +267,7 @@ test('useKeyboardInput: handles keyboard events without focused cell', t => {
 	);
 
 	// Test arrow key
-	stdin.write('\u001b[A'); // Up arrow
+	stdin.write('\u001B[A'); // Up arrow
 
 	t.pass('Keyboard events handled without focused cell');
 });
@@ -291,7 +291,7 @@ test('useKeyboardInput: handles week navigation keys', t => {
 	);
 
 	// Test week navigation
-	stdin.write('\u001b[1;2C'); // Shift+Right arrow
+	stdin.write('\u001B[1;2C'); // Shift+Right arrow
 
 	t.pass('Week navigation keys handled');
 });
@@ -405,7 +405,7 @@ test('useKeyboardInput: handles tab navigation', t => {
 	);
 
 	// Test reverse tab
-	stdin.write('\u001b[Z'); // Shift+Tab
+	stdin.write('\u001B[Z'); // Shift+Tab
 
 	t.pass('Tab navigation handled');
 });
@@ -487,7 +487,9 @@ test('useKeyboardInput: handles keyboard input state changes', t => {
 
 	t.notThrows(() => {
 		rerender(
-			React.createElement(TestKeyboardInputComponent, {options: currentOptions}),
+			React.createElement(TestKeyboardInputComponent, {
+				options: currentOptions,
+			}),
 		);
 	});
 });
@@ -521,7 +523,9 @@ test('useKeyboardInput: handles focused cell type changes', t => {
 
 	t.notThrows(() => {
 		rerender(
-			React.createElement(TestKeyboardInputComponent, {options: currentOptions}),
+			React.createElement(TestKeyboardInputComponent, {
+				options: currentOptions,
+			}),
 		);
 	});
 
@@ -537,7 +541,9 @@ test('useKeyboardInput: handles focused cell type changes', t => {
 
 	t.notThrows(() => {
 		rerender(
-			React.createElement(TestKeyboardInputComponent, {options: currentOptions}),
+			React.createElement(TestKeyboardInputComponent, {
+				options: currentOptions,
+			}),
 		);
 	});
 });
@@ -568,10 +574,10 @@ test('useKeyboardInput: handles all keyboard event types', t => {
 	);
 
 	// Test various key types
-	stdin.write('\u001b[A'); // Arrow up
+	stdin.write('\u001B[A'); // Arrow up
 	stdin.write('\r'); // Enter
 	stdin.write('d'); // Delete key
-	stdin.write('\u001b[Z'); // Shift+Tab
+	stdin.write('\u001B[Z'); // Shift+Tab
 
 	t.pass('All keyboard event types handled');
 });
