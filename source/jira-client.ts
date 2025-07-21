@@ -374,9 +374,7 @@ export class JiraClient {
 	validateConfiguration(): {isValid: boolean; errors: string[]} {
 		const errors: string[] = [];
 
-		if (!this.jiraUrl) {
-			errors.push('Jira URL is not configured');
-		} else {
+		if (this.jiraUrl) {
 			// Check if URL looks like a web UI URL instead of API base
 			if (
 				this.jiraUrl.includes('/browse/') ||
@@ -388,11 +386,15 @@ export class JiraClient {
 			}
 
 			// Check for common URL formatting issues
-			if (!this.jiraUrl.startsWith('http')) {
+			if (this.jiraUrl.startsWith('http')) {
+				// URL format is correct
+			} else {
 				errors.push(
 					`Jira URL must start with http:// or https://. Got: ${this.jiraUrl}`,
 				);
 			}
+		} else {
+			errors.push('Jira URL is not configured');
 		}
 
 		if (!this.apiToken) {

@@ -216,10 +216,10 @@ export class AttendanceManager {
 		// Recalculate total hours
 		const calculatedHours =
 			AttendanceCalculations.calculateTotalHours(attendance);
-		if (calculatedHours !== undefined) {
-			attendance.totalHours = calculatedHours;
-		} else {
+		if (calculatedHours === undefined) {
 			delete attendance.totalHours;
+		} else {
+			attendance.totalHours = calculatedHours;
 		}
 
 		await this.storage.upsert(attendance);
