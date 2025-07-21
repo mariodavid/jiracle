@@ -10,11 +10,14 @@ type ReminderState = {
 };
 
 export class ReminderService {
-	private interval: NodeJS.Timeout | null = null;
+	private interval: NodeJS.Timeout | undefined = undefined;
 	private state: ReminderState;
 	private readonly checkIntervalMs = 60 * 1000; // Check every 60 seconds
 
-	constructor(private jiraClient: JiraClient, private config: ReminderConfig) {
+	constructor(
+		private readonly jiraClient: JiraClient,
+		private readonly config: ReminderConfig,
+	) {
 		this.state = {
 			notifiedTimes: new Set(),
 			lastCheckDate: new Date().toISOString().split('T')[0]!,
@@ -40,7 +43,7 @@ export class ReminderService {
 	stop(): void {
 		if (this.interval) {
 			clearInterval(this.interval);
-			this.interval = null;
+			this.interval = undefined;
 		}
 	}
 
@@ -74,7 +77,7 @@ export class ReminderService {
 						await this.sendReminder();
 						this.state.notifiedTimes.add(reminderTime);
 					}
-				} catch (error) {
+				} catch (error: unknown) {
 					console.error('Failed to check worklog status:', error);
 				}
 			}
@@ -128,7 +131,7 @@ export class ReminderService {
 					wait: false,
 				} as any); // Type assertion to bypass strict typing
 			}
-		} catch (error) {
+		} catch (error: unknown) {
 			// Silently handle notification errors to avoid breaking the app
 			console.error('Notification error (non-critical):', error);
 		}
@@ -149,10 +152,12 @@ export class ReminderService {
 			// MacOS - use system clock/time icon
 			return '/System/Library/CoreServices/Clock.app/Contents/Resources/Clock.icns';
 		}
+
 		if (platform === 'win32') {
 			// Windows - use system clock icon
 			return 'C:\\Windows\\System32\\shell32.dll,176';
 		}
+
 		// Linux - use a common system icon
 		return '/usr/share/icons/gnome/48x48/status/appointment-soon.png';
 	}

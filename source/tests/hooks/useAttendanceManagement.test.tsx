@@ -105,7 +105,7 @@ test('useAttendanceManagement returns initial state with enabled attendance', as
 	// Check initial state
 	t.truthy(capturedState.attendanceManager);
 	t.is(capturedState.attendanceRefreshKey, 0);
-	t.is(capturedState.attendanceEdit, null);
+	t.is(capturedState.attendanceEdit, undefined);
 });
 
 test('useAttendanceManagement returns null manager when attendance disabled', t => {
@@ -126,10 +126,10 @@ test('useAttendanceManagement returns null manager when attendance disabled', t 
 		}),
 	);
 
-	// Check that manager is null when disabled
-	t.is(capturedState.attendanceManager, null);
+	// Check that manager is undefined when disabled
+	t.is(capturedState.attendanceManager, undefined);
 	t.is(capturedState.attendanceRefreshKey, 0);
-	t.is(capturedState.attendanceEdit, null);
+	t.is(capturedState.attendanceEdit, undefined);
 });
 
 test('useAttendanceManagement handleAttendanceEdit sets edit state', async t => {
@@ -228,7 +228,7 @@ test('useAttendanceManagement handleAttendanceEdit without manager does nothing'
 		}),
 	);
 
-	t.is(capturedState.attendanceEdit, null);
+	t.is(capturedState.attendanceEdit, undefined);
 	t.is(activeAreaChanged, '');
 });
 
@@ -296,7 +296,7 @@ test('useAttendanceManagement handleAttendanceSubmit saves data and refreshes', 
 		}),
 	);
 
-	t.is(capturedState.attendanceEdit, null);
+	t.is(capturedState.attendanceEdit, undefined);
 	t.is(activeAreaChanged, 'timetable');
 	t.true(refreshCalled);
 	t.true(capturedState.attendanceRefreshKey > initialRefreshKey);
@@ -334,7 +334,7 @@ test('useAttendanceManagement handleAttendanceCancel clears edit state', t => {
 		}),
 	);
 
-	t.is(capturedState.attendanceEdit, null);
+	t.is(capturedState.attendanceEdit, undefined);
 	t.is(activeAreaChanged, 'timetable');
 });
 

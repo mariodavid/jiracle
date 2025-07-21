@@ -14,15 +14,15 @@ import {
 	formatHours,
 	truncateText,
 } from '../utils/TimetableCalculations.js';
-import {FocusableItemCalculator} from '../utils/FocusableItemCalculator.js';
-import {GridNavigationService} from '../services/GridNavigationService.js';
+import {calculateFocusableItems} from '../utils/FocusableItemCalculator.js';
+import {findInitialFocusItem} from '../services/GridNavigationService.js';
 import {useTableNavigation} from '../hooks/useTableNavigation.js';
 import {AttendanceFooterRows} from './AttendanceFooterRows.js';
 import {AttendanceRows} from './AttendanceRows.js';
 import {FocusableCell} from './FocusableCell.js';
 
 export type TimetableGridProps = {
-	data: WeeklyWorklogSummary | null;
+	data: WeeklyWorklogSummary | undefined;
 	isLoading: boolean;
 	onWeekChange?: (direction: 'prev' | 'next') => void;
 	onCellWorklog?: (data: {issueKey: string; date: Date}) => void;
@@ -71,7 +71,7 @@ export function TimetableGrid({
 				const weekStart = new Date(data.weekStart);
 				const weekly = await attendanceManager.getWeeklyAttendance(weekStart);
 				setWeeklyAttendance(weekly);
-			} catch (error) {
+			} catch (error: unknown) {
 				console.error('Failed to load attendance data:', error);
 			}
 		};
@@ -99,7 +99,10 @@ export function TimetableGrid({
 	}
 
 	// Group issues by their resolved groups using the extracted service
-	const issueGroups = useIssueGroups(Object.entries(issueMap), config || null);
+	const issueGroups = useIssueGroups(
+		Object.entries(issueMap),
+		config || undefined,
+	);
 
 	// Unified table navigation (focus management + keyboard input)
 	const {focusedCell, handleFocusChange} = useTableNavigation({
@@ -153,8 +156,8 @@ export function TimetableGrid({
 
 	// Set initial focus to first row and current day when component loads
 	useEffect(() => {
-		if (focusedCell === null && isActive) {
-			const focusableItems = FocusableItemCalculator.calculateFocusableItems({
+		if (focusedCell === undefined && isActive) {
+			const focusableItems = calculateFocusableItems({
 				attendanceManager,
 				issueGroups,
 			});
@@ -167,7 +170,7 @@ export function TimetableGrid({
 					? todayDayOfWeek - 1 // Monday=0, Tuesday=1, ..., Friday=4
 					: 0; // Default to Monday for weekends
 
-			const initialItem = GridNavigationService.findInitialFocusItem(
+			const initialItem = findInitialFocusItem(
 				focusableItems,
 				todayColumnIndex,
 			);
@@ -523,6 +526,7 @@ function generateWeekDates(weekStart: Date): Date[] {
 		dates.push(date);
 		current.setDate(current.getDate() + 1);
 	}
+
 	return dates;
 }
 

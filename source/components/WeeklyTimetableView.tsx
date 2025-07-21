@@ -33,7 +33,7 @@ import {TimetableGrid} from './TimetableGrid.js';
 export type WeeklyTimetableViewProps = {
 	onBack: () => void;
 	config: JiraConfig;
-	userEmail?: string | null;
+	userEmail?: string | undefined;
 };
 
 export function WeeklyTimetableView({
@@ -196,7 +196,7 @@ export function WeeklyTimetableView({
 		try {
 			const url = generateJiraIssueUrl(config.jiraUrl, issueKey);
 			await openInBrowser(url);
-		} catch (error) {
+		} catch (error: unknown) {
 			console.error('Failed to open browser:', error);
 		}
 	};
@@ -221,35 +221,42 @@ export function WeeklyTimetableView({
 				onBack();
 				break;
 			}
+
 			case 't': {
 				// Go to current week, but stay in the same mode (attendance or worklog)
 				navigateToCurrentWeek();
 				break;
 			}
+
 			case 'r': {
 				// Refresh data, but stay in the same mode
 				refresh();
 				break;
 			}
+
 			case 'l': {
 				handleAddWorklog();
 				break;
 			}
+
 			case 'i': {
 				// Start work (checkin)
 				setActiveArea('checkin-confirmation');
 				break;
 			}
+
 			case 'o': {
 				// End work (checkout)
 				setActiveArea('checkout-confirmation');
 				break;
 			}
+
 			case 'a': {
 				// Add worklog for arbitrary issue
 				handleAddWorklog();
 				break;
 			}
+
 			default: {
 				// No action for other keys
 				break;

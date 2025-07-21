@@ -60,9 +60,9 @@ test('useTitleResolver returns worklog form title when form is visible', t => {
 	const result = useTitleResolver({
 		currentWeek: new Date('2024-01-15'),
 		worklogForm,
-		deleteCandidate: null,
-		deleteAttendanceCandidate: null,
-		attendanceEdit: null,
+		deleteCandidate: undefined,
+		deleteAttendanceCandidate: undefined,
+		attendanceEdit: undefined,
 		activeArea: 'timetable',
 	});
 
@@ -79,8 +79,8 @@ test('useTitleResolver returns delete confirmation title with red color', t => {
 		currentWeek: new Date('2024-01-15'),
 		worklogForm: createWorklogForm(),
 		deleteCandidate,
-		deleteAttendanceCandidate: null,
-		attendanceEdit: null,
+		deleteAttendanceCandidate: undefined,
+		attendanceEdit: undefined,
 		activeArea: 'delete-confirmation',
 	});
 
@@ -96,9 +96,9 @@ test('useTitleResolver returns delete attendance confirmation title with red col
 	const result = useTitleResolver({
 		currentWeek: new Date('2024-01-15'),
 		worklogForm: createWorklogForm(),
-		deleteCandidate: null,
+		deleteCandidate: undefined,
 		deleteAttendanceCandidate,
-		attendanceEdit: null,
+		attendanceEdit: undefined,
 		activeArea: 'delete-attendance-confirmation',
 	});
 
@@ -114,8 +114,8 @@ test('useTitleResolver returns attendance edit title', t => {
 	const result = useTitleResolver({
 		currentWeek: new Date('2024-01-15'),
 		worklogForm: createWorklogForm(),
-		deleteCandidate: null,
-		deleteAttendanceCandidate: null,
+		deleteCandidate: undefined,
+		deleteAttendanceCandidate: undefined,
 		attendanceEdit,
 		activeArea: 'attendance-edit',
 	});
@@ -128,9 +128,9 @@ test('useTitleResolver returns week title as default', t => {
 	const result = useTitleResolver({
 		currentWeek: new Date('2024-01-15'), // Monday
 		worklogForm: createWorklogForm(),
-		deleteCandidate: null,
-		deleteAttendanceCandidate: null,
-		attendanceEdit: null,
+		deleteCandidate: undefined,
+		deleteAttendanceCandidate: undefined,
+		attendanceEdit: undefined,
 		activeArea: 'timetable',
 	});
 
@@ -152,7 +152,7 @@ test('useTitleResolver prioritizes worklog form over other states', t => {
 		currentWeek: new Date('2024-01-15'),
 		worklogForm,
 		deleteCandidate,
-		deleteAttendanceCandidate: null,
+		deleteAttendanceCandidate: undefined,
 		attendanceEdit,
 		activeArea: 'delete-confirmation',
 	});
@@ -165,9 +165,9 @@ test('useTitleResolver handles delete confirmation without candidate', t => {
 	const result = useTitleResolver({
 		currentWeek: new Date('2024-01-15'),
 		worklogForm: createWorklogForm(),
-		deleteCandidate: null,
-		deleteAttendanceCandidate: null,
-		attendanceEdit: null,
+		deleteCandidate: undefined,
+		deleteAttendanceCandidate: undefined,
+		attendanceEdit: undefined,
 		activeArea: 'delete-confirmation',
 	});
 
@@ -180,9 +180,9 @@ test('useTitleResolver handles attendance edit without data', t => {
 	const result = useTitleResolver({
 		currentWeek: new Date('2024-01-15'),
 		worklogForm: createWorklogForm(),
-		deleteCandidate: null,
-		deleteAttendanceCandidate: null,
-		attendanceEdit: null,
+		deleteCandidate: undefined,
+		deleteAttendanceCandidate: undefined,
+		attendanceEdit: undefined,
 		activeArea: 'attendance-edit',
 	});
 
@@ -200,9 +200,9 @@ test('useTitleResolver formats different weekdays correctly', t => {
 			issueKey: 'TEST-DAY',
 			date: new Date('2024-01-16'),
 		}),
-		deleteCandidate: null,
-		deleteAttendanceCandidate: null,
-		attendanceEdit: null,
+		deleteCandidate: undefined,
+		deleteAttendanceCandidate: undefined,
+		attendanceEdit: undefined,
 		activeArea: 'timetable',
 	});
 
@@ -216,9 +216,9 @@ test('useTitleResolver formats different weekdays correctly', t => {
 			issueKey: 'TEST-SUNDAY',
 			date: new Date('2024-01-14'),
 		}),
-		deleteCandidate: null,
-		deleteAttendanceCandidate: null,
-		attendanceEdit: null,
+		deleteCandidate: undefined,
+		deleteAttendanceCandidate: undefined,
+		attendanceEdit: undefined,
 		activeArea: 'timetable',
 	});
 
@@ -230,9 +230,9 @@ test('useTitleResolver handles different months in week title', t => {
 	const result = useTitleResolver({
 		currentWeek: new Date('2024-01-01'), // Monday Jan 1st
 		worklogForm: createWorklogForm(),
-		deleteCandidate: null,
-		deleteAttendanceCandidate: null,
-		attendanceEdit: null,
+		deleteCandidate: undefined,
+		deleteAttendanceCandidate: undefined,
+		attendanceEdit: undefined,
 		activeArea: 'timetable',
 	});
 
@@ -245,9 +245,9 @@ test('useTitleResolver handles year boundary correctly', t => {
 	const result = useTitleResolver({
 		currentWeek: new Date('2024-12-30'), // Monday
 		worklogForm: createWorklogForm(),
-		deleteCandidate: null,
-		deleteAttendanceCandidate: null,
-		attendanceEdit: null,
+		deleteCandidate: undefined,
+		deleteAttendanceCandidate: undefined,
+		attendanceEdit: undefined,
 		activeArea: 'timetable',
 	});
 
@@ -284,9 +284,9 @@ test('useTitleResolver calculates German calendar weeks correctly', t => {
 		const result = useTitleResolver({
 			currentWeek: testCase.date,
 			worklogForm: createWorklogForm(),
-			deleteCandidate: null,
-			deleteAttendanceCandidate: null,
-			attendanceEdit: null,
+			deleteCandidate: undefined,
+			deleteAttendanceCandidate: undefined,
+			attendanceEdit: undefined,
 			activeArea: 'timetable',
 		});
 

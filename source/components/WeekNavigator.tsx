@@ -53,12 +53,14 @@ function formatDateRange(start: Date, end: Date): string {
 		const monthName = start.toLocaleDateString('en-US', {month: 'short'});
 		return `${monthName} ${start.getDate()}-${end.getDate()}, ${start.getFullYear()}`;
 	}
+
 	if (start.getFullYear() === end.getFullYear()) {
 		// Same year: "Dec 30 - Jan 5, 2025"
 		const startMonth = start.toLocaleDateString('en-US', {month: 'short'});
 		const endMonth = end.toLocaleDateString('en-US', {month: 'short'});
 		return `${startMonth} ${start.getDate()} - ${endMonth} ${end.getDate()}, ${start.getFullYear()}`;
 	}
+
 	// Different years: "Dec 30, 2024 - Jan 5, 2025"
 	return `${startFormatted} - ${endFormatted}`;
 }

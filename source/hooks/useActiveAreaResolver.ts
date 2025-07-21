@@ -9,9 +9,9 @@ import type {AttendanceEditState} from './useAttendanceManagement.js';
 export type UseActiveAreaResolverOptions = {
 	activeArea: ActiveArea;
 	worklogForm: WorklogFormData;
-	deleteCandidate: DeleteCandidate | null;
-	deleteAttendanceCandidate: DeleteAttendanceCandidate | null;
-	attendanceEdit: AttendanceEditState | null;
+	deleteCandidate: DeleteCandidate | undefined;
+	deleteAttendanceCandidate: DeleteAttendanceCandidate | undefined;
+	attendanceEdit: AttendanceEditState | undefined;
 };
 
 export type ResolvedActiveArea =

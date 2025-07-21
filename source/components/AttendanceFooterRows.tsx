@@ -95,6 +95,7 @@ export function AttendanceFooterRows({
 										cellValue === '-' ? 0 : Number.parseFloat(cellValue);
 									totalHours += hours;
 								}
+
 								return formatHours(totalHours);
 							})()}
 						</Text>

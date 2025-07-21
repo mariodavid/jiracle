@@ -46,9 +46,10 @@ test('worklog add - invalid Jira URL shows connection error', t => {
 		);
 
 		t.fail('Should have thrown an error for invalid Jira URL');
-	} catch (error: any) {
-		t.is(error.status, 1);
-		t.true(error.stderr.includes('Error:'));
+	} catch (error: unknown) {
+		const err = error as any;
+		t.is(err.status, 1);
+		t.true(err.stderr.includes('Error:'));
 	} finally {
 		if (backup) {
 			writeFileSync(originalConfigPath, backup);
@@ -88,9 +89,10 @@ test('worklog add - malformed JSON config shows error', t => {
 		);
 
 		t.fail('Should have thrown an error for malformed JSON');
-	} catch (error: any) {
-		t.is(error.status, 1);
-		t.true(error.stderr.includes('Error:'));
+	} catch (error: unknown) {
+		const err = error as any;
+		t.is(err.status, 1);
+		t.true(err.stderr.includes('Error:'));
 	} finally {
 		if (backup) {
 			writeFileSync(originalConfigPath, backup);
@@ -135,9 +137,10 @@ test('worklog add - incomplete config shows error', t => {
 		);
 
 		t.fail('Should have thrown an error for incomplete config');
-	} catch (error: any) {
-		t.is(error.status, 1);
-		t.true(error.stderr.includes('Error:'));
+	} catch (error: unknown) {
+		const err = error as any;
+		t.is(err.status, 1);
+		t.true(err.stderr.includes('Error:'));
 	} finally {
 		if (backup) {
 			writeFileSync(originalConfigPath, backup);
@@ -189,19 +192,20 @@ test.serial('worklog add - end to end successful flow structure', t => {
 		// If we get here without timeout, the command structure is working
 		// The actual API call might fail due to invalid credentials, which is expected
 		t.pass('Command structure and argument parsing works correctly');
-	} catch (error: any) {
+	} catch (error: unknown) {
 		// Expected to fail due to invalid credentials or network timeout
 		// We're testing that the command structure works, not the actual API
-		if (error.code === 'ETIMEDOUT') {
+		const err = error as any;
+		if (err.code === 'ETIMEDOUT') {
 			t.pass(
 				'Command structure works - timed out attempting API call as expected',
 			);
-		} else if (error.status === 1 && error.stderr.includes('Error:')) {
+		} else if (err.status === 1 && err.stderr.includes('Error:')) {
 			t.pass(
 				'Command structure works - API call failed as expected with invalid credentials',
 			);
 		} else {
-			t.fail(`Unexpected error: ${error.message}`);
+			t.fail(`Unexpected error: ${err.message}`);
 		}
 	} finally {
 		if (backup) {

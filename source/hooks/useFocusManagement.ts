@@ -7,19 +7,21 @@ export type FocusedCell = {
 };
 
 export type UseFocusManagementResult = {
-	focusedCell: FocusedCell | null;
+	focusedCell: FocusedCell | undefined;
 	handleFocusChange: (
 		issueKey: string,
 		columnIndex: number,
 		isFocused: boolean,
 	) => void;
-	setFocusedCell: (cell: FocusedCell | null) => void;
+	setFocusedCell: (cell: FocusedCell | undefined) => void;
 	clearFocus: () => void;
 	isCellFocused: (issueKey: string, columnIndex: number) => boolean;
 };
 
 export function useFocusManagement(): UseFocusManagementResult {
-	const [focusedCell, setFocusedCell] = useState<FocusedCell | null>(null);
+	const [focusedCell, setFocusedCell] = useState<FocusedCell | undefined>(
+		undefined,
+	);
 
 	const handleFocusChange = useCallback(
 		(issueKey: string, columnIndex: number, isFocused: boolean) => {
@@ -33,13 +35,13 @@ export function useFocusManagement(): UseFocusManagementResult {
 	);
 
 	const clearFocus = useCallback(() => {
-		setFocusedCell(null);
+		setFocusedCell(undefined);
 	}, []);
 
 	const isCellFocused = useCallback(
 		(issueKey: string, columnIndex: number): boolean => {
 			return (
-				focusedCell !== null &&
+				focusedCell !== undefined &&
 				focusedCell.issueKey === issueKey &&
 				focusedCell.columnIndex === columnIndex
 			);

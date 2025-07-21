@@ -9,9 +9,9 @@ const weekDataCache = new Map<string, WeeklyWorklogSummary>();
 const loadingCache = new Set<string>();
 
 export type UseWeeklyWorklogSummaryResult = {
-	data: WeeklyWorklogSummary | null;
+	data: WeeklyWorklogSummary | undefined;
 	isLoading: boolean;
-	error: string | null;
+	error: string | undefined;
 	refresh: () => void;
 };
 
@@ -23,9 +23,9 @@ export function useWeeklyWorklogSummary(
 	userEmail?: string,
 	favoriteIssues?: FavoriteIssue[],
 ): UseWeeklyWorklogSummaryResult {
-	const [data, setData] = useState<WeeklyWorklogSummary | null>(null);
+	const [data, setData] = useState<WeeklyWorklogSummary | undefined>(undefined);
 	const [isLoading, setIsLoading] = useState(false);
-	const [error, setError] = useState<string | null>(null);
+	const [error, setError] = useState<string | undefined>(undefined);
 
 	const fetchData = async () => {
 		// Create cache key based on week, user, favorite issues, and sliding window
@@ -44,7 +44,7 @@ export function useWeeklyWorklogSummary(
 
 		// Check if data is already cached
 		if (weekDataCache.has(cacheKey)) {
-			setData(weekDataCache.get(cacheKey)!);
+			setData(weekDataCache.get(cacheKey));
 			return;
 		}
 
@@ -54,7 +54,7 @@ export function useWeeklyWorklogSummary(
 		}
 
 		setIsLoading(true);
-		setError(null);
+		setError(undefined);
 		loadingCache.add(cacheKey);
 
 		try {
@@ -71,7 +71,7 @@ export function useWeeklyWorklogSummary(
 			// Cache the result
 			weekDataCache.set(cacheKey, summary);
 			setData(summary);
-		} catch (error_) {
+		} catch (error_: unknown) {
 			setError(error_ instanceof Error ? error_.message : 'Unknown error');
 		} finally {
 			setIsLoading(false);

@@ -1,6 +1,11 @@
 import test from 'ava';
 import {
-	FocusableItemCalculator,
+	calculateFocusableItems,
+	findFocusableItem,
+	filterFocusableItems,
+	getFocusableItemsByColumn,
+	getFocusableItemsByIssue,
+	getFocusableItemIndex,
 	type FocusableItem,
 	type FocusableItemCalculatorOptions,
 } from '../../utils/FocusableItemCalculator.js';
@@ -15,7 +20,7 @@ const createIssueGroup = (
 	issueKeys: string[],
 	groupName?: string,
 ): IssueGroup => ({
-	group: groupName ? {id: groupName, name: groupName} : null,
+	group: groupName ? {id: groupName, name: groupName} : undefined,
 	issues: issueKeys.map(key => [key, {summary: `Summary for ${key}`}]),
 	totalHours: 0,
 });
@@ -23,7 +28,7 @@ const createIssueGroup = (
 const createOptions = (
 	overrides: Partial<FocusableItemCalculatorOptions> = {},
 ): FocusableItemCalculatorOptions => ({
-	attendanceManager: null,
+	attendanceManager: undefined,
 	issueGroups: [],
 	...overrides,
 });
@@ -47,7 +52,7 @@ const assertFocusableItem = (
 
 test('calculateFocusableItems: empty grid with no attendance and no issues', t => {
 	const options = createOptions();
-	const items = FocusableItemCalculator.calculateFocusableItems(options);
+	const items = calculateFocusableItems(options);
 
 	t.is(items.length, 0);
 });
@@ -56,7 +61,7 @@ test('calculateFocusableItems: grid with attendance manager but no issues', t =>
 	const options = createOptions({
 		attendanceManager: createMockAttendanceManager(),
 	});
-	const items = FocusableItemCalculator.calculateFocusableItems(options);
+	const items = calculateFocusableItems(options);
 
 	t.is(items.length, 5); // 5 weekdays
 
@@ -74,7 +79,7 @@ test('calculateFocusableItems: grid with attendance manager but no issues', t =>
 test('calculateFocusableItems: grid with issues but no attendance', t => {
 	const issueGroups = [createIssueGroup(['PROJECT-123', 'PROJECT-456'])];
 	const options = createOptions({issueGroups});
-	const items = FocusableItemCalculator.calculateFocusableItems(options);
+	const items = calculateFocusableItems(options);
 
 	t.is(items.length, 10); // 2 issues × 5 columns
 
@@ -105,7 +110,7 @@ test('calculateFocusableItems: grid with both attendance and issues', t => {
 		attendanceManager: createMockAttendanceManager(),
 		issueGroups,
 	});
-	const items = FocusableItemCalculator.calculateFocusableItems(options);
+	const items = calculateFocusableItems(options);
 
 	t.is(items.length, 10); // 5 attendance + 5 issue cells
 
@@ -136,7 +141,7 @@ test('calculateFocusableItems: multiple issue groups', t => {
 		createIssueGroup(['GROUP2-456', 'GROUP2-789'], 'Group 2'),
 	];
 	const options = createOptions({issueGroups});
-	const items = FocusableItemCalculator.calculateFocusableItems(options);
+	const items = calculateFocusableItems(options);
 
 	t.is(items.length, 15); // 3 issues × 5 columns
 
@@ -177,7 +182,7 @@ test('calculateFocusableItems: custom column count', t => {
 		issueGroups,
 		columnCount: 3,
 	});
-	const items = FocusableItemCalculator.calculateFocusableItems(options);
+	const items = calculateFocusableItems(options);
 
 	t.is(items.length, 3); // 1 issue × 3 columns
 
@@ -194,9 +199,9 @@ test('calculateFocusableItems: custom column count', t => {
 test('findFocusableItem: finds item by predicate', t => {
 	const issueGroups = [createIssueGroup(['PROJECT-123'])];
 	const options = createOptions({issueGroups});
-	const items = FocusableItemCalculator.calculateFocusableItems(options);
+	const items = calculateFocusableItems(options);
 
-	const found = FocusableItemCalculator.findFocusableItem(
+	const found = findFocusableItem(
 		items,
 		item => item.issueKey === 'PROJECT-123' && item.columnIndex === 2,
 	);
@@ -207,9 +212,9 @@ test('findFocusableItem: finds item by predicate', t => {
 
 test('findFocusableItem: returns undefined when not found', t => {
 	const options = createOptions();
-	const items = FocusableItemCalculator.calculateFocusableItems(options);
+	const items = calculateFocusableItems(options);
 
-	const found = FocusableItemCalculator.findFocusableItem(
+	const found = findFocusableItem(
 		items,
 		item => item.issueKey === 'NONEXISTENT',
 	);
@@ -223,9 +228,9 @@ test('filterFocusableItems: filters items by predicate', t => {
 		attendanceManager: createMockAttendanceManager(),
 		issueGroups,
 	});
-	const items = FocusableItemCalculator.calculateFocusableItems(options);
+	const items = calculateFocusableItems(options);
 
-	const attendanceItems = FocusableItemCalculator.filterFocusableItems(
+	const attendanceItems = filterFocusableItems(
 		items,
 		item => item.isAttendance,
 	);
@@ -242,12 +247,9 @@ test('getFocusableItemsByColumn: returns items for specific column', t => {
 		attendanceManager: createMockAttendanceManager(),
 		issueGroups,
 	});
-	const items = FocusableItemCalculator.calculateFocusableItems(options);
+	const items = calculateFocusableItems(options);
 
-	const column2Items = FocusableItemCalculator.getFocusableItemsByColumn(
-		items,
-		2,
-	);
+	const column2Items = getFocusableItemsByColumn(items, 2);
 
 	t.is(column2Items.length, 3); // 1 attendance + 2 issues
 	for (const item of column2Items) {
@@ -258,12 +260,9 @@ test('getFocusableItemsByColumn: returns items for specific column', t => {
 test('getFocusableItemsByIssue: returns items for specific issue', t => {
 	const issueGroups = [createIssueGroup(['PROJECT-123', 'PROJECT-456'])];
 	const options = createOptions({issueGroups});
-	const items = FocusableItemCalculator.calculateFocusableItems(options);
+	const items = calculateFocusableItems(options);
 
-	const issueItems = FocusableItemCalculator.getFocusableItemsByIssue(
-		items,
-		'PROJECT-123',
-	);
+	const issueItems = getFocusableItemsByIssue(items, 'PROJECT-123');
 
 	t.is(issueItems.length, 5); // 5 columns for this issue
 	for (const item of issueItems) {
@@ -277,10 +276,10 @@ test('getFocusableItemIndex: finds correct index for target item', t => {
 		attendanceManager: createMockAttendanceManager(),
 		issueGroups,
 	});
-	const items = FocusableItemCalculator.calculateFocusableItems(options);
+	const items = calculateFocusableItems(options);
 
 	// Find PROJECT-456 at column 3 (should be at index 5 + 3 = 8)
-	const index = FocusableItemCalculator.getFocusableItemIndex(items, {
+	const index = getFocusableItemIndex(items, {
 		issueKey: 'PROJECT-456',
 		columnIndex: 3,
 	});
@@ -292,9 +291,9 @@ test('getFocusableItemIndex: finds correct index for target item', t => {
 
 test('getFocusableItemIndex: returns -1 when item not found', t => {
 	const options = createOptions();
-	const items = FocusableItemCalculator.calculateFocusableItems(options);
+	const items = calculateFocusableItems(options);
 
-	const index = FocusableItemCalculator.getFocusableItemIndex(items, {
+	const index = getFocusableItemIndex(items, {
 		issueKey: 'NONEXISTENT',
 		columnIndex: 0,
 	});
@@ -308,7 +307,7 @@ test('calculateFocusableItems: handles undefined attendance manager', t => {
 		attendanceManager: undefined,
 		issueGroups,
 	});
-	const items = FocusableItemCalculator.calculateFocusableItems(options);
+	const items = calculateFocusableItems(options);
 
 	t.is(items.length, 5); // Only issue items, no attendance
 	for (const item of items) {
@@ -319,7 +318,7 @@ test('calculateFocusableItems: handles undefined attendance manager', t => {
 test('calculateFocusableItems: handles single issue', t => {
 	const issueGroups = [createIssueGroup(['SINGLE-123'])];
 	const options = createOptions({issueGroups});
-	const items = FocusableItemCalculator.calculateFocusableItems(options);
+	const items = calculateFocusableItems(options);
 
 	t.is(items.length, 5);
 	for (const [index, item] of items.entries()) {

@@ -331,6 +331,7 @@ test('DurationInput converts comma to dot on submit with Enter', t => {
 	const onChange = (value: string) => {
 		changedValue = value;
 	};
+
 	const onSubmit = (value: string) => {
 		submittedValue = value;
 	};
@@ -361,6 +362,7 @@ test('DurationInput converts comma to dot on submit with Tab', t => {
 	const onChange = (value: string) => {
 		changedValue = value;
 	};
+
 	const onSubmit = (value: string) => {
 		submittedValue = value;
 	};
@@ -611,6 +613,7 @@ test('DurationInput allows and auto-completes h+digits pattern', t => {
 	const onChange = (value: string) => {
 		changedValue = value;
 	};
+
 	const onSubmit = (value: string) => {
 		submittedValue = value;
 	};
@@ -1066,6 +1069,7 @@ test('DurationInput handles multiple commas correctly', t => {
 	const onChange = (value: string) => {
 		changedValues.push(value);
 	};
+
 	const onSubmit = (value: string) => {
 		submittedValue = value;
 	};
@@ -1124,6 +1128,7 @@ test('DurationInput smart unit detection with comma - hours for decimals', t => 
 		for (const char of input) {
 			stdin.write(char);
 		}
+
 		stdin.write('\r');
 
 		t.is(
@@ -1162,6 +1167,7 @@ test('DurationInput smart unit detection with comma - whole numbers for minutes'
 		for (const char of input) {
 			stdin.write(char);
 		}
+
 		stdin.write('\r');
 
 		t.is(

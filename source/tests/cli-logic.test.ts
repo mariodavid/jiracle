@@ -7,12 +7,14 @@ import type {JiraConfig} from '../jira-client.js';
 
 // Mock fetch setup
 const originalFetch = global.fetch;
-let mockFetchResponse: {
-	status: number;
-	ok: boolean;
-	json?: () => Promise<any>;
-	text?: () => Promise<string>;
-} | null = null;
+let mockFetchResponse:
+	| {
+			status: number;
+			ok: boolean;
+			json?: () => Promise<any>;
+			text?: () => Promise<string>;
+	  }
+	| undefined;
 
 function setupMockFetch(response: typeof mockFetchResponse) {
 	mockFetchResponse = response;
@@ -20,6 +22,7 @@ function setupMockFetch(response: typeof mockFetchResponse) {
 		if (!mockFetchResponse) {
 			throw new Error('No mock response configured');
 		}
+
 		return {
 			...mockFetchResponse,
 			headers: {
@@ -31,7 +34,7 @@ function setupMockFetch(response: typeof mockFetchResponse) {
 
 function restoreFetch() {
 	global.fetch = originalFetch;
-	mockFetchResponse = null;
+	mockFetchResponse = undefined;
 }
 
 // Test config setup
@@ -124,7 +127,7 @@ test('executeWorklogAdd - validates date format', async t => {
 			try {
 				await executeWorklogAdd({...validParams, date: validDate}, configPath);
 				t.fail('Should have thrown due to no fetch mock, not date validation');
-			} catch (error) {
+			} catch (error: unknown) {
 				// Should not be date validation error
 				t.false(
 					(error as Error).message.includes(
@@ -163,7 +166,7 @@ test('executeWorklogAdd - validates time format', async t => {
 			try {
 				await executeWorklogAdd({...validParams, time: validTime}, configPath);
 				t.fail('Should have thrown due to no fetch mock, not time validation');
-			} catch (error) {
+			} catch (error: unknown) {
 				// Should not be time validation error
 				t.false((error as Error).message.includes('Time must be in format'));
 			}

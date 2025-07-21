@@ -29,7 +29,7 @@ test.serial('should check in with current time', async t => {
 		t.regex(result.message, /✅ Checked in at \d{2}:\d{2}/);
 
 		// Verify the time is within a reasonable range
-		const timeMatch = result.message.match(/Checked in at (\d{2}:\d{2})/);
+		const timeMatch = /Checked in at (\d{2}:\d{2})/.exec(result.message);
 		t.truthy(timeMatch);
 		const checkedInTime = timeMatch![1]!;
 		t.true(
@@ -103,7 +103,7 @@ test.serial('should check out with current time', async t => {
 		);
 
 		// Verify the time is within a reasonable range
-		const timeMatch = result.message.match(/Checked out at (\d{2}:\d{2})/);
+		const timeMatch = /Checked out at (\d{2}:\d{2})/.exec(result.message);
 		t.truthy(timeMatch);
 		const checkedOutTime = timeMatch![1]!;
 		t.true(

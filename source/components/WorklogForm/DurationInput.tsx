@@ -15,7 +15,7 @@ type DurationInputProps = {
 	onSubmit: (value: string) => void;
 	compact?: boolean;
 	config?: JiraConfig;
-	issueSelectionMode?: 'favorites' | 'assigned' | 'other' | null;
+	issueSelectionMode?: 'favorites' | 'assigned' | 'other' | undefined;
 	allowedUnits?: AllowedUnit[];
 	incrementMinutes?: number;
 };

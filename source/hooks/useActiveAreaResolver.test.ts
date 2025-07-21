@@ -58,9 +58,9 @@ test('useActiveAreaResolver returns worklog-form when worklog form is visible', 
 	const result = useActiveAreaResolver({
 		activeArea: 'timetable',
 		worklogForm: createWorklogForm({isVisible: true}),
-		deleteCandidate: null,
-		deleteAttendanceCandidate: null,
-		attendanceEdit: null,
+		deleteCandidate: undefined,
+		deleteAttendanceCandidate: undefined,
+		attendanceEdit: undefined,
 	});
 
 	t.is(result, 'worklog-form');
@@ -71,8 +71,8 @@ test('useActiveAreaResolver returns delete-confirmation when area is delete-conf
 		activeArea: 'delete-confirmation',
 		worklogForm: createWorklogForm(),
 		deleteCandidate: createDeleteCandidate(),
-		deleteAttendanceCandidate: null,
-		attendanceEdit: null,
+		deleteAttendanceCandidate: undefined,
+		attendanceEdit: undefined,
 	});
 
 	t.is(result, 'delete-confirmation');
@@ -82,9 +82,9 @@ test('useActiveAreaResolver returns timetable when delete-confirmation active bu
 	const result = useActiveAreaResolver({
 		activeArea: 'delete-confirmation',
 		worklogForm: createWorklogForm(),
-		deleteCandidate: null,
-		deleteAttendanceCandidate: null,
-		attendanceEdit: null,
+		deleteCandidate: undefined,
+		deleteAttendanceCandidate: undefined,
+		attendanceEdit: undefined,
 	});
 
 	t.is(result, 'timetable');
@@ -94,9 +94,9 @@ test('useActiveAreaResolver returns delete-attendance-confirmation when area and
 	const result = useActiveAreaResolver({
 		activeArea: 'delete-attendance-confirmation',
 		worklogForm: createWorklogForm(),
-		deleteCandidate: null,
+		deleteCandidate: undefined,
 		deleteAttendanceCandidate: createDeleteAttendanceCandidate(),
-		attendanceEdit: null,
+		attendanceEdit: undefined,
 	});
 
 	t.is(result, 'delete-attendance-confirmation');
@@ -106,9 +106,9 @@ test('useActiveAreaResolver returns timetable when delete-attendance-confirmatio
 	const result = useActiveAreaResolver({
 		activeArea: 'delete-attendance-confirmation',
 		worklogForm: createWorklogForm(),
-		deleteCandidate: null,
-		deleteAttendanceCandidate: null,
-		attendanceEdit: null,
+		deleteCandidate: undefined,
+		deleteAttendanceCandidate: undefined,
+		attendanceEdit: undefined,
 	});
 
 	t.is(result, 'timetable');
@@ -118,9 +118,9 @@ test('useActiveAreaResolver returns checkin-confirmation when area is checkin-co
 	const result = useActiveAreaResolver({
 		activeArea: 'checkin-confirmation',
 		worklogForm: createWorklogForm(),
-		deleteCandidate: null,
-		deleteAttendanceCandidate: null,
-		attendanceEdit: null,
+		deleteCandidate: undefined,
+		deleteAttendanceCandidate: undefined,
+		attendanceEdit: undefined,
 	});
 
 	t.is(result, 'checkin-confirmation');
@@ -130,9 +130,9 @@ test('useActiveAreaResolver returns checkout-confirmation when area is checkout-
 	const result = useActiveAreaResolver({
 		activeArea: 'checkout-confirmation',
 		worklogForm: createWorklogForm(),
-		deleteCandidate: null,
-		deleteAttendanceCandidate: null,
-		attendanceEdit: null,
+		deleteCandidate: undefined,
+		deleteAttendanceCandidate: undefined,
+		attendanceEdit: undefined,
 	});
 
 	t.is(result, 'checkout-confirmation');
@@ -142,8 +142,8 @@ test('useActiveAreaResolver returns attendance-edit when area is attendance-edit
 	const result = useActiveAreaResolver({
 		activeArea: 'attendance-edit',
 		worklogForm: createWorklogForm(),
-		deleteCandidate: null,
-		deleteAttendanceCandidate: null,
+		deleteCandidate: undefined,
+		deleteAttendanceCandidate: undefined,
 		attendanceEdit: createAttendanceEdit(),
 	});
 
@@ -154,9 +154,9 @@ test('useActiveAreaResolver returns timetable when attendance-edit active but no
 	const result = useActiveAreaResolver({
 		activeArea: 'attendance-edit',
 		worklogForm: createWorklogForm(),
-		deleteCandidate: null,
-		deleteAttendanceCandidate: null,
-		attendanceEdit: null,
+		deleteCandidate: undefined,
+		deleteAttendanceCandidate: undefined,
+		attendanceEdit: undefined,
 	});
 
 	t.is(result, 'timetable');
@@ -166,9 +166,9 @@ test('useActiveAreaResolver returns timetable as default', t => {
 	const result = useActiveAreaResolver({
 		activeArea: 'timetable',
 		worklogForm: createWorklogForm(),
-		deleteCandidate: null,
-		deleteAttendanceCandidate: null,
-		attendanceEdit: null,
+		deleteCandidate: undefined,
+		deleteAttendanceCandidate: undefined,
+		attendanceEdit: undefined,
 	});
 
 	t.is(result, 'timetable');
@@ -191,7 +191,7 @@ test('useActiveAreaResolver prioritizes delete confirmations over attendance ope
 		activeArea: 'delete-confirmation',
 		worklogForm: createWorklogForm(),
 		deleteCandidate: createDeleteCandidate(),
-		deleteAttendanceCandidate: null,
+		deleteAttendanceCandidate: undefined,
 		attendanceEdit: createAttendanceEdit(),
 	});
 
@@ -203,16 +203,16 @@ test('useActiveAreaResolver handles multiple attendance operations correctly', t
 	const checkinResult = useActiveAreaResolver({
 		activeArea: 'checkin-confirmation',
 		worklogForm: createWorklogForm(),
-		deleteCandidate: null,
-		deleteAttendanceCandidate: null,
+		deleteCandidate: undefined,
+		deleteAttendanceCandidate: undefined,
 		attendanceEdit: createAttendanceEdit(),
 	});
 
 	const editResult = useActiveAreaResolver({
 		activeArea: 'attendance-edit',
 		worklogForm: createWorklogForm(),
-		deleteCandidate: null,
-		deleteAttendanceCandidate: null,
+		deleteCandidate: undefined,
+		deleteAttendanceCandidate: undefined,
 		attendanceEdit: createAttendanceEdit(),
 	});
 
@@ -224,9 +224,9 @@ test('useActiveAreaResolver handles unknown active area', t => {
 	const result = useActiveAreaResolver({
 		activeArea: 'unknown' as ActiveArea,
 		worklogForm: createWorklogForm(),
-		deleteCandidate: null,
-		deleteAttendanceCandidate: null,
-		attendanceEdit: null,
+		deleteCandidate: undefined,
+		deleteAttendanceCandidate: undefined,
+		attendanceEdit: undefined,
 	});
 
 	t.is(result, 'timetable');
@@ -278,13 +278,13 @@ test('useActiveAreaResolver handles all combinations correctly', t => {
 			worklogForm: createWorklogForm({isVisible: testCase.worklogVisible}),
 			deleteCandidate: testCase.hasDeleteCandidate
 				? createDeleteCandidate()
-				: null,
+				: undefined,
 			deleteAttendanceCandidate: testCase.hasAttendanceCandidate
 				? createDeleteAttendanceCandidate()
-				: null,
+				: undefined,
 			attendanceEdit: testCase.hasAttendanceEdit
 				? createAttendanceEdit()
-				: null,
+				: undefined,
 		});
 
 		t.is(result, testCase.expected, `Test case: ${testCase.name}`);

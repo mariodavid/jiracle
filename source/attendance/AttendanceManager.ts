@@ -8,7 +8,7 @@ import type {
 } from './types.js';
 
 export class AttendanceManager {
-	private storage: AttendanceCSVStorage;
+	private readonly storage: AttendanceCSVStorage;
 
 	constructor(private config: AttendanceConfig, csvPath?: string) {
 		const finalCsvPath =
@@ -182,6 +182,7 @@ export class AttendanceManager {
 			if (checkIn && !AttendanceCalculations.isValidTimeString(checkIn)) {
 				throw new Error(`Invalid check-in time format: ${checkIn}`);
 			}
+
 			if (checkIn) {
 				attendance.checkIn = checkIn;
 			} else {
@@ -193,6 +194,7 @@ export class AttendanceManager {
 			if (checkOut && !AttendanceCalculations.isValidTimeString(checkOut)) {
 				throw new Error(`Invalid check-out time format: ${checkOut}`);
 			}
+
 			if (checkOut) {
 				attendance.checkOut = checkOut;
 			} else {

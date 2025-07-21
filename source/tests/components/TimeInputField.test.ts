@@ -175,6 +175,7 @@ test('TimeInputField accepts valid time formats', t => {
 		for (const char of input) {
 			stdin.write(char);
 		}
+
 		stdin.write('\r');
 
 		// Should normalize to HH:MM format

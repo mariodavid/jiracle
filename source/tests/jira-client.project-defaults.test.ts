@@ -13,11 +13,11 @@ test('extractProjectKey extracts project key from issue key', t => {
 });
 
 test('extractProjectKey returns null for invalid issue keys', t => {
-	t.is(extractProjectKey('invalid'), null);
-	t.is(extractProjectKey('DEF-'), null);
-	t.is(extractProjectKey('-123'), null);
-	t.is(extractProjectKey('def-123'), null); // Lowercase
-	t.is(extractProjectKey(''), null);
+	t.is(extractProjectKey('invalid'), undefined);
+	t.is(extractProjectKey('DEF-'), undefined);
+	t.is(extractProjectKey('-123'), undefined);
+	t.is(extractProjectKey('def-123'), undefined); // Lowercase
+	t.is(extractProjectKey(''), undefined);
 });
 
 test('resolveDefaults returns fallback values when no config provided', t => {

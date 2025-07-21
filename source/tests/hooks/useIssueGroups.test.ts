@@ -52,7 +52,7 @@ test('useIssueGroups - handles null config', t => {
 	t.is(typeof useIssueGroups, 'function');
 
 	try {
-		useIssueGroups(issues, null);
+		useIssueGroups(issues, undefined);
 		t.fail('Hook should not work outside React context');
 	} catch {
 		t.pass('Hook correctly fails outside React context');

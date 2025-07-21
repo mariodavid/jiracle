@@ -18,7 +18,7 @@ export type AttendanceConfig = {
 };
 
 export type AttendanceStatus = {
-	today: Attendance | null;
+	today: Attendance | undefined;
 	totalHours: number;
 	shouldHours: number;
 	difference: number;

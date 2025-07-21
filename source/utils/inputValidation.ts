@@ -1,7 +1,7 @@
 export type AllowedUnit = 'h' | 'm' | 'd';
 
 export class InputValidation {
-	private allowedUnits: AllowedUnit[];
+	private readonly allowedUnits: AllowedUnit[];
 
 	constructor(allowedUnits: AllowedUnit[] = ['h', 'm', 'd']) {
 		this.allowedUnits = allowedUnits;
@@ -46,6 +46,7 @@ export class InputValidation {
 					// Don't allow other units after h+digits except m
 					if (/h\d+[hd]/.test(newValue)) return false;
 				}
+
 				// Don't allow d after h
 				if (/h.*d/.test(newValue)) return false;
 			}

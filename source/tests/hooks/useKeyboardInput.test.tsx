@@ -31,7 +31,7 @@ test('useKeyboardInput: hook can be instantiated', t => {
 
 	const mockOptions: KeyboardInputOptions = {
 		isActive: true,
-		focusedCell: null,
+		focusedCell: undefined,
 		weekDates: [],
 		handlers: mockHandlers,
 	};
@@ -55,7 +55,7 @@ test('useKeyboardInput: handles inactive state correctly', t => {
 
 	const mockOptions: KeyboardInputOptions = {
 		isActive: false, // Inactive
-		focusedCell: null,
+		focusedCell: undefined,
 		weekDates: [],
 		handlers: mockHandlers,
 	};
@@ -82,7 +82,7 @@ test('useKeyboardInput: accepts all required handler functions', t => {
 
 	const mockOptions: KeyboardInputOptions = {
 		isActive: true,
-		focusedCell: null,
+		focusedCell: undefined,
 		weekDates: [new Date('2023-07-17'), new Date('2023-07-18')],
 		handlers: mockHandlers,
 	};
@@ -164,7 +164,7 @@ test('useKeyboardInput: interface validates correctly', t => {
 
 	const mockOptions: KeyboardInputOptions = {
 		isActive: true,
-		focusedCell: null,
+		focusedCell: undefined,
 		weekDates: [],
 		handlers: minimalHandlers,
 	};
@@ -185,7 +185,7 @@ test('useKeyboardInput: handles empty weekDates array', t => {
 
 	const mockOptions: KeyboardInputOptions = {
 		isActive: true,
-		focusedCell: null,
+		focusedCell: undefined,
 		weekDates: [], // Empty array
 		handlers: mockHandlers,
 	};

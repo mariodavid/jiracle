@@ -7,7 +7,7 @@ import type {JiraConfig} from '../../jira-client.js';
 export type WorklogFormAreaProps = {
 	worklogForm: WorklogFormData;
 	worklogSubmitting: boolean;
-	worklogError: string | null;
+	worklogError: string | undefined;
 	config: JiraConfig;
 	onSubmit: (data: {
 		issueKey: string;

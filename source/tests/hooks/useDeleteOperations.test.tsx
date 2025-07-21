@@ -84,11 +84,11 @@ test('useDeleteOperations returns initial state', t => {
 	);
 
 	// Check initial state
-	t.is(capturedState.deleteCandidate, null);
-	t.is(capturedState.deleteAttendanceCandidate, null);
+	t.is(capturedState.deleteCandidate, undefined);
+	t.is(capturedState.deleteAttendanceCandidate, undefined);
 	t.false(capturedState.isDeleting);
 	t.false(capturedState.isDeletingAttendance);
-	t.is(capturedState.deleteError, null);
+	t.is(capturedState.deleteError, undefined);
 });
 
 test('useDeleteOperations handleCellDelete sets candidate and changes area', t => {
@@ -212,7 +212,7 @@ test('useDeleteOperations handleDeleteConfirm cancels when not confirmed', async
 		}),
 	);
 
-	t.is(capturedState.deleteCandidate, null);
+	t.is(capturedState.deleteCandidate, undefined);
 	t.is(activeAreaChanged, 'timetable');
 });
 
@@ -261,7 +261,7 @@ test('useDeleteOperations handleDeleteAttendanceConfirm cancels when not confirm
 		}),
 	);
 
-	t.is(capturedState.deleteAttendanceCandidate, null);
+	t.is(capturedState.deleteAttendanceCandidate, undefined);
 	t.is(activeAreaChanged, 'timetable');
 });
 
@@ -295,7 +295,7 @@ test('useDeleteOperations clearDeleteError removes error message', t => {
 		}),
 	);
 
-	t.is(capturedState.deleteError, null);
+	t.is(capturedState.deleteError, undefined);
 });
 
 test('useDeleteOperations hook structure is correct', t => {
@@ -440,7 +440,7 @@ test('useDeleteOperations auto-clears error after timeout', async t => {
 
 	// Verify that clearDeleteError function exists and works
 	t.is(typeof capturedState.clearDeleteError, 'function');
-	t.is(capturedState.deleteError, null);
+	t.is(capturedState.deleteError, undefined);
 
 	// This confirms the error clearing mechanism is in place
 	// The actual 5-second timeout is tested through the useEffect implementation

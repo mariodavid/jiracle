@@ -498,6 +498,7 @@ test('WeeklyWorklogSummaryUseCase includes favorite issues without worklogs', as
 				],
 			};
 		}
+
 		if (issueKey === 'FAV-123') {
 			// No worklogs for this favorite issue
 			return {
@@ -507,6 +508,7 @@ test('WeeklyWorklogSummaryUseCase includes favorite issues without worklogs', as
 				worklogs: [],
 			};
 		}
+
 		return {startAt: 0, maxResults: 20, total: 0, worklogs: []};
 	};
 
@@ -575,7 +577,7 @@ test('WeeklyWorklogSummaryUseCase includes sliding window issues', async t => {
 
 		// Second call is for recent lookback period - capture the actual date used
 		if (jql.includes('worklogDate >=')) {
-			const match = jql.match(/worklogDate >= "([^"]+)"/);
+			const match = /worklogDate >= "([^"]+)"/.exec(jql);
 			if (match) {
 				capturedWindowStartDate = match[1]!;
 			}
@@ -633,6 +635,7 @@ test('WeeklyWorklogSummaryUseCase includes sliding window issues', async t => {
 				],
 			};
 		}
+
 		return {startAt: 0, maxResults: 20, total: 0, worklogs: []};
 	};
 
@@ -1045,9 +1048,8 @@ test('WeeklyWorklogSummaryUseCase sliding window issues with very large window p
 	// Mock search
 	client.searchIssuesWithWorklogs = async jql => {
 		// Capture the date range from the JQL query
-		const dateMatch = jql.match(
-			/worklogDate >= "([^"]+)" AND worklogDate <= "([^"]+)"/,
-		);
+		const dateMatch =
+			/worklogDate >= "([^"]+)" AND worklogDate <= "([^"]+)"/.exec(jql);
 		if (dateMatch) {
 			capturedWindowDates = [dateMatch[1]!, dateMatch[2]!];
 		}
@@ -1295,7 +1297,7 @@ test('WeeklyWorklogSummaryUseCase sliding window calculates from week start not 
 
 		// Sliding window query - capture the start date
 		if (jql.includes('worklogDate >=')) {
-			const match = jql.match(/worklogDate >= "([^"]+)"/);
+			const match = /worklogDate >= "([^"]+)"/.exec(jql);
 			if (match) {
 				capturedWindowStart = match[1]!;
 			}

@@ -20,7 +20,7 @@ type InlineWorklogFormProps = {
 	}) => void;
 	onCancel: () => void;
 	isSubmitting?: boolean;
-	error?: string | null;
+	error?: string | undefined;
 	config?: JiraConfig;
 	isFavorite?: boolean;
 	isIssueKeyEditable?: boolean;
@@ -39,7 +39,7 @@ export function InlineWorklogForm({
 	onSubmit,
 	onCancel,
 	isSubmitting = false,
-	error = null,
+	error = undefined,
 	config,
 	isFavorite = false,
 	isIssueKeyEditable = false,
@@ -105,36 +105,44 @@ export function InlineWorklogForm({
 							setFocusArea('cancel');
 							break;
 						}
+
 						case 'date': {
 							if (isIssueKeyEditable) {
 								setFocusArea('issueKey');
 							} else {
 								setFocusArea('cancel');
 							}
+
 							break;
 						}
+
 						case 'time': {
 							if (isIssueKeyEditable) {
 								setFocusArea('date');
 							} else {
 								setFocusArea('cancel');
 							}
+
 							break;
 						}
+
 						case 'comment': {
 							// Normalize time when leaving time field
 							normalizeTimeOnBlur(timeInputValue);
 							setFocusArea('time');
 							break;
 						}
+
 						case 'submit': {
 							setFocusArea('comment');
 							break;
 						}
+
 						case 'cancel': {
 							setFocusArea('submit');
 							break;
 						}
+
 						default: {
 							break;
 						}
@@ -148,39 +156,48 @@ export function InlineWorklogForm({
 							} else {
 								setFocusArea('time');
 							}
+
 							break;
 						}
+
 						case 'date': {
 							setFocusArea('time');
 							break;
 						}
+
 						case 'time': {
 							// Normalize time when leaving time field
 							normalizeTimeOnBlur(timeInputValue);
 							setFocusArea('comment');
 							break;
 						}
+
 						case 'comment': {
 							setFocusArea('submit');
 							break;
 						}
+
 						case 'submit': {
 							setFocusArea('cancel');
 							break;
 						}
+
 						case 'cancel': {
 							if (isIssueKeyEditable) {
 								setFocusArea('issueKey');
 							} else {
 								setFocusArea('time');
 							}
+
 							break;
 						}
+
 						default: {
 							break;
 						}
 					}
 				}
+
 				return;
 			}
 
@@ -196,14 +213,17 @@ export function InlineWorklogForm({
 						handleSubmit();
 						break;
 					}
+
 					case 'cancel': {
 						onCancel();
 						break;
 					}
+
 					case 'comment': {
 						handleSubmit();
 						break;
 					}
+
 					default: {
 						// No action for other focus areas (date, time, issueKey)
 						break;
@@ -227,6 +247,7 @@ export function InlineWorklogForm({
 			setSelectedTime(normalizedValue);
 			return normalizedValue;
 		}
+
 		return inputValue;
 	};
 
@@ -259,6 +280,7 @@ export function InlineWorklogForm({
 						const newValue = inputValue.slice(0, -1);
 						setInputValue(newValue);
 					}
+
 					return;
 				}
 
@@ -422,7 +444,7 @@ export function InlineWorklogForm({
 							value={timeInputValue}
 							compact={true}
 							config={config}
-							issueSelectionMode={isFavorite ? 'favorites' : null}
+							issueSelectionMode={isFavorite ? 'favorites' : undefined}
 							incrementMinutes={60}
 							onChange={handleTimeInputChange}
 							onSubmit={() => {

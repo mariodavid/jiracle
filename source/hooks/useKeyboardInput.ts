@@ -14,7 +14,7 @@ export type KeyboardInputHandlers = {
 
 export type KeyboardInputOptions = {
 	isActive: boolean;
-	focusedCell: FocusedCell | null;
+	focusedCell: FocusedCell | undefined;
 	weekDates: Date[];
 	handlers: KeyboardInputHandlers;
 };
@@ -91,6 +91,7 @@ export function useKeyboardInput({
 			if (date) {
 				onCellWorklog({issueKey: focusedCell.issueKey, date});
 			}
+
 			return;
 		}
 
@@ -105,6 +106,7 @@ export function useKeyboardInput({
 			if (date) {
 				onAttendanceEdit({date});
 			}
+
 			return;
 		}
 
@@ -120,6 +122,7 @@ export function useKeyboardInput({
 					onCellDelete({issueKey: focusedCell.issueKey, date});
 				}
 			}
+
 			return;
 		}
 

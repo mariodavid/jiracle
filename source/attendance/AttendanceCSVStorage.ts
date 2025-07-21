@@ -38,7 +38,7 @@ export class AttendanceCSVStorage {
 			return dataLines
 				.filter(line => line.trim() && line.split(',').length >= 4) // Must have at least date and breakMinutes
 				.map(line => this.parseCSVLine(line));
-		} catch (error) {
+		} catch (error: unknown) {
 			console.error('Error reading CSV:', error);
 			return [];
 		}
@@ -57,9 +57,9 @@ export class AttendanceCSVStorage {
 		await writeFile(this.csvPath, lines.join('\n') + '\n');
 	}
 
-	async getByDate(date: string): Promise<Attendance | null> {
+	async getByDate(date: string): Promise<Attendance | undefined> {
 		const attendances = await this.readAll();
-		return attendances.find(a => a.date === date) || null;
+		return attendances.find(a => a.date === date) || undefined;
 	}
 
 	async getByDateRange(
@@ -110,12 +110,15 @@ export class AttendanceCSVStorage {
 		if (checkIn && checkIn !== '') {
 			attendance.checkIn = checkIn;
 		}
+
 		if (checkOut && checkOut !== '') {
 			attendance.checkOut = checkOut;
 		}
+
 		if (totalHours && totalHours !== '' && !Number.isNaN(Number(totalHours))) {
 			attendance.totalHours = Number(totalHours);
 		}
+
 		if (notes && notes !== '') {
 			attendance.notes = notes;
 		}

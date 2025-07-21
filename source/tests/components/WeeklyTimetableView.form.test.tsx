@@ -14,7 +14,7 @@ const mockConfig = {
 const defaultProps = {
 	onBack() {},
 	config: mockConfig,
-	userEmail: null,
+	userEmail: undefined,
 };
 
 test('WeeklyTimetableView renders with correct structure and content', t => {

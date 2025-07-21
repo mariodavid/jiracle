@@ -8,9 +8,9 @@ import type {WorklogFormData} from './useWorklogForm.js';
 export type UseTitleResolverOptions = {
 	currentWeek: Date;
 	worklogForm: WorklogFormData;
-	deleteCandidate: DeleteCandidate | null;
-	deleteAttendanceCandidate: DeleteAttendanceCandidate | null;
-	attendanceEdit: AttendanceEditState | null;
+	deleteCandidate: DeleteCandidate | undefined;
+	deleteAttendanceCandidate: DeleteAttendanceCandidate | undefined;
+	attendanceEdit: AttendanceEditState | undefined;
 	activeArea: string;
 };
 

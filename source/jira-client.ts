@@ -134,7 +134,7 @@ export type WorklogEntry = {
 export function normalizeTimeFormat(timeString: string): string {
 	try {
 		// Handle decimal formats with comma - convert comma to dot but preserve decimal format
-		const decimalHourMatch = timeString.match(/^(\d+(?:,\d+)?)h$/i);
+		const decimalHourMatch = /^(\d+(?:,\d+)?)h$/i.exec(timeString);
 		if (decimalHourMatch) {
 			return decimalHourMatch[1]!.replace(',', '.') + 'h';
 		}
@@ -153,9 +153,11 @@ export function normalizeTimeFormat(timeString: string): string {
 		if (hours > 0 && remainingMinutes > 0) {
 			return `${hours}h ${remainingMinutes}m`;
 		}
+
 		if (hours > 0) {
 			return `${hours}h`;
 		}
+
 		return `${remainingMinutes}m`;
 	} catch {
 		return '';
@@ -182,10 +184,10 @@ export function getFavoriteDefaultTime(
 	return favorite?.defaultTime;
 }
 
-export function extractProjectKey(issueKey: string): string | null {
+export function extractProjectKey(issueKey: string): string | undefined {
 	// Extract project key from issue key (e.g., "DEF-2457" → "DEF")
-	const match = issueKey.match(/^([A-Z]+)-\d+$/);
-	return match ? match[1] ?? null : null;
+	const match = /^([A-Z]+)-\d+$/.exec(issueKey);
+	return match ? match[1] ?? undefined : undefined;
 }
 
 export type ResolvedDefaults = {
@@ -281,33 +283,34 @@ export function resolveDefaults(
 	};
 }
 
-export function extractIssueKeyFromInput(input: string): string | null {
+export function extractIssueKeyFromInput(input: string): string | undefined {
 	// Trim whitespace
 	const trimmed = input.trim();
 
 	if (!trimmed) {
-		return null;
+		return undefined;
 	}
 
 	// Check if it's a URL
 	if (trimmed.includes('/browse/')) {
 		// Extract issue key from URL like https://jira.example.com/browse/DEF-2457
-		const match = trimmed.match(/\/browse\/([A-Z]+-\d+)/);
+		const match = /\/browse\/([A-Z]+-\d+)/.exec(trimmed);
 		if (match?.[1]) {
 			return match[1];
 		}
+
 		// If it contains /browse/ but no valid issue key, it's invalid
-		return null;
+		return undefined;
 	}
 
 	// Check if it's already an issue key (PROJECT-123 format)
-	const issueKeyMatch = trimmed.match(/^([A-Z]+-\d+)$/);
+	const issueKeyMatch = /^([A-Z]+-\d+)$/.exec(trimmed);
 	if (issueKeyMatch?.[1]) {
 		return issueKeyMatch[1];
 	}
 
 	// If no pattern matches, it's invalid
-	return null;
+	return undefined;
 }
 
 export class JiraClient {
@@ -457,7 +460,7 @@ export class JiraClient {
 			});
 
 			return data.issues;
-		} catch (error) {
+		} catch (error: unknown) {
 			this.logger.error('Error fetching assigned issues', {
 				method: 'POST',
 				url: searchUrl,
@@ -535,7 +538,7 @@ export class JiraClient {
 				.filter((issue): issue is JiraIssue => issue !== undefined);
 
 			return sortedIssues;
-		} catch (error) {
+		} catch (error: unknown) {
 			this.logger.error('Error fetching favorite issues', {
 				method: 'POST',
 				url: searchUrl,
@@ -582,7 +585,7 @@ export class JiraClient {
 			});
 
 			return await (response.json() as Promise<JiraIssue>);
-		} catch (error) {
+		} catch (error: unknown) {
 			this.logger.error('Error fetching issue', {
 				method: 'GET',
 				url: issueUrl,
@@ -689,7 +692,7 @@ export class JiraClient {
 				status: response.status,
 				timestamp: new Date().toISOString(),
 			});
-		} catch (error) {
+		} catch (error: unknown) {
 			this.logger.error('Error adding worklog', {
 				method: 'POST',
 				url: worklogUrl,
@@ -741,7 +744,7 @@ export class JiraClient {
 			});
 
 			return data;
-		} catch (error) {
+		} catch (error: unknown) {
 			this.logger.error('Error fetching issue worklogs', {
 				method: 'GET',
 				url: worklogUrl,
@@ -791,7 +794,7 @@ export class JiraClient {
 				worklogId,
 				status: response.status,
 			});
-		} catch (error) {
+		} catch (error: unknown) {
 			this.logger.error('Error deleting worklog', {
 				method: 'DELETE',
 				url: deleteUrl,
@@ -912,7 +915,7 @@ export class JiraClient {
 				status: response.status,
 				timestamp: new Date().toISOString(),
 			});
-		} catch (error) {
+		} catch (error: unknown) {
 			this.logger.error('Error updating worklog', {
 				method: 'PUT',
 				url: updateUrl,
@@ -974,7 +977,7 @@ export class JiraClient {
 			});
 
 			return data;
-		} catch (error) {
+		} catch (error: unknown) {
 			this.logger.error('Error searching issues with worklogs', {
 				method: 'POST',
 				url: searchUrl,
@@ -1021,7 +1024,7 @@ export class JiraClient {
 			});
 
 			return data;
-		} catch (error) {
+		} catch (error: unknown) {
 			this.logger.error('Error fetching current user', {
 				method: 'GET',
 				url: myselfUrl,
@@ -1054,7 +1057,7 @@ export class JiraClient {
 			});
 
 			return hasWorklogs;
-		} catch (error) {
+		} catch (error: unknown) {
 			this.logger.error('Error checking worklogs for today', {
 				date: todayFormatted,
 				error: error instanceof Error ? error.message : 'Unknown error',

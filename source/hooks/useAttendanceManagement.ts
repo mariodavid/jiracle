@@ -17,9 +17,9 @@ export type UseAttendanceManagementOptions = {
 
 export type UseAttendanceManagementReturn = {
 	// State
-	attendanceManager: AttendanceManager | null;
+	attendanceManager: AttendanceManager | undefined;
 	attendanceRefreshKey: number;
-	attendanceEdit: AttendanceEditState | null;
+	attendanceEdit: AttendanceEditState | undefined;
 
 	// Actions
 	handleAttendanceEdit: (data: {date: Date}) => Promise<void>;
@@ -35,11 +35,13 @@ export function useAttendanceManagement(
 ): UseAttendanceManagementReturn {
 	const {config, onRefresh, onActiveAreaChange} = options;
 
-	const [attendanceManager, setAttendanceManager] =
-		useState<AttendanceManager | null>(null);
+	const [attendanceManager, setAttendanceManager] = useState<
+		AttendanceManager | undefined
+	>(undefined);
 	const [attendanceRefreshKey, setAttendanceRefreshKey] = useState(0);
-	const [attendanceEdit, setAttendanceEdit] =
-		useState<AttendanceEditState | null>(null);
+	const [attendanceEdit, setAttendanceEdit] = useState<
+		AttendanceEditState | undefined
+	>(undefined);
 
 	// Initialize attendance manager when config changes
 	useEffect(() => {
@@ -47,7 +49,7 @@ export function useAttendanceManagement(
 			const manager = new AttendanceManager(config.attendance);
 			setAttendanceManager(manager);
 		} else {
-			setAttendanceManager(null);
+			setAttendanceManager(undefined);
 		}
 	}, [config.attendance]);
 
@@ -68,7 +70,7 @@ export function useAttendanceManagement(
 					data: existingData || undefined,
 				});
 				onActiveAreaChange('attendance-edit');
-			} catch (error) {
+			} catch (error: unknown) {
 				console.error('Failed to load attendance data:', error);
 				// Still allow editing with defaults
 				setAttendanceEdit({
@@ -87,13 +89,13 @@ export function useAttendanceManagement(
 
 			try {
 				await attendanceManager.updateAttendance(data);
-				setAttendanceEdit(null);
+				setAttendanceEdit(undefined);
 				onActiveAreaChange('timetable');
 				// Refresh the data to show the updated attendance
 				onRefresh();
 				// Force attendance data refresh in TimetableGrid
 				setAttendanceRefreshKey(prev => prev + 1);
-			} catch (error) {
+			} catch (error: unknown) {
 				console.error('Failed to save attendance:', error);
 			}
 		},
@@ -101,7 +103,7 @@ export function useAttendanceManagement(
 	);
 
 	const handleAttendanceCancel = useCallback(() => {
-		setAttendanceEdit(null);
+		setAttendanceEdit(undefined);
 		onActiveAreaChange('timetable');
 	}, [onActiveAreaChange]);
 
@@ -116,7 +118,7 @@ export function useAttendanceManagement(
 				await attendanceManager.checkIn();
 				setAttendanceRefreshKey(prev => prev + 1); // Trigger refresh
 				onActiveAreaChange('timetable');
-			} catch (error) {
+			} catch (error: unknown) {
 				console.error('Error checking in:', error);
 				onActiveAreaChange('timetable');
 			}
@@ -135,7 +137,7 @@ export function useAttendanceManagement(
 				await attendanceManager.checkOut();
 				setAttendanceRefreshKey(prev => prev + 1); // Trigger refresh
 				onActiveAreaChange('timetable');
-			} catch (error) {
+			} catch (error: unknown) {
 				console.error('Error checking out:', error);
 				onActiveAreaChange('timetable');
 			}

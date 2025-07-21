@@ -1,6 +1,8 @@
 import test from 'ava';
 import {
-	GridNavigationService,
+	findInitialFocusItem,
+	navigateInDirection,
+	navigateToNextItem,
 	type NavigationDirection,
 	type NavigationContext,
 } from '../../services/GridNavigationService.js';
@@ -68,7 +70,7 @@ test('navigateInDirection: up navigation with wraparound', t => {
 	const items = createGridItems();
 	const context = createNavigationContext('PROJECT-123', 2, items);
 
-	const result = GridNavigationService.navigateInDirection('up', context);
+	const result = navigateInDirection('up', context);
 
 	t.true(result.success);
 	t.is(result.targetItem!.issueKey, 'attendance-attendance');
@@ -84,7 +86,7 @@ test('navigateInDirection: up navigation from top wraps to bottom', t => {
 		true,
 	);
 
-	const result = GridNavigationService.navigateInDirection('up', context);
+	const result = navigateInDirection('up', context);
 
 	t.true(result.success);
 	t.is(result.targetItem!.issueKey, 'PROJECT-456');
@@ -95,7 +97,7 @@ test('navigateInDirection: down navigation', t => {
 	const items = createGridItems();
 	const context = createNavigationContext('PROJECT-123', 2, items);
 
-	const result = GridNavigationService.navigateInDirection('down', context);
+	const result = navigateInDirection('down', context);
 
 	t.true(result.success);
 	t.is(result.targetItem!.issueKey, 'PROJECT-456');
@@ -106,7 +108,7 @@ test('navigateInDirection: down navigation from bottom wraps to top', t => {
 	const items = createGridItems();
 	const context = createNavigationContext('PROJECT-456', 2, items);
 
-	const result = GridNavigationService.navigateInDirection('down', context);
+	const result = navigateInDirection('down', context);
 
 	t.true(result.success);
 	t.is(result.targetItem!.issueKey, 'attendance-attendance');
@@ -117,7 +119,7 @@ test('navigateInDirection: left navigation', t => {
 	const items = createGridItems();
 	const context = createNavigationContext('PROJECT-123', 2, items);
 
-	const result = GridNavigationService.navigateInDirection('left', context);
+	const result = navigateInDirection('left', context);
 
 	t.true(result.success);
 	t.is(result.targetItem!.issueKey, 'PROJECT-123');
@@ -128,7 +130,7 @@ test('navigateInDirection: left navigation from leftmost wraps to rightmost', t 
 	const items = createGridItems();
 	const context = createNavigationContext('PROJECT-123', 0, items);
 
-	const result = GridNavigationService.navigateInDirection('left', context);
+	const result = navigateInDirection('left', context);
 
 	t.true(result.success);
 	t.is(result.targetItem!.issueKey, 'PROJECT-123');
@@ -139,7 +141,7 @@ test('navigateInDirection: right navigation', t => {
 	const items = createGridItems();
 	const context = createNavigationContext('PROJECT-123', 2, items);
 
-	const result = GridNavigationService.navigateInDirection('right', context);
+	const result = navigateInDirection('right', context);
 
 	t.true(result.success);
 	t.is(result.targetItem!.issueKey, 'PROJECT-123');
@@ -150,7 +152,7 @@ test('navigateInDirection: right navigation from rightmost wraps to leftmost', t
 	const items = createGridItems();
 	const context = createNavigationContext('PROJECT-123', 4, items);
 
-	const result = GridNavigationService.navigateInDirection('right', context);
+	const result = navigateInDirection('right', context);
 
 	t.true(result.success);
 	t.is(result.targetItem!.issueKey, 'PROJECT-123');
@@ -161,10 +163,7 @@ test('navigateInDirection: invalid direction returns failure', t => {
 	const items = createGridItems();
 	const context = createNavigationContext('PROJECT-123', 2, items);
 
-	const result = GridNavigationService.navigateInDirection(
-		'invalid' as NavigationDirection,
-		context,
-	);
+	const result = navigateInDirection('invalid' as NavigationDirection, context);
 
 	t.false(result.success);
 	t.is(result.targetItem, undefined);
@@ -174,7 +173,7 @@ test('navigateInDirection: focused cell not found returns failure', t => {
 	const items = createGridItems();
 	const context = createNavigationContext('NONEXISTENT', 0, items);
 
-	const result = GridNavigationService.navigateInDirection('up', context);
+	const result = navigateInDirection('up', context);
 
 	t.false(result.success);
 });
@@ -182,7 +181,7 @@ test('navigateInDirection: focused cell not found returns failure', t => {
 test('navigateInDirection: empty grid returns failure', t => {
 	const context = createNavigationContext('PROJECT-123', 0, []);
 
-	const result = GridNavigationService.navigateInDirection('up', context);
+	const result = navigateInDirection('up', context);
 
 	t.false(result.success);
 });
@@ -195,7 +194,7 @@ test('navigateInDirection: custom column count affects wraparound', t => {
 		columnCount: 3,
 	};
 
-	const result = GridNavigationService.navigateInDirection('right', context);
+	const result = navigateInDirection('right', context);
 
 	t.true(result.success);
 	t.is(result.targetItem!.issueKey, 'PROJECT-123');
@@ -207,7 +206,7 @@ test('navigateToNextItem: next item navigation', t => {
 	const items = createGridItems();
 	const context = createNavigationContext('PROJECT-123', 2, items);
 
-	const result = GridNavigationService.navigateToNextItem(context, 'next');
+	const result = navigateToNextItem(context, 'next');
 
 	t.true(result.success);
 	t.is(result.targetItem!.issueKey, 'PROJECT-123');
@@ -224,7 +223,7 @@ test('navigateToNextItem: next from last item wraps to first', t => {
 		items,
 	);
 
-	const result = GridNavigationService.navigateToNextItem(context, 'next');
+	const result = navigateToNextItem(context, 'next');
 
 	t.true(result.success);
 	t.is(result.targetItem!.issueKey, items[0]!.issueKey);
@@ -235,7 +234,7 @@ test('navigateToNextItem: previous item navigation', t => {
 	const items = createGridItems();
 	const context = createNavigationContext('PROJECT-123', 2, items);
 
-	const result = GridNavigationService.navigateToNextItem(context, 'previous');
+	const result = navigateToNextItem(context, 'previous');
 
 	t.true(result.success);
 	t.is(result.targetItem!.issueKey, 'PROJECT-123');
@@ -252,7 +251,7 @@ test('navigateToNextItem: previous from first item wraps to last', t => {
 		true,
 	);
 
-	const result = GridNavigationService.navigateToNextItem(context, 'previous');
+	const result = navigateToNextItem(context, 'previous');
 
 	t.true(result.success);
 	const lastItem = items[items.length - 1]!;
@@ -264,7 +263,7 @@ test('navigateToNextItem: defaults to next direction', t => {
 	const items = createGridItems();
 	const context = createNavigationContext('PROJECT-123', 2, items);
 
-	const result = GridNavigationService.navigateToNextItem(context);
+	const result = navigateToNextItem(context);
 
 	t.true(result.success);
 	t.is(result.targetItem!.issueKey, 'PROJECT-123');
@@ -275,7 +274,7 @@ test('navigateToNextItem: defaults to next direction', t => {
 test('findInitialFocusItem: finds item in preferred column', t => {
 	const items = createGridItems();
 
-	const result = GridNavigationService.findInitialFocusItem(items, 2);
+	const result = findInitialFocusItem(items, 2);
 
 	t.truthy(result);
 	t.is(result!.columnIndex, 2);
@@ -285,7 +284,7 @@ test('findInitialFocusItem: finds item in preferred column', t => {
 test('findInitialFocusItem: falls back to first item when preferred column not found', t => {
 	const items = createGridItems();
 
-	const result = GridNavigationService.findInitialFocusItem(items, 10);
+	const result = findInitialFocusItem(items, 10);
 
 	t.truthy(result);
 	t.is(result!.issueKey, items[0]!.issueKey);
@@ -295,17 +294,17 @@ test('findInitialFocusItem: falls back to first item when preferred column not f
 test('findInitialFocusItem: returns first item when no preferred column', t => {
 	const items = createGridItems();
 
-	const result = GridNavigationService.findInitialFocusItem(items);
+	const result = findInitialFocusItem(items);
 
 	t.truthy(result);
 	t.is(result!.issueKey, items[0]!.issueKey);
 	t.is(result!.columnIndex, items[0]!.columnIndex);
 });
 
-test('findInitialFocusItem: returns null for empty grid', t => {
-	const result = GridNavigationService.findInitialFocusItem([]);
+test('findInitialFocusItem: returns undefined for empty grid', t => {
+	const result = findInitialFocusItem([]);
 
-	t.is(result, null);
+	t.is(result, undefined);
 });
 
 // Test edge cases
@@ -318,11 +317,11 @@ test('navigateInDirection: single row grid navigation', t => {
 	const context = createNavigationContext('PROJECT-123', 1, items);
 
 	// Up and down should wrap to same row
-	const upResult = GridNavigationService.navigateInDirection('up', context);
+	const upResult = navigateInDirection('up', context);
 	t.true(upResult.success);
 	t.is(upResult.targetItem!.issueKey, 'PROJECT-123');
 
-	const downResult = GridNavigationService.navigateInDirection('down', context);
+	const downResult = navigateInDirection('down', context);
 	t.true(downResult.success);
 	t.is(downResult.targetItem!.issueKey, 'PROJECT-123');
 });
@@ -336,13 +335,10 @@ test('navigateInDirection: single column grid navigation', t => {
 	const context = createNavigationContext('PROJECT-456', 0, items);
 
 	// Left and right should fail because no items exist in target columns
-	const leftResult = GridNavigationService.navigateInDirection('left', context);
+	const leftResult = navigateInDirection('left', context);
 	t.false(leftResult.success); // Should fail because column 4 doesn't exist
 
-	const rightResult = GridNavigationService.navigateInDirection(
-		'right',
-		context,
-	);
+	const rightResult = navigateInDirection('right', context);
 	t.false(rightResult.success); // Should fail because column 1 doesn't exist
 });
 
@@ -353,7 +349,7 @@ test('navigateInDirection: handles missing target items gracefully', t => {
 	];
 	const context = createNavigationContext('PROJECT-123', 0, items);
 
-	const result = GridNavigationService.navigateInDirection('right', context);
+	const result = navigateInDirection('right', context);
 
 	t.false(result.success); // Should fail because column 1 doesn't exist
 });

@@ -164,7 +164,7 @@ test('should get status for day with no attendance', async t => {
 
 	const status = await manager.getStatus('2025-07-12');
 
-	t.is(status.today, null);
+	t.is(status.today, undefined);
 	t.is(status.totalHours, 0);
 	t.is(status.shouldHours, 8);
 	t.is(status.difference, -8);

@@ -25,13 +25,13 @@ test('should parse valid time strings', t => {
 	});
 });
 
-test('should return null for invalid time strings', t => {
-	t.is(AttendanceCalculations.parseTime('25:00'), null);
-	t.is(AttendanceCalculations.parseTime('12:60'), null);
-	t.is(AttendanceCalculations.parseTime('8:30'), null); // Missing leading zero
-	t.is(AttendanceCalculations.parseTime('08:3'), null); // Missing trailing zero
-	t.is(AttendanceCalculations.parseTime('invalid'), null);
-	t.is(AttendanceCalculations.parseTime(''), null);
+test('should return undefined for invalid time strings', t => {
+	t.is(AttendanceCalculations.parseTime('25:00'), undefined);
+	t.is(AttendanceCalculations.parseTime('12:60'), undefined);
+	t.is(AttendanceCalculations.parseTime('8:30'), undefined); // Missing leading zero
+	t.is(AttendanceCalculations.parseTime('08:3'), undefined); // Missing trailing zero
+	t.is(AttendanceCalculations.parseTime('invalid'), undefined);
+	t.is(AttendanceCalculations.parseTime(''), undefined);
 });
 
 test('should calculate total hours correctly', t => {
@@ -135,9 +135,9 @@ test('should calculate attendance status', t => {
 });
 
 test('should calculate status for null attendance', t => {
-	const status = AttendanceCalculations.calculateStatus(null, 8);
+	const status = AttendanceCalculations.calculateStatus(undefined, 8);
 
-	t.is(status.today, null);
+	t.is(status.today, undefined);
 	t.is(status.totalHours, 0);
 	t.is(status.shouldHours, 8);
 	t.is(status.difference, -8);
@@ -215,7 +215,7 @@ test('should add minutes to time', t => {
 	t.is(AttendanceCalculations.addMinutes('08:30', 30), '09:00');
 	t.is(AttendanceCalculations.addMinutes('08:30', 90), '10:00');
 	t.is(AttendanceCalculations.addMinutes('23:30', 60), '00:30');
-	t.is(AttendanceCalculations.addMinutes('invalid', 30), null);
+	t.is(AttendanceCalculations.addMinutes('invalid', 30), undefined);
 });
 
 test('should calculate time difference in minutes', t => {
@@ -224,11 +224,11 @@ test('should calculate time difference in minutes', t => {
 	t.is(AttendanceCalculations.timeDifferenceInMinutes('17:00', '08:00'), -540);
 	t.is(
 		AttendanceCalculations.timeDifferenceInMinutes('invalid', '09:00'),
-		null,
+		undefined,
 	);
 	t.is(
 		AttendanceCalculations.timeDifferenceInMinutes('08:00', 'invalid'),
-		null,
+		undefined,
 	);
 });
 
@@ -438,7 +438,7 @@ test('should calculate daily deltas correctly', t => {
 
 	t.is(deltas['2025-07-07'], -0.5); // 8.0 - 8.5 = -0.5
 	t.is(deltas['2025-07-08'], 0.5); // 8.0 - 7.5 = 0.5
-	t.is(deltas['2025-07-09'], null); // No attendance data
+	t.is(deltas['2025-07-09'], undefined); // No attendance data
 });
 
 test('should calculate daily deltas with zero logged hours', t => {
@@ -496,8 +496,8 @@ test('should handle incomplete attendance data in delta calculation', t => {
 		weekDates,
 	);
 
-	t.is(deltas['2025-07-07'], null); // Incomplete attendance data
-	t.is(deltas['2025-07-08'], null); // Incomplete attendance data
+	t.is(deltas['2025-07-07'], undefined); // Incomplete attendance data
+	t.is(deltas['2025-07-08'], undefined); // Incomplete attendance data
 });
 
 test('should calculate deltas with missing logged hours', t => {

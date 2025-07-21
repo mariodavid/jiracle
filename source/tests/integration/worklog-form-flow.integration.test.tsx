@@ -15,8 +15,10 @@ const waitFor = async (
 		if (condition()) {
 			return;
 		}
+
 		await InkTestHelpers.delay(interval);
 	}
+
 	throw new Error('Condition not met within timeout');
 };
 

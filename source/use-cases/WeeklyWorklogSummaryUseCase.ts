@@ -14,7 +14,7 @@ import {
 } from '../domain/WeeklyWorklogSummary.js';
 
 export class WeeklyWorklogSummaryUseCase {
-	constructor(private jiraClient: JiraClient) {}
+	constructor(private readonly jiraClient: JiraClient) {}
 
 	async execute(
 		weekStart: Date,
@@ -258,6 +258,7 @@ export class WeeklyWorklogSummaryUseCase {
 				if (!worklogsByIssueDate.has(issueWorklogKey)) {
 					worklogsByIssueDate.set(issueWorklogKey, []);
 				}
+
 				worklogsByIssueDate.get(issueWorklogKey)!.push(worklog);
 			}
 		}
@@ -368,6 +369,7 @@ export class WeeklyWorklogSummaryUseCase {
 			} else {
 				summary = favorite.key;
 			}
+
 			firstDay.issues.push({
 				issueKey: favorite.key,
 				issueSummary: summary,

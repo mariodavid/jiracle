@@ -17,7 +17,7 @@ test('WeeklyTimetableView renders basic structure', t => {
 	const props = {
 		onBack() {},
 		config: mockConfig,
-		userEmail: null,
+		userEmail: undefined,
 	};
 
 	const {lastFrame} = render(React.createElement(WeeklyTimetableView, props));
@@ -50,7 +50,7 @@ test('WeeklyTimetableView shows loading state initially', t => {
 	const props = {
 		onBack() {},
 		config: mockConfig,
-		userEmail: null,
+		userEmail: undefined,
 	};
 
 	const {lastFrame} = render(React.createElement(WeeklyTimetableView, props));

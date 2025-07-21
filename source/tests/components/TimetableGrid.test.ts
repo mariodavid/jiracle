@@ -8,7 +8,7 @@ import {InkTestHelpers} from '../utils/ink-test-helpers.js';
 
 test('TimetableGrid shows loading state', t => {
 	const props = {
-		data: null,
+		data: undefined,
 		isLoading: true,
 	};
 
@@ -19,7 +19,7 @@ test('TimetableGrid shows loading state', t => {
 
 test('TimetableGrid shows no data state', t => {
 	const props = {
-		data: null,
+		data: undefined,
 		isLoading: false,
 	};
 
@@ -345,7 +345,9 @@ test.serial(
 			if (args.length === 0) {
 				return mockDate;
 			}
-			return new originalDate(...(args as []));
+
+			// @ts-expect-error: Dynamic Date constructor call
+			return new originalDate(...args);
 		} as any;
 
 		MockDate.now = () => mockDate.getTime();
@@ -430,7 +432,9 @@ test.serial(
 			if (args.length === 0) {
 				return mockDate;
 			}
-			return new originalDate(...(args as []));
+
+			// @ts-expect-error: Dynamic Date constructor call
+			return new originalDate(...args);
 		} as any;
 
 		MockDate.now = () => mockDate.getTime();
@@ -519,7 +523,9 @@ test.serial(
 			if (args.length === 0) {
 				return mockDate;
 			}
-			return new originalDate(...(args as []));
+
+			// @ts-expect-error: Dynamic Date constructor call
+			return new originalDate(...args);
 		} as any;
 
 		MockDate.now = () => mockDate.getTime();
@@ -743,7 +749,7 @@ test('TimetableGrid allows navigation during loading state', t => {
 	};
 
 	const props = {
-		data: null,
+		data: undefined,
 		isLoading: true,
 		onWeekChange: handleWeekChange,
 	};
