@@ -123,7 +123,7 @@ export class Duration {
 		return new Duration(Math.max(0, workingMinutes));
 	}
 
-	private minutes: number;
+	private readonly minutes: number;
 
 	constructor(input: string | number) {
 		this.minutes = Duration.parseToMinutes(input);

@@ -8,7 +8,7 @@ class InlineFormSubmissionTest {
 	private submittingRef = false;
 	private submitCallCount = 0;
 
-	constructor(private onSubmit: () => void) {}
+	constructor(private readonly onSubmit: () => void) {}
 
 	// This mirrors the handleSubmit logic in InlineWorklogForm
 	simulateHandleSubmit() {

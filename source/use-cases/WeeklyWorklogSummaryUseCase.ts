@@ -14,7 +14,7 @@ import {
 } from '../domain/WeeklyWorklogSummary.js';
 
 export class WeeklyWorklogSummaryUseCase {
-	constructor(private jiraClient: JiraClient) {}
+	constructor(private readonly jiraClient: JiraClient) {}
 
 	async execute(
 		weekStart: Date,

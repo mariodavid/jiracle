@@ -101,7 +101,6 @@
 			"unicorn/no-empty-file": "off",
 			"@typescript-eslint/naming-convention": "off",
 			"@typescript-eslint/prefer-nullish-coalescing": "off",
-			"@typescript-eslint/prefer-readonly": "off",
 			"import/order": "error",
 			"react/prefer-read-only-props": "off",
 			"react/function-component-definition": "off",

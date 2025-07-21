@@ -1,7 +1,7 @@
 export type AllowedUnit = 'h' | 'm' | 'd';
 
 export class InputValidation {
-	private allowedUnits: AllowedUnit[];
+	private readonly allowedUnits: AllowedUnit[];
 
 	constructor(allowedUnits: AllowedUnit[] = ['h', 'm', 'd']) {
 		this.allowedUnits = allowedUnits;

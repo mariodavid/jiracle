@@ -14,7 +14,10 @@ export class ReminderService {
 	private state: ReminderState;
 	private readonly checkIntervalMs = 60 * 1000; // Check every 60 seconds
 
-	constructor(private jiraClient: JiraClient, private config: ReminderConfig) {
+	constructor(
+		private readonly jiraClient: JiraClient,
+		private readonly config: ReminderConfig,
+	) {
 		this.state = {
 			notifiedTimes: new Set(),
 			lastCheckDate: new Date().toISOString().split('T')[0]!,

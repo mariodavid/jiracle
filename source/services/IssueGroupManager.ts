@@ -8,7 +8,7 @@ export type IssueGroup = {
 };
 
 export class IssueGroupManager {
-	constructor(private config: JiraConfig | undefined) {}
+	constructor(private readonly config: JiraConfig | undefined) {}
 
 	groupIssuesByResolvedGroup(issues: Array<[string, any]>): IssueGroup[] {
 		if (!this.config) {

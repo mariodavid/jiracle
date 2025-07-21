@@ -8,7 +8,7 @@ import type {
 } from './types.js';
 
 export class AttendanceManager {
-	private storage: AttendanceCSVStorage;
+	private readonly storage: AttendanceCSVStorage;
 
 	constructor(private config: AttendanceConfig, csvPath?: string) {
 		const finalCsvPath =
