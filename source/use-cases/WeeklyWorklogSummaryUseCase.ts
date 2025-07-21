@@ -13,16 +13,22 @@ import {
 	type IssueWithWorklogs,
 } from '../domain/WeeklyWorklogSummary.js';
 
+export type ExecuteWeeklyWorklogSummaryOptions = {
+	weekStart: Date;
+	weekEnd: Date;
+	userEmail?: string;
+	favoriteIssues?: FavoriteIssue[];
+	slidingWindowConfig?: {past: number; future: number};
+};
+
 export class WeeklyWorklogSummaryUseCase {
 	constructor(private readonly jiraClient: JiraClient) {}
 
 	async execute(
-		weekStart: Date,
-		weekEnd: Date,
-		userEmail?: string,
-		favoriteIssues?: FavoriteIssue[],
-		slidingWindowConfig?: {past: number; future: number},
+		options: ExecuteWeeklyWorklogSummaryOptions,
 	): Promise<WeeklyWorklogSummary> {
+		const {weekStart, weekEnd, userEmail, favoriteIssues, slidingWindowConfig} =
+			options;
 		// Build JQL query for issues with worklogs in the date range
 		const jql = this.buildJqlQuery(weekStart, weekEnd);
 
@@ -182,13 +188,13 @@ export class WeeklyWorklogSummaryUseCase {
 
 		// Add sliding window issues without current week worklogs to the first available day
 		if (slidingWindowSearchResult.issues.length > 0) {
-			this.addSlidingWindowIssuesWithoutWorklogs(
+			this.addSlidingWindowIssuesWithoutWorklogs({
 				dailySummaries,
 				issuesWithWorklogs,
-				slidingWindowSearchResult.issues,
+				slidingWindowIssues: slidingWindowSearchResult.issues,
 				favoriteIssuesData,
 				weekStart,
-			);
+			});
 		}
 
 		// Calculate week total
@@ -378,13 +384,15 @@ export class WeeklyWorklogSummaryUseCase {
 		}
 	}
 
-	private addSlidingWindowIssuesWithoutWorklogs(
-		dailySummaries: DailyWorklogSummary[],
-		_issuesWithWorklogs: IssueWithWorklogs[],
-		slidingWindowIssues: JiraIssue[],
-		favoriteIssuesData: Array<JiraIssue | FavoriteIssue>,
-		weekStart: Date,
-	): void {
+	private addSlidingWindowIssuesWithoutWorklogs(options: {
+		dailySummaries: DailyWorklogSummary[];
+		issuesWithWorklogs: IssueWithWorklogs[];
+		slidingWindowIssues: JiraIssue[];
+		favoriteIssuesData: Array<JiraIssue | FavoriteIssue>;
+		weekStart: Date;
+	}): void {
+		const {dailySummaries, slidingWindowIssues, favoriteIssuesData, weekStart} =
+			options;
 		// Find issues that have worklogs in current week or are already favorites
 		const issueKeysWithCurrentWeekWorklogs = new Set(
 			dailySummaries.flatMap(summary =>

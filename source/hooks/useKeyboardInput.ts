@@ -67,8 +67,7 @@ function handleEnterKey(
 	key: any,
 	focusedCell: FocusedCell | undefined,
 	weekDates: Date[],
-	onCellWorklog?: KeyboardInputHandlers['onCellWorklog'],
-	onAttendanceEdit?: KeyboardInputHandlers['onAttendanceEdit'],
+	handlers: Pick<KeyboardInputHandlers, 'onCellWorklog' | 'onAttendanceEdit'>,
 ): boolean {
 	if (!key.return || !focusedCell) {
 		return false;
@@ -79,13 +78,13 @@ function handleEnterKey(
 		return false;
 	}
 
-	if (onCellWorklog && !focusedCell.isAttendance) {
-		onCellWorklog({issueKey: focusedCell.issueKey, date});
+	if (handlers.onCellWorklog && !focusedCell.isAttendance) {
+		handlers.onCellWorklog({issueKey: focusedCell.issueKey, date});
 		return true;
 	}
 
-	if (onAttendanceEdit && focusedCell.isAttendance) {
-		onAttendanceEdit({date});
+	if (handlers.onAttendanceEdit && focusedCell.isAttendance) {
+		handlers.onAttendanceEdit({date});
 		return true;
 	}
 
@@ -96,8 +95,7 @@ function handleDeleteKey(
 	input: string,
 	focusedCell: FocusedCell | undefined,
 	weekDates: Date[],
-	onCellDelete?: KeyboardInputHandlers['onCellDelete'],
-	onAttendanceDelete?: KeyboardInputHandlers['onAttendanceDelete'],
+	handlers: Pick<KeyboardInputHandlers, 'onCellDelete' | 'onAttendanceDelete'>,
 ): boolean {
 	if ((input !== 'd' && input !== 'D') || !focusedCell) {
 		return false;
@@ -108,13 +106,13 @@ function handleDeleteKey(
 		return false;
 	}
 
-	if (focusedCell.isAttendance && onAttendanceDelete) {
-		onAttendanceDelete({date});
+	if (focusedCell.isAttendance && handlers.onAttendanceDelete) {
+		handlers.onAttendanceDelete({date});
 		return true;
 	}
 
-	if (!focusedCell.isAttendance && onCellDelete) {
-		onCellDelete({issueKey: focusedCell.issueKey, date});
+	if (!focusedCell.isAttendance && handlers.onCellDelete) {
+		handlers.onCellDelete({issueKey: focusedCell.issueKey, date});
 		return true;
 	}
 
@@ -179,26 +177,20 @@ export function useKeyboardInput({
 
 		// Handle Enter key
 		if (
-			handleEnterKey(
-				key,
-				focusedCell,
-				weekDates,
+			handleEnterKey(key, focusedCell, weekDates, {
 				onCellWorklog,
 				onAttendanceEdit,
-			)
+			})
 		) {
 			return;
 		}
 
 		// Handle delete key
 		if (
-			handleDeleteKey(
-				input,
-				focusedCell,
-				weekDates,
+			handleDeleteKey(input, focusedCell, weekDates, {
 				onCellDelete,
 				onAttendanceDelete,
-			)
+			})
 		) {
 			return;
 		}
