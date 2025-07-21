@@ -28,7 +28,7 @@ test('WeeklyWorklogSummaryUseCase builds correct JQL query', async t => {
 		return {issues: [], startAt: 0, maxResults: 50, total: 0};
 	};
 
-	await useCase.execute(weekStart, weekEnd);
+	await useCase.execute({weekStart, weekEnd});
 
 	t.is(
 		capturedJql,
@@ -113,7 +113,7 @@ test('WeeklyWorklogSummaryUseCase aggregates worklogs by day', async t => {
 		],
 	});
 
-	const result = await useCase.execute(weekStart, weekEnd);
+	const result = await useCase.execute({weekStart, weekEnd});
 
 	// Should have 2 daily summaries (Oct 19 and Oct 22)
 	t.is(result.dailySummaries.length, 2);
@@ -202,7 +202,7 @@ test('WeeklyWorklogSummaryUseCase filters by current user email', async t => {
 		],
 	});
 
-	const result = await useCase.execute(weekStart, weekEnd);
+	const result = await useCase.execute({weekStart, weekEnd});
 
 	// Should only include the current user's worklog
 	t.is(result.dailySummaries.length, 1);
@@ -288,7 +288,7 @@ test('WeeklyWorklogSummaryUseCase filters by date range', async t => {
 		],
 	});
 
-	const result = await useCase.execute(weekStart, weekEnd);
+	const result = await useCase.execute({weekStart, weekEnd});
 
 	// Should only include worklogs within the date range
 	t.is(result.dailySummaries.length, 1);
@@ -314,7 +314,7 @@ test('WeeklyWorklogSummaryUseCase handles empty results', async t => {
 		total: 0,
 	});
 
-	const result = await useCase.execute(weekStart, weekEnd);
+	const result = await useCase.execute({weekStart, weekEnd});
 
 	t.is(result.dailySummaries.length, 0);
 	t.is(result.weekTotal, 0);
@@ -399,7 +399,7 @@ test('WeeklyWorklogSummaryUseCase converts time correctly', async t => {
 		],
 	});
 
-	const result = await useCase.execute(weekStart, weekEnd);
+	const result = await useCase.execute({weekStart, weekEnd});
 
 	t.is(result.dailySummaries.length, 1);
 	t.is(result.dailySummaries[0]!.totalHours, 4); // 1 + 0.5 + 2.5
@@ -517,12 +517,12 @@ test('WeeklyWorklogSummaryUseCase includes favorite issues without worklogs', as
 		{key: 'TEST-117', defaultTime: '2h'},
 	];
 
-	const result = await useCase.execute(
+	const result = await useCase.execute({
 		weekStart,
 		weekEnd,
-		'user1@example.com',
+		userEmail: 'user1@example.com',
 		favoriteIssues,
-	);
+	});
 
 	// Should include both issues: one with worklog and one favorite without worklog
 	t.is(result.dailySummaries.length, 1);
@@ -639,13 +639,12 @@ test('WeeklyWorklogSummaryUseCase includes sliding window issues', async t => {
 		return {startAt: 0, maxResults: 20, total: 0, worklogs: []};
 	};
 
-	const result = await useCase.execute(
+	const result = await useCase.execute({
 		weekStart,
 		weekEnd,
-		'user1@example.com',
-		undefined,
+		userEmail: 'user1@example.com',
 		slidingWindowConfig,
-	);
+	});
 
 	// Should have made two JQL queries: one for current week, one for recent lookback
 	t.is(jqlQueries.length, 2);
@@ -691,13 +690,12 @@ test('WeeklyWorklogSummaryUseCase skips sliding window search when window size i
 		return {issues: [], startAt: 0, maxResults: 50, total: 0};
 	};
 
-	await useCase.execute(
+	await useCase.execute({
 		weekStart,
 		weekEnd,
-		'user1@example.com',
-		undefined,
+		userEmail: 'user1@example.com',
 		slidingWindowConfig,
-	);
+	});
 
 	// Should only make one JQL query for current week
 	t.is(jqlQueries.length, 1);
@@ -721,13 +719,12 @@ test('WeeklyWorklogSummaryUseCase makes sliding window search even with small wi
 		return {issues: [], startAt: 0, maxResults: 50, total: 0};
 	};
 
-	await useCase.execute(
+	await useCase.execute({
 		weekStart,
 		weekEnd,
-		'user1@example.com',
-		undefined,
+		userEmail: 'user1@example.com',
 		slidingWindowConfig,
-	);
+	});
 
 	// Should make two JQL queries: one for current week, one for sliding window
 	// (1 day back from Oct 14 = Oct 13, so sliding window period is Oct 13)
@@ -892,13 +889,13 @@ test('WeeklyWorklogSummaryUseCase shows sliding window issues as 0h entries when
 		{key: 'FAV-999', defaultTime: '1h'}, // Favorite only
 	];
 
-	const result = await useCase.execute(
+	const result = await useCase.execute({
 		weekStart,
 		weekEnd,
-		'user1@example.com',
+		userEmail: 'user1@example.com',
 		favoriteIssues,
 		slidingWindowConfig,
-	);
+	});
 
 	// Should have one day with all issues
 	t.is(result.dailySummaries.length, 1);
@@ -1016,13 +1013,12 @@ test('WeeklyWorklogSummaryUseCase sliding window issues are not duplicated when 
 		],
 	});
 
-	const result = await useCase.execute(
+	const result = await useCase.execute({
 		weekStart,
 		weekEnd,
-		'user1@example.com',
-		undefined,
+		userEmail: 'user1@example.com',
 		slidingWindowConfig,
-	);
+	});
 
 	// Should have one day with only one instance of the shared issue
 	t.is(result.dailySummaries.length, 1);
@@ -1102,13 +1098,12 @@ test('WeeklyWorklogSummaryUseCase sliding window issues with very large window p
 		worklogs: [],
 	});
 
-	const result = await useCase.execute(
+	const result = await useCase.execute({
 		weekStart,
 		weekEnd,
-		'user1@example.com',
-		undefined,
+		userEmail: 'user1@example.com',
 		slidingWindowConfig,
-	);
+	});
 
 	// Verify the lookback period was calculated correctly (365 days before week start)
 	t.is(capturedWindowDates.length, 2);
@@ -1242,13 +1237,13 @@ test('WeeklyWorklogSummaryUseCase sliding window issues work correctly when curr
 		worklogs: [],
 	});
 
-	const result = await useCase.execute(
+	const result = await useCase.execute({
 		weekStart,
 		weekEnd,
-		'user1@example.com',
-		[], // No favorites
+		userEmail: 'user1@example.com',
+		favoriteIssues: [], // No favorites
 		slidingWindowConfig,
-	);
+	});
 
 	// Should create a first day with all recent issues as 0h entries
 	t.is(result.dailySummaries.length, 1);
@@ -1341,13 +1336,12 @@ test('WeeklyWorklogSummaryUseCase sliding window calculates from week start not 
 		worklogs: [],
 	});
 
-	const result = await useCase.execute(
+	const result = await useCase.execute({
 		weekStart,
 		weekEnd,
-		'user1@example.com',
-		undefined,
+		userEmail: 'user1@example.com',
 		slidingWindowConfig,
-	);
+	});
 
 	// Should have calculated sliding window start as 10 days before week start (Monday)
 	const expectedWindowStart = new Date(weekStart);

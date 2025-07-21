@@ -337,7 +337,7 @@ test.serial(
 	'TimetableGrid sets initial focus to first row and current day on component load',
 	async t => {
 		// Mock the current date to be a Tuesday (day index 1)
-		const originalDate = Date;
+		const OriginalDate = Date;
 		const mockDate = new Date('2024-10-15T10:00:00.000Z'); // Tuesday
 
 		// Simple Date constructor override
@@ -347,13 +347,13 @@ test.serial(
 			}
 
 			// @ts-expect-error: Dynamic Date constructor call
-			return new originalDate(...args);
+			return new OriginalDate(...args);
 		} as any;
 
 		MockDate.now = () => mockDate.getTime();
-		MockDate.UTC = originalDate.UTC;
-		MockDate.parse = originalDate.parse;
-		MockDate.prototype = originalDate.prototype;
+		MockDate.UTC = OriginalDate.UTC;
+		MockDate.parse = OriginalDate.parse;
+		MockDate.prototype = OriginalDate.prototype;
 
 		global.Date = MockDate;
 
@@ -416,7 +416,7 @@ test.serial(
 		t.is(focusedDate?.getMonth(), 9, 'Should focus on October (month 9)');
 
 		// Restore original Date constructor
-		global.Date = originalDate;
+		global.Date = OriginalDate;
 	},
 );
 
@@ -424,7 +424,7 @@ test.serial(
 	'TimetableGrid sets initial focus to Monday when current day is weekend',
 	async t => {
 		// Mock the current date to be a Sunday (day index 0)
-		const originalDate = Date;
+		const OriginalDate = Date;
 		const mockDate = new Date('2024-10-13T10:00:00.000Z'); // Sunday
 
 		// Simple Date constructor override
@@ -434,13 +434,13 @@ test.serial(
 			}
 
 			// @ts-expect-error: Dynamic Date constructor call
-			return new originalDate(...args);
+			return new OriginalDate(...args);
 		} as any;
 
 		MockDate.now = () => mockDate.getTime();
-		MockDate.UTC = originalDate.UTC;
-		MockDate.parse = originalDate.parse;
-		MockDate.prototype = originalDate.prototype;
+		MockDate.UTC = OriginalDate.UTC;
+		MockDate.parse = OriginalDate.parse;
+		MockDate.prototype = OriginalDate.prototype;
 
 		global.Date = MockDate;
 
@@ -507,7 +507,7 @@ test.serial(
 		t.is(focusedDate?.getMonth(), 9, 'Should focus on October (month 9)');
 
 		// Restore original Date constructor
-		global.Date = originalDate;
+		global.Date = OriginalDate;
 	},
 );
 
@@ -515,7 +515,7 @@ test.serial(
 	'TimetableGrid sets initial focus to Friday when current day is Friday',
 	async t => {
 		// Mock the current date to be a Friday (day index 5)
-		const originalDate = Date;
+		const OriginalDate = Date;
 		const mockDate = new Date('2024-10-18T10:00:00.000Z'); // Friday
 
 		// Simple Date constructor override
@@ -525,13 +525,13 @@ test.serial(
 			}
 
 			// @ts-expect-error: Dynamic Date constructor call
-			return new originalDate(...args);
+			return new OriginalDate(...args);
 		} as any;
 
 		MockDate.now = () => mockDate.getTime();
-		MockDate.UTC = originalDate.UTC;
-		MockDate.parse = originalDate.parse;
-		MockDate.prototype = originalDate.prototype;
+		MockDate.UTC = OriginalDate.UTC;
+		MockDate.parse = OriginalDate.parse;
+		MockDate.prototype = OriginalDate.prototype;
 
 		global.Date = MockDate;
 
@@ -594,7 +594,7 @@ test.serial(
 		t.is(focusedDate?.getMonth(), 9, 'Should focus on October (month 9)');
 
 		// Restore original Date constructor
-		global.Date = originalDate;
+		global.Date = OriginalDate;
 	},
 );
 

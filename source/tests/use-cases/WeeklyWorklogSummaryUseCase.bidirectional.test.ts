@@ -142,13 +142,12 @@ test('WeeklyWorklogSummaryUseCase supports bidirectional sliding window', async 
 		return {startAt: 0, maxResults: 1, total: 0, worklogs: []};
 	};
 
-	const result = await useCase.execute(
+	const result = await useCase.execute({
 		weekStart,
 		weekEnd,
-		'user1@example.com',
-		undefined,
+		userEmail: 'user1@example.com',
 		slidingWindowConfig,
-	);
+	});
 
 	// Should have made 3 JQL queries: current week, past window, future window
 	t.is(jqlQueries.length, 3);
@@ -239,13 +238,12 @@ test('WeeklyWorklogSummaryUseCase bidirectional deduplication works correctly', 
 		worklogs: [],
 	});
 
-	const result = await useCase.execute(
+	const result = await useCase.execute({
 		weekStart,
 		weekEnd,
-		'user1@example.com',
-		undefined,
+		userEmail: 'user1@example.com',
 		slidingWindowConfig,
-	);
+	});
 
 	// Should only have the issue once, not duplicated
 	t.is(result.dailySummaries.length, 1);
@@ -270,13 +268,12 @@ test('WeeklyWorklogSummaryUseCase skips future window when future is 0', async t
 		return {issues: [], startAt: 0, maxResults: 100, total: 0};
 	};
 
-	await useCase.execute(
+	await useCase.execute({
 		weekStart,
 		weekEnd,
-		'user1@example.com',
-		undefined,
+		userEmail: 'user1@example.com',
 		slidingWindowConfig,
-	);
+	});
 
 	// Should have made 2 queries: current week + past window, but no future window
 	t.is(jqlQueries.length, 2);
@@ -310,13 +307,12 @@ test('WeeklyWorklogSummaryUseCase skips past window when past is 0', async t => 
 		return {issues: [], startAt: 0, maxResults: 100, total: 0};
 	};
 
-	await useCase.execute(
+	await useCase.execute({
 		weekStart,
 		weekEnd,
-		'user1@example.com',
-		undefined,
+		userEmail: 'user1@example.com',
 		slidingWindowConfig,
-	);
+	});
 
 	// Should have made 2 queries: current week + future window, but no past window
 	t.is(jqlQueries.length, 2);

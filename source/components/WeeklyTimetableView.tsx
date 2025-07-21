@@ -84,14 +84,14 @@ export function WeeklyTimetableView({
 	const weekStart = getStartOfWeek(currentWeek);
 	const weekEnd = getEndOfWeek(currentWeek);
 
-	const {data, isLoading, error, refresh} = useWeeklyWorklogSummary(
+	const {data, isLoading, error, refresh} = useWeeklyWorklogSummary({
 		weekStart,
 		weekEnd,
 		config,
-		false, // Always load fresh data when component mounts
-		userEmail || undefined,
-		config.favorites, // Pass favorite issues to include them in the table
-	);
+		skipAutoLoad: false, // Always load fresh data when component mounts
+		userEmail: userEmail || undefined,
+		favoriteIssues: config.favorites, // Pass favorite issues to include them in the table
+	});
 
 	// Worklog form state management
 	const {

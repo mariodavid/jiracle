@@ -116,11 +116,6 @@
 			"react/boolean-prop-naming": "off",
 			"import/first": "error",
 			"@typescript-eslint/consistent-type-assertions": "off",
-			"max-params": "off",
-			"@typescript-eslint/no-require-imports": "off",
-			"@typescript-eslint/no-var-requires": "off",
-			"n/prefer-global/buffer": "off",
-			"new-cap": "off",
 			"unicorn/no-await-expression-member": "off",
 			"@typescript-eslint/return-await": "off",
 			"no-return-await": "off"

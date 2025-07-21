@@ -15,14 +15,26 @@ export type UseWeeklyWorklogSummaryResult = {
 	refresh: () => void;
 };
 
+export type UseWeeklyWorklogSummaryOptions = {
+	weekStart: Date;
+	weekEnd: Date;
+	config: JiraConfig;
+	skipAutoLoad?: boolean;
+	userEmail?: string;
+	favoriteIssues?: FavoriteIssue[];
+};
+
 export function useWeeklyWorklogSummary(
-	weekStart: Date,
-	weekEnd: Date,
-	config: JiraConfig,
-	skipAutoLoad = false,
-	userEmail?: string,
-	favoriteIssues?: FavoriteIssue[],
+	options: UseWeeklyWorklogSummaryOptions,
 ): UseWeeklyWorklogSummaryResult {
+	const {
+		weekStart,
+		weekEnd,
+		config,
+		skipAutoLoad = false,
+		userEmail,
+		favoriteIssues,
+	} = options;
 	const [data, setData] = useState<WeeklyWorklogSummary | undefined>(undefined);
 	const [isLoading, setIsLoading] = useState(false);
 	const [error, setError] = useState<string | undefined>(undefined);
@@ -60,13 +72,13 @@ export function useWeeklyWorklogSummary(
 		try {
 			const jiraClient = new JiraClient(config);
 			const useCase = new WeeklyWorklogSummaryUseCase(jiraClient);
-			const summary = await useCase.execute(
+			const summary = await useCase.execute({
 				weekStart,
 				weekEnd,
 				userEmail,
 				favoriteIssues,
-				normalizedWindow, // Pass the full bidirectional config
-			);
+				slidingWindowConfig: normalizedWindow, // Pass the full bidirectional config
+			});
 
 			// Cache the result
 			weekDataCache.set(cacheKey, summary);
