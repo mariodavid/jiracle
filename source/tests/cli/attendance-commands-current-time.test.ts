@@ -33,7 +33,7 @@ testWithContext.afterEach.always(async t => {
 		await unlink(csvPath);
 	}
 
-	delete process.env['JIRACLE_ATTENDANCE_CSV_PATH'];
+	process.env['JIRACLE_ATTENDANCE_CSV_PATH'] = undefined;
 });
 
 testWithContext('checkin uses current time when no time specified', async t => {
