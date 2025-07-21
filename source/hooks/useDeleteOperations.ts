@@ -113,12 +113,17 @@ export function useDeleteOperations(
 				);
 
 				// Delete each matching worklog
-				for (const worklog of worklogsToDelete) {
-					uiLogger.debug(
-						`Deleting worklog ${worklog.id} (${worklog.timeSpentSeconds}s)`,
-					);
-					await jiraClient.deleteWorklog(deleteCandidate.issueKey, worklog.id);
-				}
+				await Promise.all(
+					worklogsToDelete.map(async worklog => {
+						uiLogger.debug(
+							`Deleting worklog ${worklog.id} (${worklog.timeSpentSeconds}s)`,
+						);
+						return jiraClient.deleteWorklog(
+							deleteCandidate.issueKey,
+							worklog.id,
+						);
+					}),
+				);
 
 				// Refresh the data
 				onRefresh();

@@ -124,8 +124,14 @@ export class AttendanceManager {
 
 		const weeklyAttendance: WeeklyAttendance = {};
 
-		for (const date of weekDates) {
-			const attendance = await this.storage.getByDate(date);
+		const attendances = await Promise.all(
+			weekDates.map(async date => ({
+				date,
+				attendance: await this.storage.getByDate(date),
+			})),
+		);
+
+		for (const {date, attendance} of attendances) {
 			if (attendance) {
 				weeklyAttendance[date] = attendance;
 			}

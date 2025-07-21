@@ -65,6 +65,7 @@ export class ReminderService {
 		}
 
 		// Check each configured reminder time
+		// Sequential processing required to avoid duplicate reminders
 		for (const reminderTime of this.config.times) {
 			if (
 				this.isTimeMatch(currentTime, reminderTime) &&
@@ -72,10 +73,10 @@ export class ReminderService {
 			) {
 				// Check if user has logged work today
 				try {
-					const hasWorkedToday = await this.jiraClient.hasWorklogForToday();
+					const hasWorkedToday = await this.jiraClient.hasWorklogForToday(); // eslint-disable-line no-await-in-loop
 
 					if (!hasWorkedToday) {
-						await this.sendReminder();
+						await this.sendReminder(); // eslint-disable-line no-await-in-loop
 						this.state.notifiedTimes.add(reminderTime);
 					}
 				} catch (error: unknown) {
