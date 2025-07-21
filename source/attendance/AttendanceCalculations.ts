@@ -184,7 +184,7 @@ function calculateDailyDeltas(
 		const attendance = weeklyAttendance[date];
 		const loggedHours = dailyLoggedHours[date] || 0;
 
-		if (!attendance || !attendance.checkIn || !attendance.checkOut) {
+		if (!attendance?.checkIn || !attendance.checkOut) {
 			// No attendance data available or incomplete
 			deltas[date] = null;
 		} else {

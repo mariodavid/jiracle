@@ -116,12 +116,7 @@ test('Integration: Component renders without errors', async t => {
 	// Wait for component to render with expected content
 	await waitFor(() => {
 		const output = lastFrame();
-		return (
-			output !== null &&
-			output !== undefined &&
-			output.includes('Week') &&
-			output.includes('[Q] Quit')
-		);
+		return Boolean(output?.includes('Week') && output.includes('[Q] Quit'));
 	});
 
 	// Verify component structure is rendered correctly
@@ -160,7 +155,7 @@ test('Integration: Component handles API errors gracefully', async t => {
 	// Wait for component to stabilize despite API errors
 	await waitFor(() => {
 		const output = lastFrame();
-		return output !== null && output !== undefined && output.includes('Week');
+		return Boolean(output?.includes('Week'));
 	});
 
 	// Verify component still renders correctly despite API errors
@@ -198,7 +193,7 @@ test('Integration: Component accepts different configurations', async t => {
 
 	await waitFor(() => {
 		const output = lastFrame();
-		return output !== null && output !== undefined && output.includes('Week');
+		return Boolean(output?.includes('Week'));
 	});
 
 	// Wait for potential API calls
@@ -240,7 +235,7 @@ test('Integration: Component lifecycle completes', async t => {
 	// Wait for component lifecycle to complete
 	await waitFor(() => {
 		const output = lastFrame();
-		return output !== null && output !== undefined && output.includes('Week');
+		return Boolean(output?.includes('Week'));
 	});
 
 	// Verify component is functional before unmounting

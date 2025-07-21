@@ -325,7 +325,7 @@ export class WeeklyWorklogSummaryUseCase {
 	private addFavoriteIssuesWithoutWorklogs(
 		dailySummaries: DailyWorklogSummary[],
 		_issuesWithWorklogs: IssueWithWorklogs[],
-		favoriteIssuesData: any[],
+		favoriteIssuesData: Array<JiraIssue | FavoriteIssue>,
 		weekStart: Date,
 	): void {
 		// Find favorite issues that have no worklogs in current week
@@ -357,10 +357,17 @@ export class WeeklyWorklogSummaryUseCase {
 		const firstDay = dailySummaries[0]!;
 		for (const favorite of favoriteIssuesWithoutWorklogs) {
 			let summary: string;
-			summary =
-				'fields' in favorite
-					? (favorite as JiraIssue).fields.summary
-					: (favorite as FavoriteIssue).alias || favorite.key;
+			if (
+				'fields' in favorite &&
+				favorite.fields &&
+				typeof favorite.fields.summary === 'string'
+			) {
+				summary = favorite.fields.summary;
+			} else if ('alias' in favorite && typeof favorite.alias === 'string') {
+				summary = favorite.alias;
+			} else {
+				summary = favorite.key;
+			}
 			firstDay.issues.push({
 				issueKey: favorite.key,
 				issueSummary: summary,

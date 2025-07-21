@@ -293,7 +293,7 @@ export function extractIssueKeyFromInput(input: string): string | null {
 	if (trimmed.includes('/browse/')) {
 		// Extract issue key from URL like https://jira.example.com/browse/DEF-2457
 		const match = trimmed.match(/\/browse\/([A-Z]+-\d+)/);
-		if (match && match[1]) {
+		if (match?.[1]) {
 			return match[1];
 		}
 		// If it contains /browse/ but no valid issue key, it's invalid
@@ -302,7 +302,7 @@ export function extractIssueKeyFromInput(input: string): string | null {
 
 	// Check if it's already an issue key (PROJECT-123 format)
 	const issueKeyMatch = trimmed.match(/^([A-Z]+-\d+)$/);
-	if (issueKeyMatch && issueKeyMatch[1]) {
+	if (issueKeyMatch?.[1]) {
 		return issueKeyMatch[1];
 	}
 

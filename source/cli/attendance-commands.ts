@@ -32,7 +32,7 @@ function getAttendanceManager(
 	const configData = readFileSync(configFilePath, 'utf8');
 	const config: JiraConfig = JSON.parse(configData) as JiraConfig;
 
-	if (!config.attendance || !config.attendance.enabled) {
+	if (!config.attendance?.enabled) {
 		throw new Error(
 			'Attendance tracking is not enabled. Please configure it in your jiracle.json',
 		);

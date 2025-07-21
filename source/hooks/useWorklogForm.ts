@@ -77,11 +77,7 @@ export function useWorklogForm(
 				const allAttendance = await attendanceManager.getAllAttendance();
 				const attendance = allAttendance.find(a => a.date === dateKey);
 
-				if (
-					!attendance ||
-					!attendance.totalHours ||
-					attendance.totalHours <= 0
-				) {
+				if (!attendance?.totalHours || attendance.totalHours <= 0) {
 					return null; // No attendance data for this date
 				}
 

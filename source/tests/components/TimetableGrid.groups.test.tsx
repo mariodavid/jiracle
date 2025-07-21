@@ -204,11 +204,11 @@ test('TimetableGrid sorts groups by name and issues within groups by key', t => 
 	let monIndex = -1;
 
 	for (const [i, line] of lines.entries()) {
-		if (line && line.includes('ABC-5417')) {
+		if (line?.includes('ABC-5417')) {
 			abcIndex = i;
-		} else if (line && line.includes('DEF-2456')) {
+		} else if (line?.includes('DEF-2456')) {
 			defIndex = i;
-		} else if (line && line.includes('MON-1001')) {
+		} else if (line?.includes('MON-1001')) {
 			monIndex = i;
 		}
 	}
@@ -323,11 +323,11 @@ test('TimetableGrid handles mixed group assignments correctly', t => {
 	let monIndex = -1;
 
 	for (const [i, line] of lines.entries()) {
-		if (line && line.includes('ABC-5417')) {
+		if (line?.includes('ABC-5417')) {
 			abcIndex = i;
-		} else if (line && line.includes('DEF-2456')) {
+		} else if (line?.includes('DEF-2456')) {
 			defIndex = i;
-		} else if (line && line.includes('MON-1001')) {
+		} else if (line?.includes('MON-1001')) {
 			monIndex = i;
 		}
 	}
