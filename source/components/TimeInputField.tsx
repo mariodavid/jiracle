@@ -86,7 +86,7 @@ export default function TimeInputField({
 
 	// Helper function to parse time string to minutes since midnight
 	const parseTimeToMinutes = (timeStr: string): number => {
-		const match = timeStr.match(/^(\d{1,2}):(\d{2})$/);
+		const match = /^(\d{1,2}):(\d{2})$/.exec(timeStr);
 		if (!match) return 8 * 60; // Default to 08:00
 
 		const hours = Number.parseInt(match[1]!, 10);
@@ -134,7 +134,7 @@ export default function TimeInputField({
 			normalizedValue += '0';
 		} else if (/^\d:\d{2}$/.test(normalizedValue)) {
 			// Single hour digit with minutes (8:30), pad hour
-			const match = normalizedValue.match(/^(\d):(\d{2})$/);
+			const match = /^(\d):(\d{2})$/.exec(normalizedValue);
 			if (match) {
 				const hours = Number.parseInt(match[1]!, 10);
 				const minutes = Number.parseInt(match[2]!, 10);
@@ -147,7 +147,7 @@ export default function TimeInputField({
 		}
 
 		// Validate final format
-		const match = normalizedValue.match(/^(\d{1,2}):(\d{2})$/);
+		const match = /^(\d{1,2}):(\d{2})$/.exec(normalizedValue);
 		if (match) {
 			const hours = Number.parseInt(match[1]!, 10);
 			const minutes = Number.parseInt(match[2]!, 10);

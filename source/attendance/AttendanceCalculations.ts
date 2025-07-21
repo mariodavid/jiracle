@@ -48,7 +48,7 @@ function formatTime(time: string): string {
 	// If that fails, try with more lenient parsing for single-digit hours
 	if (!parsed) {
 		const laxRegex = /^(\d{1,2}):(\d{2})$/;
-		const match = time.match(laxRegex);
+		const match = laxRegex.exec(time);
 
 		if (match) {
 			const hours = Number.parseInt(match[1]!, 10);
@@ -77,7 +77,7 @@ function parseTime(
 	timeString: string,
 ): {hours: number; minutes: number; totalMinutes: number} | undefined {
 	const timeRegex = /^(\d{2}):(\d{2})$/;
-	const match = timeString.match(timeRegex);
+	const match = timeRegex.exec(timeString);
 
 	if (!match) {
 		return undefined;

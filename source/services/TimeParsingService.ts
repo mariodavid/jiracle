@@ -7,7 +7,7 @@ function parseTimeToHours(timeStr: string): number {
 	if (!timeStr) return 1;
 
 	// Handle combined format (2h30m, 1h15m, etc.)
-	const combinedMatch = timeStr.match(/^(\d+)h(\d+)m$/i);
+	const combinedMatch = /^(\d+)h(\d+)m$/i.exec(timeStr);
 	if (combinedMatch?.[1] && combinedMatch[2]) {
 		const hours = Number.parseFloat(combinedMatch[1]);
 		const minutes = Number.parseFloat(combinedMatch[2]);
@@ -15,19 +15,19 @@ function parseTimeToHours(timeStr: string): number {
 	}
 
 	// Handle days (1d = 8h)
-	const dayMatch = timeStr.match(/^(\d+(?:[.,]\d+)?)d$/i);
+	const dayMatch = /^(\d+(?:[.,]\d+)?)d$/i.exec(timeStr);
 	if (dayMatch?.[1]) {
 		return Number.parseFloat(dayMatch[1].replace(',', '.')) * 8;
 	}
 
 	// Handle hours (1h, 2.5h, etc.)
-	const hourMatch = timeStr.match(/^(\d+(?:[.,]\d+)?)h?$/i);
+	const hourMatch = /^(\d+(?:[.,]\d+)?)h?$/i.exec(timeStr);
 	if (hourMatch?.[1]) {
 		return Number.parseFloat(hourMatch[1].replace(',', '.'));
 	}
 
 	// Handle minutes (30m, 90m, etc.)
-	const minuteMatch = timeStr.match(/^(\d+)m$/i);
+	const minuteMatch = /^(\d+)m$/i.exec(timeStr);
 	if (minuteMatch?.[1]) {
 		return Number.parseFloat(minuteMatch[1]) / 60;
 	}

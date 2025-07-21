@@ -134,7 +134,7 @@ export type WorklogEntry = {
 export function normalizeTimeFormat(timeString: string): string {
 	try {
 		// Handle decimal formats with comma - convert comma to dot but preserve decimal format
-		const decimalHourMatch = timeString.match(/^(\d+(?:,\d+)?)h$/i);
+		const decimalHourMatch = /^(\d+(?:,\d+)?)h$/i.exec(timeString);
 		if (decimalHourMatch) {
 			return decimalHourMatch[1]!.replace(',', '.') + 'h';
 		}
@@ -186,7 +186,7 @@ export function getFavoriteDefaultTime(
 
 export function extractProjectKey(issueKey: string): string | undefined {
 	// Extract project key from issue key (e.g., "DEF-2457" → "DEF")
-	const match = issueKey.match(/^([A-Z]+)-\d+$/);
+	const match = /^([A-Z]+)-\d+$/.exec(issueKey);
 	return match ? match[1] ?? undefined : undefined;
 }
 
@@ -294,7 +294,7 @@ export function extractIssueKeyFromInput(input: string): string | undefined {
 	// Check if it's a URL
 	if (trimmed.includes('/browse/')) {
 		// Extract issue key from URL like https://jira.example.com/browse/DEF-2457
-		const match = trimmed.match(/\/browse\/([A-Z]+-\d+)/);
+		const match = /\/browse\/([A-Z]+-\d+)/.exec(trimmed);
 		if (match?.[1]) {
 			return match[1];
 		}
@@ -304,7 +304,7 @@ export function extractIssueKeyFromInput(input: string): string | undefined {
 	}
 
 	// Check if it's already an issue key (PROJECT-123 format)
-	const issueKeyMatch = trimmed.match(/^([A-Z]+-\d+)$/);
+	const issueKeyMatch = /^([A-Z]+-\d+)$/.exec(trimmed);
 	if (issueKeyMatch?.[1]) {
 		return issueKeyMatch[1];
 	}
