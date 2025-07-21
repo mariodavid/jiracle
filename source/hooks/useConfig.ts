@@ -65,7 +65,7 @@ export function useConfig(providedConfig?: JiraConfig): UseConfigResult {
 			}
 		}
 
-		loadConfigAndUser();
+		void loadConfigAndUser();
 	}, [providedConfig]);
 
 	// Cleanup reminder service on unmount
