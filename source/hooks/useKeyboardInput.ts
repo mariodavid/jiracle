@@ -19,6 +19,126 @@ export type KeyboardInputOptions = {
 	handlers: KeyboardInputHandlers;
 };
 
+function handleArrowKeys(
+	key: any,
+	handleArrowNavigation: KeyboardInputHandlers['handleArrowNavigation'],
+): boolean {
+	if (!key.shift && key.upArrow) {
+		handleArrowNavigation('up');
+		return true;
+	}
+
+	if (!key.shift && key.downArrow) {
+		handleArrowNavigation('down');
+		return true;
+	}
+
+	if (!key.shift && key.leftArrow) {
+		handleArrowNavigation('left');
+		return true;
+	}
+
+	if (!key.shift && key.rightArrow) {
+		handleArrowNavigation('right');
+		return true;
+	}
+
+	return false;
+}
+
+function handleWeekNavigation(
+	key: any,
+	onWeekChange?: (direction: 'prev' | 'next') => void,
+): boolean {
+	if (key.shift && key.leftArrow && onWeekChange) {
+		onWeekChange('prev');
+		return true;
+	}
+
+	if (key.shift && key.rightArrow && onWeekChange) {
+		onWeekChange('next');
+		return true;
+	}
+
+	return false;
+}
+
+function handleEnterKey(
+	key: any,
+	focusedCell: FocusedCell | undefined,
+	weekDates: Date[],
+	onCellWorklog?: KeyboardInputHandlers['onCellWorklog'],
+	onAttendanceEdit?: KeyboardInputHandlers['onAttendanceEdit'],
+): boolean {
+	if (!key.return || !focusedCell) {
+		return false;
+	}
+
+	const date = weekDates[focusedCell.columnIndex];
+	if (!date) {
+		return false;
+	}
+
+	if (onCellWorklog && !focusedCell.isAttendance) {
+		onCellWorklog({issueKey: focusedCell.issueKey, date});
+		return true;
+	}
+
+	if (onAttendanceEdit && focusedCell.isAttendance) {
+		onAttendanceEdit({date});
+		return true;
+	}
+
+	return false;
+}
+
+function handleDeleteKey(
+	input: string,
+	focusedCell: FocusedCell | undefined,
+	weekDates: Date[],
+	onCellDelete?: KeyboardInputHandlers['onCellDelete'],
+	onAttendanceDelete?: KeyboardInputHandlers['onAttendanceDelete'],
+): boolean {
+	if ((input !== 'd' && input !== 'D') || !focusedCell) {
+		return false;
+	}
+
+	const date = weekDates[focusedCell.columnIndex];
+	if (!date) {
+		return false;
+	}
+
+	if (focusedCell.isAttendance && onAttendanceDelete) {
+		onAttendanceDelete({date});
+		return true;
+	}
+
+	if (!focusedCell.isAttendance && onCellDelete) {
+		onCellDelete({issueKey: focusedCell.issueKey, date});
+		return true;
+	}
+
+	return false;
+}
+
+function handleOpenInBrowser(
+	input: string,
+	focusedCell: FocusedCell | undefined,
+	onOpenInBrowser?: KeyboardInputHandlers['onOpenInBrowser'],
+): boolean {
+	if (
+		(input === 'o' || input === 'O') &&
+		onOpenInBrowser &&
+		focusedCell &&
+		!focusedCell.isAttendance
+	) {
+		onOpenInBrowser(focusedCell.issueKey);
+		return true;
+	}
+
+	return false;
+}
+
 export function useKeyboardInput({
 	isActive,
 	focusedCell,
@@ -36,106 +156,54 @@ export function useKeyboardInput({
 		onOpenInBrowser,
 	} = handlers;
 
-	useInput((_input, key) => {
-		// Only handle input when table is active
+	useInput((input, key) => {
 		if (!isActive) {
 			return;
 		}
 
-		// Arrow key navigation (without shift)
-		if (!key.shift && key.upArrow) {
-			handleArrowNavigation('up');
+		// Handle arrow key navigation
+		if (handleArrowKeys(key, handleArrowNavigation)) {
 			return;
 		}
 
-		if (!key.shift && key.downArrow) {
-			handleArrowNavigation('down');
+		// Handle week navigation
+		if (handleWeekNavigation(key, onWeekChange)) {
 			return;
 		}
 
-		if (!key.shift && key.leftArrow) {
-			handleArrowNavigation('left');
-			return;
-		}
-
-		if (!key.shift && key.rightArrow) {
-			handleArrowNavigation('right');
-			return;
-		}
-
-		// Week navigation with Shift+Arrow
-		if (key.shift && key.leftArrow && onWeekChange) {
-			onWeekChange('prev');
-			return;
-		}
-
-		if (key.shift && key.rightArrow && onWeekChange) {
-			onWeekChange('next');
-			return;
-		}
-
-		// Shift+Tab for reverse tab navigation
+		// Handle Shift+Tab
 		if (key.shift && key.tab) {
 			handleReverseTabNavigation();
 			return;
 		}
 
-		// Handle Enter for worklog editing (only for issue cells, not attendance)
+		// Handle Enter key
 		if (
-			key.return &&
-			onCellWorklog &&
-			focusedCell &&
-			!focusedCell.isAttendance
+			handleEnterKey(
+				key,
+				focusedCell,
+				weekDates,
+				onCellWorklog,
+				onAttendanceEdit,
+			)
 		) {
-			const date = weekDates[focusedCell.columnIndex];
-			if (date) {
-				onCellWorklog({issueKey: focusedCell.issueKey, date});
-			}
-
 			return;
 		}
 
-		// Handle Enter for attendance editing
+		// Handle delete key
 		if (
-			key.return &&
-			onAttendanceEdit &&
-			focusedCell &&
-			focusedCell.isAttendance
+			handleDeleteKey(
+				input,
+				focusedCell,
+				weekDates,
+				onCellDelete,
+				onAttendanceDelete,
+			)
 		) {
-			const date = weekDates[focusedCell.columnIndex];
-			if (date) {
-				onAttendanceEdit({date});
-			}
-
 			return;
 		}
 
-		// Handle 'd' for delete
-		if ((_input === 'd' || _input === 'D') && focusedCell) {
-			const date = weekDates[focusedCell.columnIndex];
-			if (date) {
-				if (focusedCell.isAttendance && onAttendanceDelete) {
-					// Delete attendance record
-					onAttendanceDelete({date});
-				} else if (!focusedCell.isAttendance && onCellDelete) {
-					// Delete worklog
-					onCellDelete({issueKey: focusedCell.issueKey, date});
-				}
-			}
-
-			return;
-		}
-
-		// Handle 'O' for opening focused issue in browser
-		if (
-			(_input === 'o' || _input === 'O') &&
-			onOpenInBrowser &&
-			focusedCell &&
-			!focusedCell.isAttendance
-		) {
-			onOpenInBrowser(focusedCell.issueKey);
-		}
-
-		// Note: Tab key is still handled by Ink's default focus system
+		// Handle open in browser
+		handleOpenInBrowser(input, focusedCell, onOpenInBrowser);
 	});
 }

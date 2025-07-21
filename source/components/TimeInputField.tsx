@@ -25,61 +25,55 @@ export default function TimeInputField({
 	const isSelectedRef = useRef(true); // Track selection state synchronously
 	const timeInputValueRef = useRef(initialValue); // Track current value synchronously
 
+	const validateBasicFormat = (char: string, newValue: string): boolean => {
+		if (!/[\d:]/.test(char)) return false;
+		if (newValue.startsWith(':')) return false;
+		if ((newValue.match(/:/g) || []).length > 1) return false;
+		if (newValue.length > 5) return false;
+		return true;
+	};
+
+	const validateTwoCharacters = (newValue: string): boolean => {
+		if (!newValue.includes(':')) {
+			return /^[01]\d|2[0-3]$/.test(newValue);
+		}
+
+		return /^\d:$/.test(newValue);
+	};
+
+	const validateThreeCharacters = (newValue: string): boolean => {
+		if (newValue[2] === ':') {
+			return /^[01]\d:|2[0-3]:$/.test(newValue);
+		}
+
+		return /^\d:[0-5]$/.test(newValue);
+	};
+
+	const validateFourCharacters = (newValue: string): boolean => {
+		if (/^\d:/.test(newValue)) {
+			return /^\d:[0-5]\d$/.test(newValue);
+		}
+
+		return /^[01]\d:[0-5]|2[0-3]:[0-5]$/.test(newValue);
+	};
+
+	const validateFiveCharacters = (newValue: string): boolean => {
+		return /^[01]\d:[0-5]\d|2[0-3]:[0-5]\d$/.test(newValue);
+	};
+
 	// Helper function to check if a character is valid for time input (HH:MM)
 	const isValidInputChar = (char: string, currentValue: string): boolean => {
-		if (!/[\d:]/.test(char)) return false;
-
 		const newValue = currentValue + char;
 
-		// Don't allow starting with colon
-		if (newValue.startsWith(':')) return false;
-
-		// Don't allow multiple colons
-		if ((newValue.match(/:/g) || []).length > 1) return false;
-
-		// Don't allow more than 5 characters (HH:MM)
-		if (newValue.length > 5) return false;
-
-		// Don't allow digits in wrong positions
-		if (newValue.length === 1 && !/\d/.test(newValue)) return false;
-		if (newValue.length === 2) {
-			// Two characters: either HH or H:
-			if (!newValue.includes(':')) {
-				// Two digit hour (00-23)
-				if (!/^[01]\d|2[0-3]$/.test(newValue)) return false;
-			} else if (!/^\d:$/.test(newValue)) {
-				// Single digit hour with colon (8:)
-				return false;
-			}
-		}
-
-		if (newValue.length === 3) {
-			// Three characters: either HH: or H:M
-			if (newValue[2] === ':') {
-				// Two digit hour with colon (08:)
-				if (!/^[01]\d:|2[0-3]:$/.test(newValue)) return false;
-			} else if (!/^\d:[0-5]$/.test(newValue)) {
-				// Single digit hour with one minute digit (8:3)
-				return false;
-			}
-		}
-
-		if (newValue.length === 4) {
-			// Four characters: either HH:M or H:MM
-			if (/^\d:/.test(newValue)) {
-				// Single digit hour with two minute digits (8:30)
-				if (!/^\d:[0-5]\d$/.test(newValue)) return false;
-			} else if (!/^[01]\d:[0-5]|2[0-3]:[0-5]$/.test(newValue)) {
-				// Two digit hour with one minute digit (08:3)
-				return false;
-			}
-		}
-
-		if (
-			newValue.length === 5 && // Five characters: HH:MM format
-			!/^[01]\d:[0-5]\d|2[0-3]:[0-5]\d$/.test(newValue)
-		)
+		if (!validateBasicFormat(char, newValue)) {
 			return false;
+		}
+
+		if (newValue.length === 1 && !/\d/.test(newValue)) return false;
+		if (newValue.length === 2) return validateTwoCharacters(newValue);
+		if (newValue.length === 3) return validateThreeCharacters(newValue);
+		if (newValue.length === 4) return validateFourCharacters(newValue);
+		if (newValue.length === 5) return validateFiveCharacters(newValue);
 
 		return true;
 	};
