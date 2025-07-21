@@ -76,7 +76,7 @@ test('useWorklogForm returns initial state', t => {
 
 	t.false(capturedState.worklogForm.isVisible);
 	t.false(capturedState.worklogSubmitting);
-	t.is(capturedState.worklogError, null);
+	t.is(capturedState.worklogError, undefined);
 	t.is(capturedState.worklogForm.issueKey, '');
 	t.false(capturedState.worklogForm.isIssueKeyEditable);
 });

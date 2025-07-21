@@ -156,7 +156,7 @@ export function TimetableGrid({
 
 	// Set initial focus to first row and current day when component loads
 	useEffect(() => {
-		if (focusedCell === null && isActive) {
+		if (focusedCell === undefined && isActive) {
 			const focusableItems = FocusableItemCalculator.calculateFocusableItems({
 				attendanceManager,
 				issueGroups,

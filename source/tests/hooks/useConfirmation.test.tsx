@@ -54,7 +54,7 @@ test('useConfirmation returns initial state', t => {
 	t.false(capturedState.isVisible);
 	t.false(capturedState.isLoading);
 	t.deepEqual(capturedState.config, {});
-	t.is(capturedState.onConfirm, null);
+	t.is(capturedState.onConfirm, undefined);
 });
 
 test('useConfirmation show() makes dialog visible with config', t => {
