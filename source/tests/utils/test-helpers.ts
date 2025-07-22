@@ -80,7 +80,7 @@ export const ConfigFactory = {
 };
 
 // File system helpers
-export class TempFileManager {
+export class TemporaryFileManager {
 	private files: string[] = [];
 
 	createTempConfigPath(): string {
@@ -149,21 +149,21 @@ export const TimeHelpers = {
 	},
 
 	isTimeWithinRange(
-		timeStr: string,
+		timeString: string,
 		beforeTime: Date,
 		afterTime: Date,
 	): boolean {
-		const testTime = new Date(`2025-07-11T${timeStr}:00`);
-		const beforeTimeStr = `2025-07-11T${beforeTime
+		const testTime = new Date(`2025-07-11T${timeString}:00`);
+		const beforeTimeString = `2025-07-11T${beforeTime
 			.toTimeString()
 			.slice(0, 5)}:00`;
-		const afterTimeStr = `2025-07-11T${afterTime
+		const afterTimeString = `2025-07-11T${afterTime
 			.toTimeString()
 			.slice(0, 5)}:00`;
 
 		return (
-			testTime >= new Date(new Date(beforeTimeStr).getTime() - 60_000) &&
-			testTime <= new Date(new Date(afterTimeStr).getTime() + 60_000)
+			testTime >= new Date(new Date(beforeTimeString).getTime() - 60_000) &&
+			testTime <= new Date(new Date(afterTimeString).getTime() + 60_000)
 		);
 	},
 };
@@ -277,9 +277,9 @@ export const CSVHelpers = {
 // Test patterns
 export const TestPatterns = {
 	async withTempFiles<T>(
-		fn: (manager: TempFileManager) => Promise<T>,
+		fn: (manager: TemporaryFileManager) => Promise<T>,
 	): Promise<T> {
-		const manager = new TempFileManager();
+		const manager = new TemporaryFileManager();
 		try {
 			return await fn(manager);
 		} finally {
@@ -289,7 +289,7 @@ export const TestPatterns = {
 
 	async testTimeValidation(
 		executeFn: (
-			params: any,
+			parameters: any,
 			configPath: string,
 			csvPath?: string,
 		) => Promise<{success: boolean; message: string}>,
@@ -317,7 +317,7 @@ export const TestPatterns = {
 
 	async testDateValidation(
 		executeFn: (
-			params: any,
+			parameters: any,
 			configPath: string,
 			csvPath?: string,
 		) => Promise<{success: boolean; message: string}>,

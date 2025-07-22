@@ -94,7 +94,7 @@ export function useAttendanceManagement(
 				// Refresh the data to show the updated attendance
 				onRefresh();
 				// Force attendance data refresh in TimetableGrid
-				setAttendanceRefreshKey(prev => prev + 1);
+				setAttendanceRefreshKey(previous => previous + 1);
 			} catch (error: unknown) {
 				console.error('Failed to save attendance:', error);
 			}
@@ -116,7 +116,7 @@ export function useAttendanceManagement(
 
 			try {
 				await attendanceManager.checkIn();
-				setAttendanceRefreshKey(prev => prev + 1); // Trigger refresh
+				setAttendanceRefreshKey(previous => previous + 1); // Trigger refresh
 				onActiveAreaChange('timetable');
 			} catch (error: unknown) {
 				console.error('Error checking in:', error);
@@ -135,7 +135,7 @@ export function useAttendanceManagement(
 
 			try {
 				await attendanceManager.checkOut();
-				setAttendanceRefreshKey(prev => prev + 1); // Trigger refresh
+				setAttendanceRefreshKey(previous => previous + 1); // Trigger refresh
 				onActiveAreaChange('timetable');
 			} catch (error: unknown) {
 				console.error('Error checking out:', error);
@@ -146,7 +146,7 @@ export function useAttendanceManagement(
 	);
 
 	const refreshAttendance = useCallback(() => {
-		setAttendanceRefreshKey(prev => prev + 1);
+		setAttendanceRefreshKey(previous => previous + 1);
 	}, []);
 
 	return {

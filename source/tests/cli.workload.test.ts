@@ -20,11 +20,11 @@ function runCli(args: string[]): {
 		});
 		return {stdout, stderr: '', exitCode: 0};
 	} catch (error: unknown) {
-		const err = error as any;
+		const error_ = error as any;
 		return {
-			stdout: err.stdout || '',
-			stderr: err.stderr || '',
-			exitCode: err.status || 1,
+			stdout: error_.stdout || '',
+			stderr: error_.stderr || '',
+			exitCode: error_.status || 1,
 		};
 	}
 }

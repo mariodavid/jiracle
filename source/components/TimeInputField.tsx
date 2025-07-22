@@ -79,8 +79,8 @@ export default function TimeInputField({
 	};
 
 	// Helper function to parse time string to minutes since midnight
-	const parseTimeToMinutes = (timeStr: string): number => {
-		const match = /^(\d{1,2}):(\d{2})$/.exec(timeStr);
+	const parseTimeToMinutes = (timeString: string): number => {
+		const match = /^(\d{1,2}):(\d{2})$/.exec(timeString);
 		if (!match) return 8 * 60; // Default to 08:00
 
 		const hours = Number.parseInt(match[1]!, 10);

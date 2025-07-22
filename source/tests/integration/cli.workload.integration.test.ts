@@ -48,9 +48,9 @@ test('worklog add - invalid Jira URL shows connection error', t => {
 
 		t.fail('Should have thrown an error for invalid Jira URL');
 	} catch (error: unknown) {
-		const err = error as any;
-		t.is(err.status, 1);
-		t.true(err.stderr.includes('Error:'));
+		const error_ = error as any;
+		t.is(error_.status, 1);
+		t.true(error_.stderr.includes('Error:'));
 	} finally {
 		if (backup) {
 			writeFileSync(originalConfigPath, backup);
@@ -91,9 +91,9 @@ test('worklog add - malformed JSON config shows error', t => {
 
 		t.fail('Should have thrown an error for malformed JSON');
 	} catch (error: unknown) {
-		const err = error as any;
-		t.is(err.status, 1);
-		t.true(err.stderr.includes('Error:'));
+		const error_ = error as any;
+		t.is(error_.status, 1);
+		t.true(error_.stderr.includes('Error:'));
 	} finally {
 		if (backup) {
 			writeFileSync(originalConfigPath, backup);
@@ -139,9 +139,9 @@ test('worklog add - incomplete config shows error', t => {
 
 		t.fail('Should have thrown an error for incomplete config');
 	} catch (error: unknown) {
-		const err = error as any;
-		t.is(err.status, 1);
-		t.true(err.stderr.includes('Error:'));
+		const error_ = error as any;
+		t.is(error_.status, 1);
+		t.true(error_.stderr.includes('Error:'));
 	} finally {
 		if (backup) {
 			writeFileSync(originalConfigPath, backup);
@@ -196,17 +196,17 @@ test.serial('worklog add - end to end successful flow structure', t => {
 	} catch (error: unknown) {
 		// Expected to fail due to invalid credentials or network timeout
 		// We're testing that the command structure works, not the actual API
-		const err = error as any;
-		if (err.code === 'ETIMEDOUT') {
+		const error_ = error as any;
+		if (error_.code === 'ETIMEDOUT') {
 			t.pass(
 				'Command structure works - timed out attempting API call as expected',
 			);
-		} else if (err.status === 1 && err.stderr.includes('Error:')) {
+		} else if (error_.status === 1 && error_.stderr.includes('Error:')) {
 			t.pass(
 				'Command structure works - API call failed as expected with invalid credentials',
 			);
 		} else {
-			t.fail(`Unexpected error: ${String(err?.message ?? err)}`);
+			t.fail(`Unexpected error: ${String(error_?.message ?? error_)}`);
 		}
 	} finally {
 		if (backup) {

@@ -54,8 +54,8 @@ export function useConfirmation(): ConfirmationState & ConfirmationActions {
 	}, []);
 
 	const setLoading = useCallback((loading: boolean) => {
-		setState(prev => ({
-			...prev,
+		setState(previous => ({
+			...previous,
 			isLoading: loading,
 		}));
 	}, []);

@@ -345,7 +345,7 @@ export function useWorklogForm(
 				onRefresh();
 
 				// Close form and return to table
-				setWorklogForm(prev => ({...prev, isVisible: false}));
+				setWorklogForm(previous => ({...previous, isVisible: false}));
 				onActiveAreaChange('timetable');
 
 				uiLogger.debug(
@@ -363,7 +363,7 @@ export function useWorklogForm(
 	);
 
 	const handleWorklogCancel = useCallback(() => {
-		setWorklogForm(prev => ({...prev, isVisible: false}));
+		setWorklogForm(previous => ({...previous, isVisible: false}));
 		onActiveAreaChange('timetable');
 	}, [onActiveAreaChange]);
 

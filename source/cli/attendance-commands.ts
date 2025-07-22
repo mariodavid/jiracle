@@ -9,17 +9,17 @@ export type AttendanceCommandResult = {
 	message: string;
 };
 
-export type CheckInParams = {
+export type CheckInParameters = {
 	date?: string;
 	time?: string;
 };
 
-export type CheckOutParams = {
+export type CheckOutParameters = {
 	date?: string;
 	time?: string;
 };
 
-export type StatusParams = {
+export type StatusParameters = {
 	date?: string;
 };
 
@@ -62,21 +62,21 @@ function validateTime(time: string): void {
 }
 
 export async function executeCheckIn(
-	params: CheckInParams,
+	parameters: CheckInParameters,
 	configPath?: string,
 	csvPath?: string,
 ): Promise<AttendanceCommandResult> {
 	try {
-		if (params.date) {
-			validateDate(params.date);
+		if (parameters.date) {
+			validateDate(parameters.date);
 		}
 
-		if (params.time) {
-			validateTime(params.time);
+		if (parameters.time) {
+			validateTime(parameters.time);
 		}
 
 		const manager = getAttendanceManager(configPath, csvPath);
-		const attendance = await manager.checkIn(params.date, params.time);
+		const attendance = await manager.checkIn(parameters.date, parameters.time);
 
 		const time = attendance.checkIn!;
 
@@ -94,21 +94,21 @@ export async function executeCheckIn(
 }
 
 export async function executeCheckOut(
-	params: CheckOutParams,
+	parameters: CheckOutParameters,
 	configPath?: string,
 	csvPath?: string,
 ): Promise<AttendanceCommandResult> {
 	try {
-		if (params.date) {
-			validateDate(params.date);
+		if (parameters.date) {
+			validateDate(parameters.date);
 		}
 
-		if (params.time) {
-			validateTime(params.time);
+		if (parameters.time) {
+			validateTime(parameters.time);
 		}
 
 		const manager = getAttendanceManager(configPath, csvPath);
-		const attendance = await manager.checkOut(params.date, params.time);
+		const attendance = await manager.checkOut(parameters.date, parameters.time);
 
 		const {checkIn} = attendance;
 		const checkOut = attendance.checkOut!;
@@ -133,27 +133,28 @@ export async function executeCheckOut(
 }
 
 export async function executeStatus(
-	params: StatusParams,
+	parameters: StatusParameters,
 	configPath?: string,
 	csvPath?: string,
 ): Promise<AttendanceCommandResult> {
 	try {
-		if (params.date) {
-			validateDate(params.date);
+		if (parameters.date) {
+			validateDate(parameters.date);
 		}
 
 		const manager = getAttendanceManager(configPath, csvPath);
-		const status = await manager.getStatus(params.date);
+		const status = await manager.getStatus(parameters.date);
 
-		const date = params.date || new Date().toISOString().split('T')[0]!;
-		const dateLabel =
-			date === new Date().toISOString().split('T')[0] ? 'Today' : date;
+		const date =
+			(parameters.date || new Date().toISOString().split('T')[0]) ?? '';
+		const todayString = new Date().toISOString().split('T')[0] ?? '';
+		const dateLabel = date === todayString ? 'Today' : date;
 
 		const statusMessage = manager.formatStatusMessage(status);
 
 		return {
 			success: true,
-			message: `${dateLabel}: ${statusMessage}`,
+			message: `${dateLabel}: ${String(statusMessage)}`,
 		};
 	} catch (error: unknown) {
 		return {
