@@ -5,6 +5,7 @@ import {
 	extractIssueKeyFromInput,
 } from '../jira-client.js';
 import type {JiraConfig} from '../jira-client.js';
+import {createMockResponse} from './utils/mockResponse.js';
 
 const mockConfig: JiraConfig = {
 	jiraUrl: 'https://jira.example.com/',
@@ -29,10 +30,9 @@ test('fetchAssignedIssues builds correct request', async t => {
 
 	global.fetch = async (url, options) => {
 		capturedRequest = {url: url as string, options: options!};
-		return {
-			ok: true,
+		return createMockResponse({
 			json: async () => ({issues: []}),
-		} as Response;
+		});
 	};
 
 	try {
@@ -71,11 +71,11 @@ test('fetchAssignedIssues handles API errors', async t => {
 
 	const originalFetch = global.fetch;
 	global.fetch = async () =>
-		({
+		createMockResponse({
 			ok: false,
 			status: 401,
 			text: async () => 'Unauthorized',
-		} as Response);
+		});
 
 	try {
 		await t.throwsAsync(async () => client.fetchAssignedIssues(), {
@@ -95,10 +95,9 @@ test('fetchIssue builds correct request', async t => {
 
 	global.fetch = async (url, options) => {
 		capturedRequest = {url: url as string, options: options!};
-		return {
-			ok: true,
+		return createMockResponse({
 			json: async () => ({key: issueKey}),
-		} as Response;
+		});
 	};
 
 	try {
@@ -127,10 +126,9 @@ test('addWorklog accepts custom time formats', async t => {
 
 	global.fetch = async (url, options) => {
 		capturedRequest = {url: url as string, options: options!};
-		return {
-			ok: true,
+		return createMockResponse({
 			json: async () => ({}),
-		} as Response;
+		});
 	};
 
 	try {

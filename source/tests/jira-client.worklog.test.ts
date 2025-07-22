@@ -1,6 +1,7 @@
 import test from 'ava';
 import {JiraClient} from '../jira-client.js';
 import type {JiraConfig} from '../jira-client.js';
+import {createMockResponse} from './utils/mockResponse.js';
 
 const mockConfig: JiraConfig = {
 	jiraUrl: 'https://jira.example.com/',
@@ -69,12 +70,12 @@ test('getIssueWorklogs handles API errors', async t => {
 
 	// Mock fetch to return error
 	const originalFetch = global.fetch;
-	global.fetch = async () => {
-		return {
+	global.fetch = async (): Promise<Response> => {
+		return createMockResponse({
 			ok: false,
 			status: 404,
 			text: async () => 'Issue not found',
-		} as Response;
+		});
 	};
 
 	try {
@@ -182,10 +183,11 @@ test('getCurrentUser builds correct request', async t => {
 
 	global.fetch = async (url, options) => {
 		capturedRequest = {url: url as string, options: options!};
-		return {
+		const response: Response = {
 			ok: true,
 			json: async () => mockUserResponse,
 		} as Response;
+		return response;
 	};
 
 	try {
@@ -211,11 +213,12 @@ test('getCurrentUser handles API errors', async t => {
 	// Mock fetch to return error
 	const originalFetch = global.fetch;
 	global.fetch = async () => {
-		return {
+		const response: Response = {
 			ok: false,
 			status: 401,
 			text: async () => 'Unauthorized',
 		} as Response;
+		return response;
 	};
 
 	try {
@@ -262,10 +265,11 @@ test('getIssueWorklogs parses response correctly', async t => {
 
 	const originalFetch = global.fetch;
 	global.fetch = async () => {
-		return {
+		const response: Response = {
 			ok: true,
 			json: async () => mockWorklogResponse,
 		} as Response;
+		return response;
 	};
 
 	try {
@@ -365,10 +369,11 @@ test('updateWorklog builds correct request', async t => {
 
 	global.fetch = async (url, options) => {
 		capturedRequest = {url: url as string, options: options!};
-		return {
+		const response: Response = {
 			ok: true,
 			json: async () => ({}),
 		} as Response;
+		return response;
 	};
 
 	try {

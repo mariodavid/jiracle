@@ -83,6 +83,7 @@
 					"@typescript-eslint/no-empty-function": "off",
 					"@typescript-eslint/no-unsafe-assignment": "off",
 					"@typescript-eslint/no-unsafe-call": "off",
+					"@typescript-eslint/consistent-type-assertions": "off",
 					"ava/no-ignored-test-files": "off",
 					"no-await-in-loop": "off"
 				}
@@ -114,8 +115,7 @@
 			"react/no-array-index-key": "off",
 			"react/no-unused-prop-types": "off",
 			"react/boolean-prop-naming": "off",
-			"import/first": "error",
-			"@typescript-eslint/consistent-type-assertions": "off"
+			"import/first": "error"
 		}
 	},
 	"prettier": "@vdemedes/prettier-config",

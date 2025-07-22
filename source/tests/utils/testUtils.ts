@@ -141,7 +141,7 @@ export function createMockFetch(responses: Record<string, any> = {}) {
 
 		// Default responses
 		if (urlString.includes('/rest/api/2/search')) {
-			return {
+			const response: Response = {
 				ok: true,
 				status: 200,
 				json: async () => ({
@@ -151,10 +151,11 @@ export function createMockFetch(responses: Record<string, any> = {}) {
 					maxResults: 50,
 				}),
 			} as Response;
+			return response;
 		}
 
 		if (urlString.includes('/worklog')) {
-			return {
+			const response: Response = {
 				ok: true,
 				status: 201,
 				json: async () => ({
@@ -170,26 +171,29 @@ export function createMockFetch(responses: Record<string, any> = {}) {
 					comment: 'Test comment',
 				}),
 			} as Response;
+			return response;
 		}
 
 		// Custom responses
 		for (const [pattern, response] of Object.entries(responses)) {
 			if (urlString.includes(pattern)) {
-				return {
+				const mockResponse: Response = {
 					ok: true,
 					status: 200,
 					// eslint-disable-next-line @typescript-eslint/no-unsafe-return
 					json: async () => response,
 				} as Response;
+				return mockResponse;
 			}
 		}
 
 		// Default 404
-		return {
+		const response: Response = {
 			ok: false,
 			status: 404,
 			json: async () => ({error: 'Not found'}),
 		} as Response;
+		return response;
 	};
 }
 
