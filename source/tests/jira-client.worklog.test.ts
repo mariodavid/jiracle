@@ -1,7 +1,7 @@
 import test from 'ava';
 import {JiraClient} from '../jira-client.js';
 import type {JiraConfig} from '../jira-client.js';
-import {createMockResponse} from './utils/mockResponse.js';
+import {createMockResponse} from './utils/mock-response.js';
 
 const mockConfig: JiraConfig = {
 	jiraUrl: 'https://jira.example.com/',

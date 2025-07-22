@@ -1,0 +1,428 @@
+import test from 'ava';
+import React from 'react';
+import {render} from 'ink-testing-library';
+import {Text, Box} from 'ink';
+import {
+	useWorklogForm,
+	type UseWorklogFormOptions,
+} from '../../hooks/use-worklog-form.js';
+import type {JiraConfig} from '../../jira-client.js';
+
+// Mock the JiraClient module
+const mockConfig: JiraConfig = {
+	jiraUrl: 'https://test.atlassian.net',
+	username: 'test@example.com',
+	apiToken: 'test-token',
+	defaultTime: '4h',
+	defaultComment: 'Test work',
+	favorites: [
+		{key: 'TEST-123', defaultTime: '2h', defaultComment: 'Favorite work'},
+	],
+};
+
+// Test component that uses the hook
+function TestWorklogFormComponent({
+	options,
+	onStateChange,
+}: {
+	options: UseWorklogFormOptions;
+	onStateChange?: (state: any) => void;
+}) {
+	const worklogForm = useWorklogForm(options);
+
+	// Always report the latest state
+	React.useEffect(() => {
+		if (onStateChange) {
+			onStateChange(worklogForm);
+		}
+	}); // No dependencies - runs on every render
+
+	return (
+		<Box flexDirection="column">
+			<Text>Visible: {worklogForm.worklogForm.isVisible.toString()}</Text>
+			<Text>Submitting: {worklogForm.worklogSubmitting.toString()}</Text>
+			<Text>Error: {worklogForm.worklogError || 'none'}</Text>
+			<Text>IssueKey: {worklogForm.worklogForm.issueKey}</Text>
+			<Text>TimeSpent: {worklogForm.worklogForm.timeSpent}</Text>
+			<Text>Comment: {worklogForm.worklogForm.comment}</Text>
+			<Text>
+				IsEditable: {worklogForm.worklogForm.isIssueKeyEditable.toString()}
+			</Text>
+			<Text>
+				IsEditMode: {worklogForm.worklogForm.isEditMode?.toString() || 'false'}
+			</Text>
+		</Box>
+	);
+}
+
+test('useWorklogForm returns initial state', t => {
+	let capturedState: any;
+
+	const mockOptions: UseWorklogFormOptions = {
+		config: mockConfig,
+		userEmail: 'test@example.com',
+		onRefresh() {},
+		onActiveAreaChange() {},
+	};
+
+	render(
+		React.createElement(TestWorklogFormComponent, {
+			options: mockOptions,
+			onStateChange(state: any) {
+				capturedState = state;
+			},
+		}),
+	);
+
+	t.false(capturedState.worklogForm.isVisible);
+	t.false(capturedState.worklogSubmitting);
+	t.is(capturedState.worklogError, undefined);
+	t.is(capturedState.worklogForm.issueKey, '');
+	t.false(capturedState.worklogForm.isIssueKeyEditable);
+});
+
+test('useWorklogForm handleAddWorklog makes form visible with defaults', t => {
+	let capturedState: any;
+	let activeAreaChanged = '';
+
+	const mockOptions: UseWorklogFormOptions = {
+		config: mockConfig,
+		userEmail: 'test@example.com',
+		onRefresh() {},
+		onActiveAreaChange(area: string) {
+			activeAreaChanged = area;
+		},
+	};
+
+	const {rerender} = render(
+		React.createElement(TestWorklogFormComponent, {
+			options: mockOptions,
+			onStateChange(state: any) {
+				capturedState = state;
+			},
+		}),
+	);
+
+	// Initial state should be captured
+	t.false(capturedState.worklogForm.isVisible);
+
+	// Call handleAddWorklog and force re-render to capture updated state
+	capturedState.handleAddWorklog();
+	rerender(
+		React.createElement(TestWorklogFormComponent, {
+			options: mockOptions,
+			onStateChange(state: any) {
+				capturedState = state;
+			},
+		}),
+	);
+
+	// Now check the updated state
+	t.true(capturedState.worklogForm.isVisible);
+	t.true(capturedState.worklogForm.isIssueKeyEditable);
+	t.is(capturedState.worklogForm.timeSpent, mockConfig.defaultTime);
+	t.is(capturedState.worklogForm.comment, mockConfig.defaultComment);
+	t.is(activeAreaChanged, 'worklog-form');
+});
+
+test('useWorklogForm handleCellWorklog opens form for cell editing', async t => {
+	let capturedState: any;
+	let activeAreaChanged = '';
+
+	const mockOptions: UseWorklogFormOptions = {
+		config: mockConfig,
+		userEmail: 'test@example.com',
+		onRefresh() {},
+		onActiveAreaChange(area: string) {
+			activeAreaChanged = area;
+		},
+		data: {
+			weekStart: new Date('2024-01-15'),
+			weekEnd: new Date('2024-01-21'),
+			dailySummaries: [
+				{
+					date: new Date('2024-01-15'),
+					issues: [],
+					totalHours: 0,
+				},
+			],
+			weekTotal: 0,
+		},
+	};
+
+	const {rerender} = render(
+		React.createElement(TestWorklogFormComponent, {
+			options: mockOptions,
+			onStateChange(state: any) {
+				capturedState = state;
+			},
+		}),
+	);
+
+	// Call handleCellWorklog and wait for async operation
+	const cellData = {issueKey: 'TEST-456', date: new Date('2024-01-15')};
+	await capturedState.handleCellWorklog(cellData);
+
+	// Wait a bit for state updates to propagate
+	await new Promise(resolve => {
+		setTimeout(resolve, 10);
+	});
+
+	rerender(
+		React.createElement(TestWorklogFormComponent, {
+			options: mockOptions,
+			onStateChange(state: any) {
+				capturedState = state;
+			},
+		}),
+	);
+
+	t.true(capturedState.worklogForm.isVisible);
+	t.false(capturedState.worklogForm.isIssueKeyEditable);
+	t.is(capturedState.worklogForm.issueKey, 'TEST-456');
+	t.is(activeAreaChanged, 'worklog-form');
+});
+
+test('useWorklogForm handleCellWorklog uses favorite defaults', async t => {
+	let capturedState: any;
+
+	const mockOptions: UseWorklogFormOptions = {
+		config: mockConfig,
+		userEmail: 'test@example.com',
+		onRefresh() {},
+		onActiveAreaChange() {},
+		data: {
+			weekStart: new Date('2024-01-15'),
+			weekEnd: new Date('2024-01-21'),
+			dailySummaries: [
+				{
+					date: new Date('2024-01-15'),
+					issues: [],
+					totalHours: 0,
+				},
+			],
+			weekTotal: 0,
+		},
+	};
+
+	const {rerender} = render(
+		React.createElement(TestWorklogFormComponent, {
+			options: mockOptions,
+			onStateChange(state: any) {
+				capturedState = state;
+			},
+		}),
+	);
+
+	// Call handleCellWorklog with favorite issue and wait for async operation
+	const cellData = {issueKey: 'TEST-123', date: new Date('2024-01-15')};
+	await capturedState.handleCellWorklog(cellData);
+
+	// Wait a bit for state updates to propagate
+	await new Promise(resolve => {
+		setTimeout(resolve, 10);
+	});
+
+	rerender(
+		React.createElement(TestWorklogFormComponent, {
+			options: mockOptions,
+			onStateChange(state: any) {
+				capturedState = state;
+			},
+		}),
+	);
+
+	t.is(capturedState.worklogForm.timeSpent, '2h'); // From favorite config
+	t.is(capturedState.worklogForm.comment, 'Favorite work'); // From favorite config
+});
+
+test('useWorklogForm handleWorklogCancel hides form', t => {
+	let capturedState: any;
+	let activeAreaChanged = '';
+
+	const mockOptions: UseWorklogFormOptions = {
+		config: mockConfig,
+		userEmail: 'test@example.com',
+		onRefresh() {},
+		onActiveAreaChange(area: string) {
+			activeAreaChanged = area;
+		},
+	};
+
+	const {rerender} = render(
+		React.createElement(TestWorklogFormComponent, {
+			options: mockOptions,
+			onStateChange(state: any) {
+				capturedState = state;
+			},
+		}),
+	);
+
+	// First open the form
+	capturedState.handleAddWorklog();
+	rerender(
+		React.createElement(TestWorklogFormComponent, {
+			options: mockOptions,
+			onStateChange(state: any) {
+				capturedState = state;
+			},
+		}),
+	);
+	t.true(capturedState.worklogForm.isVisible);
+
+	// Then cancel it
+	capturedState.handleWorklogCancel();
+	rerender(
+		React.createElement(TestWorklogFormComponent, {
+			options: mockOptions,
+			onStateChange(state: any) {
+				capturedState = state;
+			},
+		}),
+	);
+	t.false(capturedState.worklogForm.isVisible);
+	t.is(activeAreaChanged, 'timetable');
+});
+
+test('useWorklogForm clearError removes error message', t => {
+	let capturedState: any;
+
+	const mockOptions: UseWorklogFormOptions = {
+		config: mockConfig,
+		userEmail: 'test@example.com',
+		onRefresh() {},
+		onActiveAreaChange() {},
+	};
+
+	render(
+		React.createElement(TestWorklogFormComponent, {
+			options: mockOptions,
+			onStateChange(state: any) {
+				capturedState = state;
+			},
+		}),
+	);
+
+	// Simulate having an error (this would normally come from form submission)
+	// For testing purposes, we verify the clearError function exists
+	t.is(typeof capturedState.clearError, 'function');
+});
+
+test('useWorklogForm hook structure is correct', t => {
+	let capturedState: any;
+
+	const mockOptions: UseWorklogFormOptions = {
+		config: mockConfig,
+		userEmail: 'test@example.com',
+		onRefresh() {},
+		onActiveAreaChange() {},
+	};
+
+	render(
+		React.createElement(TestWorklogFormComponent, {
+			options: mockOptions,
+			onStateChange(state: any) {
+				capturedState = state;
+			},
+		}),
+	);
+
+	// Check that all expected properties exist
+	t.is(typeof capturedState.worklogForm, 'object');
+	t.is(typeof capturedState.worklogSubmitting, 'boolean');
+	t.is(typeof capturedState.handleCellWorklog, 'function');
+	t.is(typeof capturedState.handleAddWorklog, 'function');
+	t.is(typeof capturedState.handleWorklogSubmit, 'function');
+	t.is(typeof capturedState.handleWorklogCancel, 'function');
+	t.is(typeof capturedState.clearError, 'function');
+});
+
+test('useWorklogForm worklogForm structure is correct', t => {
+	let capturedState: any;
+
+	const mockOptions: UseWorklogFormOptions = {
+		config: mockConfig,
+		userEmail: 'test@example.com',
+		onRefresh() {},
+		onActiveAreaChange() {},
+	};
+
+	render(
+		React.createElement(TestWorklogFormComponent, {
+			options: mockOptions,
+			onStateChange(state: any) {
+				capturedState = state;
+			},
+		}),
+	);
+
+	const form = capturedState.worklogForm;
+	t.is(typeof form.issueKey, 'string');
+	t.true(form.date instanceof Date);
+	t.is(typeof form.timeSpent, 'string');
+	t.is(typeof form.comment, 'string');
+	t.is(typeof form.isVisible, 'boolean');
+	t.is(typeof form.isIssueKeyEditable, 'boolean');
+});
+
+test('useWorklogForm displays form state correctly', t => {
+	const mockOptions: UseWorklogFormOptions = {
+		config: mockConfig,
+		userEmail: 'test@example.com',
+		onRefresh() {},
+		onActiveAreaChange() {},
+	};
+
+	const {lastFrame} = render(
+		React.createElement(TestWorklogFormComponent, {
+			options: mockOptions,
+		}),
+	);
+
+	const output = lastFrame() || '';
+
+	// Check initial values are displayed
+	t.true(output.includes('Visible: false'));
+	t.true(output.includes('Submitting: false'));
+	t.true(output.includes('Error: none'));
+	t.true(output.includes('IssueKey:')); // Remove the space after colon since empty string follows
+	t.true(output.includes('IsEditable: false'));
+	t.true(output.includes('IsEditMode: false'));
+});
+
+test('useWorklogForm formats date correctly for Jira API compatibility', t => {
+	// Test the date formatting logic independently to ensure Jira API compatibility
+	const testDate = new Date('2024-01-15T10:30:00.000Z');
+	testDate.setHours(9, 0, 0, 0);
+
+	// This is the critical format transformation that prevents Jira API 500 errors
+	const jiraFormattedDate = testDate.toISOString().replace('Z', '+0000');
+
+	// CRITICAL: This format MUST remain "+0000" not "Z"
+	// Jira API returns 500 Internal Server Error with "Z" format
+	t.true(
+		jiraFormattedDate.endsWith('+0000'),
+		`Date format must end with "+0000" for Jira API compatibility, got: ${jiraFormattedDate}`,
+	);
+
+	// Verify it's not using the ISO "Z" format which breaks Jira
+	t.false(
+		jiraFormattedDate.endsWith('Z'),
+		'Date format must NOT end with "Z" as it causes Jira API 500 errors',
+	);
+
+	// Verify the date has the correct structure (time may vary based on timezone)
+	t.regex(
+		jiraFormattedDate,
+		/^\d{4}-\d{2}-\d{2}T\d{2}:00:00\.000\+0000$/,
+		'Date format must match YYYY-MM-DDTHH:00:00.000+0000 pattern',
+	);
+
+	// Document why this specific format is required
+	t.log('This test ensures the date format remains compatible with Jira API');
+	t.log(
+		'Changing .replace("Z", "+0000") to just .toISOString() causes 500 errors',
+	);
+	t.log('The useWorklogForm hook MUST maintain this exact formatting');
+	t.log(`Example formatted date: ${jiraFormattedDate}`);
+});

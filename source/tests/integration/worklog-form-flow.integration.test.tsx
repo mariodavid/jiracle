@@ -1,7 +1,7 @@
 import test from 'ava';
 import React from 'react';
 import {render} from 'ink-testing-library';
-import {WeeklyTimetableView} from '../../components/WeeklyTimetableView.js';
+import {WeeklyTimetableView} from '../../components/weekly-timetable-view.js';
 import {InkTestHelpers} from '../utils/ink-test-helpers.js';
 
 // Simple waitFor utility for integration tests

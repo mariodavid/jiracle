@@ -2,9 +2,9 @@ import React from 'react';
 import {Alert} from '@inkjs/ui';
 import {useApp} from 'ink';
 import type {Props} from './types/index.js';
-import {useConfig} from './hooks/useConfig.js';
-import LoadingScreen from './components/LoadingScreen.js';
-import {WeeklyTimetableView} from './components/WeeklyTimetableView.js';
+import {useConfig} from './hooks/use-config.js';
+import LoadingScreen from './components/loading-screen.js';
+import {WeeklyTimetableView} from './components/weekly-timetable-view.js';
 
 export default function App({config}: Props) {
 	const {exit} = useApp();

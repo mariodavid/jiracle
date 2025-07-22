@@ -1,4 +1,4 @@
-import type {IssueWorklogEntry} from '../domain/WeeklyWorklogSummary.js';
+import type {IssueWorklogEntry} from '../domain/weekly-worklog-summary.js';
 
 /**
  * Utility functions for detecting editable worklogs

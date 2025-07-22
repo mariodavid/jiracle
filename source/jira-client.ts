@@ -1,7 +1,7 @@
 import {join} from 'node:path';
 import process from 'node:process';
 import winston from 'winston';
-import {Duration} from './utils/Duration.js';
+import {Duration} from './utils/duration.js';
 import type {AttendanceConfig} from './attendance/types.js';
 
 export type Group = {

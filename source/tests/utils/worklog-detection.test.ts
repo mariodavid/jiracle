@@ -3,7 +3,7 @@ import {
 	detectWorklogForEdit,
 	findWorklogEntryForIssue,
 } from '../../utils/worklog-detection.js';
-import type {IssueWorklogEntry} from '../../domain/WeeklyWorklogSummary.js';
+import type {IssueWorklogEntry} from '../../domain/weekly-worklog-summary.js';
 
 test('detectWorklogForEdit - no worklog entry', t => {
 	const result = detectWorklogForEdit(undefined);
