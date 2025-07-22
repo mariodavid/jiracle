@@ -1,318 +1,47 @@
 import {join} from 'node:path';
 import process from 'node:process';
 import winston from 'winston';
-import {Duration} from './utils/Duration.js';
-import type {AttendanceConfig} from './attendance/types.js';
-
-export type Group = {
-	id: string;
-	name: string;
-	defaultComment?: string;
-	defaultTime?: string;
-	desiredAmount?: number;
-};
-
-export type FavoriteIssue = {
-	key: string;
-	alias?: string;
-	defaultComment?: string;
-	defaultTime?: string;
-	groupId?: string;
-};
-
-export type ProjectDefaults = {
-	key: string;
-	groupId?: string;
-};
-
-export type ReminderConfig = {
-	enabled: boolean;
-	times: string[];
-	weekdaysOnly: boolean;
-};
-
-// Bidirectional sliding window configuration
-export type SlidingWindowConfig = {
-	past: number;
-	future: number;
-};
-
-// Utility function to normalize sliding window configuration
-export function normalizeSlidingWindowConfig(
-	config: JiraConfig,
-): SlidingWindowConfig {
-	const slidingWindow = config.slidingWindowDays;
-
-	if (!slidingWindow) {
-		return {past: 0, future: 0};
-	}
-
-	// Only object format supported
-	return {
-		past: slidingWindow.past,
-		future: slidingWindow.future,
-	};
-}
-
-export type JiraConfig = {
-	jiraUrl: string;
-	username: string;
-	apiToken: string;
-	favorites?: FavoriteIssue[];
-	projects?: ProjectDefaults[];
-	groups?: Group[];
-	defaultComment?: string;
-	defaultTime?: string;
-	workingHoursPerWeek?: number;
-	reminders?: ReminderConfig;
-	attendance?: AttendanceConfig;
-	// Sliding window configuration - only bidirectional object format
-	slidingWindowDays?: SlidingWindowConfig;
-};
-
-export type JiraIssueField = {
-	summary: string;
-	status: {
-		name: string;
-		statusCategory: {
-			name: string;
-		};
-	};
-	issuetype: {
-		name: string;
-		iconUrl: string;
-	};
-	priority: {
-		name: string;
-		iconUrl: string;
-	};
-	assignee: {
-		displayName: string;
-		emailAddress: string;
-	};
-	created: string;
-	updated: string;
-};
-
-export type JiraIssue = {
-	id: string;
-	key: string;
-	fields: JiraIssueField;
-};
-
-export type JiraSearchResponse = {
-	issues: JiraIssue[];
-	startAt: number;
-	maxResults: number;
-	total: number;
-};
-
-export type WorklogRequest = {
-	timeSpent: string;
-	comment: string;
-	started: string;
-};
-
-export type WorklogResponse = {
-	startAt: number;
-	maxResults: number;
-	total: number;
-	worklogs: WorklogEntry[];
-};
-
-export type WorklogEntry = {
-	id: string;
-	issueId: string;
-	author: {
-		displayName: string;
-		emailAddress: string;
-	};
-	comment: string;
-	started: string;
-	timeSpentSeconds: number;
-};
-
-export function normalizeTimeFormat(timeString: string): string {
-	try {
-		// Handle decimal formats with comma - convert comma to dot but preserve decimal format
-		const decimalHourMatch = /^(\d+(?:,\d+)?)h$/i.exec(timeString);
-		if (decimalHourMatch) {
-			return decimalHourMatch[1]!.replace(',', '.') + 'h';
-		}
-
-		const duration = new Duration(timeString);
-		const minutes = duration.toMinutes();
-
-		if (minutes <= 0) {
-			return '';
-		}
-
-		// Convert to Jira format with space (e.g., "2h 30m")
-		const hours = Math.floor(minutes / 60);
-		const remainingMinutes = minutes % 60;
-
-		if (hours > 0 && remainingMinutes > 0) {
-			return `${hours}h ${remainingMinutes}m`;
-		}
-
-		if (hours > 0) {
-			return `${hours}h`;
-		}
-
-		return `${remainingMinutes}m`;
-	} catch {
-		return '';
-	}
-}
-
-export function getFavoriteKeys(favorites: FavoriteIssue[]): string[] {
-	return favorites.map(fav => fav.key);
-}
-
-export function getFavoriteDefaultComment(
-	favorites: FavoriteIssue[],
-	issueKey: string,
-): string | undefined {
-	const favorite = favorites.find(fav => fav.key === issueKey);
-	return favorite?.defaultComment;
-}
-
-export function getFavoriteDefaultTime(
-	favorites: FavoriteIssue[],
-	issueKey: string,
-): string | undefined {
-	const favorite = favorites.find(fav => fav.key === issueKey);
-	return favorite?.defaultTime;
-}
-
-export function extractProjectKey(issueKey: string): string | undefined {
-	// Extract project key from issue key (e.g., "DEF-2457" → "DEF")
-	const match = /^([A-Z]+)-\d+$/.exec(issueKey);
-	return match ? match[1] ?? undefined : undefined;
-}
-
-export type ResolvedDefaults = {
-	comment: string;
-	time: string;
-	group?: Group;
-	source: {
-		comment: 'issue' | 'group' | 'global' | 'fallback';
-		time: 'issue' | 'group' | 'global' | 'fallback';
-	};
-};
-
-export function loadConfigWithEnvVars(config: JiraConfig): JiraConfig {
-	return {
-		...config,
-		jiraUrl: process.env['JIRACLE_JIRA_URL'] || config.jiraUrl,
-		username: process.env['JIRACLE_USERNAME'] || config.username,
-		apiToken: process.env['JIRACLE_API_TOKEN'] || config.apiToken,
-	};
-}
-
-export function resolveDefaults(
-	config: JiraConfig,
-	issueKey: string,
-): ResolvedDefaults {
-	const favorites = config.favorites || [];
-	const projects = config.projects || [];
-	const groups = config.groups || [];
-
-	// Extract project key from issue key
-	const projectKey = extractProjectKey(issueKey);
-
-	// Find issue-specific defaults
-	const favorite = favorites.find(fav => fav.key === issueKey);
-
-	// Find project for group lookup
-	const projectDefaults = projectKey
-		? projects.find(proj => proj.key === projectKey)
-		: undefined;
-
-	// Find group defaults (priority: issue group > project group)
-	let group: Group | undefined;
-	if (favorite?.groupId) {
-		group = groups.find(g => g.id === favorite.groupId);
-	} else if (projectDefaults?.groupId) {
-		group = groups.find(g => g.id === projectDefaults.groupId);
-	}
-
-	// Resolve comment with priority: issue → group → global → fallback
-	let comment = '';
-	let commentSource: 'issue' | 'group' | 'global' | 'fallback' = 'fallback';
-
-	if (favorite?.defaultComment) {
-		comment = favorite.defaultComment;
-		commentSource = 'issue';
-	} else if (group?.defaultComment) {
-		comment = group.defaultComment;
-		commentSource = 'group';
-	} else if (config.defaultComment) {
-		comment = config.defaultComment;
-		commentSource = 'global';
-	} else {
-		comment = '';
-		commentSource = 'fallback';
-	}
-
-	// Resolve time with priority: issue → group → global → fallback
-	let time = '1h'; // Fallback
-	let timeSource: 'issue' | 'group' | 'global' | 'fallback' = 'fallback';
-
-	if (favorite?.defaultTime) {
-		time = favorite.defaultTime;
-		timeSource = 'issue';
-	} else if (group?.defaultTime) {
-		time = group.defaultTime;
-		timeSource = 'group';
-	} else if (config.defaultTime) {
-		time = config.defaultTime;
-		timeSource = 'global';
-	} else {
-		time = '1h';
-		timeSource = 'fallback';
-	}
-
-	return {
-		comment,
-		time,
-		group,
-		source: {
-			comment: commentSource,
-			time: timeSource,
-		},
-	};
-}
-
-export function extractIssueKeyFromInput(input: string): string | undefined {
-	// Trim whitespace
-	const trimmed = input.trim();
-
-	if (!trimmed) {
-		return undefined;
-	}
-
-	// Check if it's a URL
-	if (trimmed.includes('/browse/')) {
-		// Extract issue key from URL like https://jira.example.com/browse/DEF-2457
-		const match = /\/browse\/([A-Z]+-\d+)/.exec(trimmed);
-		if (match?.[1]) {
-			return match[1];
-		}
-
-		// If it contains /browse/ but no valid issue key, it's invalid
-		return undefined;
-	}
-
-	// Check if it's already an issue key (PROJECT-123 format)
-	const issueKeyMatch = /^([A-Z]+-\d+)$/.exec(trimmed);
-	if (issueKeyMatch?.[1]) {
-		return issueKeyMatch[1];
-	}
-
-	// If no pattern matches, it's invalid
-	return undefined;
-}
+import type {
+	JiraConfig,
+	JiraIssue,
+	JiraSearchResponse,
+	WorklogRequest,
+	WorklogResponse,
+	FavoriteIssue,
+} from './types/jira-types.js';
+import {getFavoriteKeys} from './utils/jira-favorite-utils.js';
+// Re-export all types to maintain public API
+export type {
+	Group,
+	FavoriteIssue,
+	ProjectDefaults,
+	ReminderConfig,
+	SlidingWindowConfig,
+	JiraConfig,
+	JiraIssueField,
+	JiraIssue,
+	JiraSearchResponse,
+	WorklogRequest,
+	WorklogResponse,
+	WorklogEntry,
+} from './types/jira-types.js';
+// Re-export commonly used utility functions that are used throughout the codebase
+export {
+	normalizeTimeFormat,
+	extractIssueKeyFromInput,
+} from './utils/jira-format-utils.js';
+export {
+	getFavoriteKeys,
+	getFavoriteDefaultComment,
+	getFavoriteDefaultTime,
+} from './utils/jira-favorite-utils.js';
+export {
+	normalizeSlidingWindowConfig,
+	loadConfigWithEnvVars,
+	resolveDefaults,
+	extractProjectKey,
+} from './utils/jira-config-utils.js';
+export type {ResolvedDefaults} from './types/jira-types.js';
 
 export class JiraClient {
 	readonly jiraUrl: string;
@@ -329,7 +58,6 @@ export class JiraClient {
 			? this.jiraUrl
 			: `${this.jiraUrl}/`;
 		this.baseUrl = `${normalizedJiraUrl}rest/api/2`;
-
 		// Use custom logger if provided, otherwise create default logger
 		if (customLogger) {
 			this.logger = customLogger;
