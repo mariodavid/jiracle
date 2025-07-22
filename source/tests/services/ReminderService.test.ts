@@ -315,9 +315,9 @@ test('ReminderService state management for notification times', async t => {
 	t.false(state.notifiedTimes.has('12:00'));
 
 	// Test date change behavior
-	const {checkReminders} = service as any;
+	const serviceAny = service as any;
 	await t.notThrowsAsync(async () => {
-		await checkReminders();
+		await serviceAny.checkReminders();
 	});
 });
 
@@ -378,11 +378,11 @@ test('ReminderService formatTime correctly formats dates', t => {
 
 	const service = new ReminderService(mockClient, config);
 
-	// Access the private method through type assertion
-	const {formatTime} = service as any;
+	// Access the private method through type assertion while preserving context
+	const serviceAny = service as any;
 
 	const testDate = new Date('2024-01-15T14:30:45');
-	const formatted = formatTime(testDate);
+	const formatted = serviceAny.formatTime(testDate);
 
 	t.is(formatted, '14:30');
 });
@@ -427,22 +427,22 @@ test('ReminderService isTimeMatch correctly matches times with tolerance', t => 
 
 	const service = new ReminderService(mockClient, config);
 
-	// Access the private method through type assertion
-	const {isTimeMatch} = service as any;
+	// Access the private method through type assertion while preserving context
+	const serviceAny = service as any;
 
 	// Exact match
-	t.true(isTimeMatch('09:00', '09:00'));
+	t.true(serviceAny.isTimeMatch('09:00', '09:00'));
 
 	// Within 1 minute tolerance
-	t.true(isTimeMatch('09:01', '09:00'));
-	t.true(isTimeMatch('08:59', '09:00'));
+	t.true(serviceAny.isTimeMatch('09:01', '09:00'));
+	t.true(serviceAny.isTimeMatch('08:59', '09:00'));
 
 	// Outside tolerance
-	t.false(isTimeMatch('09:02', '09:00'));
-	t.false(isTimeMatch('08:58', '09:00'));
+	t.false(serviceAny.isTimeMatch('09:02', '09:00'));
+	t.false(serviceAny.isTimeMatch('08:58', '09:00'));
 
 	// Different times
-	t.false(isTimeMatch('10:00', '09:00'));
+	t.false(serviceAny.isTimeMatch('10:00', '09:00'));
 });
 
 test('ReminderService timeToMinutes converts time strings correctly', t => {
@@ -455,17 +455,17 @@ test('ReminderService timeToMinutes converts time strings correctly', t => {
 
 	const service = new ReminderService(mockClient, config);
 
-	// Access the private method through type assertion
-	const {timeToMinutes} = service as any;
+	// Access the private method through type assertion while preserving context
+	const serviceAny = service as any;
 
-	t.is(timeToMinutes('00:00'), 0);
-	t.is(timeToMinutes('09:00'), 540); // 9 * 60
-	t.is(timeToMinutes('12:30'), 750); // 12 * 60 + 30
-	t.is(timeToMinutes('23:59'), 1439); // 23 * 60 + 59
+	t.is(serviceAny.timeToMinutes('00:00'), 0);
+	t.is(serviceAny.timeToMinutes('09:00'), 540); // 9 * 60
+	t.is(serviceAny.timeToMinutes('12:30'), 750); // 12 * 60 + 30
+	t.is(serviceAny.timeToMinutes('23:59'), 1439); // 23 * 60 + 59
 
 	// Handle malformed input gracefully
-	t.is(timeToMinutes('invalid'), 0);
-	t.is(timeToMinutes('25:70'), 1570); // Should handle invalid time components
+	t.is(serviceAny.timeToMinutes('invalid'), 0);
+	t.is(serviceAny.timeToMinutes('25:70'), 1570); // Should handle invalid time components
 });
 
 test('ReminderService getNotificationIcon returns appropriate icons for different platforms', t => {
@@ -541,12 +541,12 @@ test('ReminderService checkReminders handles different dates correctly', async t
 
 	const service = new ReminderService(mockClient, config);
 
-	// Access the private method through type assertion
-	const {checkReminders} = service as any;
+	// Access the private method through type assertion while preserving context
+	const serviceAny = service as any;
 
 	// Should handle date changes and reset notifications
 	await t.notThrowsAsync(async () => {
-		await checkReminders();
+		await serviceAny.checkReminders();
 	});
 
 	console.error = originalConsoleError;
@@ -676,9 +676,8 @@ test('ReminderService handles worklog check results properly', async t => {
 
 	// Test with worklog present (should not send reminder)
 	const serviceWithWorklog = new ReminderService(mockClientWithWorklog, config);
-	const checkRemindersWithWorklog = (serviceWithWorklog as any).checkReminders;
 	await t.notThrowsAsync(async () => {
-		await checkRemindersWithWorklog();
+		await (serviceWithWorklog as any).checkReminders();
 	});
 
 	// Test without worklog (should attempt to send reminder)
@@ -686,9 +685,7 @@ test('ReminderService handles worklog check results properly', async t => {
 		mockClientWithoutWorklog,
 		config,
 	);
-	const checkRemindersWithoutWorklog = (serviceWithoutWorklog as any)
-		.checkReminders;
 	await t.notThrowsAsync(async () => {
-		await checkRemindersWithoutWorklog();
+		await (serviceWithoutWorklog as any).checkReminders();
 	});
 });
