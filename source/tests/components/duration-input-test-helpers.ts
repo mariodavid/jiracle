@@ -52,7 +52,9 @@ export function createDurationInput(overrides: any = {}) {
 	});
 }
 
-export function renderDurationInput(overrides: any = {}) {
+export function renderDurationInput(
+	overrides: Record<string, any> = {},
+): ReturnType<typeof render> {
 	return render(createDurationInput(overrides));
 }
 

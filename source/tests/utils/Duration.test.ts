@@ -1,5 +1,5 @@
 import test from 'ava';
-import {Duration} from '../../utils/Duration.js';
+import {Duration} from '../../utils/duration.js';
 
 test('Duration - calculateWorkingDuration basic calculation', t => {
 	const duration = Duration.calculateWorkingDuration('08:00', '17:00', 60);

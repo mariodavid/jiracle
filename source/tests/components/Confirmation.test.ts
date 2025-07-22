@@ -1,7 +1,7 @@
 import test from 'ava';
 import React from 'react';
 import {render} from 'ink-testing-library';
-import {Confirmation} from '../../components/Confirmation.js';
+import {Confirmation} from '../../components/confirmation.js';
 
 test('Confirmation renders with message only', t => {
 	const {lastFrame} = render(
