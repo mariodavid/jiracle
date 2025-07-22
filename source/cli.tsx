@@ -18,9 +18,9 @@ import {
 	executeCheckIn,
 	executeCheckOut,
 	executeStatus,
-	type CheckInParams,
-	type CheckOutParams,
-	type StatusParams,
+	type CheckInParameters,
+	type CheckOutParameters,
+	type StatusParameters,
 } from './cli/attendance-commands.js';
 
 const cli = meow(
@@ -81,7 +81,7 @@ const cli = meow(
 	},
 );
 
-export type WorklogAddParams = {
+export type WorklogAddParameters = {
 	issue: string;
 	date: string;
 	time: string;
@@ -93,8 +93,8 @@ export type WorklogAddResult = {
 	message: string;
 };
 
-function validateWorklogParams(params: WorklogAddParams): void {
-	const {issue, date, time, comment} = params;
+function validateWorklogParameters(parameters: WorklogAddParameters): void {
+	const {issue, date, time, comment} = parameters;
 
 	if (!issue || !date || !time || !comment) {
 		throw new Error(
@@ -178,12 +178,12 @@ function handleWorklogError(error: unknown, issue: string): never {
 }
 
 export async function executeWorklogAdd(
-	params: WorklogAddParams,
+	parameters: WorklogAddParameters,
 	configPath?: string,
 ): Promise<WorklogAddResult> {
-	const {issue, date, time, comment} = params;
+	const {issue, date, time, comment} = parameters;
 
-	validateWorklogParams(params);
+	validateWorklogParameters(parameters);
 
 	try {
 		const config = loadConfig(configPath);
@@ -241,18 +241,18 @@ async function handleWorklogAdd() {
 async function handleCheckIn() {
 	const {date, time} = cli.flags;
 
-	const params: CheckInParams = {};
+	const parameters: CheckInParameters = {};
 
 	if (date && typeof date === 'string') {
-		params.date = date;
+		parameters.date = date;
 	}
 
 	if (time && typeof time === 'string') {
-		params.time = time;
+		parameters.time = time;
 	}
 
 	try {
-		const result = await executeCheckIn(params);
+		const result = await executeCheckIn(parameters);
 		if (result.success) {
 			console.log(result.message);
 			process.exit(0);
@@ -271,18 +271,18 @@ async function handleCheckIn() {
 async function handleCheckOut() {
 	const {date, time} = cli.flags;
 
-	const params: CheckOutParams = {};
+	const parameters: CheckOutParameters = {};
 
 	if (date && typeof date === 'string') {
-		params.date = date;
+		parameters.date = date;
 	}
 
 	if (time && typeof time === 'string') {
-		params.time = time;
+		parameters.time = time;
 	}
 
 	try {
-		const result = await executeCheckOut(params);
+		const result = await executeCheckOut(parameters);
 		if (result.success) {
 			console.log(result.message);
 			process.exit(0);
@@ -301,14 +301,14 @@ async function handleCheckOut() {
 async function handleStatus() {
 	const {date} = cli.flags;
 
-	const params: StatusParams = {};
+	const parameters: StatusParameters = {};
 
 	if (date && typeof date === 'string') {
-		params.date = date;
+		parameters.date = date;
 	}
 
 	try {
-		const result = await executeStatus(params);
+		const result = await executeStatus(parameters);
 		if (result.success) {
 			console.log(result.message);
 			process.exit(0);

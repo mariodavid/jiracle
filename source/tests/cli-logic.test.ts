@@ -2,7 +2,7 @@ import {writeFileSync, unlinkSync, existsSync} from 'node:fs';
 import {join} from 'node:path';
 import {tmpdir} from 'node:os';
 import test from 'ava';
-import {executeWorklogAdd, type WorklogAddParams} from '../cli.js';
+import {executeWorklogAdd, type WorklogAddParameters} from '../cli.js';
 import type {JiraConfig} from '../jira-client.js';
 
 // Mock fetch setup
@@ -50,7 +50,7 @@ function cleanupTestConfig(configPath: string) {
 	}
 }
 
-const validParams: WorklogAddParams = {
+const validParameters: WorklogAddParameters = {
 	issue: 'TEST-123',
 	date: '2025-07-11',
 	time: '2h',
@@ -74,25 +74,27 @@ test('executeWorklogAdd - validates required parameters', async t => {
 	try {
 		// Missing issue
 		await t.throwsAsync(
-			async () => executeWorklogAdd({...validParams, issue: ''}, configPath),
+			async () =>
+				executeWorklogAdd({...validParameters, issue: ''}, configPath),
 			{message: /All flags are required/},
 		);
 
 		// Missing date
 		await t.throwsAsync(
-			async () => executeWorklogAdd({...validParams, date: ''}, configPath),
+			async () => executeWorklogAdd({...validParameters, date: ''}, configPath),
 			{message: /All flags are required/},
 		);
 
 		// Missing time
 		await t.throwsAsync(
-			async () => executeWorklogAdd({...validParams, time: ''}, configPath),
+			async () => executeWorklogAdd({...validParameters, time: ''}, configPath),
 			{message: /All flags are required/},
 		);
 
 		// Missing comment
 		await t.throwsAsync(
-			async () => executeWorklogAdd({...validParams, comment: ''}, configPath),
+			async () =>
+				executeWorklogAdd({...validParameters, comment: ''}, configPath),
 			{message: /All flags are required/},
 		);
 	} finally {
@@ -114,7 +116,10 @@ test('executeWorklogAdd - validates date format', async t => {
 		for (const invalidDate of invalidDates) {
 			await t.throwsAsync(
 				async () =>
-					executeWorklogAdd({...validParams, date: invalidDate}, configPath),
+					executeWorklogAdd(
+						{...validParameters, date: invalidDate},
+						configPath,
+					),
 				{message: /Date must be in YYYY-MM-DD format/},
 			);
 		}
@@ -125,7 +130,10 @@ test('executeWorklogAdd - validates date format', async t => {
 			// We don't set up fetch mock here, so it will throw a different error
 			// But the date validation should pass
 			try {
-				await executeWorklogAdd({...validParams, date: validDate}, configPath);
+				await executeWorklogAdd(
+					{...validParameters, date: validDate},
+					configPath,
+				);
 				t.fail('Should have thrown due to no fetch mock, not date validation');
 			} catch (error: unknown) {
 				// Should not be date validation error
@@ -155,7 +163,10 @@ test('executeWorklogAdd - validates time format', async t => {
 		for (const invalidTime of invalidTimes) {
 			await t.throwsAsync(
 				async () =>
-					executeWorklogAdd({...validParams, time: invalidTime}, configPath),
+					executeWorklogAdd(
+						{...validParameters, time: invalidTime},
+						configPath,
+					),
 				{message: /Time must be in format/},
 			);
 		}
@@ -164,7 +175,10 @@ test('executeWorklogAdd - validates time format', async t => {
 		const validTimes = ['1h', '30m', '2.5h', '1:30', '8:00'];
 		for (const validTime of validTimes) {
 			try {
-				await executeWorklogAdd({...validParams, time: validTime}, configPath);
+				await executeWorklogAdd(
+					{...validParameters, time: validTime},
+					configPath,
+				);
 				t.fail('Should have thrown due to no fetch mock, not time validation');
 			} catch (error: unknown) {
 				// Should not be time validation error
@@ -180,7 +194,7 @@ test('executeWorklogAdd - handles missing config file', async t => {
 	const nonExistentConfigPath = join(tmpdir(), 'non-existent-config.json');
 
 	await t.throwsAsync(
-		async () => executeWorklogAdd(validParams, nonExistentConfigPath),
+		async () => executeWorklogAdd(validParameters, nonExistentConfigPath),
 		{message: /Invalid configuration file format|ENOENT/},
 	);
 });
@@ -191,7 +205,7 @@ test('executeWorklogAdd - handles malformed config file', async t => {
 
 	try {
 		await t.throwsAsync(
-			async () => executeWorklogAdd(validParams, configPath),
+			async () => executeWorklogAdd(validParameters, configPath),
 			{
 				message: /Invalid configuration file format/,
 			},
@@ -212,7 +226,7 @@ test('executeWorklogAdd - handles 404 Issue Does Not Exist', async t => {
 
 	try {
 		await t.throwsAsync(
-			async () => executeWorklogAdd(validParams, configPath),
+			async () => executeWorklogAdd(validParameters, configPath),
 			{
 				message: /Issue 'TEST-123' does not exist/,
 			},
@@ -232,7 +246,7 @@ test('executeWorklogAdd - handles 401 Unauthorized', async t => {
 
 	try {
 		await t.throwsAsync(
-			async () => executeWorklogAdd(validParams, configPath),
+			async () => executeWorklogAdd(validParameters, configPath),
 			{
 				message: /Invalid Jira credentials or insufficient permissions/,
 			},
@@ -252,7 +266,7 @@ test('executeWorklogAdd - handles 403 Forbidden', async t => {
 
 	try {
 		await t.throwsAsync(
-			async () => executeWorklogAdd(validParams, configPath),
+			async () => executeWorklogAdd(validParameters, configPath),
 			{
 				message: /Access denied to issue 'TEST-123'/,
 			},
@@ -271,7 +285,7 @@ test('executeWorklogAdd - handles success scenario', async t => {
 	});
 
 	try {
-		const result = await executeWorklogAdd(validParams, configPath);
+		const result = await executeWorklogAdd(validParameters, configPath);
 		t.true(result.success);
 		t.true(result.message.includes('Successfully logged 2h to TEST-123'));
 	} finally {
@@ -287,7 +301,7 @@ test('executeWorklogAdd - handles network error', async t => {
 
 	try {
 		await t.throwsAsync(
-			async () => executeWorklogAdd(validParams, configPath),
+			async () => executeWorklogAdd(validParameters, configPath),
 			{
 				message: /Cannot connect to Jira server/,
 			},

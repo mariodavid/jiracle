@@ -1,13 +1,13 @@
 /**
  * Parse time strings to hours
- * @param timeStr - Time string (e.g., "2h30m", "1.5h", "90m", "1d")
+ * @param timeString - Time string (e.g., "2h30m", "1.5h", "90m", "1d")
  * @returns Number of hours
  */
-function parseTimeToHours(timeStr: string): number {
-	if (!timeStr) return 1;
+function parseTimeToHours(timeString: string): number {
+	if (!timeString) return 1;
 
 	// Handle combined format (2h30m, 1h15m, etc.)
-	const combinedMatch = /^(\d+)h(\d+)m$/i.exec(timeStr);
+	const combinedMatch = /^(\d+)h(\d+)m$/i.exec(timeString);
 	if (combinedMatch?.[1] && combinedMatch[2]) {
 		const hours = Number.parseFloat(combinedMatch[1]);
 		const minutes = Number.parseFloat(combinedMatch[2]);
@@ -15,19 +15,19 @@ function parseTimeToHours(timeStr: string): number {
 	}
 
 	// Handle days (1d = 8h)
-	const dayMatch = /^(\d+(?:[.,]\d+)?)d$/i.exec(timeStr);
+	const dayMatch = /^(\d+(?:[.,]\d+)?)d$/i.exec(timeString);
 	if (dayMatch?.[1]) {
 		return Number.parseFloat(dayMatch[1].replace(',', '.')) * 8;
 	}
 
 	// Handle hours (1h, 2.5h, etc.)
-	const hourMatch = /^(\d+(?:[.,]\d+)?)h?$/i.exec(timeStr);
+	const hourMatch = /^(\d+(?:[.,]\d+)?)h?$/i.exec(timeString);
 	if (hourMatch?.[1]) {
 		return Number.parseFloat(hourMatch[1].replace(',', '.'));
 	}
 
 	// Handle minutes (30m, 90m, etc.)
-	const minuteMatch = /^(\d+)m$/i.exec(timeStr);
+	const minuteMatch = /^(\d+)m$/i.exec(timeString);
 	if (minuteMatch?.[1]) {
 		return Number.parseFloat(minuteMatch[1]) / 60;
 	}
@@ -89,17 +89,17 @@ function generateTimeMarks(incrementMinutes: number): number[] {
 
 /**
  * Adjust time up or down to nearest increment
- * @param currentTimeStr - Current time string
+ * @param currentTimeString - Current time string
  * @param direction - 'up' or 'down'
  * @param incrementMinutes - Minutes to increment by
  * @returns New time string
  */
 function adjustTime(
-	currentTimeStr: string,
+	currentTimeString: string,
 	direction: 'up' | 'down',
 	incrementMinutes: number,
 ): string {
-	const currentHours = parseTimeToHours(currentTimeStr);
+	const currentHours = parseTimeToHours(currentTimeString);
 	const totalMinutes = Math.round(currentHours * 60);
 
 	const marks = generateTimeMarks(incrementMinutes);

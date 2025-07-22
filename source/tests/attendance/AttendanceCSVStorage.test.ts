@@ -5,7 +5,7 @@ import test from 'ava';
 import {AttendanceCSVStorage} from '../../attendance/AttendanceCSVStorage.js';
 import type {Attendance} from '../../attendance/types.js';
 
-function createTempCSVPath(): string {
+function createTemporaryCSVPath(): string {
 	return join(
 		tmpdir(),
 		`attendance-test-${Date.now()}-${Math.random().toString(36).slice(7)}.csv`,
@@ -19,7 +19,7 @@ function cleanup(csvPath: string) {
 }
 
 test('should create empty array when CSV does not exist', async t => {
-	const csvPath = createTempCSVPath();
+	const csvPath = createTemporaryCSVPath();
 	const storage = new AttendanceCSVStorage(csvPath);
 
 	const attendances = await storage.readAll();
@@ -27,7 +27,7 @@ test('should create empty array when CSV does not exist', async t => {
 });
 
 test('should write and read attendance data', async t => {
-	const csvPath = createTempCSVPath();
+	const csvPath = createTemporaryCSVPath();
 	const storage = new AttendanceCSVStorage(csvPath);
 
 	const attendance: Attendance = {
@@ -49,7 +49,7 @@ test('should write and read attendance data', async t => {
 });
 
 test('should handle missing optional fields', async t => {
-	const csvPath = createTempCSVPath();
+	const csvPath = createTemporaryCSVPath();
 	const storage = new AttendanceCSVStorage(csvPath);
 
 	const attendance: Attendance = {
@@ -70,7 +70,7 @@ test('should handle missing optional fields', async t => {
 });
 
 test('should get attendance by date', async t => {
-	const csvPath = createTempCSVPath();
+	const csvPath = createTemporaryCSVPath();
 	const storage = new AttendanceCSVStorage(csvPath);
 
 	const attendances: Attendance[] = [
@@ -103,7 +103,7 @@ test('should get attendance by date', async t => {
 });
 
 test('should get attendances by date range', async t => {
-	const csvPath = createTempCSVPath();
+	const csvPath = createTemporaryCSVPath();
 	const storage = new AttendanceCSVStorage(csvPath);
 
 	const attendances: Attendance[] = [
@@ -154,7 +154,7 @@ test('should get attendances by date range', async t => {
 });
 
 test('should upsert attendance data', async t => {
-	const csvPath = createTempCSVPath();
+	const csvPath = createTemporaryCSVPath();
 	const storage = new AttendanceCSVStorage(csvPath);
 
 	const initial: Attendance = {
@@ -202,7 +202,7 @@ test('should upsert attendance data', async t => {
 });
 
 test('should sort attendances by date', async t => {
-	const csvPath = createTempCSVPath();
+	const csvPath = createTemporaryCSVPath();
 	const storage = new AttendanceCSVStorage(csvPath);
 
 	await storage.upsert({

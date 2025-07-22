@@ -26,19 +26,19 @@ export function useNotification(): UseNotificationReturn {
 			const id = ++notificationIdCounter;
 			const notification: Notification = {message, type, id};
 
-			setNotifications(prev => [...prev, notification]);
+			setNotifications(previous => [...previous, notification]);
 
 			// Auto-dismiss after 3 seconds for success/info, 5 seconds for error
 			const timeout = type === 'error' ? 5000 : 3000;
 			setTimeout(() => {
-				setNotifications(prev => prev.filter(n => n.id !== id));
+				setNotifications(previous => previous.filter(n => n.id !== id));
 			}, timeout);
 		},
 		[],
 	);
 
 	const dismissNotification = useCallback((id: number) => {
-		setNotifications(prev => prev.filter(n => n.id !== id));
+		setNotifications(previous => previous.filter(n => n.id !== id));
 	}, []);
 
 	const clearNotifications = useCallback(() => {

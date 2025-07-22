@@ -71,8 +71,8 @@ export function AttendanceEditForm({
 		const localDateString = `${year}-${month}-${day}`;
 
 		// Parse break minutes using Duration class
-		const parseBreakMinutes = (timeStr: string): number => {
-			return new Duration(timeStr).toMinutes();
+		const parseBreakMinutes = (timeString: string): number => {
+			return new Duration(timeString).toMinutes();
 		};
 
 		const attendanceData: Attendance = {

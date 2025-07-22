@@ -3,9 +3,9 @@ import {
 	executeCheckIn,
 	executeCheckOut,
 	executeStatus,
-	type CheckInParams,
-	type CheckOutParams,
-	type StatusParams,
+	type CheckInParameters,
+	type CheckOutParameters,
+	type StatusParameters,
 } from '../../cli/attendance-commands.js';
 import {
 	TestPatterns,
@@ -19,10 +19,10 @@ test.serial('should check in with current time', async t => {
 		const configPath = manager.writeConfig(ConfigFactory.createValidConfig());
 		const csvPath = manager.createTempCSVPath();
 
-		const params: CheckInParams = {date: '2025-07-11'};
+		const parameters: CheckInParameters = {date: '2025-07-11'};
 
 		const beforeCheckIn = new Date();
-		const result = await executeCheckIn(params, configPath, csvPath);
+		const result = await executeCheckIn(parameters, configPath, csvPath);
 		const afterCheckIn = new Date();
 
 		AssertionHelpers.assertSuccess(result, t);
@@ -43,8 +43,8 @@ test.serial('should check in with custom time', async t => {
 		const configPath = manager.writeConfig(ConfigFactory.createValidConfig());
 		const csvPath = manager.createTempCSVPath();
 
-		const params: CheckInParams = {date: '2025-07-12', time: '08:30'};
-		const result = await executeCheckIn(params, configPath, csvPath);
+		const parameters: CheckInParameters = {date: '2025-07-12', time: '08:30'};
+		const result = await executeCheckIn(parameters, configPath, csvPath);
 
 		AssertionHelpers.assertTimeFormat(result, '08:30', t);
 	});
@@ -55,8 +55,8 @@ test.serial('should fail check in with invalid time', async t => {
 		const configPath = manager.writeConfig(ConfigFactory.createValidConfig());
 		const csvPath = manager.createTempCSVPath();
 
-		const params: CheckInParams = {date: '2025-07-11', time: 'invalid'};
-		const result = await executeCheckIn(params, configPath, csvPath);
+		const parameters: CheckInParameters = {date: '2025-07-11', time: 'invalid'};
+		const result = await executeCheckIn(parameters, configPath, csvPath);
 
 		AssertionHelpers.assertFailure(result, t, 'Time must be in HH:MM format');
 	});
@@ -67,8 +67,8 @@ test.serial('should fail check in with invalid date', async t => {
 		const configPath = manager.writeConfig(ConfigFactory.createValidConfig());
 		const csvPath = manager.createTempCSVPath();
 
-		const params: CheckInParams = {date: 'invalid-date'};
-		const result = await executeCheckIn(params, configPath, csvPath);
+		const parameters: CheckInParameters = {date: 'invalid-date'};
+		const result = await executeCheckIn(parameters, configPath, csvPath);
 
 		AssertionHelpers.assertFailure(
 			result,
@@ -90,10 +90,10 @@ test.serial('should check out with current time', async t => {
 			csvPath,
 		);
 
-		const params: CheckOutParams = {date: '2025-07-11'};
+		const parameters: CheckOutParameters = {date: '2025-07-11'};
 
 		const beforeCheckOut = new Date();
-		const result = await executeCheckOut(params, configPath, csvPath);
+		const result = await executeCheckOut(parameters, configPath, csvPath);
 		const afterCheckOut = new Date();
 
 		AssertionHelpers.assertSuccess(result, t);
@@ -128,8 +128,8 @@ test.serial('should check out with custom time', async t => {
 			csvPath,
 		);
 
-		const params: CheckOutParams = {date: '2025-07-11', time: '17:30'};
-		const result = await executeCheckOut(params, configPath, csvPath);
+		const parameters: CheckOutParameters = {date: '2025-07-11', time: '17:30'};
+		const result = await executeCheckOut(parameters, configPath, csvPath);
 
 		AssertionHelpers.assertSuccess(result, t);
 		AssertionHelpers.assertMessageContains(
@@ -145,8 +145,8 @@ test.serial('should show status for empty day', async t => {
 		const configPath = manager.writeConfig(ConfigFactory.createValidConfig());
 		const csvPath = manager.createTempCSVPath();
 
-		const params: StatusParams = {date: '2025-07-11'};
-		const result = await executeStatus(params, configPath, csvPath);
+		const parameters: StatusParameters = {date: '2025-07-11'};
+		const result = await executeStatus(parameters, configPath, csvPath);
 
 		AssertionHelpers.assertSuccess(result, t);
 		t.true(result.message.includes('2025-07-11: No attendance recorded'));
@@ -165,8 +165,8 @@ test.serial('should show status after check in', async t => {
 			csvPath,
 		);
 
-		const params: StatusParams = {date: '2025-07-11'};
-		const result = await executeStatus(params, configPath, csvPath);
+		const parameters: StatusParameters = {date: '2025-07-11'};
+		const result = await executeStatus(parameters, configPath, csvPath);
 
 		AssertionHelpers.assertSuccess(result, t);
 		t.true(result.message.includes('2025-07-11: Checked in at 08:00'));
@@ -190,8 +190,8 @@ test.serial('should show status after full day', async t => {
 			csvPath,
 		);
 
-		const params: StatusParams = {date: '2025-07-11'};
-		const result = await executeStatus(params, configPath, csvPath);
+		const parameters: StatusParameters = {date: '2025-07-11'};
+		const result = await executeStatus(parameters, configPath, csvPath);
 
 		AssertionHelpers.assertSuccess(result, t);
 		AssertionHelpers.assertMessageContains(
@@ -208,8 +208,8 @@ test.serial('should fail when attendance is disabled', async t => {
 			ConfigFactory.createDisabledConfig(),
 		);
 
-		const params: CheckInParams = {date: '2025-07-11'};
-		const result = await executeCheckIn(params, configPath);
+		const parameters: CheckInParameters = {date: '2025-07-11'};
+		const result = await executeCheckIn(parameters, configPath);
 
 		AssertionHelpers.assertFailure(
 			result,
@@ -221,8 +221,8 @@ test.serial('should fail when attendance is disabled', async t => {
 
 test.serial('should handle missing config file', async t => {
 	const nonExistentPath = '/tmp/non-existent-config.json';
-	const params: CheckInParams = {date: '2025-07-11'};
-	const result = await executeCheckIn(params, nonExistentPath);
+	const parameters: CheckInParameters = {date: '2025-07-11'};
+	const result = await executeCheckIn(parameters, nonExistentPath);
 
 	AssertionHelpers.assertErrorContains(result, ['ENOENT', 'no such file'], t);
 });
@@ -249,9 +249,9 @@ test.serial('should reject future dates for check-in', async t => {
 		const configPath = manager.writeConfig(ConfigFactory.createValidConfig());
 		const csvPath = manager.createTempCSVPath();
 
-		const tomorrowStr = TimeHelpers.getTomorrowDateString();
-		const params: CheckInParams = {date: tomorrowStr};
-		const result = await executeCheckIn(params, configPath, csvPath);
+		const tomorrowString = TimeHelpers.getTomorrowDateString();
+		const parameters: CheckInParameters = {date: tomorrowString};
+		const result = await executeCheckIn(parameters, configPath, csvPath);
 
 		// Note: Currently the implementation doesn't check for future dates,
 		// but according to test-ideas.md it should. This test documents the expected behavior.
@@ -264,8 +264,8 @@ test.serial('should handle check-in at midnight', async t => {
 		const configPath = manager.writeConfig(ConfigFactory.createValidConfig());
 		const csvPath = manager.createTempCSVPath();
 
-		const params: CheckInParams = {date: '2025-07-11', time: '00:00'};
-		const result = await executeCheckIn(params, configPath, csvPath);
+		const parameters: CheckInParameters = {date: '2025-07-11', time: '00:00'};
+		const result = await executeCheckIn(parameters, configPath, csvPath);
 
 		AssertionHelpers.assertTimeFormat(result, '00:00', t);
 	});
@@ -276,8 +276,8 @@ test.serial('should handle check-in at 23:59', async t => {
 		const configPath = manager.writeConfig(ConfigFactory.createValidConfig());
 		const csvPath = manager.createTempCSVPath();
 
-		const params: CheckInParams = {date: '2025-07-11', time: '23:59'};
-		const result = await executeCheckIn(params, configPath, csvPath);
+		const parameters: CheckInParameters = {date: '2025-07-11', time: '23:59'};
+		const result = await executeCheckIn(parameters, configPath, csvPath);
 
 		AssertionHelpers.assertTimeFormat(result, '23:59', t);
 	});
@@ -288,9 +288,9 @@ test.serial('should fail check-out without prior check-in', async t => {
 		const configPath = manager.writeConfig(ConfigFactory.createValidConfig());
 		const csvPath = manager.createTempCSVPath();
 
-		const params: CheckOutParams = {date: '2025-07-11', time: '17:00'};
+		const parameters: CheckOutParameters = {date: '2025-07-11', time: '17:00'};
 		// Try to check out without checking in first
-		const result = await executeCheckOut(params, configPath, csvPath);
+		const result = await executeCheckOut(parameters, configPath, csvPath);
 
 		// Currently implementation doesn't prevent this, but test-ideas.md suggests it should
 		// This test documents expected behavior
@@ -311,8 +311,8 @@ test.serial('should fail check-out before check-in time', async t => {
 		);
 
 		// Try to check out at 07:30 (before check-in)
-		const params: CheckOutParams = {date: '2025-07-11', time: '07:30'};
-		const result = await executeCheckOut(params, configPath, csvPath);
+		const parameters: CheckOutParameters = {date: '2025-07-11', time: '07:30'};
+		const result = await executeCheckOut(parameters, configPath, csvPath);
 
 		// Currently implementation doesn't prevent this, but test-ideas.md suggests it should
 		// This test documents expected behavior

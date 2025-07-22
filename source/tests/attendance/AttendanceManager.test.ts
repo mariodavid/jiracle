@@ -5,7 +5,7 @@ import test from 'ava';
 import {AttendanceManager} from '../../attendance/AttendanceManager.js';
 import type {AttendanceConfig} from '../../attendance/types.js';
 
-function createTempCSVPath(): string {
+function createTemporaryCSVPath(): string {
 	return join(
 		tmpdir(),
 		`attendance-manager-test-${Date.now()}-${Math.random()
@@ -30,7 +30,7 @@ const defaultConfig: AttendanceConfig = {
 };
 
 test('should check in with current time', async t => {
-	const csvPath = createTempCSVPath();
+	const csvPath = createTemporaryCSVPath();
 	const manager = new AttendanceManager(defaultConfig, csvPath);
 
 	// Get current time before check-in
@@ -61,7 +61,7 @@ test('should check in with current time', async t => {
 });
 
 test('should check in with custom time', async t => {
-	const csvPath = createTempCSVPath();
+	const csvPath = createTemporaryCSVPath();
 	const manager = new AttendanceManager(defaultConfig, csvPath);
 
 	const attendance = await manager.checkIn('2025-07-12', '08:30');
@@ -74,7 +74,7 @@ test('should check in with custom time', async t => {
 });
 
 test('should throw error for invalid check-in time', async t => {
-	const csvPath = createTempCSVPath();
+	const csvPath = createTemporaryCSVPath();
 	const manager = new AttendanceManager(defaultConfig, csvPath);
 
 	await t.throwsAsync(manager.checkIn('2025-07-12', 'invalid'), {
@@ -85,7 +85,7 @@ test('should throw error for invalid check-in time', async t => {
 });
 
 test('should check out with current time', async t => {
-	const csvPath = createTempCSVPath();
+	const csvPath = createTemporaryCSVPath();
 	const manager = new AttendanceManager(defaultConfig, csvPath);
 
 	// Check in first with specific time (earlier in the day to ensure positive work hours)
@@ -120,7 +120,7 @@ test('should check out with current time', async t => {
 });
 
 test('should check out with custom time', async t => {
-	const csvPath = createTempCSVPath();
+	const csvPath = createTemporaryCSVPath();
 	const manager = new AttendanceManager(defaultConfig, csvPath);
 
 	await manager.checkIn('2025-07-12', '08:30');
@@ -133,7 +133,7 @@ test('should check out with custom time', async t => {
 });
 
 test('should throw error for invalid check-out time', async t => {
-	const csvPath = createTempCSVPath();
+	const csvPath = createTemporaryCSVPath();
 	const manager = new AttendanceManager(defaultConfig, csvPath);
 
 	await t.throwsAsync(manager.checkOut('2025-07-12', 'invalid'), {
@@ -144,7 +144,7 @@ test('should throw error for invalid check-out time', async t => {
 });
 
 test('should get status for today', async t => {
-	const csvPath = createTempCSVPath();
+	const csvPath = createTemporaryCSVPath();
 	const manager = new AttendanceManager(defaultConfig, csvPath);
 
 	// Use fixed times to get predictable status
@@ -163,7 +163,7 @@ test('should get status for today', async t => {
 });
 
 test('should get status for day with no attendance', async t => {
-	const csvPath = createTempCSVPath();
+	const csvPath = createTemporaryCSVPath();
 	const manager = new AttendanceManager(defaultConfig, csvPath);
 
 	const status = await manager.getStatus('2025-07-12');
@@ -179,7 +179,7 @@ test('should get status for day with no attendance', async t => {
 });
 
 test('should update attendance', async t => {
-	const csvPath = createTempCSVPath();
+	const csvPath = createTemporaryCSVPath();
 	const manager = new AttendanceManager(defaultConfig, csvPath);
 
 	const updated = await manager.updateAttendance({
@@ -198,7 +198,7 @@ test('should update attendance', async t => {
 });
 
 test('should throw error for invalid time in update', async t => {
-	const csvPath = createTempCSVPath();
+	const csvPath = createTemporaryCSVPath();
 	const manager = new AttendanceManager(defaultConfig, csvPath);
 
 	await t.throwsAsync(
@@ -214,7 +214,7 @@ test('should throw error for invalid time in update', async t => {
 });
 
 test('should get weekly attendance', async t => {
-	const csvPath = createTempCSVPath();
+	const csvPath = createTemporaryCSVPath();
 	const manager = new AttendanceManager(defaultConfig, csvPath);
 
 	// Add attendance for some days
@@ -238,7 +238,7 @@ test('should get weekly attendance', async t => {
 });
 
 test('should get weekly totals', async t => {
-	const csvPath = createTempCSVPath();
+	const csvPath = createTemporaryCSVPath();
 	const manager = new AttendanceManager(defaultConfig, csvPath);
 
 	// Add full week attendance
@@ -264,7 +264,7 @@ test('should get weekly totals', async t => {
 });
 
 test('should correct time entries', async t => {
-	const csvPath = createTempCSVPath();
+	const csvPath = createTemporaryCSVPath();
 	const manager = new AttendanceManager(defaultConfig, csvPath);
 
 	// Initial entry
@@ -288,7 +288,7 @@ test('should correct time entries', async t => {
 });
 
 test('should check attendance status methods', async t => {
-	const csvPath = createTempCSVPath();
+	const csvPath = createTemporaryCSVPath();
 	const manager = new AttendanceManager(defaultConfig, csvPath);
 
 	// Mock current date by using a specific date
@@ -316,7 +316,7 @@ test('should check attendance status methods', async t => {
 });
 
 test('should format status messages correctly', async t => {
-	const csvPath = createTempCSVPath();
+	const csvPath = createTemporaryCSVPath();
 	const manager = new AttendanceManager(defaultConfig, csvPath);
 
 	// Test with no attendance
@@ -340,7 +340,7 @@ test('should format status messages correctly', async t => {
 });
 
 test('should handle config updates', t => {
-	const csvPath = createTempCSVPath();
+	const csvPath = createTemporaryCSVPath();
 	const manager = new AttendanceManager(defaultConfig, csvPath);
 
 	const originalConfig = manager.getConfig();

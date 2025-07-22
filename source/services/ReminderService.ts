@@ -171,8 +171,8 @@ export class ReminderService {
 			'iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsQAAA7EAZUrDhsAAANCSURBVFhH7ZdNiFxVFIafM+/e2123u6u7q7ozk0kmM5lJJpnJJJNkMjOZZJJJZjKZTCaZzGQymUwmk8lkMplMJpPJZDKZTCaZzGQymUwmk8lkMplMJpPJZDKZTCaZmUwmk8lkMplMJpPJZDKZTCaZmUwmk8lkMplMJpPJZDKZTCaZmUwmk8lkMplMJpNJ';
 
 		const iconData = Buffer.from(iconBase64, 'base64');
-		const tempDir = os.tmpdir();
-		const iconPath = path.join(tempDir, 'jiracle-notification-icon.png');
+		const temporaryDir = os.tmpdir();
+		const iconPath = path.join(temporaryDir, 'jiracle-notification-icon.png');
 
 		fs.writeFileSync(iconPath, iconData);
 		return iconPath;

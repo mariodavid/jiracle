@@ -118,7 +118,6 @@
 			],
 			"unicorn/expiring-todo-comments": "off",
 			"unicorn/filename-case": "off",
-			"unicorn/prevent-abbreviations": "off",
 			"unicorn/no-empty-file": "off",
 			"@typescript-eslint/naming-convention": "off",
 			"@typescript-eslint/prefer-nullish-coalescing": "off",

@@ -87,11 +87,11 @@ test('should handle very large CSV file', async t => {
 		for (let i = 0; i < 50; i++) {
 			const date = new Date('2025-01-01');
 			date.setDate(date.getDate() + i);
-			const dateStr = date.toISOString().split('T')[0]!;
+			const dateString = date.toISOString().split('T')[0]!;
 
 			attendances.push(
 				TestData.createAttendance({
-					date: dateStr,
+					date: dateString,
 				}),
 			);
 		}
