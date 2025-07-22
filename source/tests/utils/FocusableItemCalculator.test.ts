@@ -13,8 +13,10 @@ import type {AttendanceManager} from '../../attendance/AttendanceManager.js';
 import type {IssueGroup} from '../../services/IssueGroupManager.js';
 
 // Test data factories
-const createMockAttendanceManager = (): AttendanceManager =>
-	({} as AttendanceManager);
+const createMockAttendanceManager = (): AttendanceManager => {
+	const mockManager: AttendanceManager = {} as any;
+	return mockManager;
+};
 
 const createIssueGroup = (
 	issueKeys: string[],

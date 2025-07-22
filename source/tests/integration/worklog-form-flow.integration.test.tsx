@@ -40,24 +40,26 @@ test.beforeEach(() => {
 		// Mock worklog submission
 		if (urlString.includes('/worklog') && options?.method === 'POST') {
 			if (shouldFailWorklogSubmit) {
-				return {
+				const response: Response = {
 					ok: false,
 					status: 400,
 					text: async () => 'Bad Request',
 				} as Response;
+				return response;
 			}
 
 			// Store worklog data if needed for validation
-			return {
+			const response: Response = {
 				ok: true,
 				status: 201,
 				json: async () => ({}),
 			} as Response;
+			return response;
 		}
 
 		// Mock search for worklogs
 		if (urlString.includes('/search')) {
-			return {
+			const response: Response = {
 				ok: true,
 				status: 200,
 				json: async () => ({
@@ -85,14 +87,16 @@ test.beforeEach(() => {
 					],
 				}),
 			} as Response;
+			return response;
 		}
 
 		// Default mock response
-		return {
+		const response: Response = {
 			ok: true,
 			status: 200,
 			json: async () => ({}),
 		} as Response;
+		return response;
 	};
 });
 
