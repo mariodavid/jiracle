@@ -1,0 +1,68 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(gh issue:*)",
+      "Bash(git checkout:*)",
+      "Bash(npm run build:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npm test)",
+      "Bash(npx ava:*)",
+      "Bash(node:*)",
+      "Bash(rm:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(git merge:*)",
+      "Bash(npx prettier:*)",
+      "Bash(grep:*)",
+      "Bash(gh pr create:*)",
+      "Bash(gh pr checks:*)",
+      "Bash(gh pr view:*)",
+      "WebFetch(domain:github.com)",
+      "Bash(npm run test:xo:*)",
+      "Bash(npm run:*)",
+      "Bash(git cherry-pick:*)",
+      "Bash(find:*)",
+      "Bash(sed:*)",
+      "Bash(npm install:*)",
+      "WebFetch(domain:docs.deepsource.com)",
+      "Bash(gh run view:*)",
+      "Bash(gh secret set:*)",
+      "Bash(gh secret:*)",
+      "Bash(ls:*)",
+      "Bash(git rm:*)",
+      "Bash(git pull:*)",
+      "Bash(git rebase:*)",
+      "Bash(gh pr edit:*)",
+      "Bash(prettier --write .)",
+      "Bash(npm test:*)",
+      "Bash(npx c8:*)",
+      "Bash(gh run list:*)"
+    ],
+    "deny": []
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -r '\"\\(.tool_input.command) - \\(.tool_input.description // \"No description\")\"' >> ~/.claude/bash-command-log.txt"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|MultiEdit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/xo-check.sh"
+          }
+        ]
+      }
+    ]
+  }
+}
