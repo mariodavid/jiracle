@@ -2,7 +2,7 @@ import test from 'ava';
 import React from 'react';
 import {render} from 'ink-testing-library';
 import {TimetableGrid} from '../../components/TimetableGrid.js';
-import {type WeeklyWorklogSummary} from '../../domain/WeeklyWorklogSummary.js';
+import type {WeeklyWorklogSummary} from '../../domain/WeeklyWorklogSummary.js';
 import type {FavoriteIssue, JiraConfig} from '../../jira-client.js';
 
 // Mock data for testing
