@@ -48,9 +48,9 @@ export function useWeeklyWorklogSummary(
 				.join(',') || '';
 		// Support both new slidingWindowDays and legacy recentWorkdaysLookback for backward compatibility
 		const normalizedWindow = normalizeSlidingWindowConfig(config);
-		const cacheKey = `${weekStart.toISOString().split('T')[0]}-${
-			weekEnd.toISOString().split('T')[0]
-		}-${String(userEmail || 'unknown')}-${favoriteKeys}-sliding:${
+		const cacheKey = `${weekStart.toISOString().split('T')[0] ?? 'unknown'}-${
+			weekEnd.toISOString().split('T')[0] ?? 'unknown'
+		}-${userEmail ?? 'unknown'}-${favoriteKeys}-sliding:${
 			normalizedWindow.past
 		}:${normalizedWindow.future}`;
 
@@ -106,9 +106,9 @@ export function useWeeklyWorklogSummary(
 				.join(',') || '';
 		// Support both new slidingWindowDays and legacy recentWorkdaysLookback for backward compatibility
 		const normalizedWindow = normalizeSlidingWindowConfig(config);
-		const cacheKey = `${weekStart.toISOString().split('T')[0]}-${
-			weekEnd.toISOString().split('T')[0]
-		}-${String(userEmail || 'unknown')}-${favoriteKeys}-sliding:${
+		const cacheKey = `${weekStart.toISOString().split('T')[0] ?? 'unknown'}-${
+			weekEnd.toISOString().split('T')[0] ?? 'unknown'
+		}-${userEmail ?? 'unknown'}-${favoriteKeys}-sliding:${
 			normalizedWindow.past
 		}:${normalizedWindow.future}`;
 		weekDataCache.delete(cacheKey);

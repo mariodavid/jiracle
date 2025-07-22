@@ -1128,8 +1128,10 @@ test('WeeklyWorklogSummaryUseCase sliding window issues with very large window p
 
 	t.true(
 		diffInDays <= 4, // Allow up to 4 days difference for timezone/DST issues
-		`Expected lookback start around ${actualLookbackStartDate}, got ${String(
-			capturedWindowDates[0],
+		`Expected lookback start around ${
+			actualLookbackStartDate ?? 'unknown'
+		}, got ${String(
+			capturedWindowDates[0] ?? 'undefined',
 		)} (${diffInDays} days difference)`,
 	);
 
@@ -1141,9 +1143,9 @@ test('WeeklyWorklogSummaryUseCase sliding window issues with very large window p
 	t.true(
 		endDiffInDays <= 1, // Allow up to 1 day difference for timezone issues
 		`Expected lookback end around ${
-			expectedWindowEnd.toISOString().split('T')[0]
+			expectedWindowEnd.toISOString().split('T')[0] ?? 'unknown'
 		}, got ${String(
-			capturedWindowDates[1],
+			capturedWindowDates[1] ?? 'undefined',
 		)} (${endDiffInDays} days difference)`,
 	);
 

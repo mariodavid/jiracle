@@ -30,8 +30,10 @@ test('hasWorklogForToday method exists and builds correct JQL', async t => {
 
 	// Check JQL format
 	const today = new Date().toISOString().split('T')[0];
-	const expectedJql = `worklogDate = "${today}" AND worklogAuthor = currentUser()`;
-	t.is(capturedJql, expectedJql);
+	const expectedJql = `worklogDate = "${
+		today ?? 'unknown'
+	}" AND worklogAuthor = currentUser()`;
+	t.is(capturedJql ?? '', expectedJql);
 });
 
 test('hasWorklogForToday returns true when worklogs exist', async t => {

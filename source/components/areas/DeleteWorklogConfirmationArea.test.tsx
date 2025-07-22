@@ -33,7 +33,9 @@ const mockFormatDate = (date: Date) => {
 		'Nov',
 		'Dec',
 	];
-	return `${days[date.getDay()]}, ${months[date.getMonth()]} ${date.getDate()}`;
+	return `${days[date.getDay()] ?? 'Unknown'}, ${
+		months[date.getMonth()] ?? 'Unknown'
+	} ${date.getDate()}`;
 };
 
 test('DeleteWorklogConfirmationArea renders with issue key and formatted date', t => {

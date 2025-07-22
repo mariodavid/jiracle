@@ -97,7 +97,6 @@
 					"skipBlankLines": true
 				}
 			],
-			"@typescript-eslint/restrict-template-expressions": "off",
 			"unicorn/expiring-todo-comments": "off",
 			"unicorn/filename-case": "off",
 			"unicorn/prevent-abbreviations": "off",
