@@ -32,7 +32,9 @@ const mockFormatDate = (date: Date) => {
 		'Nov',
 		'Dec',
 	];
-	return `${days[date.getDay()]}, ${months[date.getMonth()]} ${date.getDate()}`;
+	return `${days[date.getDay()] ?? 'Unknown'}, ${
+		months[date.getMonth()] ?? 'Unknown'
+	} ${date.getDate()}`;
 };
 
 test('DeleteAttendanceConfirmationArea renders with formatted date', t => {

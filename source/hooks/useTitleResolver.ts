@@ -52,8 +52,8 @@ export function useTitleResolver({
 			'Nov',
 			'Dec',
 		];
-		return `${days[date.getDay()]}, ${
-			months[date.getMonth()]
+		return `${days[date.getDay()] ?? 'Unknown'}, ${
+			months[date.getMonth()] ?? 'Unknown'
 		} ${date.getDate()}`;
 	};
 

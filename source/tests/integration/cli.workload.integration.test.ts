@@ -206,7 +206,7 @@ test.serial('worklog add - end to end successful flow structure', t => {
 				'Command structure works - API call failed as expected with invalid credentials',
 			);
 		} else {
-			t.fail(`Unexpected error: ${err.message}`);
+			t.fail(`Unexpected error: ${String(err?.message ?? err)}`);
 		}
 	} finally {
 		if (backup) {

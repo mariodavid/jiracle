@@ -76,8 +76,8 @@ export function WeeklyTimetableView({
 			'Nov',
 			'Dez',
 		];
-		return `${days[date.getDay()]}, ${date.getDate()}. ${
-			months[date.getMonth()]
+		return `${days[date.getDay()] ?? 'Unknown'}, ${date.getDate()}. ${
+			months[date.getMonth()] ?? 'Unknown'
 		}`;
 	};
 

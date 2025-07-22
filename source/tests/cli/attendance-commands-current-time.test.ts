@@ -70,7 +70,7 @@ testWithContext('checkin uses current time when no time specified', async t => {
 	t.is(breakMinutes, '30');
 
 	// Verify check-in time is within reasonable range (current time ±1 minute)
-	const checkInTime = new Date(`2025-07-15T${checkIn}:00`);
+	const checkInTime = new Date(`2025-07-15T${checkIn ?? '00:00'}:00`);
 	const beforeTime = new Date(
 		`2025-07-15T${beforeCheckIn.toTimeString().slice(0, 5)}:00`,
 	);
@@ -127,7 +127,7 @@ testWithContext(
 		t.truthy(totalHours);
 
 		// Verify check-out time is within reasonable range (current time ±1 minute)
-		const checkOutTime = new Date(`2025-07-15T${checkOut}:00`);
+		const checkOutTime = new Date(`2025-07-15T${checkOut ?? '00:00'}:00`);
 		const beforeTime = new Date(
 			`2025-07-15T${beforeCheckOut.toTimeString().slice(0, 5)}:00`,
 		);

@@ -40,7 +40,7 @@ export function AttendanceRows({
 				const [hours, minutes] = time.split(':');
 				const h = Number.parseInt(hours || '0', 10);
 				const m = Number.parseInt(minutes || '0', 10);
-				return m === 0 ? h.toString() : `${h}:${minutes}`;
+				return m === 0 ? h.toString() : `${h}:${minutes ?? '00'}`;
 			};
 
 			const checkIn = formatTime(attendance.checkIn || '08:00');
@@ -84,7 +84,7 @@ export function AttendanceRows({
 									/>
 								) : (
 									<Box
-										key={`attendance-static-${row.key}-${date}`}
+										key={`attendance-static-${row.key}-${date.toISOString()}`}
 										width={12}
 										justifyContent="flex-end"
 									>

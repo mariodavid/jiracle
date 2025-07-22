@@ -44,7 +44,9 @@ test('should check in with current time', async t => {
 	t.is(attendance.checkOut, undefined);
 
 	// Verify check-in time is within reasonable range (current time ±1 minute)
-	const checkInTime = new Date(`2025-07-12T${attendance.checkIn}:00`);
+	const checkInTime = new Date(
+		`2025-07-12T${attendance.checkIn ?? '00:00'}:00`,
+	);
 	const beforeTime = new Date(
 		`2025-07-12T${beforeCheckIn.toTimeString().slice(0, 5)}:00`,
 	);
@@ -101,7 +103,9 @@ test('should check out with current time', async t => {
 	t.true(typeof attendance.totalHours === 'number');
 
 	// Verify check-out time is within reasonable range (current time ±1 minute)
-	const checkOutTime = new Date(`2025-07-12T${attendance.checkOut}:00`);
+	const checkOutTime = new Date(
+		`2025-07-12T${attendance.checkOut ?? '00:00'}:00`,
+	);
 	const beforeTime = new Date(
 		`2025-07-12T${beforeCheckOut.toTimeString().slice(0, 5)}:00`,
 	);

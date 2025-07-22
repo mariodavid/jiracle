@@ -1039,7 +1039,8 @@ export class JiraClient {
 
 	async hasWorklogForToday(): Promise<boolean> {
 		const today = new Date();
-		const todayFormatted = today.toISOString().split('T')[0];
+		const todayFormatted =
+			today.toISOString().split('T')[0] ?? today.toISOString();
 
 		const jql = `worklogDate = "${todayFormatted}" AND worklogAuthor = currentUser()`;
 
