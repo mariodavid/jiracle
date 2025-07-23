@@ -39,7 +39,7 @@ export type WorklogEntry = {
 		displayName: string;
 		emailAddress: string;
 	};
-	comment: string;
+	comment: string | undefined;
 	started: string; // ISO date string
 	timeSpentSeconds: number;
 };

@@ -87,6 +87,7 @@ Create a configuration file at `~/.config/jiracle.json`:
 	"username": "your-email@company.com",
 	"apiToken": "your-jira-api-token",
 	"defaultComment": "Work logged via Jiracle",
+	"commentPrefillDays": 7,
 	"reminders": {
 		"enabled": true,
 		"times": ["11:30", "16:30"],
@@ -99,7 +100,8 @@ Create a configuration file at `~/.config/jiracle.json`:
 			"name": "Development Work",
 			"defaultComment": "Development and coding tasks",
 			"defaultTime": "2h",
-			"desiredAmount": 6
+			"desiredAmount": 6,
+			"commentPrefillDays": 14
 		}
 	],
 	"projects": [
@@ -113,7 +115,8 @@ Create a configuration file at `~/.config/jiracle.json`:
 			"key": "PROJ-123",
 			"alias": "Main Feature",
 			"defaultComment": "Development work on main project",
-			"groupId": "development"
+			"groupId": "development",
+			"commentPrefillDays": 3
 		},
 		{
 			"key": "PROJ-456"
@@ -135,6 +138,7 @@ Create a configuration file at `~/.config/jiracle.json`:
 | `apiToken`               | Yes      | Your Jira API token                                                          |
 | `defaultComment`         | No       | Global default comment for all worklogs                                      |
 | `defaultTime`            | No       | Global default time (e.g., "1h", "2h")                                       |
+| `commentPrefillDays`     | No       | Global default days to look back for comment prefill (default: 7)            |
 | `workingHoursPerWeek`    | No       | Expected working hours per week for tracking purposes                        |
 | `alignRemainingStrategy` | No       | Strategy for time alignment: "even" or "proportional" (default: "even")      |
 | `reminders`              | No       | Daily reminder settings for desktop notifications                            |
@@ -338,13 +342,14 @@ Jiracle supports organizing your work into groups with shared defaults and visua
 
 **Group Options:**
 
-| Option           | Type   | Description                              |
-| ---------------- | ------ | ---------------------------------------- |
-| `id`             | string | Unique identifier for the group          |
-| `name`           | string | Display name for the group               |
-| `defaultComment` | string | Default comment for issues in this group |
-| `defaultTime`    | string | Default time allocation (e.g., "2h")     |
-| `desiredAmount`  | number | Target hours per day/week for this group |
+| Option               | Type   | Description                              |
+| -------------------- | ------ | ---------------------------------------- |
+| `id`                 | string | Unique identifier for the group          |
+| `name`               | string | Display name for the group               |
+| `defaultComment`     | string | Default comment for issues in this group |
+| `defaultTime`        | string | Default time allocation (e.g., "2h")     |
+| `desiredAmount`      | number | Target hours per day/week for this group |
+| `commentPrefillDays` | number | Days to look back for comment prefill    |
 
 **Configuration Priority:**
 
@@ -387,13 +392,14 @@ Favorite issues can be configured in two ways:
 
 **Favorite Issue Options:**
 
-| Option           | Type   | Description                                 |
-| ---------------- | ------ | ------------------------------------------- |
-| `key`            | string | Jira issue key (required)                   |
-| `alias`          | string | Display name for the issue in the timetable |
-| `defaultComment` | string | Default comment for this specific issue     |
-| `defaultTime`    | string | Default time allocation (e.g., "2h")        |
-| `groupId`        | string | ID of the group this issue belongs to       |
+| Option               | Type   | Description                                 |
+| -------------------- | ------ | ------------------------------------------- |
+| `key`                | string | Jira issue key (required)                   |
+| `alias`              | string | Display name for the issue in the timetable |
+| `defaultComment`     | string | Default comment for this specific issue     |
+| `defaultTime`        | string | Default time allocation (e.g., "2h")        |
+| `groupId`            | string | ID of the group this issue belongs to       |
+| `commentPrefillDays` | number | Days to look back for comment prefill       |
 
 ### Comment Priority
 
@@ -404,6 +410,52 @@ When creating a worklog, comments are used in this priority order:
 3. **Empty string** - No default comment
 
 Example: If `PROJ-123` has a specific `defaultComment` and you have a global `defaultComment`, the specific one will be used for `PROJ-123`, while other issues use the global default.
+
+### Comment Prefill Feature
+
+When creating new worklogs (not editing existing ones), Jiracle can automatically prefill the comment field with the most recent non-empty comment from the same issue. This saves time by reusing your recent work descriptions.
+
+**How it works:**
+
+- When you start logging time for an issue, Jiracle looks back through your recent worklogs for that same issue
+- It finds the most recent worklog with a non-empty comment within the configured time window
+- That comment is automatically filled in the comment field (you can still edit or override it)
+- Only applies to new worklogs, not when editing existing entries
+
+**Configuration hierarchy:**
+
+The number of days to look back can be configured at multiple levels:
+
+1. **Issue level**: `favorites[].commentPrefillDays` (highest priority)
+2. **Group level**: `groups[].commentPrefillDays`
+3. **Global level**: `commentPrefillDays`
+4. **Default**: 7 days if not configured
+
+**Examples:**
+
+```json
+{
+	"commentPrefillDays": 7, // Global: look back 7 days for all issues
+	"groups": [
+		{
+			"id": "development",
+			"commentPrefillDays": 14 // Development issues: look back 14 days
+		}
+	],
+	"favorites": [
+		{
+			"key": "PROJ-123",
+			"commentPrefillDays": 3 // This specific issue: only 3 days
+		}
+	]
+}
+```
+
+**Behavior:**
+
+- If recent comments are found within the lookback period → Use the most recent comment
+- If no recent comments are found → Fall back to configured default comments (favorites → groups → global → empty)
+- Setting `commentPrefillDays: 0` disables prefill for that level
 
 ### Daily Reminders
 

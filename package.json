@@ -133,7 +133,8 @@
 			"react/no-array-index-key": "off",
 			"react/no-unused-prop-types": "off",
 			"react/boolean-prop-naming": "off",
-			"import/first": "error"
+			"import/first": "error",
+			"eol-last": "off"
 		}
 	},
 	"prettier": "@vdemedes/prettier-config",

@@ -1,4 +1,5 @@
 import {join} from 'node:path';
+import {existsSync, unlinkSync} from 'node:fs';
 import process from 'node:process';
 import winston from 'winston';
 
@@ -6,6 +7,21 @@ import winston from 'winston';
 export const createUILogger = (): winston.Logger => {
 	const isTestEnvironment =
 		process.env['NODE_ENV'] === 'test' || process.env['AVA_CONFIG'];
+
+	const logFilePath = join(
+		process.env['HOME'] ?? '~',
+		'.config',
+		'jiracle-ui.log',
+	);
+
+	// Clear the log file at application start (only in non-test environments)
+	if (!isTestEnvironment && existsSync(logFilePath)) {
+		try {
+			unlinkSync(logFilePath);
+		} catch {
+			// Ignore errors when clearing log file
+		}
+	}
 
 	return winston.createLogger({
 		level: process.env['JIRACLE_LOG_LEVEL'] ?? 'info', // Change to 'debug' to see debug logs
@@ -16,7 +32,7 @@ export const createUILogger = (): winston.Logger => {
 		),
 		transports: [
 			new winston.transports.File({
-				filename: join(process.env['HOME'] ?? '~', '.config', 'jiracle-ui.log'),
+				filename: logFilePath,
 			}),
 			// Only add console transport in non-test environments
 			...(isTestEnvironment

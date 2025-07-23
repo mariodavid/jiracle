@@ -6,6 +6,7 @@ export type Group = {
 	defaultComment?: string;
 	defaultTime?: string;
 	desiredAmount?: number;
+	commentPrefillDays?: number;
 };
 
 export type FavoriteIssue = {
@@ -14,6 +15,7 @@ export type FavoriteIssue = {
 	defaultComment?: string;
 	defaultTime?: string;
 	groupId?: string;
+	commentPrefillDays?: number;
 };
 
 export type ProjectDefaults = {
@@ -45,6 +47,7 @@ export type JiraConfig = {
 	reminders?: ReminderConfig;
 	attendance?: AttendanceConfig;
 	slidingWindowDays?: SlidingWindowConfig;
+	commentPrefillDays?: number;
 };
 
 export type JiraIssueField = {
@@ -104,7 +107,7 @@ export type WorklogEntry = {
 		displayName: string;
 		emailAddress: string;
 	};
-	comment: string;
+	comment: string | undefined;
 	started: string;
 	timeSpentSeconds: number;
 };

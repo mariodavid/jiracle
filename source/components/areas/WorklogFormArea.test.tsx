@@ -2,7 +2,7 @@ import test from 'ava';
 import React from 'react';
 import {render} from 'ink-testing-library';
 import type {WorklogFormData} from '../../hooks/useWorklogForm.js';
-import type {JiraConfig} from '../../jira-client.js';
+import {JiraClient, type JiraConfig} from '../../jira-client.js';
 import {WorklogFormArea} from './WorklogFormArea.js';
 
 const mockConfig: JiraConfig = {
@@ -28,6 +28,12 @@ const mockWorklogForm: WorklogFormData = {
 	worklogId: undefined,
 };
 
+const mockJiraClient = new JiraClient({
+	jiraUrl: 'https://test.example.com',
+	username: 'test@example.com',
+	apiToken: 'test-token',
+});
+
 test('WorklogFormArea renders with worklog form', t => {
 	const mockOnSubmit = async () => {};
 	const mockOnCancel = () => {};
@@ -38,6 +44,7 @@ test('WorklogFormArea renders with worklog form', t => {
 			worklogSubmitting={false}
 			worklogError={undefined}
 			config={mockConfig}
+			jiraClient={mockJiraClient}
 			onSubmit={mockOnSubmit}
 			onCancel={mockOnCancel}
 		/>,
@@ -58,6 +65,7 @@ test('WorklogFormArea shows loading state when submitting', t => {
 			worklogSubmitting={true}
 			worklogError={undefined}
 			config={mockConfig}
+			jiraClient={mockJiraClient}
 			onSubmit={mockOnSubmit}
 			onCancel={mockOnCancel}
 		/>,
@@ -79,6 +87,7 @@ test('WorklogFormArea displays error message', t => {
 			worklogSubmitting={false}
 			worklogError="Test error message"
 			config={mockConfig}
+			jiraClient={mockJiraClient}
 			onSubmit={mockOnSubmit}
 			onCancel={mockOnCancel}
 		/>,
@@ -99,6 +108,7 @@ test('WorklogFormArea handles submit callback', t => {
 			worklogSubmitting={false}
 			worklogError={undefined}
 			config={mockConfig}
+			jiraClient={mockJiraClient}
 			onSubmit={mockOnSubmit}
 			onCancel={mockOnCancel}
 		/>,
@@ -119,6 +129,7 @@ test('WorklogFormArea handles cancel callback', t => {
 			worklogSubmitting={false}
 			worklogError={undefined}
 			config={mockConfig}
+			jiraClient={mockJiraClient}
 			onSubmit={mockOnSubmit}
 			onCancel={mockOnCancel}
 		/>,
@@ -144,6 +155,7 @@ test('WorklogFormArea shows favorite indicator for favorite issues', t => {
 			worklogSubmitting={false}
 			worklogError={undefined}
 			config={mockConfig}
+			jiraClient={mockJiraClient}
 			onSubmit={mockOnSubmit}
 			onCancel={mockOnCancel}
 		/>,
@@ -170,6 +182,7 @@ test('WorklogFormArea handles edit mode correctly', t => {
 			worklogSubmitting={false}
 			worklogError={undefined}
 			config={mockConfig}
+			jiraClient={mockJiraClient}
 			onSubmit={mockOnSubmit}
 			onCancel={mockOnCancel}
 		/>,
@@ -191,6 +204,7 @@ test('WorklogFormArea uses correct styling and layout', t => {
 			worklogSubmitting={false}
 			worklogError={undefined}
 			config={mockConfig}
+			jiraClient={mockJiraClient}
 			onSubmit={mockOnSubmit}
 			onCancel={mockOnCancel}
 		/>,

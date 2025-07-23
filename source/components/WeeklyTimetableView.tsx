@@ -11,7 +11,7 @@ import {useNavigationState} from '../hooks/useNavigationState.js';
 import {useTitleResolver} from '../hooks/useTitleResolver.js';
 import {useActiveAreaResolver} from '../hooks/useActiveAreaResolver.js';
 import {useNotification} from '../hooks/useNotification.js';
-import type {JiraConfig} from '../jira-client.js';
+import {JiraClient, type JiraConfig} from '../jira-client.js';
 import {getStartOfWeek, getEndOfWeek} from '../utils/date.js';
 import {
 	isBrowserOpenSupported,
@@ -41,6 +41,9 @@ export function WeeklyTimetableView({
 	config,
 	userEmail,
 }: WeeklyTimetableViewProps) {
+	// Create JiraClient instance
+	const jiraClient = new JiraClient(config);
+
 	// Navigation state management
 	const {
 		currentWeek,
@@ -303,6 +306,7 @@ export function WeeklyTimetableView({
 									worklogSubmitting={worklogSubmitting}
 									worklogError={worklogError}
 									config={config}
+									jiraClient={jiraClient}
 									onSubmit={handleWorklogSubmit}
 									onCancel={handleWorklogCancel}
 								/>
