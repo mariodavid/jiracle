@@ -23,7 +23,10 @@ const createIssueGroup = (
 	groupName?: string,
 ): IssueGroup => ({
 	group: groupName ? {id: groupName, name: groupName} : undefined,
-	issues: issueKeys.map(key => [key, {summary: `Summary for ${key}`}]),
+	issues: issueKeys.map(key => [
+		key,
+		{summary: `Summary for ${key}`, dailyHours: {}, weekTotal: 0},
+	]),
 	totalHours: 0,
 });
 

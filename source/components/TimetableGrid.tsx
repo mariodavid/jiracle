@@ -6,16 +6,15 @@ import {formatLocalDateKey} from '../utils/date.js';
 import type {FavoriteIssue, JiraConfig} from '../jira-client.js';
 import {type AttendanceManager} from '../attendance/AttendanceManager.js';
 import type {WeeklyAttendance} from '../attendance/types.js';
-import {useIssueGroups} from '../hooks/useIssueGroups.js';
-import type {IssueGroup} from '../services/IssueGroupManager.js';
+import {useIssueGroups, type IssueGroup} from '../hooks/useIssueGroups.js';
 import {
 	calculateDailyTotals,
 	formatHours,
 	truncateText,
 } from '../utils/TimetableCalculations.js';
 import {calculateFocusableItems} from '../utils/FocusableItemCalculator.js';
-import {findInitialFocusItem} from '../services/GridNavigationService.js';
 import {useTableNavigation} from '../hooks/useTableNavigation.js';
+import {useGridNavigation} from '../hooks/useGridNavigation.js';
 import {
 	generateWeekDates,
 	buildIssueMap,
@@ -86,6 +85,7 @@ export function TimetableGrid({
 
 	// CALL ALL HOOKS FIRST (before any conditional returns)
 	const {focus} = useFocusManager();
+	const {findInitialFocus} = useGridNavigation();
 
 	// Calculate values that depend on data (with safe defaults)
 	const weekStart = data ? new Date(data.weekStart) : new Date();
@@ -146,11 +146,11 @@ export function TimetableGrid({
 	const formatGroupTotal = (group: IssueGroup): string => {
 		const totalHours = formatHours(group.totalHours);
 
-		if (group.group?.desiredAmount) {
-			const desired = group.group.desiredAmount;
+		const desiredAmount = group.group?.desiredAmount;
+		if (typeof desiredAmount === 'number') {
 			const actual = group.totalHours;
-			const status = actual >= desired ? '✓' : '⚠️';
-			return `${totalHours}/${desired} ${status}`;
+			const status = actual >= desiredAmount ? '✓' : '⚠️';
+			return `${totalHours}/${String(desiredAmount)} ${status}`;
 		}
 
 		// Return hours without 'h' suffix for group totals
@@ -175,10 +175,7 @@ export function TimetableGrid({
 					? todayDayOfWeek - 1 // Monday=0, Tuesday=1, ..., Friday=4
 					: 0; // Default to Monday for weekends
 
-			const initialItem = findInitialFocusItem(
-				focusableItems,
-				todayColumnIndex,
-			);
+			const initialItem = findInitialFocus(focusableItems, todayColumnIndex);
 
 			if (initialItem) {
 				focus(initialItem.focusId);
