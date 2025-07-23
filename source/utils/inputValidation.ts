@@ -37,7 +37,7 @@ export class InputValidation {
 		// Check for invalid patterns
 		if (newValue.includes('..')) return false; // Multiple dots
 		if (newValue.includes(',,')) return false; // Multiple commas
-		if (newValue.includes('.,') ?? newValue.includes(',.')) return false; // Mixed separators
+		if (newValue.includes('.,') || newValue.includes(',.')) return false; // Mixed separators
 		if (/(?:\d+[.,]){2}/.test(newValue)) return false; // Multiple decimal separators
 
 		// Don't allow units at the beginning

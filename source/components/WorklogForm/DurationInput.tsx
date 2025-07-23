@@ -56,7 +56,7 @@ export default function DurationInput({
 	};
 
 	const defaultTime = getDefaultTime();
-	const initialValue = value ?? defaultTime;
+	const initialValue = value?.trim() ? value : defaultTime;
 	const [timeInputValue, setTimeInputValue] = useState(initialValue);
 	const [cursorPosition, setCursorPosition] = useState(initialValue.length);
 	const [isSelected, setIsSelected] = useState(true); // Start with text selected

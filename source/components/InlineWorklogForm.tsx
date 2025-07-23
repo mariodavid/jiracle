@@ -280,7 +280,7 @@ export function InlineWorklogForm({
 					return;
 				}
 
-				if (key.backspace ?? key.delete) {
+				if (key.backspace || key.delete) {
 					if (inputValue.length > 0) {
 						const newValue = inputValue.slice(0, -1);
 						setInputValue(newValue);
@@ -336,7 +336,7 @@ export function InlineWorklogForm({
 		});
 
 		// Immediate synchronous check with ref
-		if (isSubmitting ?? submittingRef.current) {
+		if (isSubmitting || submittingRef.current) {
 			uiLogger.debug('InlineWorklogForm: Blocked duplicate submission');
 			return; // Don't submit if already submitting
 		}
