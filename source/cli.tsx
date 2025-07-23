@@ -1,7 +1,4 @@
 #!/usr/bin/env node
-import {readFileSync} from 'node:fs';
-import {homedir} from 'node:os';
-import {join} from 'node:path';
 import process from 'node:process';
 import React from 'react';
 import {render} from 'ink';
@@ -12,8 +9,8 @@ import {
 	JiraClient,
 	type WorklogRequest,
 	type JiraConfig,
-	loadConfigWithEnvVars,
 } from './jira-client.js';
+import {loadJiraConfig} from './utils/config-loader.js';
 import {
 	executeCheckIn,
 	executeCheckOut,
@@ -122,11 +119,7 @@ function validateWorklogParameters(parameters: WorklogAddParameters): void {
 }
 
 function loadConfig(configPath?: string): JiraConfig {
-	const configFilePath =
-		configPath ?? join(homedir(), '.config', 'jiracle.json');
-	const configData = readFileSync(configFilePath, 'utf8');
-	const baseConfig = JSON.parse(configData) as JiraConfig;
-	return loadConfigWithEnvVars(baseConfig);
+	return loadJiraConfig(configPath, true);
 }
 
 function createSilentLogger(): winston.Logger {
