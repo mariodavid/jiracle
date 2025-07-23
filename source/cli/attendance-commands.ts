@@ -1,8 +1,6 @@
-import {readFileSync} from 'node:fs';
-import {homedir} from 'node:os';
-import {join} from 'node:path';
 import {AttendanceManager} from '../attendance/AttendanceManager.js';
 import type {JiraConfig} from '../jira-client.js';
+import {loadJiraConfig} from '../utils/config-loader.js';
 
 export type AttendanceCommandResult = {
 	success: boolean;
@@ -27,10 +25,7 @@ function getAttendanceManager(
 	configPath?: string,
 	csvPath?: string,
 ): AttendanceManager {
-	const configFilePath =
-		configPath ?? join(homedir(), '.config', 'jiracle.json');
-	const configData = readFileSync(configFilePath, 'utf8');
-	const config: JiraConfig = JSON.parse(configData) as JiraConfig;
+	const config: JiraConfig = loadJiraConfig(configPath);
 
 	if (!config.attendance?.enabled) {
 		throw new Error(

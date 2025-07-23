@@ -1,11 +1,9 @@
-import {readFileSync} from 'node:fs';
-import {homedir} from 'node:os';
-import {join} from 'node:path';
 import {useState, useEffect} from 'react';
 import {JiraClient} from '../jira-client.js';
 import type {JiraConfig} from '../jira-client.js';
 import type {Step} from '../types/index.js';
 import {ReminderService} from '../services/ReminderService.js';
+import {loadJiraConfig} from '../utils/config-loader.js';
 
 export type UseConfigResult = {
 	step: Step;
@@ -26,17 +24,7 @@ export function useConfig(providedConfig?: JiraConfig): UseConfigResult {
 	useEffect(() => {
 		async function loadConfigAndUser() {
 			try {
-				let parsedConfig: JiraConfig;
-
-				if (providedConfig) {
-					// Use provided config (for tests)
-					parsedConfig = providedConfig;
-				} else {
-					// Load config from ~/.config/jiracle.json
-					const configPath = join(homedir(), '.config', 'jiracle.json');
-					const configData = readFileSync(configPath, 'utf8');
-					parsedConfig = JSON.parse(configData) as JiraConfig;
-				}
+				const parsedConfig: JiraConfig = providedConfig ?? loadJiraConfig();
 
 				const jiraClient = new JiraClient(parsedConfig);
 				setConfig(parsedConfig);
