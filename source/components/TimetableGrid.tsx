@@ -187,17 +187,37 @@ export function TimetableGrid({
 	}, [focusedCell, isActive, attendanceManager, issueGroups, focus]);
 
 	// CONDITIONAL RENDERING AFTER ALL HOOKS
-	const loadingState = (
-		<TimetableLoadingStates
-			isLoading={isLoading}
-			data={data}
-			favoriteIssues={favoriteIssues}
-			minHeight={MIN_HEIGHT}
-		/>
-	);
+	if (isLoading) {
+		return (
+			<TimetableLoadingStates
+				isLoading={isLoading}
+				data={data}
+				favoriteIssues={favoriteIssues}
+				minHeight={MIN_HEIGHT}
+			/>
+		);
+	}
 
-	if (loadingState) {
-		return loadingState;
+	if (!data) {
+		return (
+			<TimetableLoadingStates
+				isLoading={false}
+				data={data}
+				favoriteIssues={favoriteIssues}
+				minHeight={MIN_HEIGHT}
+			/>
+		);
+	}
+
+	if (data.dailySummaries.length === 0 && favoriteIssues.length === 0) {
+		return (
+			<TimetableLoadingStates
+				isLoading={false}
+				data={data}
+				favoriteIssues={favoriteIssues}
+				minHeight={MIN_HEIGHT}
+			/>
+		);
 	}
 
 	return (
@@ -451,7 +471,7 @@ export function TimetableGrid({
 				))}
 				<Box width={8} justifyContent="flex-end">
 					<Text bold color="green">
-						{formatHours(data.weekTotal)}
+						{formatHours(data?.weekTotal || 0)}
 					</Text>
 				</Box>
 			</Box>

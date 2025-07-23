@@ -55,7 +55,7 @@ export function TimetableLoadingStates({
 		);
 	}
 
-	if (data.dailySummaries.length === 0 && favoriteIssues.length === 0) {
+	if (data && data.dailySummaries.length === 0 && favoriteIssues.length === 0) {
 		return (
 			<Box
 				flexDirection="column"
