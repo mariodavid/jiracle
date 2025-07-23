@@ -13,7 +13,7 @@ class InlineFormSubmissionTest {
 	// This mirrors the handleSubmit logic in InlineWorklogForm
 	simulateHandleSubmit() {
 		// Same logic as in the real component
-		if (this.isSubmitting ?? this.localSubmitting ?? this.submittingRef) {
+		if (this.isSubmitting || this.localSubmitting || this.submittingRef) {
 			return false; // Blocked
 		}
 
