@@ -31,7 +31,7 @@ test('InlineWorklogForm tab navigation includes date field when issue key is edi
 	const {lastFrame} = render(
 		React.createElement(InlineWorklogForm, editableProps),
 	);
-	const output = lastFrame() || '';
+	const output = lastFrame() ?? '';
 
 	// Should show all fields in the correct order when issue key is editable:
 	// Issue Key -> Date -> Time -> Comment -> Submit/Cancel
@@ -53,7 +53,7 @@ test('InlineWorklogForm tab navigation excludes date field when issue key is not
 	const {lastFrame} = render(
 		React.createElement(InlineWorklogForm, nonEditableProps),
 	);
-	const output = lastFrame() || '';
+	const output = lastFrame() ?? '';
 
 	// Should only show Time -> Comment -> Submit/Cancel (no Issue Key or Date fields)
 	t.false(output.includes('Issue Key:'));
@@ -74,7 +74,7 @@ test('InlineWorklogForm shows proper field layout in add worklog mode', t => {
 	const {lastFrame} = render(
 		React.createElement(InlineWorklogForm, addWorklogProps),
 	);
-	const output = lastFrame() || '';
+	const output = lastFrame() ?? '';
 
 	// Should show Issue Key field with placeholder
 	t.true(output.includes('Issue Key:'));
@@ -98,7 +98,7 @@ test('InlineWorklogForm shows proper field layout in cell worklog mode', t => {
 	const {lastFrame} = render(
 		React.createElement(InlineWorklogForm, cellWorklogProps),
 	);
-	const output = lastFrame() || '';
+	const output = lastFrame() ?? '';
 
 	// Should NOT show Issue Key or Date fields
 	t.false(output.includes('Issue Key:'));
@@ -120,7 +120,7 @@ test('InlineWorklogForm displays date value correctly', t => {
 	const {lastFrame} = render(
 		React.createElement(InlineWorklogForm, editableProps),
 	);
-	const output = lastFrame() || '';
+	const output = lastFrame() ?? '';
 
 	// Should show the formatted date (2025-12-25)
 	t.true(output.includes('2025-12-25'));
@@ -138,7 +138,7 @@ test('InlineWorklogForm handles form validation for add worklog mode', t => {
 	const {lastFrame} = render(
 		React.createElement(InlineWorklogForm, addWorklogProps),
 	);
-	const output = lastFrame() || '';
+	const output = lastFrame() ?? '';
 
 	// Should show the error message
 	t.true(output.includes('Error: Issue key is required'));
@@ -155,7 +155,7 @@ test('InlineWorklogForm shows submitting state correctly', t => {
 	const {lastFrame} = render(
 		React.createElement(InlineWorklogForm, submittingProps),
 	);
-	const output = lastFrame() || '';
+	const output = lastFrame() ?? '';
 
 	// Should show submitting state (not the form fields)
 	t.true(output.includes('Submitting Worklog'));
@@ -176,7 +176,7 @@ test('InlineWorklogForm uses current date by default in add worklog mode', t => 
 	const {lastFrame} = render(
 		React.createElement(InlineWorklogForm, addWorklogProps),
 	);
-	const output = lastFrame() || '';
+	const output = lastFrame() ?? '';
 
 	// Should show today's date in YYYY-MM-DD format
 	const expectedDate = today.toISOString().split('T')[0];
@@ -193,7 +193,7 @@ test('InlineWorklogForm SimpleDateInput allows editing', t => {
 	const {lastFrame} = render(
 		React.createElement(InlineWorklogForm, editableProps),
 	);
-	const output = lastFrame() || '';
+	const output = lastFrame() ?? '';
 
 	// Should show the SimpleDateInput component (no infinite loops)
 	t.true(output.includes('Date:'));
@@ -212,7 +212,7 @@ test('InlineWorklogForm date input shows proper visual feedback when focused', t
 	const {lastFrame} = render(
 		React.createElement(InlineWorklogForm, editableProps),
 	);
-	const output = lastFrame() || '';
+	const output = lastFrame() ?? '';
 
 	// The SimpleDateInput should be present and functional
 	t.true(output.includes('Date:'));

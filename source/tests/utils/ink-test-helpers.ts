@@ -138,7 +138,7 @@ export const InkTestHelpers: any = {
 	// Common test patterns for component testing
 	testComponentStructure(component: any, expectedElements: string[], t: any) {
 		const {lastFrame} = this.renderAttendanceEditForm(component);
-		const output = lastFrame() || '';
+		const output = lastFrame() ?? '';
 		this.assertComponentContains(output, expectedElements, t);
 		return output as string;
 	},
@@ -151,7 +151,7 @@ export const InkTestHelpers: any = {
 	) {
 		const props = this.createAttendanceEditFormProps({initialData});
 		const {lastFrame} = render(React.createElement(component, props));
-		const output = lastFrame() || '';
+		const output = lastFrame() ?? '';
 		this.assertComponentContains(output, expectedValues, t);
 		return output;
 	},
@@ -164,7 +164,7 @@ export const InkTestHelpers: any = {
 	) {
 		const props = this.createAttendanceEditFormProps({config});
 		const {lastFrame} = render(React.createElement(component, props));
-		const output = lastFrame() || '';
+		const output = lastFrame() ?? '';
 		this.assertComponentContains(output, expectedValues, t);
 		return output;
 	},

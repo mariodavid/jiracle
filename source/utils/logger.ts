@@ -8,7 +8,7 @@ export const createUILogger = (): winston.Logger => {
 		process.env['NODE_ENV'] === 'test' || process.env['AVA_CONFIG'];
 
 	return winston.createLogger({
-		level: process.env['JIRACLE_LOG_LEVEL'] || 'info', // Change to 'debug' to see debug logs
+		level: process.env['JIRACLE_LOG_LEVEL'] ?? 'info', // Change to 'debug' to see debug logs
 		format: winston.format.combine(
 			winston.format.timestamp(),
 			winston.format.errors({stack: true}),
@@ -16,7 +16,7 @@ export const createUILogger = (): winston.Logger => {
 		),
 		transports: [
 			new winston.transports.File({
-				filename: join(process.env['HOME'] || '~', '.config', 'jiracle-ui.log'),
+				filename: join(process.env['HOME'] ?? '~', '.config', 'jiracle-ui.log'),
 			}),
 			// Only add console transport in non-test environments
 			...(isTestEnvironment

@@ -18,8 +18,8 @@ export class JiraClient {
 	private readonly logger: winston.Logger;
 
 	constructor(config: JiraConfig, customLogger?: winston.Logger) {
-		this.jiraUrl = process.env['JIRACLE_JIRA_URL'] || config.jiraUrl;
-		this.apiToken = process.env['JIRACLE_API_TOKEN'] || config.apiToken;
+		this.jiraUrl = process.env['JIRACLE_JIRA_URL'] ?? config.jiraUrl;
+		this.apiToken = process.env['JIRACLE_API_TOKEN'] ?? config.apiToken;
 		const normalizedJiraUrl = this.jiraUrl.endsWith('/')
 			? this.jiraUrl
 			: `${this.jiraUrl}/`;
@@ -41,7 +41,7 @@ export class JiraClient {
 				transports: [
 					new winston.transports.File({
 						filename: join(
-							process.env['HOME'] || '~',
+							process.env['HOME'] ?? '~',
 							'.config',
 							'jiracle-requests.log',
 						),

@@ -326,6 +326,6 @@ test('TimetableGrid shows dash for zero hours', t => {
 
 	const output = lastFrame()!;
 	// Should show '-' for days without work (Mon-Thu only, since Fri has work)
-	const dashCount = (output.match(/-/g) || []).length;
+	const dashCount = (output.match(/-/g) ?? []).length;
 	t.true(dashCount >= 6); // At least 6 dashes for days without work
 });

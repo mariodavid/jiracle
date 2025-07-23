@@ -113,7 +113,7 @@ function calculateStatus(
 	}
 
 	const totalHours =
-		attendance.totalHours || calculateTotalHours(attendance) || 0;
+		attendance.totalHours ?? calculateTotalHours(attendance) ?? 0;
 	const difference = totalHours - shouldHours;
 
 	return {
@@ -157,7 +157,7 @@ function calculateWeeklyTotals(
 	const dailyHours: Record<string, number> = {};
 
 	for (const [date, attendance] of Object.entries(weeklyAttendance)) {
-		const hours = attendance.totalHours || calculateTotalHours(attendance) || 0;
+		const hours = attendance.totalHours ?? calculateTotalHours(attendance) ?? 0;
 		dailyHours[date] = hours;
 		totalHours += hours;
 	}
@@ -182,14 +182,14 @@ function calculateDailyDeltas(
 
 	for (const date of weekDates) {
 		const attendance = weeklyAttendance[date];
-		const loggedHours = dailyLoggedHours[date] || 0;
+		const loggedHours = dailyLoggedHours[date] ?? 0;
 
 		if (!attendance?.checkIn || !attendance.checkOut) {
 			// No attendance data available or incomplete
 			deltas[date] = undefined;
 		} else {
 			const attendanceHours =
-				attendance.totalHours || calculateTotalHours(attendance) || 0;
+				attendance.totalHours ?? calculateTotalHours(attendance) ?? 0;
 			deltas[date] = loggedHours - attendanceHours;
 		}
 	}

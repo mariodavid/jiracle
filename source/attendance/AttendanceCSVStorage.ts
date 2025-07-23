@@ -9,7 +9,7 @@ export class AttendanceCSVStorage {
 
 	constructor(csvPath?: string) {
 		this.csvPath =
-			csvPath || join(homedir(), '.config', 'jiracle', 'attendance.csv');
+			csvPath ?? join(homedir(), '.config', 'jiracle', 'attendance.csv');
 	}
 
 	async ensureDirectory(): Promise<void> {
@@ -59,7 +59,7 @@ export class AttendanceCSVStorage {
 
 	async getByDate(date: string): Promise<Attendance | undefined> {
 		const attendances = await this.readAll();
-		return attendances.find(a => a.date === date) || undefined;
+		return attendances.find(a => a.date === date) ?? undefined;
 	}
 
 	async getByDateRange(
@@ -129,11 +129,11 @@ export class AttendanceCSVStorage {
 	private toCSVLine(attendance: Attendance): string {
 		const fields = [
 			attendance.date,
-			attendance.checkIn || '',
-			attendance.checkOut || '',
+			attendance.checkIn ?? '',
+			attendance.checkOut ?? '',
 			attendance.breakMinutes.toString(),
-			attendance.totalHours?.toString() || '',
-			attendance.notes || '',
+			attendance.totalHours?.toString() ?? '',
+			attendance.notes ?? '',
 		];
 
 		return fields.join(',');

@@ -42,10 +42,10 @@ export function AttendanceFooterRows({
 		};
 
 		const breakMinutes =
-			attendance.breakMinutes || config?.attendance?.defaultBreakMinutes || 60; // Use configured break time or default to 60 minutes
+			attendance.breakMinutes ?? config?.attendance?.defaultBreakMinutes ?? 60; // Use configured break time or default to 60 minutes
 		const workingHours = calculateWorkingHours(
-			attendance.checkIn || '08:00',
-			attendance.checkOut || '17:00',
+			attendance.checkIn ?? '08:00',
+			attendance.checkOut ?? '17:00',
 			breakMinutes,
 		);
 

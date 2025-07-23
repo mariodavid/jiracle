@@ -9,7 +9,7 @@ test('CheckinConfirmation renders with correct title', t => {
 		React.createElement(CheckinConfirmation, {onConfirm}),
 	);
 
-	const output = lastFrame() || '';
+	const output = lastFrame() ?? '';
 	t.true(output.includes('Start Work'));
 	t.true(output.includes('Do you want to check in and start work for today?'));
 });
@@ -20,7 +20,7 @@ test('CheckinConfirmation displays correct structure', t => {
 		React.createElement(CheckinConfirmation, {onConfirm}),
 	);
 
-	const output = lastFrame() || '';
+	const output = lastFrame() ?? '';
 	// Should show Y/n confirmation input
 	t.true(output.includes('Y/n'));
 });
@@ -59,7 +59,7 @@ test('CheckinConfirmation has proper title styling', t => {
 		React.createElement(CheckinConfirmation, {onConfirm}),
 	);
 
-	const output = lastFrame() || '';
+	const output = lastFrame() ?? '';
 	// The title "Start Work" should be present (styling can't be easily tested in unit tests)
 	t.true(output.includes('Start Work'));
 });

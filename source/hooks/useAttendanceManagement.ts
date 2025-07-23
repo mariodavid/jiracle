@@ -67,7 +67,7 @@ export function useAttendanceManagement(
 
 				setAttendanceEdit({
 					date: data.date,
-					data: existingData || undefined,
+					data: existingData ?? undefined,
 				});
 				onActiveAreaChange('attendance-edit');
 			} catch (error: unknown) {

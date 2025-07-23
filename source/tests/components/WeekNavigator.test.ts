@@ -52,11 +52,11 @@ test('getWeekTitle renders week spanning different years', t => {
 	} else if (timezoneOffset === 0) {
 		// GitHub Actions environment (UTC)
 		t.true(title.includes('Week'));
-		t.true(title.includes('2024') || title.includes('2025'));
+		t.true(title.includes('2024') ?? title.includes('2025'));
 	} else {
 		// Other timezone - use basic structure check
 		t.true(title.includes('Week'));
-		t.true(title.includes('2024') || title.includes('2025'));
+		t.true(title.includes('2024') ?? title.includes('2025'));
 	}
 });
 

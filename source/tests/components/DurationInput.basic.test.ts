@@ -26,7 +26,7 @@ test('DurationInput renders with initial value', t => {
 		value: '2h',
 	});
 
-	const output = lastFrame() || '';
+	const output = lastFrame() ?? '';
 	t.true(output.includes('TEST-123'));
 	t.true(output.includes('Test Issue'));
 	t.true(output.includes('2h'));
@@ -38,7 +38,7 @@ test('DurationInput renders in compact mode', t => {
 		compact: true,
 	});
 
-	const output = lastFrame() || '';
+	const output = lastFrame() ?? '';
 	t.true(output.includes('3h'));
 	// Help text is no longer shown in compact mode
 	// Should not include issue info in compact mode
@@ -51,7 +51,7 @@ test('DurationInput shows selection state initially', t => {
 		compact: true,
 	});
 
-	const output = lastFrame() || '';
+	const output = lastFrame() ?? '';
 	// In selected state, text should be highlighted (no cursor visible)
 	t.true(output.includes('4h'));
 	// Cursor (█) should not be visible when text is selected
@@ -350,7 +350,7 @@ test('DurationInput uses global default time from config', t => {
 		compact: true,
 	});
 
-	const output = lastFrame() || '';
+	const output = lastFrame() ?? '';
 	t.true(output.includes('4h'));
 });
 
@@ -374,7 +374,7 @@ test('DurationInput uses favorite-specific default time', t => {
 		compact: true,
 	});
 
-	const output = lastFrame() || '';
+	const output = lastFrame() ?? '';
 	t.true(output.includes('8h'));
 });
 
@@ -398,7 +398,7 @@ test('DurationInput favorite default time overrides global default', t => {
 		compact: true,
 	});
 
-	const output = lastFrame() || '';
+	const output = lastFrame() ?? '';
 	t.true(output.includes('6h'));
 	t.false(output.includes('4h'));
 });

@@ -11,7 +11,7 @@ test('DeleteAttendanceConfirmation renders with correct message', t => {
 		}),
 	);
 
-	const output = lastFrame() || '';
+	const output = lastFrame() ?? '';
 	t.true(
 		output.includes('Delete attendance record for Friday, July 11, 2025?'),
 	);
@@ -63,7 +63,7 @@ test('DeleteAttendanceConfirmation displays proper structure', t => {
 		}),
 	);
 
-	const output = lastFrame() || '';
+	const output = lastFrame() ?? '';
 
 	// Should contain the question
 	t.true(

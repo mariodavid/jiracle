@@ -14,7 +14,7 @@ const mockProps = {
 
 test('InlineWorklogForm renders basic structure', t => {
 	const {lastFrame} = render(React.createElement(InlineWorklogForm, mockProps));
-	const output = lastFrame() || '';
+	const output = lastFrame() ?? '';
 
 	// Check for basic elements (no longer includes "Log Work" header)
 	t.true(output.includes('Time spent:'));
@@ -25,7 +25,7 @@ test('InlineWorklogForm renders basic structure', t => {
 
 test('InlineWorklogForm shows time options', t => {
 	const {lastFrame} = render(React.createElement(InlineWorklogForm, mockProps));
-	const output = lastFrame() || '';
+	const output = lastFrame() ?? '';
 
 	// Check for default time (help text no longer shown in compact mode)
 	t.true(output.includes('1h')); // Default time
@@ -40,7 +40,7 @@ test('InlineWorklogForm shows submitting state', t => {
 	const {lastFrame} = render(
 		React.createElement(InlineWorklogForm, submittingProps),
 	);
-	const output = lastFrame() || '';
+	const output = lastFrame() ?? '';
 
 	t.true(output.includes('Submitting Worklog'));
 	t.false(output.includes('[Submit]'));
@@ -55,7 +55,7 @@ test('InlineWorklogForm shows error message', t => {
 	const {lastFrame} = render(
 		React.createElement(InlineWorklogForm, errorProps),
 	);
-	const output = lastFrame() || '';
+	const output = lastFrame() ?? '';
 
 	t.true(output.includes('Error: Failed to submit worklog'));
 });
@@ -63,7 +63,7 @@ test('InlineWorklogForm shows error message', t => {
 test('InlineWorklogForm shows custom time input when selected', t => {
 	const {lastFrame} = render(React.createElement(InlineWorklogForm, mockProps));
 
-	const output = lastFrame() || '';
+	const output = lastFrame() ?? '';
 
 	// Form should be functional (help text no longer shown in compact mode)
 	t.true(output.includes('Time spent:'));
@@ -79,7 +79,7 @@ test('InlineWorklogForm handles default values', t => {
 	const {lastFrame} = render(
 		React.createElement(InlineWorklogForm, defaultProps),
 	);
-	const output = lastFrame() || '';
+	const output = lastFrame() ?? '';
 
 	// The form should show the default values (parsed to number)
 	t.true(output.includes('4h')); // 4h becomes 4 hours
@@ -98,7 +98,7 @@ test('InlineWorklogForm prevents submit when submitting', t => {
 	const {lastFrame} = render(
 		React.createElement(InlineWorklogForm, submittingProps),
 	);
-	const output = lastFrame() || '';
+	const output = lastFrame() ?? '';
 
 	// Should show submitting state
 	t.true(output.includes('Submitting Worklog'));
@@ -114,7 +114,7 @@ test('InlineWorklogForm supports edit mode', t => {
 	};
 
 	const {lastFrame} = render(React.createElement(InlineWorklogForm, editProps));
-	const output = lastFrame() || '';
+	const output = lastFrame() ?? '';
 
 	// Should show the form with prefilled values
 	t.true(output.includes('2h'));
@@ -183,7 +183,7 @@ test('InlineWorklogForm does not include worklogId in create mode', t => {
 
 test('InlineWorklogForm component structure is correct', t => {
 	const {lastFrame} = render(React.createElement(InlineWorklogForm, mockProps));
-	const output = lastFrame() || '';
+	const output = lastFrame() ?? '';
 
 	// Basic structure validation (no longer includes "Log Work" header)
 	t.true(output.length > 0);
@@ -209,7 +209,7 @@ test('InlineWorklogForm uses global default time from config', t => {
 	const {lastFrame} = render(
 		React.createElement(InlineWorklogForm, configProps),
 	);
-	const output = lastFrame() || '';
+	const output = lastFrame() ?? '';
 
 	// Should show global default time from config
 	t.true(output.includes('6h'));
@@ -237,7 +237,7 @@ test('InlineWorklogForm uses favorite-specific default time', t => {
 	const {lastFrame} = render(
 		React.createElement(InlineWorklogForm, configProps),
 	);
-	const output = lastFrame() || '';
+	const output = lastFrame() ?? '';
 
 	// Should show favorite-specific time, not global default
 	t.true(output.includes('8h'));
@@ -265,7 +265,7 @@ test('InlineWorklogForm favorite time overrides global default', t => {
 	const {lastFrame} = render(
 		React.createElement(InlineWorklogForm, configProps),
 	);
-	const output = lastFrame() || '';
+	const output = lastFrame() ?? '';
 
 	// Should prioritize favorite time over global default
 	t.true(output.includes('12h'));
@@ -292,7 +292,7 @@ test('InlineWorklogForm falls back to global default when favorite has no time',
 	const {lastFrame} = render(
 		React.createElement(InlineWorklogForm, configProps),
 	);
-	const output = lastFrame() || '';
+	const output = lastFrame() ?? '';
 
 	// Should fall back to global default when favorite has no time
 	t.true(output.includes('5h'));
@@ -310,7 +310,7 @@ test('InlineWorklogForm falls back to 1h when no config provided', t => {
 	const {lastFrame} = render(
 		React.createElement(InlineWorklogForm, noConfigProps),
 	);
-	const output = lastFrame() || '';
+	const output = lastFrame() ?? '';
 
 	// Should fall back to 1h when no config is provided
 	t.true(output.includes('1h'));
@@ -332,7 +332,7 @@ test('InlineWorklogForm explicit defaultTimeSpent overrides config', t => {
 	const {lastFrame} = render(
 		React.createElement(InlineWorklogForm, explicitProps),
 	);
-	const output = lastFrame() || '';
+	const output = lastFrame() ?? '';
 
 	// Should use explicit prop over config
 	t.true(output.includes('10h'));
@@ -349,7 +349,7 @@ test('InlineWorklogForm shows issue key field when isIssueKeyEditable is true', 
 	const {lastFrame} = render(
 		React.createElement(InlineWorklogForm, editableKeyProps),
 	);
-	const output = lastFrame() || '';
+	const output = lastFrame() ?? '';
 
 	// Should show issue key input field
 	t.true(output.includes('Issue Key:'));
@@ -365,7 +365,7 @@ test('InlineWorklogForm hides issue key field when isIssueKeyEditable is false',
 	const {lastFrame} = render(
 		React.createElement(InlineWorklogForm, nonEditableKeyProps),
 	);
-	const output = lastFrame() || '';
+	const output = lastFrame() ?? '';
 
 	// Should not show issue key input field
 	t.false(output.includes('Issue Key:'));
@@ -381,7 +381,7 @@ test('InlineWorklogForm shows date field when isIssueKeyEditable is true', t => 
 	const {lastFrame} = render(
 		React.createElement(InlineWorklogForm, editableKeyProps),
 	);
-	const output = lastFrame() || '';
+	const output = lastFrame() ?? '';
 	// Should show date input field with the formatted date
 	t.true(output.includes('Date:'));
 	t.true(output.includes('2025-07-10')); // The actual formatted date from mockProps
@@ -396,7 +396,7 @@ test('InlineWorklogForm hides date field when isIssueKeyEditable is false', t =>
 	const {lastFrame} = render(
 		React.createElement(InlineWorklogForm, nonEditableKeyProps),
 	);
-	const output = lastFrame() || '';
+	const output = lastFrame() ?? '';
 	// Should not show date input field
 	t.false(output.includes('Date:'));
 });
@@ -411,7 +411,7 @@ test('InlineWorklogForm calls onSubmit with date when form is submitted', t => {
 	const {lastFrame} = render(
 		React.createElement(InlineWorklogForm, editableKeyProps),
 	);
-	const output = lastFrame() || '';
+	const output = lastFrame() ?? '';
 
 	// Should render the form with all fields
 	t.true(output.includes('Issue Key:'));
@@ -429,7 +429,7 @@ test('InlineWorklogForm handles empty issue key in add worklog mode', t => {
 	const {lastFrame} = render(
 		React.createElement(InlineWorklogForm, editableKeyProps),
 	);
-	const output = lastFrame() || '';
+	const output = lastFrame() ?? '';
 
 	// Should show issue key input field with placeholder
 	t.true(output.includes('Issue Key:'));
@@ -445,7 +445,7 @@ test('InlineWorklogForm formats date correctly for input', t => {
 	const {lastFrame} = render(
 		React.createElement(InlineWorklogForm, editableKeyProps),
 	);
-	const output = lastFrame() || '';
+	const output = lastFrame() ?? '';
 
 	// Should show the date in YYYY-MM-DD format
 	t.true(output.includes('2025-07-14'));

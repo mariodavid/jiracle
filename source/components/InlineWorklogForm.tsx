@@ -429,7 +429,7 @@ export function InlineWorklogForm({
 					<Text color="yellow">Date:</Text>
 					<Box marginTop={1}>
 						<SimpleDateInput
-							value={dateInputValue || ''}
+							value={dateInputValue ?? ''}
 							isActive={focusArea === 'date'}
 							onChange={handleDateChange}
 							onSubmit={() => {

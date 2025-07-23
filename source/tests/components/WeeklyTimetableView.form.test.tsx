@@ -46,18 +46,18 @@ test('WeeklyTimetableView renders with correct structure and content', t => {
 	// Should render some recognizable UI elements (very permissive)
 	const hasAnyUIElements =
 		output!.length > 0 &&
-		(output!.includes('Week') ||
-			output!.includes('Previous') ||
-			output!.includes('Next') ||
-			output!.includes('Mon') ||
-			output!.includes('Tue') ||
-			output!.includes('Wed') ||
-			output!.includes('Issue') ||
-			output!.includes('Total') ||
-			output!.includes('─') ||
-			output!.includes('Loading') ||
-			output!.includes('Error') ||
-			output!.includes('█') ||
+		(output!.includes('Week') ??
+			output!.includes('Previous') ??
+			output!.includes('Next') ??
+			output!.includes('Mon') ??
+			output!.includes('Tue') ??
+			output!.includes('Wed') ??
+			output!.includes('Issue') ??
+			output!.includes('Total') ??
+			output!.includes('─') ??
+			output!.includes('Loading') ??
+			output!.includes('Error') ??
+			output!.includes('█') ??
 			output!.includes('JIRACLE'));
 
 	// If we have recognizable elements, that's great
@@ -155,14 +155,14 @@ test('WeeklyTimetableView component structure', t => {
 		// Check for expected elements that should be in a timetable view (more permissive)
 		const hasBasicContent =
 			output.length > 10 && // Has reasonable content
-			(output.includes('Week') ||
-				output.includes('Mon') ||
-				output.includes('Tue') ||
-				output.includes('Issue') ||
-				output.includes('Total') ||
-				output.includes('Loading') ||
-				output.includes('No issues') ||
-				output.includes('─') || // Grid separators
+			(output.includes('Week') ??
+				output.includes('Mon') ??
+				output.includes('Tue') ??
+				output.includes('Issue') ??
+				output.includes('Total') ??
+				output.includes('Loading') ??
+				output.includes('No issues') ??
+				output.includes('─') ?? // Grid separators
 				output.includes('Error'));
 
 		t.true(

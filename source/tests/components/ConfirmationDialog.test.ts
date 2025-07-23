@@ -11,7 +11,7 @@ test('ConfirmationDialog renders children when not loading', t => {
 		}),
 	);
 
-	const output = lastFrame() || '';
+	const output = lastFrame() ?? '';
 	t.true(output.includes('Test content'));
 	t.false(output.includes('Processing...'));
 });
@@ -24,7 +24,7 @@ test('ConfirmationDialog shows loading state with default text', t => {
 		}),
 	);
 
-	const output = lastFrame() || '';
+	const output = lastFrame() ?? '';
 	t.true(output.includes('Processing...'));
 	t.false(output.includes('Test content'));
 });
@@ -38,7 +38,7 @@ test('ConfirmationDialog shows loading state with custom text', t => {
 		}),
 	);
 
-	const output = lastFrame() || '';
+	const output = lastFrame() ?? '';
 	t.true(output.includes('Deleting worklogs...'));
 	t.false(output.includes('Test content'));
 });
@@ -50,7 +50,7 @@ test('ConfirmationDialog uses default width and border color', t => {
 		}),
 	);
 
-	const output = lastFrame() || '';
+	const output = lastFrame() ?? '';
 	t.true(output.includes('Test content'));
 });
 
@@ -63,7 +63,7 @@ test('ConfirmationDialog accepts custom width and border color', t => {
 		}),
 	);
 
-	const output = lastFrame() || '';
+	const output = lastFrame() ?? '';
 	t.true(output.includes('Test content'));
 });
 
@@ -76,7 +76,7 @@ test('ConfirmationDialog accepts custom padding', t => {
 		}),
 	);
 
-	const output = lastFrame() || '';
+	const output = lastFrame() ?? '';
 	t.true(output.includes('Test content'));
 });
 
@@ -87,7 +87,7 @@ test('ConfirmationDialog renders proper structure', t => {
 		}),
 	);
 
-	const output = lastFrame() || '';
+	const output = lastFrame() ?? '';
 	t.true(output.includes('Test content'));
 	// The component should render without errors
 	t.pass();
@@ -102,7 +102,7 @@ test('ConfirmationDialog loading state structure', t => {
 		}),
 	);
 
-	const output = lastFrame() || '';
+	const output = lastFrame() ?? '';
 	t.true(output.includes('Loading...'));
 	t.false(output.includes('Hidden content'));
 });

@@ -40,7 +40,7 @@ export function findInitialFocusItem(
 	}
 
 	// Fallback to first item
-	return focusableItems[0] || undefined;
+	return focusableItems[0] ?? undefined;
 }
 
 export function navigateInDirection(

@@ -33,9 +33,9 @@ function TestConfirmationComponent({
 		<Box flexDirection="column">
 			<Text>Visible: {confirmation.isVisible.toString()}</Text>
 			<Text>Loading: {confirmation.isLoading.toString()}</Text>
-			<Text>Width: {confirmation.config.width || 'default'}</Text>
-			<Text>BorderColor: {confirmation.config.borderColor || 'default'}</Text>
-			<Text>LastResult: {lastResult?.toString() || 'none'}</Text>
+			<Text>Width: {confirmation.config.width ?? 'default'}</Text>
+			<Text>BorderColor: {confirmation.config.borderColor ?? 'default'}</Text>
+			<Text>LastResult: {lastResult?.toString() ?? 'none'}</Text>
 		</Box>
 	);
 }
@@ -68,7 +68,7 @@ test('useConfirmation show() makes dialog visible with config', t => {
 		}),
 	);
 
-	const output = lastFrame() || '';
+	const output = lastFrame() ?? '';
 
 	// Initially not visible
 	t.true(output.includes('Visible: false'));
@@ -157,7 +157,7 @@ test('useConfirmation config can be customized', t => {
 		React.createElement(TestConfirmationComponent, {}),
 	);
 
-	const output = lastFrame() || '';
+	const output = lastFrame() ?? '';
 
 	// Check initial default values are displayed
 	t.true(output.includes('Width: default'));

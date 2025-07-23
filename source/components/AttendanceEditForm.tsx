@@ -23,12 +23,12 @@ export function AttendanceEditForm({
 	// Use defaults from config only if no initial data exists
 	const getDefaultCheckIn = () => {
 		if (initialData?.checkIn) return initialData.checkIn;
-		return (config?.attendance?.defaultCheckIn as string) || '08:00';
+		return (config?.attendance?.defaultCheckIn as string) ?? '08:00';
 	};
 
 	const getDefaultCheckOut = () => {
 		if (initialData?.checkOut) return initialData.checkOut;
-		return (config?.attendance?.defaultCheckOut as string) || '17:00';
+		return (config?.attendance?.defaultCheckOut as string) ?? '17:00';
 	};
 
 	const [checkIn, setCheckIn] = useState(getDefaultCheckIn());
@@ -77,8 +77,8 @@ export function AttendanceEditForm({
 
 		const attendanceData: Attendance = {
 			date: localDateString,
-			checkIn: checkIn || undefined,
-			checkOut: checkOut || undefined,
+			checkIn: checkIn ?? undefined,
+			checkOut: checkOut ?? undefined,
 			breakMinutes: parseBreakMinutes(breakMinutes),
 		};
 		onSubmit(attendanceData);
