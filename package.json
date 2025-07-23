@@ -118,7 +118,6 @@
 			],
 			"unicorn/expiring-todo-comments": "off",
 			"unicorn/filename-case": "off",
-			"unicorn/no-empty-file": "off",
 			"@typescript-eslint/naming-convention": "off",
 			"import/order": "error",
 			"react/prefer-read-only-props": "off",
