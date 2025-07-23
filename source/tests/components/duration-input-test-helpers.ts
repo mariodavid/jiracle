@@ -200,7 +200,7 @@ export function testInvalidPatterns(
 		typeString(stdin, input);
 
 		// Should not contain the full invalid input
-		const finalValue = changedValues[changedValues.length - 1] || '';
+		const finalValue = changedValues[changedValues.length - 1] ?? '';
 		t.notRegex(
 			finalValue,
 			new RegExp(input.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')),
