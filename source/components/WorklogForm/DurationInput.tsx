@@ -13,6 +13,7 @@ type DurationInputProps = {
 	value: string;
 	onChange: (value: string) => void;
 	onSubmit: (value: string) => void;
+	onBlur?: (value: string) => void;
 	compact?: boolean;
 	config?: JiraConfig;
 	issueSelectionMode?: 'favorites' | 'assigned' | 'other' | undefined;
@@ -25,6 +26,7 @@ export default function DurationInput({
 	value,
 	onChange,
 	onSubmit,
+	onBlur,
 	compact = false,
 	config,
 	issueSelectionMode,
@@ -110,6 +112,10 @@ export default function DurationInput({
 		} else if (key.tab) {
 			// Also normalize on Tab (like Enter)
 			const normalizedValue = normalizeTimeOnSubmit(timeInputValueRef.current);
+			if (onBlur) {
+				onBlur(normalizedValue);
+			}
+
 			onSubmit(normalizedValue);
 		} else if (key.backspace ?? key.delete) {
 			if (isSelected) {

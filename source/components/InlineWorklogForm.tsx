@@ -455,6 +455,7 @@ export function InlineWorklogForm({
 							onSubmit={() => {
 								setFocusArea('comment');
 							}}
+							onBlur={normalizeTimeOnBlur}
 						/>
 					) : (
 						<Box>

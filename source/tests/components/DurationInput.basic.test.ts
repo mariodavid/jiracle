@@ -336,6 +336,39 @@ test('DurationInput converts comma to dot on submit with Tab', t => {
 	t.is(changedValue, '2.5h'); // Should also update the displayed value
 });
 
+test('DurationInput calls onBlur with normalized value on Tab', t => {
+	let changedValue = '';
+	let submittedValue = '';
+	let blurredValue = '';
+	const onChange = (value: string) => {
+		changedValue = value;
+	};
+
+	const onSubmit = (value: string) => {
+		submittedValue = value;
+	};
+
+	const onBlur = (value: string) => {
+		blurredValue = value;
+	};
+
+	const {stdin} = renderDurationInput({
+		value: '1h',
+		onChange,
+		onSubmit,
+		onBlur,
+		compact: true,
+	});
+
+	// Type "4,5" and press Tab - should call onBlur with normalized value
+	typeString(stdin, '4,5');
+	pressTab(stdin);
+
+	t.is(blurredValue, '4.5h'); // OnBlur should receive normalized value
+	t.is(submittedValue, '4.5h'); // OnSubmit should also receive normalized value
+	t.is(changedValue, '4.5h'); // Should also update the displayed value
+});
+
 // === CONFIGURATION TESTS ===
 
 test('DurationInput uses global default time from config', t => {
