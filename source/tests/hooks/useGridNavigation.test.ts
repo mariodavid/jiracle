@@ -13,8 +13,18 @@ test('useGridNavigation - findInitialFocus works correctly', t => {
 	const {findInitialFocus} = useGridNavigation();
 
 	const focusableItems = [
-		{focusId: 'item-1', issueKey: 'TEST-1', columnIndex: 0},
-		{focusId: 'item-2', issueKey: 'TEST-2', columnIndex: 1},
+		{
+			focusId: 'item-1',
+			issueKey: 'TEST-1',
+			columnIndex: 0,
+			isAttendance: false,
+		},
+		{
+			focusId: 'item-2',
+			issueKey: 'TEST-2',
+			columnIndex: 1,
+			isAttendance: false,
+		},
 	];
 
 	const result = findInitialFocus(focusableItems);
@@ -26,8 +36,18 @@ test('useGridNavigation - findInitialFocus with preferred column', t => {
 	const {findInitialFocus} = useGridNavigation();
 
 	const focusableItems = [
-		{focusId: 'item-1', issueKey: 'TEST-1', columnIndex: 0},
-		{focusId: 'item-2', issueKey: 'TEST-2', columnIndex: 1},
+		{
+			focusId: 'item-1',
+			issueKey: 'TEST-1',
+			columnIndex: 0,
+			isAttendance: false,
+		},
+		{
+			focusId: 'item-2',
+			issueKey: 'TEST-2',
+			columnIndex: 1,
+			isAttendance: false,
+		},
 	];
 
 	const result = findInitialFocus(focusableItems, 1);
@@ -41,8 +61,18 @@ test('useGridNavigation - navigate function works', t => {
 	const context = {
 		focusedCell: {issueKey: 'TEST-1', columnIndex: 0},
 		focusableItems: [
-			{focusId: 'item-1', issueKey: 'TEST-1', columnIndex: 0},
-			{focusId: 'item-2', issueKey: 'TEST-1', columnIndex: 1},
+			{
+				focusId: 'item-1',
+				issueKey: 'TEST-1',
+				columnIndex: 0,
+				isAttendance: false,
+			},
+			{
+				focusId: 'item-2',
+				issueKey: 'TEST-1',
+				columnIndex: 1,
+				isAttendance: false,
+			},
 		],
 	};
 
@@ -57,8 +87,18 @@ test('useGridNavigation - navigateToNext function works', t => {
 	const context = {
 		focusedCell: {issueKey: 'TEST-1', columnIndex: 0},
 		focusableItems: [
-			{focusId: 'item-1', issueKey: 'TEST-1', columnIndex: 0},
-			{focusId: 'item-2', issueKey: 'TEST-2', columnIndex: 0},
+			{
+				focusId: 'item-1',
+				issueKey: 'TEST-1',
+				columnIndex: 0,
+				isAttendance: false,
+			},
+			{
+				focusId: 'item-2',
+				issueKey: 'TEST-2',
+				columnIndex: 0,
+				isAttendance: false,
+			},
 		],
 	};
 
