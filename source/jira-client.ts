@@ -368,14 +368,10 @@ export class JiraClient {
 		}
 	}
 
-	/**
-	 * Validates the Jira URL configuration and provides helpful error messages
-	 */
 	validateConfiguration(): {isValid: boolean; errors: string[]} {
 		const errors: string[] = [];
 
 		if (this.jiraUrl) {
-			// Check if URL looks like a web UI URL instead of API base
 			if (
 				this.jiraUrl.includes('/browse/') ||
 				this.jiraUrl.includes('/projects/')
@@ -385,10 +381,7 @@ export class JiraClient {
 				);
 			}
 
-			// Check for common URL formatting issues
-			if (this.jiraUrl.startsWith('http')) {
-				// URL format is correct
-			} else {
+			if (!this.jiraUrl.startsWith('http')) {
 				errors.push(
 					`Jira URL must start with http:// or https://. Got: ${this.jiraUrl}`,
 				);
@@ -401,10 +394,7 @@ export class JiraClient {
 			errors.push('API token is not configured');
 		}
 
-		return {
-			isValid: errors.length === 0,
-			errors,
-		};
+		return {isValid: errors.length === 0, errors};
 	}
 
 	async fetchAssignedIssues(): Promise<JiraIssue[]> {
@@ -632,14 +622,8 @@ export class JiraClient {
 		const worklogUrl = `${this.baseUrl}/issue/${trimmedIssueKey}/worklog`;
 
 		this.logger.info('Adding worklog', {
-			method: 'POST',
 			url: worklogUrl,
-			baseUrl: this.baseUrl,
-			jiraUrl: this.jiraUrl,
 			issueKey: trimmedIssueKey,
-			originalIssueKey: issueKey,
-			worklogData,
-			timestamp: new Date().toISOString(),
 		});
 
 		try {
@@ -656,17 +640,9 @@ export class JiraClient {
 			if (!response.ok) {
 				const errorText = await response.text();
 				this.logger.error('Failed to add worklog', {
-					method: 'POST',
 					url: worklogUrl,
-					baseUrl: this.baseUrl,
-					jiraUrl: this.jiraUrl,
-					issueKey: trimmedIssueKey,
-					originalIssueKey: issueKey,
-					worklogData,
 					status: response.status,
-					statusText: response.statusText,
 					error: errorText,
-					headers: Object.fromEntries(response.headers.entries()),
 				});
 
 				if (response.status === 405) {
@@ -687,21 +663,12 @@ export class JiraClient {
 			}
 
 			this.logger.info('Successfully added worklog', {
-				method: 'POST',
 				url: worklogUrl,
-				issueKey: trimmedIssueKey,
-				originalIssueKey: issueKey,
-				worklogData,
 				status: response.status,
-				timestamp: new Date().toISOString(),
 			});
 		} catch (error: unknown) {
 			this.logger.error('Error adding worklog', {
-				method: 'POST',
 				url: worklogUrl,
-				issueKey: trimmedIssueKey,
-				originalIssueKey: issueKey,
-				worklogData,
 				error: error instanceof Error ? error.message : 'Unknown error',
 			});
 			throw error;
@@ -711,11 +678,7 @@ export class JiraClient {
 	async getIssueWorklogs(issueKey: string): Promise<WorklogResponse> {
 		const worklogUrl = `${this.baseUrl}/issue/${issueKey}/worklog`;
 
-		this.logger.info('Fetching issue worklogs', {
-			method: 'GET',
-			url: worklogUrl,
-			issueKey,
-		});
+		this.logger.info('Fetching issue worklogs', {url: worklogUrl});
 
 		try {
 			const response = await fetch(worklogUrl, {
