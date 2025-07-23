@@ -45,7 +45,7 @@ export function useWeeklyWorklogSummary(
 			favoriteIssues
 				?.map(f => f.key)
 				.sort()
-				.join(',') || '';
+				.join(',') ?? '';
 		// Support both new slidingWindowDays and legacy recentWorkdaysLookback for backward compatibility
 		const normalizedWindow = normalizeSlidingWindowConfig(config);
 		const cacheKey = `${weekStart.toISOString().split('T')[0] ?? 'unknown'}-${
@@ -103,7 +103,7 @@ export function useWeeklyWorklogSummary(
 			favoriteIssues
 				?.map(f => f.key)
 				.sort()
-				.join(',') || '';
+				.join(',') ?? '';
 		// Support both new slidingWindowDays and legacy recentWorkdaysLookback for backward compatibility
 		const normalizedWindow = normalizeSlidingWindowConfig(config);
 		const cacheKey = `${weekStart.toISOString().split('T')[0] ?? 'unknown'}-${

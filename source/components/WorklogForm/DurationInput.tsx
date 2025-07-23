@@ -56,7 +56,7 @@ export default function DurationInput({
 	};
 
 	const defaultTime = getDefaultTime();
-	const initialValue = value || defaultTime;
+	const initialValue = value ?? defaultTime;
 	const [timeInputValue, setTimeInputValue] = useState(initialValue);
 	const [cursorPosition, setCursorPosition] = useState(initialValue.length);
 	const [isSelected, setIsSelected] = useState(true); // Start with text selected
@@ -111,7 +111,7 @@ export default function DurationInput({
 			// Also normalize on Tab (like Enter)
 			const normalizedValue = normalizeTimeOnSubmit(timeInputValueRef.current);
 			onSubmit(normalizedValue);
-		} else if (key.backspace || key.delete) {
+		} else if (key.backspace ?? key.delete) {
 			if (isSelected) {
 				// If text is selected, clear everything
 				setTimeInputValue('');

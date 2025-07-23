@@ -31,7 +31,7 @@ export default function WorklogSummary({
 				<Text key="spacer-1"> </Text>
 				<Text key="issue">Issue: {selectedIssue.key}</Text>
 				<Text key="time">Time: {selectedTime}</Text>
-				<Text key="comment">Comment: {comment || 'Worked on this issue'}</Text>
+				<Text key="comment">Comment: {comment ?? 'Worked on this issue'}</Text>
 				<Text key="date">Date: {selectedDate?.split('T')[0]}</Text>
 				<Text key="spacer-2"> </Text>
 				<Text key="return-message" color="gray">

@@ -57,7 +57,7 @@ test.serial('should handle invalid working hours - negative', async t => {
 		const result = await executeCheckIn(parameters, configPath);
 
 		// Currently implementation might not validate this, but test documents expected behavior
-		t.true(result.success || result.message.includes('working hours'));
+		t.true(result.success ?? result.message.includes('working hours'));
 	});
 });
 
@@ -76,7 +76,7 @@ test.serial('should handle invalid working hours - zero', async t => {
 		const result = await executeCheckIn(parameters, configPath);
 
 		// Currently implementation might not validate this, but test documents expected behavior
-		t.true(result.success || result.message.includes('working hours'));
+		t.true(result.success ?? result.message.includes('working hours'));
 	});
 });
 
@@ -95,7 +95,7 @@ test.serial('should handle invalid working hours - over 24', async t => {
 		const result = await executeCheckIn(parameters, configPath);
 
 		// Currently implementation might not validate this, but test documents expected behavior
-		t.true(result.success || result.message.includes('working hours'));
+		t.true(result.success ?? result.message.includes('working hours'));
 	});
 });
 
@@ -114,7 +114,7 @@ test.serial('should handle invalid break minutes - negative', async t => {
 		const result = await executeCheckIn(parameters, configPath);
 
 		// Currently implementation might not validate this, but test documents expected behavior
-		t.true(result.success || result.message.includes('break'));
+		t.true(result.success ?? result.message.includes('break'));
 	});
 });
 
@@ -135,7 +135,7 @@ test.serial(
 			const result = await executeCheckIn(parameters, configPath);
 
 			// Currently implementation might not validate this, but test documents expected behavior
-			t.true(result.success || result.message.includes('break'));
+			t.true(result.success ?? result.message.includes('break'));
 		});
 	},
 );
@@ -157,7 +157,7 @@ test.serial(
 			const result = await executeCheckIn(parameters, configPath);
 
 			// Currently implementation might not validate default times in config
-			t.true(result.success || result.message.includes('time format'));
+			t.true(result.success ?? result.message.includes('time format'));
 		});
 	},
 );
@@ -213,8 +213,8 @@ test.serial('should validate config file permissions', async t => {
 
 	t.false(result.success);
 	t.true(
-		result.message.includes('ENOENT') ||
-			result.message.includes('no such file') ||
+		result.message.includes('ENOENT') ??
+			result.message.includes('no such file') ??
 			result.message.includes('not found'),
 	);
 });

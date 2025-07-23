@@ -188,7 +188,7 @@ export function getFavoriteDefaultTime(
 export function extractProjectKey(issueKey: string): string | undefined {
 	// Extract project key from issue key (e.g., "DEF-2457" → "DEF")
 	const match = /^([A-Z]+)-\d+$/.exec(issueKey);
-	return match ? match[1] ?? undefined : undefined;
+	return match ? match[1] : undefined;
 }
 
 export type ResolvedDefaults = {
@@ -204,9 +204,9 @@ export type ResolvedDefaults = {
 export function loadConfigWithEnvVars(config: JiraConfig): JiraConfig {
 	return {
 		...config,
-		jiraUrl: process.env['JIRACLE_JIRA_URL'] || config.jiraUrl,
-		username: process.env['JIRACLE_USERNAME'] || config.username,
-		apiToken: process.env['JIRACLE_API_TOKEN'] || config.apiToken,
+		jiraUrl: process.env['JIRACLE_JIRA_URL'] ?? config.jiraUrl,
+		username: process.env['JIRACLE_USERNAME'] ?? config.username,
+		apiToken: process.env['JIRACLE_API_TOKEN'] ?? config.apiToken,
 	};
 }
 
@@ -214,9 +214,9 @@ export function resolveDefaults(
 	config: JiraConfig,
 	issueKey: string,
 ): ResolvedDefaults {
-	const favorites = config.favorites || [];
-	const projects = config.projects || [];
-	const groups = config.groups || [];
+	const favorites = config.favorites ?? [];
+	const projects = config.projects ?? [];
+	const groups = config.groups ?? [];
 
 	// Extract project key from issue key
 	const projectKey = extractProjectKey(issueKey);
@@ -322,8 +322,8 @@ export class JiraClient {
 
 	constructor(config: JiraConfig, customLogger?: winston.Logger) {
 		// Support environment variables with fallback to config
-		this.jiraUrl = process.env['JIRACLE_JIRA_URL'] || config.jiraUrl;
-		this.apiToken = process.env['JIRACLE_API_TOKEN'] || config.apiToken;
+		this.jiraUrl = process.env['JIRACLE_JIRA_URL'] ?? config.jiraUrl;
+		this.apiToken = process.env['JIRACLE_API_TOKEN'] ?? config.apiToken;
 		// Ensure jiraUrl ends with a slash to avoid double slashes or missing slashes
 		const normalizedJiraUrl = this.jiraUrl.endsWith('/')
 			? this.jiraUrl
@@ -348,7 +348,7 @@ export class JiraClient {
 				transports: [
 					new winston.transports.File({
 						filename: join(
-							process.env['HOME'] || '~',
+							process.env['HOME'] ?? '~',
 							'.config',
 							'jiracle-requests.log',
 						),

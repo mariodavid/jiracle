@@ -50,7 +50,7 @@ test('AttendanceEditFormArea renders with attendance form', t => {
 	t.truthy(output);
 	t.true(output!.length > 0);
 	// Should contain some form elements
-	t.true(output!.includes('09:00') || output!.includes('17:00'));
+	t.true(output!.includes('09:00') ?? output!.includes('17:00'));
 });
 
 test('AttendanceEditFormArea handles submit callback', t => {
@@ -159,7 +159,7 @@ test('AttendanceEditFormArea handles different dates', t => {
 	t.truthy(output);
 	t.true(output!.length > 0);
 	// Should show the time values
-	t.true(output!.includes('10:00') || output!.includes('18:00'));
+	t.true(output!.includes('10:00') ?? output!.includes('18:00'));
 });
 
 test('AttendanceEditFormArea handles different break configurations', t => {

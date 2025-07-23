@@ -196,7 +196,7 @@ test('WeeklyWorklogSummaryUseCase bidirectional deduplication works correctly', 
 
 		// Both past and future windows return the same issue
 		if (
-			(jql.includes('2024-10-09') && jql.includes('2024-10-13')) ||
+			(jql.includes('2024-10-09') && jql.includes('2024-10-13')) ??
 			(jql.includes('2024-10-21') && jql.includes('2024-10-25'))
 		) {
 			return {

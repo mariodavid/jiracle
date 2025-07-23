@@ -41,7 +41,7 @@ function TestWorklogFormComponent({
 		<Box flexDirection="column">
 			<Text>Visible: {worklogForm.worklogForm.isVisible.toString()}</Text>
 			<Text>Submitting: {worklogForm.worklogSubmitting.toString()}</Text>
-			<Text>Error: {worklogForm.worklogError || 'none'}</Text>
+			<Text>Error: {worklogForm.worklogError ?? 'none'}</Text>
 			<Text>IssueKey: {worklogForm.worklogForm.issueKey}</Text>
 			<Text>TimeSpent: {worklogForm.worklogForm.timeSpent}</Text>
 			<Text>Comment: {worklogForm.worklogForm.comment}</Text>
@@ -49,7 +49,7 @@ function TestWorklogFormComponent({
 				IsEditable: {worklogForm.worklogForm.isIssueKeyEditable.toString()}
 			</Text>
 			<Text>
-				IsEditMode: {worklogForm.worklogForm.isEditMode?.toString() || 'false'}
+				IsEditMode: {worklogForm.worklogForm.isEditMode?.toString() ?? 'false'}
 			</Text>
 		</Box>
 	);
@@ -379,7 +379,7 @@ test('useWorklogForm displays form state correctly', t => {
 		}),
 	);
 
-	const output = lastFrame() || '';
+	const output = lastFrame() ?? '';
 
 	// Check initial values are displayed
 	t.true(output.includes('Visible: false'));

@@ -16,32 +16,32 @@ test('AttendanceEditForm handles Tab navigation forward', t => {
 	);
 
 	// Initially should be on checkIn field
-	let output = lastFrame() || '';
+	let output = lastFrame() ?? '';
 	t.true(output.includes('Beginn:'));
 
 	// Tab to checkOut field
 	stdin.write('\t');
-	output = lastFrame() || '';
+	output = lastFrame() ?? '';
 	t.true(output.includes('Ende:'));
 
 	// Tab to break field
 	stdin.write('\t');
-	output = lastFrame() || '';
+	output = lastFrame() ?? '';
 	t.true(output.includes('Pause:'));
 
 	// Tab to submit button
 	stdin.write('\t');
-	output = lastFrame() || '';
+	output = lastFrame() ?? '';
 	t.true(output.includes('[Speichern]'));
 
 	// Tab to cancel button
 	stdin.write('\t');
-	output = lastFrame() || '';
+	output = lastFrame() ?? '';
 	t.true(output.includes('[Abbrechen]'));
 
 	// Tab should cycle back to checkIn field
 	stdin.write('\t');
-	output = lastFrame() || '';
+	output = lastFrame() ?? '';
 	t.true(output.includes('Beginn:'));
 });
 
@@ -51,32 +51,32 @@ test('AttendanceEditForm handles Shift+Tab navigation backward', t => {
 	);
 
 	// Initially should be on checkIn field
-	let output = lastFrame() || '';
+	let output = lastFrame() ?? '';
 	t.true(output.includes('Beginn:'));
 
 	// Shift+Tab should go to cancel (backward from checkIn)
 	stdin.write('\u001B[Z'); // Shift+Tab escape sequence
-	output = lastFrame() || '';
+	output = lastFrame() ?? '';
 	t.true(output.includes('[Abbrechen]'));
 
 	// Shift+Tab should go to submit
 	stdin.write('\u001B[Z');
-	output = lastFrame() || '';
+	output = lastFrame() ?? '';
 	t.true(output.includes('[Speichern]'));
 
 	// Shift+Tab should go to break
 	stdin.write('\u001B[Z');
-	output = lastFrame() || '';
+	output = lastFrame() ?? '';
 	t.true(output.includes('Pause:'));
 
 	// Shift+Tab should go to checkOut
 	stdin.write('\u001B[Z');
-	output = lastFrame() || '';
+	output = lastFrame() ?? '';
 	t.true(output.includes('Ende:'));
 
 	// Shift+Tab should go back to checkIn
 	stdin.write('\u001B[Z');
-	output = lastFrame() || '';
+	output = lastFrame() ?? '';
 	t.true(output.includes('Beginn:'));
 });
 
@@ -86,33 +86,33 @@ test('AttendanceEditForm Tab and Shift+Tab navigation cycles correctly', t => {
 	);
 
 	// Start at checkIn field
-	let output = lastFrame() || '';
+	let output = lastFrame() ?? '';
 	t.true(output.includes('Beginn:'));
 
 	// Tab forward twice to get to break
 	stdin.write('\t'); // CheckIn -> checkOut
 	stdin.write('\t'); // CheckOut -> break
-	output = lastFrame() || '';
+	output = lastFrame() ?? '';
 	t.true(output.includes('Pause:'));
 
 	// Shift+Tab backward to checkOut
 	stdin.write('\u001B[Z'); // Break -> checkOut
-	output = lastFrame() || '';
+	output = lastFrame() ?? '';
 	t.true(output.includes('Ende:'));
 
 	// Tab forward to break again
 	stdin.write('\t'); // CheckOut -> break
-	output = lastFrame() || '';
+	output = lastFrame() ?? '';
 	t.true(output.includes('Pause:'));
 
 	// Continue forward to submit
 	stdin.write('\t'); // Break -> submit
-	output = lastFrame() || '';
+	output = lastFrame() ?? '';
 	t.true(output.includes('[Speichern]'));
 
 	// Shift+Tab backward to break
 	stdin.write('\u001B[Z'); // Submit -> break
-	output = lastFrame() || '';
+	output = lastFrame() ?? '';
 	t.true(output.includes('Pause:'));
 });
 
@@ -121,7 +121,7 @@ test('AttendanceEditForm shows correct help text for navigation', t => {
 		React.createElement(AttendanceEditForm, mockProps),
 	);
 
-	const output = lastFrame() || '';
+	const output = lastFrame() ?? '';
 	t.true(output.includes('[Tab] Feld wechseln'));
 	t.true(output.includes('[Shift+Tab] Zurück'));
 	t.true(output.includes('[Enter] Speichern'));
@@ -147,7 +147,7 @@ test('AttendanceEditForm Escape cancels from any focus area', async t => {
 	// Verify tab works first
 	stdin.write('\t'); // CheckIn -> checkOut
 	await InkTestHelpers.delay(50);
-	const output = lastFrame() || '';
+	const output = lastFrame() ?? '';
 	t.true(output.includes('Ende:')); // Should be on checkOut field
 
 	// Now try escape

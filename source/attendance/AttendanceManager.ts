@@ -13,13 +13,13 @@ export class AttendanceManager {
 
 	constructor(private config: AttendanceConfig, csvPath?: string) {
 		const finalCsvPath =
-			csvPath || config.csvPath || process.env['JIRACLE_ATTENDANCE_CSV_PATH'];
+			csvPath ?? config.csvPath ?? process.env['JIRACLE_ATTENDANCE_CSV_PATH'];
 		this.storage = new AttendanceCSVStorage(finalCsvPath);
 	}
 
 	async checkIn(date?: string, time?: string): Promise<Attendance> {
-		const targetDate = date || this.getCurrentDate();
-		const checkInTime = time || this.getCurrentTime();
+		const targetDate = date ?? this.getCurrentDate();
+		const checkInTime = time ?? this.getCurrentTime();
 
 		if (!AttendanceCalculations.isValidTimeString(checkInTime)) {
 			throw new Error(`Invalid check-in time format: ${checkInTime}`);
@@ -50,8 +50,8 @@ export class AttendanceManager {
 	}
 
 	async checkOut(date?: string, time?: string): Promise<Attendance> {
-		const targetDate = date || this.getCurrentDate();
-		const checkOutTime = time || this.getCurrentTime();
+		const targetDate = date ?? this.getCurrentDate();
+		const checkOutTime = time ?? this.getCurrentTime();
 
 		if (!AttendanceCalculations.isValidTimeString(checkOutTime)) {
 			throw new Error(`Invalid check-out time format: ${checkOutTime}`);
@@ -82,7 +82,7 @@ export class AttendanceManager {
 	}
 
 	async getStatus(date?: string): Promise<AttendanceStatus> {
-		const targetDate = date || this.getCurrentDate();
+		const targetDate = date ?? this.getCurrentDate();
 		const attendance = await this.storage.getByDate(targetDate);
 
 		return AttendanceCalculations.calculateStatus(
@@ -119,7 +119,7 @@ export class AttendanceManager {
 	}
 
 	async getWeeklyAttendance(startDate?: Date): Promise<WeeklyAttendance> {
-		const baseDate = startDate || new Date();
+		const baseDate = startDate ?? new Date();
 		const weekDates = AttendanceCalculations.getWeekDates(baseDate);
 
 		const weeklyAttendance: WeeklyAttendance = {};
@@ -181,7 +181,7 @@ export class AttendanceManager {
 		if (!attendance) {
 			attendance = {
 				date,
-				breakMinutes: breakMinutes || this.config.defaultBreakMinutes,
+				breakMinutes: breakMinutes ?? this.config.defaultBreakMinutes,
 			};
 		}
 
@@ -267,8 +267,8 @@ export class AttendanceManager {
 		}
 
 		return (
-			attendance.totalHours ||
-			AttendanceCalculations.calculateTotalHours(attendance) ||
+			attendance.totalHours ??
+			AttendanceCalculations.calculateTotalHours(attendance) ??
 			0
 		);
 	}

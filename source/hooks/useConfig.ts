@@ -45,7 +45,7 @@ export function useConfig(providedConfig?: JiraConfig): UseConfigResult {
 				const userResponse = await jiraClient
 					.getCurrentUser()
 					.catch(() => undefined);
-				const userEmailAddress = userResponse?.emailAddress || undefined;
+				const userEmailAddress = userResponse?.emailAddress ?? undefined;
 				setUserEmail(userEmailAddress);
 
 				// Start reminder service if enabled

@@ -55,7 +55,7 @@ test('TimetableGrid sorts issues by project prefix and number', t => {
 	// Split output into lines to analyze order
 	const lines = output.split('\n');
 	const issueLines = lines.filter(
-		line => line.includes('ABC-') || line.includes('DEF-'),
+		line => line.includes('ABC-') ?? line.includes('DEF-'),
 	);
 
 	// Should be sorted: ABC-5417, ABC-5419, ABC-5420, DEF-2456, DEF-2457
@@ -119,7 +119,7 @@ test('TimetableGrid sorts issues with different project prefixes correctly', t =
 	const lines = output.split('\n');
 	const issueLines = lines.filter(
 		line =>
-			line.includes('AAA-') || line.includes('BBB-') || line.includes('ZZZ-'),
+			line.includes('AAA-') ?? line.includes('BBB-') ?? line.includes('ZZZ-'),
 	);
 
 	const aaaIndex = issueLines.findIndex(line => line.includes('AAA-200'));

@@ -78,12 +78,12 @@ test('AttendanceEditForm handles Tab navigation between fields', t => {
 		InkTestHelpers.renderAttendanceEditForm(AttendanceEditForm);
 
 	// Should start with checkIn focused
-	let output = lastFrame() || '';
+	let output = lastFrame() ?? '';
 	t.true(output.includes('Beginn:'));
 
 	// Tab navigation simulation
 	InkTestHelpers.simulateTabNavigation(stdin, 2);
-	output = lastFrame() || '';
+	output = lastFrame() ?? '';
 	// Should now show all input fields
 	InkTestHelpers.assertTimeInputsVisible(output, t);
 });
@@ -96,7 +96,7 @@ test('AttendanceEditForm handles Enter key on submit button', t => {
 	);
 
 	// Test the structure and callback setup
-	const output = lastFrame() || '';
+	const output = lastFrame() ?? '';
 	InkTestHelpers.assertNavigationButtonsVisible(output, t);
 	InkTestHelpers.assertCallbackSetup(onSubmit, t);
 
@@ -112,7 +112,7 @@ test('AttendanceEditForm handles Escape key for cancel', t => {
 	);
 
 	// Test the structure and callback setup
-	const output = lastFrame() || '';
+	const output = lastFrame() ?? '';
 	InkTestHelpers.assertNavigationButtonsVisible(output, t);
 	InkTestHelpers.assertCallbackSetup(onCancel, t);
 
@@ -148,7 +148,7 @@ test('AttendanceEditForm formats German date correctly', t => {
 		{date: testDates.sunday},
 	);
 
-	const output = lastFrame() || '';
+	const output = lastFrame() ?? '';
 	InkTestHelpers.assertGermanDateFormat(output, expectedFormats.sunday, t);
 });
 
@@ -180,12 +180,12 @@ test('AttendanceEditForm maintains focus state correctly', t => {
 		InkTestHelpers.renderAttendanceEditForm(AttendanceEditForm);
 
 	// Initial focus should be on checkIn
-	let output = lastFrame() || '';
+	let output = lastFrame() ?? '';
 	t.true(output.includes('Beginn:'));
 
 	// Tab navigation should cycle through all areas
 	InkTestHelpers.simulateTabNavigation(stdin, 5);
-	output = lastFrame() || '';
+	output = lastFrame() ?? '';
 
 	// Should maintain form structure after navigation
 	t.true(output.includes('Anwesenheit bearbeiten'), 'Should show form title');
@@ -198,8 +198,8 @@ test('AttendanceEditForm maintains focus state correctly', t => {
 
 	// Should show focus indicator (blue background styling appears as color changes)
 	const hasActiveElement =
-		output.includes('Beginn:') ||
-		output.includes('[Speichern]') ||
+		output.includes('Beginn:') ??
+		output.includes('[Speichern]') ??
 		output.includes('[Abbrechen]');
 	t.true(
 		hasActiveElement,

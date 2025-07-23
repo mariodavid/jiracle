@@ -11,7 +11,7 @@ test('Confirmation renders with message only', t => {
 		}),
 	);
 
-	const output = lastFrame() || '';
+	const output = lastFrame() ?? '';
 	t.true(output.includes('Are you sure you want to proceed?'));
 });
 
@@ -24,7 +24,7 @@ test('Confirmation renders with title and message', t => {
 		}),
 	);
 
-	const output = lastFrame() || '';
+	const output = lastFrame() ?? '';
 	t.true(output.includes('Confirmation Required'));
 	t.true(output.includes('Are you sure you want to proceed?'));
 });
@@ -75,7 +75,7 @@ test('Confirmation displays proper structure without title', t => {
 		}),
 	);
 
-	const output = lastFrame() || '';
+	const output = lastFrame() ?? '';
 
 	// Should contain the message
 	t.true(output.includes('Delete this item?'));
@@ -93,7 +93,7 @@ test('Confirmation displays proper structure with title', t => {
 		}),
 	);
 
-	const output = lastFrame() || '';
+	const output = lastFrame() ?? '';
 
 	// Should contain both title and message
 	t.true(output.includes('Warning'));

@@ -212,12 +212,12 @@ test('TimetableGrid navigation works with attendance rows', t => {
 	const initialRows = initialFrame!
 		.split('\n')
 		.filter(
-			line => line.includes('PROJ-') || line.includes('Attendance'),
+			line => line.includes('PROJ-') ?? line.includes('Attendance'),
 		).length;
 	const finalRows = finalFrame!
 		.split('\n')
 		.filter(
-			line => line.includes('PROJ-') || line.includes('Attendance'),
+			line => line.includes('PROJ-') ?? line.includes('Attendance'),
 		).length;
 	t.is(initialRows, finalRows, 'Should maintain same number of data rows');
 	t.true(

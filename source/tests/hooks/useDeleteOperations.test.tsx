@@ -49,17 +49,17 @@ function TestDeleteOperationsComponent({
 	return (
 		<Box flexDirection="column">
 			<Text>
-				DeleteCandidate: {deleteOps.deleteCandidate?.issueKey || 'none'}
+				DeleteCandidate: {deleteOps.deleteCandidate?.issueKey ?? 'none'}
 			</Text>
 			<Text>
 				DeleteAttendanceCandidate:{' '}
-				{deleteOps.deleteAttendanceCandidate?.date.toISOString() || 'none'}
+				{deleteOps.deleteAttendanceCandidate?.date.toISOString() ?? 'none'}
 			</Text>
 			<Text>IsDeleting: {deleteOps.isDeleting.toString()}</Text>
 			<Text>
 				IsDeletingAttendance: {deleteOps.isDeletingAttendance.toString()}
 			</Text>
-			<Text>DeleteError: {deleteOps.deleteError || 'none'}</Text>
+			<Text>DeleteError: {deleteOps.deleteError ?? 'none'}</Text>
 		</Box>
 	);
 }
@@ -407,7 +407,7 @@ test('useDeleteOperations displays state correctly in component', t => {
 		}),
 	);
 
-	const output = lastFrame() || '';
+	const output = lastFrame() ?? '';
 
 	// Check initial values are displayed
 	t.true(output.includes('DeleteCandidate: none'));
