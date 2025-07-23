@@ -1,6 +1,5 @@
 import React, {useEffect, useState} from 'react';
 import {Box, Text, useFocusManager} from 'ink';
-import {Spinner} from '@inkjs/ui';
 import figures from 'figures';
 import {type WeeklyWorklogSummary} from '../domain/WeeklyWorklogSummary.js';
 import {formatLocalDateKey} from '../utils/date.js';
@@ -17,9 +16,15 @@ import {
 import {calculateFocusableItems} from '../utils/FocusableItemCalculator.js';
 import {findInitialFocusItem} from '../services/GridNavigationService.js';
 import {useTableNavigation} from '../hooks/useTableNavigation.js';
+import {
+	generateWeekDates,
+	buildIssueMap,
+	buildIssueMapFromFavorites,
+} from '../utils/TimetableDataUtils.js';
 import {AttendanceFooterRows} from './AttendanceFooterRows.js';
 import {AttendanceRows} from './AttendanceRows.js';
 import {FocusableCell} from './FocusableCell.js';
+import {TimetableLoadingStates} from './TimetableLoadingStates.js';
 
 export type TimetableGridProps = {
 	data: WeeklyWorklogSummary | undefined;
@@ -182,64 +187,17 @@ export function TimetableGrid({
 	}, [focusedCell, isActive, attendanceManager, issueGroups, focus]);
 
 	// CONDITIONAL RENDERING AFTER ALL HOOKS
-	if (isLoading) {
-		return (
-			<Box
-				flexDirection="column"
-				paddingX={1}
-				alignItems="center"
-				minHeight={MIN_HEIGHT}
-			>
-				<Box
-					flexDirection="column"
-					alignItems="center"
-					justifyContent="center"
-					flexGrow={1}
-				>
-					<Spinner label="Loading worklogs..." />
-				</Box>
-			</Box>
-		);
-	}
+	const loadingState = (
+		<TimetableLoadingStates
+			isLoading={isLoading}
+			data={data}
+			favoriteIssues={favoriteIssues}
+			minHeight={MIN_HEIGHT}
+		/>
+	);
 
-	if (!data) {
-		return (
-			<Box
-				flexDirection="column"
-				paddingX={1}
-				alignItems="center"
-				minHeight={MIN_HEIGHT}
-			>
-				<Box
-					flexDirection="column"
-					alignItems="center"
-					justifyContent="center"
-					flexGrow={1}
-				>
-					<Text color="gray">No data available</Text>
-				</Box>
-			</Box>
-		);
-	}
-
-	if (data.dailySummaries.length === 0 && favoriteIssues.length === 0) {
-		return (
-			<Box
-				flexDirection="column"
-				paddingX={1}
-				alignItems="center"
-				minHeight={MIN_HEIGHT}
-			>
-				<Box
-					flexDirection="column"
-					alignItems="center"
-					justifyContent="center"
-					flexGrow={1}
-				>
-					<Text color="yellow">No worklogs found for this week</Text>
-				</Box>
-			</Box>
-		);
+	if (loadingState) {
+		return loadingState;
 	}
 
 	return (
@@ -509,70 +467,4 @@ export function TimetableGrid({
 			)}
 		</Box>
 	);
-}
-
-function generateWeekDates(weekStart: Date): Date[] {
-	const dates: Date[] = [];
-	const current = new Date(weekStart);
-
-	// Get Monday of the week (same logic as AttendanceCalculations.getWeekDates)
-	const day = current.getDay();
-	const diff = current.getDate() - day + (day === 0 ? -6 : 1);
-	current.setDate(diff);
-
-	// Only generate weekdays (Monday to Friday)
-	for (let i = 0; i < 5; i++) {
-		const date = new Date(current);
-		dates.push(date);
-		current.setDate(current.getDate() + 1);
-	}
-
-	return dates;
-}
-
-type IssueData = {
-	summary: string;
-	dailyHours: Record<string, number>;
-	weekTotal: number;
-};
-
-function buildIssueMap(data: WeeklyWorklogSummary): Record<string, IssueData> {
-	const issueMap: Record<string, IssueData> = {};
-
-	// Process all worklog data (includes favorites with 0 hours from WeeklyWorklogSummaryUseCase)
-	for (const dailySummary of data.dailySummaries) {
-		const dateKey = formatLocalDateKey(dailySummary.date);
-
-		for (const issue of dailySummary.issues) {
-			if (!issueMap[issue.issueKey]) {
-				issueMap[issue.issueKey] = {
-					summary: issue.issueSummary,
-					dailyHours: {},
-					weekTotal: 0,
-				};
-			}
-
-			issueMap[issue.issueKey]!.dailyHours[dateKey] =
-				(issueMap[issue.issueKey]!.dailyHours[dateKey] || 0) + issue.hours;
-			issueMap[issue.issueKey]!.weekTotal += issue.hours;
-		}
-	}
-
-	return issueMap;
-}
-
-function buildIssueMapFromFavorites(
-	favoriteIssues: FavoriteIssue[],
-): Record<string, IssueData> {
-	const issueMap: Record<string, IssueData> = {};
-
-	for (const favorite of favoriteIssues) {
-		issueMap[favorite.key] = {
-			summary: `Favorite: ${favorite.key}`,
-			dailyHours: {},
-			weekTotal: 0,
-		};
-	}
-
-	return issueMap;
 }
