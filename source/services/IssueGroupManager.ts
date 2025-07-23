@@ -1,24 +1,25 @@
 import type {JiraConfig, Group} from '../jira-client.js';
 import {resolveDefaults} from '../jira-client.js';
+import type {IssueData} from '../utils/TimetableDataUtils.js';
 
 export type IssueGroup = {
 	group: Group | undefined;
-	issues: Array<[string, any]>;
+	issues: Array<[string, IssueData]>;
 	totalHours: number;
 };
 
 export class IssueGroupManager {
 	constructor(private readonly config: JiraConfig | undefined) {}
 
-	groupIssuesByResolvedGroup(issues: Array<[string, any]>): IssueGroup[] {
+	groupIssuesByResolvedGroup(issues: Array<[string, IssueData]>): IssueGroup[] {
 		if (!this.config) {
 			return [
 				{
 					group: undefined,
 					issues: this.sortIssuesByKey(issues),
 					totalHours: issues.reduce(
-						(sum: number, [, issueData]: [string, any]): number =>
-							sum + (issueData.weekTotal as number),
+						(sum: number, [, issueData]: [string, IssueData]): number =>
+							sum + issueData.weekTotal,
 						0,
 					),
 				},
@@ -26,7 +27,7 @@ export class IssueGroupManager {
 		}
 
 		const groupMap = new Map<string, IssueGroup>();
-		const ungroupedIssues: Array<[string, any]> = [];
+		const ungroupedIssues: Array<[string, IssueData]> = [];
 
 		for (const [issueKey, issueData] of issues) {
 			const resolved = resolveDefaults(this.config, issueKey);
@@ -43,7 +44,7 @@ export class IssueGroupManager {
 				}
 
 				groupMap.get(groupId)!.issues.push([issueKey, issueData]);
-				groupMap.get(groupId)!.totalHours += issueData.weekTotal as number;
+				groupMap.get(groupId)!.totalHours += issueData.weekTotal;
 			} else {
 				ungroupedIssues.push([issueKey, issueData]);
 			}
@@ -65,8 +66,8 @@ export class IssueGroupManager {
 				group: undefined,
 				issues: this.sortIssuesByKey(ungroupedIssues),
 				totalHours: ungroupedIssues.reduce(
-					(sum: number, [, issueData]: [string, any]): number =>
-						sum + (issueData.weekTotal as number),
+					(sum: number, [, issueData]: [string, IssueData]): number =>
+						sum + issueData.weekTotal,
 					0,
 				),
 			});
@@ -75,7 +76,9 @@ export class IssueGroupManager {
 		return groups;
 	}
 
-	private sortIssuesByKey(issues: Array<[string, any]>): Array<[string, any]> {
+	private sortIssuesByKey(
+		issues: Array<[string, IssueData]>,
+	): Array<[string, IssueData]> {
 		return issues.sort(([aKey], [bKey]) => {
 			const aParts = aKey.split('-');
 			const bParts = bKey.split('-');

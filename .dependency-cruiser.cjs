@@ -195,10 +195,10 @@ module.exports = {
 			},
 		},
 
-		// Architectural boundary rules (Phase 2: Warning-only introduction)
+		// Architectural boundary rules (strict enforcement)
 		{
 			name: 'no-utils-to-hooks',
-			severity: 'warn',
+			severity: 'error',
 			comment:
 				'Utils should not depend on React hooks - keep utilities framework-agnostic',
 			from: {path: '^source/utils/.*'},
@@ -206,7 +206,7 @@ module.exports = {
 		},
 		{
 			name: 'no-services-to-hooks',
-			severity: 'warn',
+			severity: 'error',
 			comment:
 				'Services should be framework-agnostic and not depend on React hooks',
 			from: {path: '^source/services/.*'},
@@ -214,7 +214,7 @@ module.exports = {
 		},
 		{
 			name: 'no-components-to-services',
-			severity: 'info',
+			severity: 'error',
 			comment:
 				'Components should use hooks as intermediary instead of directly using services',
 			from: {path: '^source/components/.*'},

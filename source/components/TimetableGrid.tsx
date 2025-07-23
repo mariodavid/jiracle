@@ -6,8 +6,7 @@ import {formatLocalDateKey} from '../utils/date.js';
 import type {FavoriteIssue, JiraConfig} from '../jira-client.js';
 import {type AttendanceManager} from '../attendance/AttendanceManager.js';
 import type {WeeklyAttendance} from '../attendance/types.js';
-import {useIssueGroups} from '../hooks/useIssueGroups.js';
-import type {IssueGroup} from '../hooks/useIssueGroupManager.js';
+import {useIssueGroups, type IssueGroup} from '../hooks/useIssueGroups.js';
 import {
 	calculateDailyTotals,
 	formatHours,
@@ -147,11 +146,11 @@ export function TimetableGrid({
 	const formatGroupTotal = (group: IssueGroup): string => {
 		const totalHours = formatHours(group.totalHours);
 
-		if (group.group?.desiredAmount) {
-			const desired = group.group.desiredAmount;
+		const desiredAmount = group.group?.desiredAmount;
+		if (typeof desiredAmount === 'number') {
 			const actual = group.totalHours;
-			const status = actual >= desired ? '✓' : '⚠️';
-			return `${totalHours}/${String(desired)} ${status}`;
+			const status = actual >= desiredAmount ? '✓' : '⚠️';
+			return `${totalHours}/${String(desiredAmount)} ${status}`;
 		}
 
 		// Return hours without 'h' suffix for group totals
