@@ -112,6 +112,7 @@
 			}
 		],
 		"rules": {
+			"unicorn/expiring-todo-comments": "off",
 			"max-lines": [
 				"error",
 				{
@@ -120,7 +121,6 @@
 					"skipBlankLines": true
 				}
 			],
-			"unicorn/expiring-todo-comments": "off",
 			"unicorn/filename-case": "off",
 			"@typescript-eslint/naming-convention": "off",
 			"import/order": "error",
