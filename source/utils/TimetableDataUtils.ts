@@ -46,7 +46,7 @@ export function buildIssueMap(
 			}
 
 			issueMap[issue.issueKey]!.dailyHours[dateKey] =
-				(issueMap[issue.issueKey]!.dailyHours[dateKey] || 0) + issue.hours;
+				(issueMap[issue.issueKey]!.dailyHours[dateKey] ?? 0) + issue.hours;
 			issueMap[issue.issueKey]!.weekTotal += issue.hours;
 		}
 	}

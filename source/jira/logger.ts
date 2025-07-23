@@ -16,7 +16,7 @@ export function createJiraLogger(): winston.Logger {
 		transports: [
 			new winston.transports.File({
 				filename: join(
-					process.env['HOME'] || '~',
+					process.env['HOME'] ?? '~',
 					'.config',
 					'jiracle-requests.log',
 				),
