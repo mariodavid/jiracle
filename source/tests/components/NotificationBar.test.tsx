@@ -103,11 +103,14 @@ test('NotificationBar - always shows latest when multiple notifications', t => {
 test('NotificationBar - handles empty message', t => {
 	const notifications: Notification[] = [{id: 1, message: '', type: 'info'}];
 
-	render(React.createElement(NotificationBar, {notifications}));
+	const {lastFrame} = render(
+		React.createElement(NotificationBar, {notifications}),
+	);
 
-	// Should still render the empty message (might just be padding)
-	// This tests that the component doesn't crash with empty messages
-	t.pass();
+	// Should not crash and should render (even if empty string)
+	const output = lastFrame();
+	t.is(typeof output, 'string', 'Should return string output without crashing');
+	// Empty message may render as empty string, which is valid behavior
 });
 
 test('NotificationBar - handles long message', t => {

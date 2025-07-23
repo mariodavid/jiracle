@@ -252,7 +252,16 @@ test('useNotification - auto-dismissal timing differs by type', t => {
 
 	t.is(hookResult.notifications.length, 2);
 
-	// Note: We don't test the actual auto-dismissal timing here as it's unreliable in tests
-	// The behavior is documented in the implementation: 5s for error, 3s for success/info
-	t.pass();
+	// Verify both notifications are present with correct types
+	const errorNotification = hookResult.notifications.find(
+		n => n.type === 'error',
+	);
+	const successNotification = hookResult.notifications.find(
+		n => n.type === 'success',
+	);
+
+	t.truthy(errorNotification, 'Should have error notification');
+	t.truthy(successNotification, 'Should have success notification');
+	t.is(errorNotification?.message, 'Error message');
+	t.is(successNotification?.message, 'Success message');
 });
