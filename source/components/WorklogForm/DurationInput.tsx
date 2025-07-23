@@ -2,11 +2,11 @@ import React, {useState, useRef} from 'react';
 import {Text, Box, useInput} from 'ink';
 import type {JiraIssue, JiraConfig} from '../../jira-client.js';
 import {resolveDefaults} from '../../jira-client.js';
-import {TimeParsingService} from '../../services/TimeParsingService.js';
 import {
 	useInputValidation,
 	type AllowedUnit,
 } from '../../hooks/useInputValidation.js';
+import {useTimeParser} from '../../hooks/useTimeParser.js';
 
 type DurationInputProps = {
 	selectedIssue?: JiraIssue;
@@ -38,6 +38,9 @@ export default function DurationInput({
 
 	// Use the input validation hook
 	const {isValidInputChar} = useInputValidation(allowedUnits);
+
+	// Use the time parser hook
+	const {normalizeTimeString, adjustTime: adjustTimeService} = useTimeParser();
 
 	// Determine default time based on issue and configuration
 	const getDefaultTime = () => {
@@ -71,7 +74,7 @@ export default function DurationInput({
 	};
 
 	const normalizeTimeOnSubmit = (inputValue: string) => {
-		const normalizedValue = TimeParsingService.normalizeTimeString(inputValue);
+		const normalizedValue = normalizeTimeString(inputValue);
 
 		// Update the display if normalization happened
 		if (normalizedValue !== inputValue) {
@@ -84,7 +87,7 @@ export default function DurationInput({
 	};
 
 	const adjustTime = (direction: 'up' | 'down') => {
-		const newTimeString = TimeParsingService.adjustTime(
+		const newTimeString = adjustTimeService(
 			timeInputValueRef.current,
 			direction,
 			incrementMinutes,
