@@ -1,19 +1,16 @@
-import {Buffer} from 'node:buffer';
 import type winston from 'winston';
 import type {JiraConfig} from './types.js';
 
 export class JiraHttpClient {
 	private readonly baseUrl: string;
-	private readonly username: string;
 	private readonly apiToken: string;
 	private readonly logger: winston.Logger;
 
-	constructor(config: JiraConfig & {username: string}, logger: winston.Logger) {
+	constructor(config: JiraConfig, logger: winston.Logger) {
 		const normalizedJiraUrl = config.jiraUrl.endsWith('/')
 			? config.jiraUrl
 			: `${config.jiraUrl}/`;
 		this.baseUrl = `${normalizedJiraUrl}rest/api/2`;
-		this.username = config.username;
 		this.apiToken = config.apiToken;
 		this.logger = logger;
 	}
@@ -95,11 +92,8 @@ export class JiraHttpClient {
 	}
 
 	private getHeaders(): Record<string, string> {
-		const auth = Buffer.from(`${this.username}:${this.apiToken}`).toString(
-			'base64',
-		);
 		return {
-			Authorization: `Basic ${auth}`,
+			Authorization: `Bearer ${this.apiToken}`,
 			Accept: 'application/json',
 		};
 	}
@@ -111,7 +105,7 @@ export class JiraHttpClient {
 					`HTTP 405 Method Not Allowed for ${url}. This usually indicates the Jira instance doesn't support this API endpoint or method.`,
 				);
 				throw new Error(
-					`HTTP 405 Method Not Allowed: The Jira instance at ${url} doesn't support this operation. This might be due to Jira version compatibility or endpoint availability.`,
+					`HTTP 405 Method Not Allowed: Check your Jira URL configuration. Expected format: https://your-jira-instance.com/`,
 				);
 			}
 
@@ -119,9 +113,7 @@ export class JiraHttpClient {
 			this.logger.error(
 				`HTTP ${response.status} error for ${url}: ${errorText}`,
 			);
-			throw new Error(
-				`HTTP ${response.status}: ${response.statusText}. ${errorText}`,
-			);
+			throw new Error(`Jira API error: ${response.status} - ${errorText}`);
 		}
 
 		if (response.status === 204) {

@@ -28,7 +28,6 @@ export class JiraClient {
 				...config,
 				jiraUrl: this.jiraUrl,
 				apiToken: this.apiToken,
-				username: config.username,
 			},
 			this.logger,
 		);
