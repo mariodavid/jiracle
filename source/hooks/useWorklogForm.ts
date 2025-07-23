@@ -89,7 +89,7 @@ export function useWorklogForm(
 
 				if (!dailySummary) {
 					// No worklogs yet, return full attendance time
-					return attendance.totalHours || 0;
+					return attendance.totalHours ?? 0;
 				}
 
 				// Calculate total time already logged for other issues
@@ -97,7 +97,7 @@ export function useWorklogForm(
 				for (const issue of dailySummary.issues) {
 					// Don't count the current issue we're trying to log time for
 					if (issue.issueKey !== currentIssueKey) {
-						totalLoggedForOtherIssues += issue.hours || 0;
+						totalLoggedForOtherIssues += issue.hours ?? 0;
 					}
 				}
 
@@ -308,7 +308,7 @@ export function useWorklogForm(
 
 				const worklogData: WorklogRequest = {
 					timeSpent: data.timeSpent,
-					comment: data.comment || 'Work logged via Jiracle',
+					comment: data.comment ?? 'Work logged via Jiracle',
 					started: selectedDateTime.toISOString().replace('Z', '+0000'),
 				};
 

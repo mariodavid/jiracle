@@ -34,7 +34,7 @@ export function detectWorklogForEdit(
 			hasWorklog: true,
 			isEditable: true,
 			worklogId: issueWorklogEntry.worklogId,
-			comment: issueWorklogEntry.comment || '',
+			comment: issueWorklogEntry.comment ?? '',
 			timeSpent: formatHoursAsTimeSpent(issueWorklogEntry.hours),
 		};
 	}

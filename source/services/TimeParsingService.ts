@@ -107,11 +107,11 @@ function adjustTime(
 	let newTotalMinutes: number;
 	if (direction === 'up') {
 		// Find next mark that's greater than current
-		newTotalMinutes = marks.find(mark => mark > totalMinutes) || totalMinutes;
+		newTotalMinutes = marks.find(mark => mark > totalMinutes) ?? totalMinutes;
 	} else {
 		// Find previous mark that's less than current
 		newTotalMinutes =
-			marks.reverse().find(mark => mark < totalMinutes) || incrementMinutes;
+			marks.reverse().find(mark => mark < totalMinutes) ?? incrementMinutes;
 		marks.reverse(); // Restore original order
 	}
 

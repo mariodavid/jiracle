@@ -22,9 +22,9 @@ function runCli(args: string[]): {
 	} catch (error: unknown) {
 		const error_ = error as any;
 		return {
-			stdout: error_.stdout || '',
-			stderr: error_.stderr || '',
-			exitCode: error_.status || 1,
+			stdout: error_.stdout ?? '',
+			stderr: error_.stderr ?? '',
+			exitCode: error_.status ?? 1,
 		};
 	}
 }

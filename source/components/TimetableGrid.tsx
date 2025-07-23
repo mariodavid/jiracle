@@ -100,13 +100,13 @@ export function TimetableGrid({
 	const dailyLoggedHours: Record<string, number> = {};
 	for (const [index, date] of weekDates.entries()) {
 		const dateKey = formatLocalDateKey(date);
-		dailyLoggedHours[dateKey] = dailyTotals[index] || 0;
+		dailyLoggedHours[dateKey] = dailyTotals[index] ?? 0;
 	}
 
 	// Group issues by their resolved groups using the extracted service
 	const issueGroups = useIssueGroups(
 		Object.entries(issueMap),
-		config || undefined,
+		config ?? undefined,
 	);
 
 	// Unified table navigation (focus management + keyboard input)
@@ -132,7 +132,7 @@ export function TimetableGrid({
 	const formatIssueKey = (issueKey: string): string => {
 		// Check if this issue has an alias configured
 		const favoriteIssue = favoriteIssues.find(fav => fav.key === issueKey);
-		const displayText = favoriteIssue?.alias || issueKey;
+		const displayText = favoriteIssue?.alias ?? issueKey;
 
 		// Pad the display text to a fixed width (e.g. 12 characters for consistency)
 		const paddedDisplayText = displayText.padEnd(12, ' ');
@@ -276,7 +276,7 @@ export function TimetableGrid({
 
 			{/* Issue rows grouped by resolved groups */}
 			{issueGroups.map(group => (
-				<Box key={group.group?.id || 'ungrouped'} flexDirection="column">
+				<Box key={group.group?.id ?? 'ungrouped'} flexDirection="column">
 					{/* Group header row */}
 					{group.group && (
 						<Box flexDirection="column">
@@ -296,7 +296,7 @@ export function TimetableGrid({
 								</Box>
 								{weekDates.map((_, index) => (
 									<Box
-										key={`header-${String(group.group?.id || 'null')}-${index}`}
+										key={`header-${String(group.group?.id ?? 'null')}-${index}`}
 										width={12}
 									>
 										<Text> </Text>
@@ -317,7 +317,7 @@ export function TimetableGrid({
 								{weekDates.map((_, index) => (
 									<Box
 										key={`underline-${String(
-											group.group?.id || 'null',
+											group.group?.id ?? 'null',
 										)}-${index}`}
 										width={12}
 									>
@@ -353,7 +353,7 @@ export function TimetableGrid({
 											<FocusableCell
 												key={`${issueKey}-focusable-cell-${index}`}
 												value={formatHours(
-													issueData.dailyHours[formatLocalDateKey(date)] || 0,
+													issueData.dailyHours[formatLocalDateKey(date)] ?? 0,
 												)}
 												focusId={`issue-${issueKey}-${index}`}
 												isActive={true}
@@ -370,7 +370,7 @@ export function TimetableGrid({
 											>
 												<Text>
 													{formatHours(
-														issueData.dailyHours[formatLocalDateKey(date)] || 0,
+														issueData.dailyHours[formatLocalDateKey(date)] ?? 0,
 													)}
 												</Text>
 											</Box>
@@ -404,7 +404,7 @@ export function TimetableGrid({
 								</Box>
 								{weekDates.map((_, index) => (
 									<Box
-										key={`sep-${String(group.group?.id || 'null')}-${index}`}
+										key={`sep-${String(group.group?.id ?? 'null')}-${index}`}
 										width={12}
 									>
 										<Text color="gray">{'─'.repeat(12)}</Text>
@@ -471,7 +471,7 @@ export function TimetableGrid({
 				))}
 				<Box width={8} justifyContent="flex-end">
 					<Text bold color="green">
-						{formatHours(data?.weekTotal || 0)}
+						{formatHours(data?.weekTotal ?? 0)}
 					</Text>
 				</Box>
 			</Box>

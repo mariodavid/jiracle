@@ -76,15 +76,15 @@ export function getFavoriteDefaultTime(
 
 export function extractProjectKey(issueKey: string): string | undefined {
 	const match = /^([A-Z]+)-\d+$/.exec(issueKey);
-	return match ? match[1] ?? undefined : undefined;
+	return match ? match[1] : undefined;
 }
 
 export function loadConfigWithEnvVars(config: JiraConfig): JiraConfig {
 	return {
 		...config,
-		jiraUrl: process.env['JIRACLE_JIRA_URL'] || config.jiraUrl,
-		username: process.env['JIRACLE_USERNAME'] || config.username,
-		apiToken: process.env['JIRACLE_API_TOKEN'] || config.apiToken,
+		jiraUrl: process.env['JIRACLE_JIRA_URL'] ?? config.jiraUrl,
+		username: process.env['JIRACLE_USERNAME'] ?? config.username,
+		apiToken: process.env['JIRACLE_API_TOKEN'] ?? config.apiToken,
 	};
 }
 
@@ -92,9 +92,9 @@ export function resolveDefaults(
 	config: JiraConfig,
 	issueKey: string,
 ): ResolvedDefaults {
-	const favorites = config.favorites || [];
-	const projects = config.projects || [];
-	const groups = config.groups || [];
+	const favorites = config.favorites ?? [];
+	const projects = config.projects ?? [];
+	const groups = config.groups ?? [];
 
 	const projectKey = extractProjectKey(issueKey);
 	const favorite = favorites.find(fav => fav.key === issueKey);

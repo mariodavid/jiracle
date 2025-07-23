@@ -38,13 +38,13 @@ export function AttendanceRows({
 			const formatTime = (time: string) => {
 				if (!time) return '';
 				const [hours, minutes] = time.split(':');
-				const h = Number.parseInt(hours || '0', 10);
-				const m = Number.parseInt(minutes || '0', 10);
+				const h = Number.parseInt(hours ?? '0', 10);
+				const m = Number.parseInt(minutes ?? '0', 10);
 				return m === 0 ? h.toString() : `${h}:${minutes ?? '00'}`;
 			};
 
-			const checkIn = formatTime(attendance.checkIn || '08:00');
-			const checkOut = formatTime(attendance.checkOut || '17:00');
+			const checkIn = formatTime(attendance.checkIn ?? '08:00');
+			const checkOut = formatTime(attendance.checkOut ?? '17:00');
 
 			return `${checkIn}-${checkOut}`;
 		};

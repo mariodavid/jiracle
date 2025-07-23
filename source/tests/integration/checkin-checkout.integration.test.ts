@@ -30,7 +30,7 @@ test('WeeklyTimetableView shows help text with checkin/checkout options', t => {
 		}),
 	);
 
-	const output = lastFrame() || '';
+	const output = lastFrame() ?? '';
 	// Check that help text includes new checkin/checkout options
 	t.true(output.includes('[I] Check In'));
 	t.true(output.includes('[O] Check Out'));
@@ -46,7 +46,7 @@ test('WeeklyTimetableView renders without errors with attendance config', t => {
 		}),
 	);
 
-	const output = lastFrame() || '';
+	const output = lastFrame() ?? '';
 	// Should render without crashing and show some content
 	t.true(output.length > 0);
 	t.true(typeof output === 'string');
@@ -62,7 +62,7 @@ test('WeeklyTimetableView renders help text correctly', t => {
 		}),
 	);
 
-	const output = lastFrame() || '';
+	const output = lastFrame() ?? '';
 	// Check for the updated help text with both Check In and Check Out
 	t.true(output.includes('[I] Check In'));
 	t.true(output.includes('[O] Check Out'));

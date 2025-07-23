@@ -80,10 +80,10 @@ export class IssueGroupManager {
 			const aParts = aKey.split('-');
 			const bParts = bKey.split('-');
 
-			const aProject = aParts[0] || '';
-			const bProject = bParts[0] || '';
-			const aNumber = aParts[1] || '0';
-			const bNumber = bParts[1] || '0';
+			const aProject = aParts[0] ?? '';
+			const bProject = bParts[0] ?? '';
+			const aNumber = aParts[1] ?? '0';
+			const bNumber = bParts[1] ?? '0';
 
 			if (aProject !== bProject) {
 				return aProject.localeCompare(bProject);

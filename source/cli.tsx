@@ -123,7 +123,7 @@ function validateWorklogParameters(parameters: WorklogAddParameters): void {
 
 function loadConfig(configPath?: string): JiraConfig {
 	const configFilePath =
-		configPath || join(homedir(), '.config', 'jiracle.json');
+		configPath ?? join(homedir(), '.config', 'jiracle.json');
 	const configData = readFileSync(configFilePath, 'utf8');
 	const baseConfig = JSON.parse(configData) as JiraConfig;
 	return loadConfigWithEnvVars(baseConfig);

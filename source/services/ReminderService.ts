@@ -106,9 +106,12 @@ export class ReminderService {
 
 	private timeToMinutes(timeString: string): number {
 		const parts = timeString.split(':');
-		const hours = Number(parts[0]) || 0;
-		const minutes = Number(parts[1]) || 0;
-		return hours * 60 + minutes;
+		const hours = Number(parts[0] ?? '0');
+		const minutes = Number(parts[1] ?? '0');
+		return (
+			(Number.isNaN(hours) ? 0 : hours) * 60 +
+			(Number.isNaN(minutes) ? 0 : minutes)
+		);
 	}
 
 	private async sendReminder(): Promise<void> {

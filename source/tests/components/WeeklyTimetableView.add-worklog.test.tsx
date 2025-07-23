@@ -23,7 +23,7 @@ test('WeeklyTimetableView shows [A] Add Worklog hint in footer', t => {
 	const {lastFrame} = render(
 		React.createElement(WeeklyTimetableView, mockProps),
 	);
-	const output = lastFrame() || '';
+	const output = lastFrame() ?? '';
 
 	// Should show the [A] Add Worklog hint
 	t.true(output.includes('[A] Add Worklog'));
@@ -33,7 +33,7 @@ test('WeeklyTimetableView includes Add Worklog in navigation hints', t => {
 	const {lastFrame} = render(
 		React.createElement(WeeklyTimetableView, mockProps),
 	);
-	const output = lastFrame() || '';
+	const output = lastFrame() ?? '';
 
 	// Should show navigation hints including Add Worklog
 	t.true(
@@ -45,7 +45,7 @@ test('WeeklyTimetableView shows comprehensive keyboard shortcuts', t => {
 	const {lastFrame} = render(
 		React.createElement(WeeklyTimetableView, mockProps),
 	);
-	const output = lastFrame() || '';
+	const output = lastFrame() ?? '';
 
 	// Should show all the main keyboard shortcuts
 	t.true(
@@ -59,7 +59,7 @@ test('WeeklyTimetableView renders with default configuration', t => {
 	const {lastFrame} = render(
 		React.createElement(WeeklyTimetableView, mockProps),
 	);
-	const output = lastFrame() || '';
+	const output = lastFrame() ?? '';
 
 	// Should render the basic structure
 	t.true(output.includes('[A] Add Worklog')); // Add Worklog feature should be present
@@ -83,7 +83,7 @@ test('WeeklyTimetableView handles configuration with favorites', t => {
 	const {lastFrame} = render(
 		React.createElement(WeeklyTimetableView, propsWithFavorites),
 	);
-	const output = lastFrame() || '';
+	const output = lastFrame() ?? '';
 
 	// Should still render properly with favorites
 	t.true(output.includes('[A] Add Worklog'));
@@ -104,7 +104,7 @@ test('WeeklyTimetableView handles configuration with projects', t => {
 	const {lastFrame} = render(
 		React.createElement(WeeklyTimetableView, propsWithProjects),
 	);
-	const output = lastFrame() || '';
+	const output = lastFrame() ?? '';
 
 	// Should still render properly with projects
 	t.true(output.includes('[A] Add Worklog'));
@@ -137,7 +137,7 @@ test('WeeklyTimetableView renders without errors with comprehensive config', t =
 	const {lastFrame} = render(
 		React.createElement(WeeklyTimetableView, comprehensiveProps),
 	);
-	const output = lastFrame() || '';
+	const output = lastFrame() ?? '';
 
 	// Should render all expected elements
 	t.true(output.includes('[A] Add Worklog'));

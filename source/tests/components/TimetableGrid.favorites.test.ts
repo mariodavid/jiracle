@@ -394,6 +394,6 @@ test('TimetableGrid displays aliases with proper padding', t => {
 		'Long alias should be displayed',
 	);
 	// Both aliases should have stars (check that both favorite issues have stars)
-	const starCount = (output.match(new RegExp(figures.star, 'g')) || []).length;
+	const starCount = (output.match(new RegExp(figures.star, 'g')) ?? []).length;
 	t.is(starCount, 2, 'Both favorite issues should have stars');
 });

@@ -89,7 +89,7 @@ export function WeeklyTimetableView({
 		weekEnd,
 		config,
 		skipAutoLoad: false, // Always load fresh data when component mounts
-		userEmail: userEmail || undefined,
+		userEmail: userEmail ?? undefined,
 		favoriteIssues: config.favorites, // Pass favorite issues to include them in the table
 	});
 
@@ -109,7 +109,7 @@ export function WeeklyTimetableView({
 		onActiveAreaChange(area: string) {
 			setActiveArea(area as any);
 		},
-		data: data || undefined,
+		data: data ?? undefined,
 	});
 
 	// Attendance management state
@@ -362,7 +362,7 @@ export function WeeklyTimetableView({
 									isActive={activeArea === 'timetable'}
 									favoriteIssues={config.favorites}
 									config={config}
-									attendanceManager={attendanceManager || undefined}
+									attendanceManager={attendanceManager ?? undefined}
 									attendanceRefreshKey={attendanceRefreshKey}
 									onWeekChange={direction => {
 										if (direction === 'prev') {

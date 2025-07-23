@@ -28,7 +28,7 @@ function getAttendanceManager(
 	csvPath?: string,
 ): AttendanceManager {
 	const configFilePath =
-		configPath || join(homedir(), '.config', 'jiracle.json');
+		configPath ?? join(homedir(), '.config', 'jiracle.json');
 	const configData = readFileSync(configFilePath, 'utf8');
 	const config: JiraConfig = JSON.parse(configData) as JiraConfig;
 
@@ -146,7 +146,7 @@ export async function executeStatus(
 		const status = await manager.getStatus(parameters.date);
 
 		const date =
-			(parameters.date || new Date().toISOString().split('T')[0]) ?? '';
+			parameters.date ?? new Date().toISOString().split('T')[0] ?? '';
 		const todayString = new Date().toISOString().split('T')[0] ?? '';
 		const dateLabel = date === todayString ? 'Today' : date;
 

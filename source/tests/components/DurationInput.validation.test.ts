@@ -165,7 +165,7 @@ test('DurationInput rejects invalid patterns with dots after units', t => {
 		typeString(stdin, input);
 
 		// Should not end with dot
-		const finalValue = changedValues[changedValues.length - 1] || '';
+		const finalValue = changedValues[changedValues.length - 1] ?? '';
 		t.false(finalValue.endsWith('.'), `Should reject ${reason}: ${input}`);
 	}
 });

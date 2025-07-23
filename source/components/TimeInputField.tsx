@@ -18,7 +18,7 @@ export default function TimeInputField({
 	label,
 	incrementMinutes = 15,
 }: TimeInputFieldProps) {
-	const initialValue = value || '08:00';
+	const initialValue = value ?? '08:00';
 	const [timeInputValue, setTimeInputValue] = useState(initialValue);
 	const [cursorPosition, setCursorPosition] = useState(initialValue.length);
 	const [isSelected, setIsSelected] = useState(true); // Start with text selected
@@ -28,7 +28,7 @@ export default function TimeInputField({
 	const validateBasicFormat = (char: string, newValue: string): boolean => {
 		if (!/[\d:]/.test(char)) return false;
 		if (newValue.startsWith(':')) return false;
-		if ((newValue.match(/:/g) || []).length > 1) return false;
+		if ((newValue.match(/:/g) ?? []).length > 1) return false;
 		if (newValue.length > 5) return false;
 		return true;
 	};

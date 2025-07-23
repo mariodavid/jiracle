@@ -255,7 +255,7 @@ test.serial('should reject future dates for check-in', async t => {
 
 		// Note: Currently the implementation doesn't check for future dates,
 		// but according to test-ideas.md it should. This test documents the expected behavior.
-		t.true(result.success || result.message.includes('future date'));
+		t.true(result.success ?? result.message.includes('future date'));
 	});
 });
 
@@ -294,7 +294,7 @@ test.serial('should fail check-out without prior check-in', async t => {
 
 		// Currently implementation doesn't prevent this, but test-ideas.md suggests it should
 		// This test documents expected behavior
-		t.true(result.success || result.message.includes('no check-in'));
+		t.true(result.success ?? result.message.includes('no check-in'));
 	});
 });
 
@@ -316,7 +316,7 @@ test.serial('should fail check-out before check-in time', async t => {
 
 		// Currently implementation doesn't prevent this, but test-ideas.md suggests it should
 		// This test documents expected behavior
-		t.true(result.success || result.message.includes('before check-in'));
+		t.true(result.success ?? result.message.includes('before check-in'));
 	});
 });
 

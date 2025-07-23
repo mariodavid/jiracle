@@ -20,9 +20,9 @@ export class JiraClient {
 	private readonly httpClient: JiraHttpClient;
 
 	constructor(config: JiraConfig, customLogger?: winston.Logger) {
-		this.jiraUrl = process.env['JIRACLE_JIRA_URL'] || config.jiraUrl;
-		this.apiToken = process.env['JIRACLE_API_TOKEN'] || config.apiToken;
-		this.logger = customLogger || createJiraLogger();
+		this.jiraUrl = process.env['JIRACLE_JIRA_URL'] ?? config.jiraUrl;
+		this.apiToken = process.env['JIRACLE_API_TOKEN'] ?? config.apiToken;
+		this.logger = customLogger ?? createJiraLogger();
 		this.httpClient = new JiraHttpClient(
 			{
 				...config,

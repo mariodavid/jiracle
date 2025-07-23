@@ -34,7 +34,7 @@ export class WeeklyWorklogSummaryUseCase {
 
 		// Get current user's email for filtering (use provided email or fetch from API)
 		const currentUser = await this.jiraClient.getCurrentUser();
-		const currentUserEmail = userEmail || currentUser.emailAddress;
+		const currentUserEmail = userEmail ?? currentUser.emailAddress;
 
 		// Search for issues with worklogs in the date range
 		const searchResult = await this.jiraClient.searchIssuesWithWorklogs(jql);
@@ -141,7 +141,7 @@ export class WeeklyWorklogSummaryUseCase {
 					issue => issue.key === issueKey,
 				);
 
-				const issueData = worklogIssue || slidingWindowIssue || favoriteIssue;
+				const issueData = worklogIssue ?? slidingWindowIssue ?? favoriteIssue;
 				if (!issueData) {
 					throw new Error(`Issue data not found for ${issueKey}`);
 				}

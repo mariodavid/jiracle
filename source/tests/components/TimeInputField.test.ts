@@ -17,7 +17,7 @@ test('TimeInputField renders with initial value', t => {
 		}),
 	);
 
-	const output = lastFrame() || '';
+	const output = lastFrame() ?? '';
 	t.true(output.includes('09:15'));
 });
 
@@ -30,7 +30,7 @@ test('TimeInputField renders in compact mode', t => {
 		}),
 	);
 
-	const output = lastFrame() || '';
+	const output = lastFrame() ?? '';
 	t.true(output.includes('10:30'));
 	// Should not include help text in compact mode
 	t.false(output.includes('Type time'));
@@ -148,7 +148,7 @@ test('TimeInputField validates time input', t => {
 	stdin.write('0'); // Invalid minutes > 59
 
 	// Should only accept valid parts
-	const finalValue = changedValues[changedValues.length - 1] || '';
+	const finalValue = changedValues[changedValues.length - 1] ?? '';
 	t.false(finalValue.includes('25'));
 	t.false(finalValue.includes('70'));
 });

@@ -67,7 +67,7 @@ function TestAttendanceManagementComponent({
 			</Text>
 			<Text>
 				AttendanceEdit:{' '}
-				{attendanceManagement.attendanceEdit?.date.toISOString() || 'null'}
+				{attendanceManagement.attendanceEdit?.date.toISOString() ?? 'null'}
 			</Text>
 		</Box>
 	);
@@ -580,7 +580,7 @@ test('useAttendanceManagement displays state correctly in component', async t =>
 		}),
 	);
 
-	const output = lastFrame() || '';
+	const output = lastFrame() ?? '';
 
 	// Check initial values are displayed
 	t.true(output.includes('AttendanceManager: present'));
