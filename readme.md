@@ -9,7 +9,7 @@ Terminal-based Jira time tracking with a keyboard-driven weekly timetable interf
 ## Features
 
 - **Weekly grid view** of Jira issues × days
-- **Keyboard navigation** with arrow keys and shortcuts  
+- **Keyboard navigation** with arrow keys and shortcuts
 - **Quick time entry** directly in grid cells
 - **Attendance tracking** with check-in/check-out
 - **Smart defaults** and comment auto-fill
@@ -36,14 +36,12 @@ Create `~/.config/jiracle.json`:
 
 ```json
 {
-  "jiraUrl": "https://your-company.atlassian.net",
-  "username": "your-email@company.com", 
-  "apiToken": "your-jira-api-token",
-  "defaultTime": "4h",
-  "defaultComment": "Development work",
-  "favorites": [
-    {"key": "PROJ-123", "alias": "Main Feature"}
-  ]
+	"jiraUrl": "https://your-company.atlassian.net",
+	"username": "your-email@company.com",
+	"apiToken": "your-jira-api-token",
+	"defaultTime": "4h",
+	"defaultComment": "Development work",
+	"favorites": [{"key": "PROJ-123", "alias": "Main Feature"}]
 }
 ```
 
