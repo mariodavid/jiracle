@@ -6,6 +6,7 @@ import type {
 	Group,
 	ResolvedDefaults,
 	SlidingWindowConfig,
+	WorklogEntry,
 } from './types.js';
 
 export function normalizeSlidingWindowConfig(
@@ -176,4 +177,97 @@ export function extractIssueKeyFromInput(input: string): string | undefined {
 	}
 
 	return undefined;
+}
+
+export function getMostRecentCommentForIssue(
+	worklogs: WorklogEntry[],
+	daysBack = 7,
+	referenceDate: Date = new Date(),
+): string | undefined {
+	const cutoffDate = new Date(referenceDate);
+	cutoffDate.setDate(cutoffDate.getDate() - daysBack);
+
+	const relevantWorklogs = worklogs
+		.filter(worklog => {
+			const worklogDate = new Date(worklog.started);
+			return worklogDate >= cutoffDate && Boolean(worklog.comment?.trim());
+		})
+		.sort(
+			(a, b) => new Date(b.started).getTime() - new Date(a.started).getTime(),
+		);
+
+	const mostRecent = relevantWorklogs[0];
+	return mostRecent?.comment?.trim();
+}
+
+export function resolveCommentPrefillDays(
+	config: JiraConfig,
+	issueKey: string,
+): number {
+	const favorites = config.favorites ?? [];
+	const projects = config.projects ?? [];
+	const groups = config.groups ?? [];
+
+	const projectKey = extractProjectKey(issueKey);
+	const favorite = favorites.find(fav => fav.key === issueKey);
+	const projectDefaults = projectKey
+		? projects.find(proj => proj.key === projectKey)
+		: undefined;
+
+	let group: Group | undefined;
+	if (favorite?.groupId) {
+		group = groups.find(g => g.id === favorite.groupId);
+	} else if (projectDefaults?.groupId) {
+		group = groups.find(g => g.id === projectDefaults.groupId);
+	}
+
+	// Priority: Issue > Group > Global > Default (7 days)
+	if (favorite?.commentPrefillDays !== undefined) {
+		return favorite.commentPrefillDays;
+	}
+
+	if (group?.commentPrefillDays !== undefined) {
+		return group.commentPrefillDays;
+	}
+
+	if (config.commentPrefillDays !== undefined) {
+		return config.commentPrefillDays;
+	}
+
+	return 7; // Default fallback
+}
+
+export function getCommentWithPrefill(
+	config: JiraConfig,
+	issueKey: string,
+	recentWorklogs: WorklogEntry[],
+	options: {
+		isEditMode: boolean;
+		explicitDefault?: string;
+		referenceDate: Date;
+	},
+): string {
+	// If explicit default comment is provided AND we're in edit mode, use it
+	if (options.explicitDefault && options.isEditMode) {
+		return options.explicitDefault;
+	}
+
+	// Try to find most recent comment for this issue using configured lookback days
+	const lookbackDays = resolveCommentPrefillDays(config, issueKey);
+	const cutoffDate = new Date(options.referenceDate);
+	cutoffDate.setDate(cutoffDate.getDate() - lookbackDays);
+
+	const recentComment = getMostRecentCommentForIssue(
+		recentWorklogs,
+		lookbackDays,
+		options.referenceDate,
+	);
+
+	if (recentComment) {
+		return recentComment;
+	}
+
+	// Fall back to config-based defaults
+	const defaults = resolveDefaults(config, issueKey);
+	return defaults.comment;
 }

@@ -1,8 +1,9 @@
 import React, {useState, useEffect, useCallback, useRef} from 'react';
 import {Box, Text, useInput, useFocus} from 'ink';
 import {TextInput, Spinner} from '@inkjs/ui';
-import type {JiraConfig} from '../jira-client.js';
+import type {JiraConfig, WorklogEntry} from '../jira-client.js';
 import {resolveDefaults} from '../jira-client.js';
+import {getCommentWithPrefill} from '../jira/utils.js';
 import {uiLogger} from '../utils/logger.js';
 import DurationInput from './WorklogForm/DurationInput.js';
 
@@ -27,6 +28,8 @@ type InlineWorklogFormProps = {
 	// Edit mode props
 	isEditMode?: boolean;
 	worklogId?: string;
+	// Recent worklogs for comment prefill
+	recentWorklogs?: WorklogEntry[];
 };
 
 type FocusArea = 'issueKey' | 'date' | 'time' | 'comment' | 'submit' | 'cancel';
@@ -45,6 +48,7 @@ export function InlineWorklogForm({
 	isIssueKeyEditable = false,
 	isEditMode = false,
 	worklogId,
+	recentWorklogs = [],
 }: InlineWorklogFormProps) {
 	// Determine default time based on configuration
 	const getDefaultTime = () => {
@@ -60,6 +64,21 @@ export function InlineWorklogForm({
 		return '1h';
 	};
 
+	// Determine default comment with recent worklog prefill
+	const getDefaultComment = () => {
+		if (!config) {
+			return '';
+		}
+
+		const result = getCommentWithPrefill(config, issueKey, recentWorklogs, {
+			isEditMode,
+			explicitDefault: defaultComment,
+			referenceDate: currentDate,
+		});
+
+		return result;
+	};
+
 	const [currentIssueKey, setCurrentIssueKey] = useState(issueKey);
 	const [currentDate, setCurrentDate] = useState(date);
 	const [dateInputValue, setDateInputValue] = useState(
@@ -71,7 +90,35 @@ export function InlineWorklogForm({
 	const [timeInputValue, setTimeInputValue] = useState(() => {
 		return getDefaultTime();
 	});
-	const [comment, setComment] = useState(defaultComment);
+	const [comment, setComment] = useState(() => {
+		return getDefaultComment();
+	});
+
+	// Update comment when recent worklogs arrive (for comment prefilling)
+	useEffect(() => {
+		// Only update if we're not in edit mode and have config
+		if (!isEditMode && recentWorklogs.length > 0 && config) {
+			const newComment = getCommentWithPrefill(
+				config,
+				issueKey,
+				recentWorklogs,
+				{
+					isEditMode,
+					explicitDefault: defaultComment,
+					referenceDate: currentDate,
+				},
+			);
+
+			setComment(newComment);
+		}
+	}, [
+		recentWorklogs,
+		isEditMode,
+		defaultComment,
+		config,
+		issueKey,
+		currentDate,
+	]);
 	const [focusArea, setFocusArea] = useState<FocusArea>(
 		isIssueKeyEditable ? 'issueKey' : 'time',
 	);
@@ -470,6 +517,7 @@ export function InlineWorklogForm({
 				<Text color="yellow">Comment:</Text>
 				<Box marginTop={1}>
 					<TextInput
+						key={`comment-${comment}-${issueKey}`}
 						defaultValue={comment}
 						placeholder="Enter work description..."
 						isDisabled={focusArea !== 'comment'}

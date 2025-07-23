@@ -184,6 +184,7 @@ The app reads configuration from `~/.config/jiracle.json` for Jira credentials a
   "apiToken": "your-api-token",
   "defaultTime": "4h",
   "defaultComment": "Development work",
+  "commentPrefillDays": 7,
   "slidingWindowDays": {"past": 14, "future": 7},
   "projects": [
     {
@@ -196,11 +197,21 @@ The app reads configuration from `~/.config/jiracle.json` for Jira credentials a
       "defaultTime": "7h"
     }
   ],
+  "groups": [
+    {
+      "id": "development",
+      "name": "Development Work",
+      "defaultTime": "6h",
+      "defaultComment": "Development work",
+      "commentPrefillDays": 14
+    }
+  ],
   "favorites": [
     {
       "key": "PROJECT-123",
       "defaultTime": "8h",
-      "defaultComment": "Working on main feature"
+      "defaultComment": "Working on main feature",
+      "commentPrefillDays": 3
     },
     {
       "key": "PROJECT-456",
@@ -215,13 +226,27 @@ The app reads configuration from `~/.config/jiracle.json` for Jira credentials a
 
 - `defaultTime`: Global default time that appears in time input fields (e.g., "4h", "2.5h", "30m")
 - `defaultComment`: Global default comment for all worklogs
+- `commentPrefillDays`: Global default number of days to look back for comment prefill (default: 7)
 - `slidingWindowDays`: Number of days to look back from the current week to include recent issues
+- `groups[].commentPrefillDays`: Group-specific comment prefill lookback days
 - `projects[].defaultTime`: Project-specific default time
 - `projects[].defaultComment`: Project-specific default comment
 - `favorites[].defaultTime`: Issue-specific default time (highest priority)
 - `favorites[].defaultComment`: Issue-specific default comment (highest priority)
+- `favorites[].commentPrefillDays`: Issue-specific comment prefill lookback days (highest priority)
 
-The priority order is: Issue-specific > Project-specific > Global > Built-in defaults (1h for time, empty for comment).
+The priority order is: Issue-specific > Group-specific > Project-specific > Global > Built-in defaults (1h for time, empty for comment).
+
+#### Comment Prefill Feature
+
+When creating new worklogs (not editing existing ones), the comment field will automatically prefill with the most recent non-empty comment from the same issue within the configured lookback period. The lookback days can be configured at multiple levels:
+
+- **Issue level**: `favorites[].commentPrefillDays` (highest priority)
+- **Group level**: `groups[].commentPrefillDays` 
+- **Global level**: `commentPrefillDays`
+- **Default**: 7 days if not configured
+
+If no recent comments are found within the lookback period, the system falls back to the regular default comment hierarchy.
 
 #### Project-Level Defaults
 
