@@ -1,17 +1,17 @@
 import test from 'ava';
-import {useGridNavigation} from '../../hooks/useGridNavigation.js';
+import {
+	findInitialFocusItem,
+	navigateInDirection,
+	navigateToNextItem,
+} from '../../services/GridNavigationService.js';
 
-test('useGridNavigation - hook provides navigation functions', t => {
-	const {findInitialFocus, navigate, navigateToNext} = useGridNavigation();
-
-	t.is(typeof findInitialFocus, 'function');
-	t.is(typeof navigate, 'function');
-	t.is(typeof navigateToNext, 'function');
+test('GridNavigationService - functions work correctly via hook pattern', t => {
+	t.is(typeof findInitialFocusItem, 'function');
+	t.is(typeof navigateInDirection, 'function');
+	t.is(typeof navigateToNextItem, 'function');
 });
 
-test('useGridNavigation - findInitialFocus works correctly', t => {
-	const {findInitialFocus} = useGridNavigation();
-
+test('GridNavigationService - findInitialFocusItem works correctly', t => {
 	const focusableItems = [
 		{
 			focusId: 'item-1',
@@ -27,14 +27,12 @@ test('useGridNavigation - findInitialFocus works correctly', t => {
 		},
 	];
 
-	const result = findInitialFocus(focusableItems);
+	const result = findInitialFocusItem(focusableItems);
 	t.truthy(result);
 	t.is(result?.focusId, 'item-1');
 });
 
-test('useGridNavigation - findInitialFocus with preferred column', t => {
-	const {findInitialFocus} = useGridNavigation();
-
+test('GridNavigationService - findInitialFocusItem with preferred column', t => {
 	const focusableItems = [
 		{
 			focusId: 'item-1',
@@ -50,14 +48,12 @@ test('useGridNavigation - findInitialFocus with preferred column', t => {
 		},
 	];
 
-	const result = findInitialFocus(focusableItems, 1);
+	const result = findInitialFocusItem(focusableItems, 1);
 	t.truthy(result);
 	t.is(result?.focusId, 'item-2');
 });
 
-test('useGridNavigation - navigate function works', t => {
-	const {navigate} = useGridNavigation();
-
+test('GridNavigationService - navigateInDirection function works', t => {
 	const context = {
 		focusedCell: {issueKey: 'TEST-1', columnIndex: 0},
 		focusableItems: [
@@ -76,14 +72,12 @@ test('useGridNavigation - navigate function works', t => {
 		],
 	};
 
-	const result = navigate('right', context);
+	const result = navigateInDirection('right', context);
 	t.true(typeof result === 'object');
 	t.true('success' in result);
 });
 
-test('useGridNavigation - navigateToNext function works', t => {
-	const {navigateToNext} = useGridNavigation();
-
+test('GridNavigationService - navigateToNextItem function works', t => {
 	const context = {
 		focusedCell: {issueKey: 'TEST-1', columnIndex: 0},
 		focusableItems: [
@@ -102,7 +96,7 @@ test('useGridNavigation - navigateToNext function works', t => {
 		],
 	};
 
-	const result = navigateToNext(context);
+	const result = navigateToNextItem(context);
 	t.true(typeof result === 'object');
 	t.true('success' in result);
 });

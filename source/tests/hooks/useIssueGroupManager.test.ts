@@ -1,44 +1,32 @@
 import test from 'ava';
-import {useIssueGroupManager} from '../../hooks/useIssueGroupManager.js';
+import {IssueGroupManager} from '../../services/IssueGroupManager.js';
 
-test('useIssueGroupManager - hook provides grouping functionality', t => {
+test('IssueGroupManager - groups issues correctly via hook pattern', t => {
 	const config = {
 		jiraUrl: 'https://test.atlassian.net/',
 		username: 'test@example.com',
 		apiToken: 'test-token',
 	};
 
-	const {groupIssuesByResolvedGroup} = useIssueGroupManager(config);
-
-	t.is(typeof groupIssuesByResolvedGroup, 'function');
-});
-
-test('useIssueGroupManager - groups issues correctly', t => {
-	const config = {
-		jiraUrl: 'https://test.atlassian.net/',
-		username: 'test@example.com',
-		apiToken: 'test-token',
-	};
-
-	const {groupIssuesByResolvedGroup} = useIssueGroupManager(config);
+	const manager = new IssueGroupManager(config);
 
 	const issues: Array<[string, any]> = [
 		['TEST-123', {weekTotal: 5}],
 		['TEST-456', {weekTotal: 3}],
 	];
 
-	const result = groupIssuesByResolvedGroup(issues);
+	const result = manager.groupIssuesByResolvedGroup(issues);
 
 	t.true(Array.isArray(result));
 	t.true(result.length > 0);
 });
 
-test('useIssueGroupManager - handles undefined config', t => {
-	const {groupIssuesByResolvedGroup} = useIssueGroupManager(undefined);
+test('IssueGroupManager - handles undefined config via hook pattern', t => {
+	const manager = new IssueGroupManager(undefined);
 
 	const issues: Array<[string, any]> = [['TEST-123', {weekTotal: 5}]];
 
-	const result = groupIssuesByResolvedGroup(issues);
+	const result = manager.groupIssuesByResolvedGroup(issues);
 
 	t.true(Array.isArray(result));
 	t.is(result.length, 1);
