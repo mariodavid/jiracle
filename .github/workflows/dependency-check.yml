@@ -2,9 +2,9 @@ name: Dependency Architecture Check
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   dependency-check:
@@ -12,31 +12,31 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '18'
-        cache: 'npm'
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
 
-    - name: Install dependencies
-      run: npm ci
+      - name: Install dependencies
+        run: npm ci
 
-    - name: Run dependency-cruiser check
-      run: npm run deps:check
+      - name: Run dependency-cruiser check
+        run: npm run deps:check
 
-    - name: Generate dependency report (on failure)
-      if: failure()
-      run: |
-        npm run deps:report
-        echo "::notice title=Dependency Violations::Check the generated dependency-violations.html for details"
+      - name: Generate dependency report (on failure)
+        if: failure()
+        run: |
+          npm run deps:report
+          echo "::notice title=Dependency Violations::Check the generated dependency-violations.html for details"
 
-    - name: Upload dependency report artifact (on failure)
-      if: failure()
-      uses: actions/upload-artifact@v4
-      with:
-        name: dependency-violations-report
-        path: dependency-violations.html
-        retention-days: 7
+      - name: Upload dependency report artifact (on failure)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dependency-violations-report
+          path: dependency-violations.html
+          retention-days: 7
