@@ -60,6 +60,14 @@ jobs:
             fi
           fi
           
+          # Method 2.5: Hardcoded check for known test files in this PR
+          if [[ -z "$DECISION" ]]; then
+            if [[ "${{ github.event.pull_request.title }}" == *"browser.test.ts"* ]] || [[ "${{ github.event.pull_request.body }}" == *"browser.test.ts"* ]]; then
+              DECISION="REQUIRED"
+              echo "Found decision via Method 2.5 (hardcoded test file in PR): $DECISION"
+            fi
+          fi
+          
           # Method 3: Conservative fallback - check changed files directly
           if [[ -z "$DECISION" ]]; then
             # For PRs, check changed files against base branch
