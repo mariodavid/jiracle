@@ -86,13 +86,14 @@ export function AttendanceEditForm({
 
 	useInput(
 		(_, key) => {
-			if (!isFocused) return;
-
-			// Escape to cancel
+			// Escape to cancel - always allow regardless of focus state for better reliability
 			if (key.escape) {
 				onCancel();
 				return;
 			}
+
+			// Other inputs require focus
+			if (!isFocused) return;
 
 			// Tab navigation between areas
 			if (key.tab) {
