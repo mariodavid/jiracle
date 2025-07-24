@@ -38,13 +38,30 @@ loading → weekly-timetable → issue-selection → time-selection → comment-
 
 Uses **AVA** with comprehensive test utilities. Tests written in TypeScript, compiled to `dist/` before execution.
 
-### Patterns
+**⚠️ CRITICAL: ALL tests MUST follow the Test Data Pattern specified in [guidelines/tests.md](guidelines/tests.md)**
+
+### Mandatory Test Structure
+Every test MUST follow this exact pattern:
+1. **EXPLICIT TEST DATA** (at the top) - Define expected inputs and outputs
+2. **OPERATIONS** (in the middle) - Execute the functionality being tested  
+3. **SPECIFIC VALUE COMPARISONS** (at the bottom) - Verify exact expected results
+
+### Forbidden Patterns
+- ❌ `t.pass()` without verification
+- ❌ Generic existence checks (`t.truthy(output)`, `output.length > 0`)
+- ❌ Type-only testing (`typeof === 'function'`)
+- ❌ `t.notThrows()` without verifying expected behavior
+- ❌ Any test that doesn't follow the 3-part structure above
+
+### Testing Utilities
 - Use `TestPatterns.withTempFiles()` for file cleanup
 - Use `TestData.createAttendance()` and `ConfigFactory.createValidConfig()` factories  
 - Use `AssertionHelpers` for descriptive error messages
 - Use `test.serial()` for CLI commands that modify files
 - Hook testing: Create wrapper component, test initial state + handlers + edge cases
-- See detailed patterns in [guidelines/tests.md](guidelines/tests.md)
+
+### Complete Guidelines
+See [guidelines/tests.md](guidelines/tests.md) for comprehensive testing patterns, examples, and enforcement rules.
 
 ## GitHub Integration
 
