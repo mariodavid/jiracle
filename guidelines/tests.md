@@ -410,11 +410,11 @@ test('descriptive test name', async t => {
 	const expectedInput = 'specific test value';
 	const expectedOutput = 'expected result';
 	const mockCallback = sinon.spy();
-	
+
 	// 2. OPERATIONS (in the middle)
 	const result = await functionUnderTest(expectedInput);
 	mockCallback.should.have.been.called;
-	
+
 	// 3. SPECIFIC VALUE COMPARISONS (at the bottom)
 	t.is(result.value, expectedOutput, 'Should return exact expected value');
 	t.is(result.status, 'success', 'Should have success status');
@@ -423,6 +423,7 @@ test('descriptive test name', async t => {
 ```
 
 **This pattern ensures:**
+
 - ✅ Explicit expectations at the top make test intent clear
 - ✅ Operations are isolated and testable
 - ✅ Specific comparisons catch actual bugs instead of providing false confidence
@@ -432,6 +433,7 @@ test('descriptive test name', async t => {
 **The following patterns are STRICTLY FORBIDDEN and will be rejected in code review:**
 
 #### 🚫 1. Pure t.pass() Statements
+
 ```typescript
 // ❌ FORBIDDEN - Provides zero test coverage
 test('component handles callbacks correctly', t => {
@@ -442,21 +444,24 @@ test('component handles callbacks correctly', t => {
 // ✅ REQUIRED - Test actual callback behavior
 test('component calls onSubmit with form data', t => {
 	// 1. EXPLICIT TEST DATA
-	const expectedData = { name: 'test', value: 42 };
+	const expectedData = {name: 'test', value: 42};
 	let submittedData = null;
-	const onSubmit = (data) => { submittedData = data; };
-	
+	const onSubmit = data => {
+		submittedData = data;
+	};
+
 	// 2. OPERATIONS
 	const {stdin} = render(<Component onSubmit={onSubmit} />);
 	stdin.write('test');
 	stdin.write('\r');
-	
+
 	// 3. SPECIFIC VALUE COMPARISONS
 	t.deepEqual(submittedData, expectedData, 'Should submit exact form data');
 });
 ```
 
 #### 🚫 2. Generic Existence Checks
+
 ```typescript
 // ❌ FORBIDDEN - Meaningless assertions
 test('component renders', t => {
@@ -469,13 +474,13 @@ test('component renders', t => {
 // ✅ REQUIRED - Verify specific content
 test('component displays user data correctly', t => {
 	// 1. EXPLICIT TEST DATA
-	const userData = { name: 'John Doe', age: 30, role: 'Developer' };
+	const userData = {name: 'John Doe', age: 30, role: 'Developer'};
 	const expectedElements = ['John Doe', '30', 'Developer', 'Save', 'Cancel'];
-	
+
 	// 2. OPERATIONS
 	const {lastFrame} = render(<UserForm user={userData} />);
 	const output = lastFrame();
-	
+
 	// 3. SPECIFIC VALUE COMPARISONS
 	expectedElements.forEach(element => {
 		t.true(output.includes(element), `Should display ${element}`);
@@ -484,6 +489,7 @@ test('component displays user data correctly', t => {
 ```
 
 #### 🚫 3. Type-Only Testing
+
 ```typescript
 // ❌ FORBIDDEN - Tests types instead of behavior
 test('hook returns correct interface', t => {
@@ -495,22 +501,30 @@ test('hook returns correct interface', t => {
 // ✅ REQUIRED - Test actual behavior
 test('hook processes data correctly', t => {
 	// 1. EXPLICIT TEST DATA
-	const inputData = [{ id: 1, value: 'test' }, { id: 2, value: 'data' }];
-	const expectedOutput = { processed: 2, values: ['test', 'data'] };
-	
+	const inputData = [
+		{id: 1, value: 'test'},
+		{id: 2, value: 'data'},
+	];
+	const expectedOutput = {processed: 2, values: ['test', 'data']};
+
 	// 2. OPERATIONS
 	const hook = renderHook(() => useDataProcessor());
 	act(() => {
 		hook.result.current.process(inputData);
 	});
-	
+
 	// 3. SPECIFIC VALUE COMPARISONS
-	t.deepEqual(hook.result.current.data, expectedOutput, 'Should process data correctly');
+	t.deepEqual(
+		hook.result.current.data,
+		expectedOutput,
+		'Should process data correctly',
+	);
 	t.is(hook.result.current.status, 'complete', 'Should mark as complete');
 });
 ```
 
 #### 🚫 4. Lazy t.notThrows() Without Verification
+
 ```typescript
 // ❌ FORBIDDEN - Only tests code doesn't crash
 test('handles keyboard input', t => {
@@ -523,24 +537,30 @@ test('handles keyboard input', t => {
 // ✅ REQUIRED - Verify expected behavior
 test('enter key selects focused item', t => {
 	// 1. EXPLICIT TEST DATA
-	const items = [{ id: 1, name: 'Item 1' }, { id: 2, name: 'Item 2' }];
+	const items = [
+		{id: 1, name: 'Item 1'},
+		{id: 2, name: 'Item 2'},
+	];
 	let selectedItem = null;
-	const onSelect = (item) => { selectedItem = item; };
-	
+	const onSelect = item => {
+		selectedItem = item;
+	};
+
 	// 2. OPERATIONS
 	const {stdin} = render(<ItemList items={items} onSelect={onSelect} />);
-	
+
 	// First verify no errors
 	t.notThrows(() => {
 		stdin.write('\r');
 	}, 'Should handle enter key without errors');
-	
+
 	// 3. SPECIFIC VALUE COMPARISONS - VERIFY THE ACTUAL BEHAVIOR
 	t.deepEqual(selectedItem, items[0], 'Should select first item by default');
 });
 ```
 
 #### 🚫 5. Meaningless String/Length Checks
+
 ```typescript
 // ❌ FORBIDDEN - Arbitrary thresholds
 test('renders layout structure', t => {
@@ -556,11 +576,11 @@ test('renders complete navigation layout', t => {
 	const expectedNavItems = ['Home', 'Projects', 'Settings'];
 	const expectedFooter = ['Help', 'About', 'Version 1.0'];
 	const expectedShortcuts = ['[Q] Quit', '[H] Help', '[R] Refresh'];
-	
+
 	// 2. OPERATIONS
 	const {lastFrame} = render(<Layout />);
 	const output = lastFrame();
-	
+
 	// 3. SPECIFIC VALUE COMPARISONS
 	expectedNavItems.forEach(item => {
 		t.true(output.includes(item), `Navigation should include ${item}`);
@@ -849,24 +869,31 @@ test('useFormValidation interface', t => {
 // ✅ REQUIRED - Behavior-driven hook testing
 test('useFormValidation validates required fields', t => {
 	// 1. EXPLICIT TEST DATA
-	const validInput = { name: 'John', email: 'john@test.com' };
-	const invalidInput = { name: '', email: 'invalid-email' };
-	const expectedErrors = { name: 'Name is required', email: 'Invalid email format' };
-	
+	const validInput = {name: 'John', email: 'john@test.com'};
+	const invalidInput = {name: '', email: 'invalid-email'};
+	const expectedErrors = {
+		name: 'Name is required',
+		email: 'Invalid email format',
+	};
+
 	// 2. OPERATIONS
 	const {result} = renderHook(() => useFormValidation());
-	
+
 	act(() => {
 		result.current.validate(validInput);
 	});
 	t.deepEqual(result.current.errors, {}, 'Valid input should have no errors');
-	
+
 	act(() => {
 		result.current.validate(invalidInput);
 	});
-	
+
 	// 3. SPECIFIC VALUE COMPARISONS
-	t.deepEqual(result.current.errors, expectedErrors, 'Should return specific validation errors');
+	t.deepEqual(
+		result.current.errors,
+		expectedErrors,
+		'Should return specific validation errors',
+	);
 	t.false(result.current.isValid, 'Should mark form as invalid');
 });
 ```
@@ -891,47 +918,57 @@ test('form submits worklog to Jira API successfully', async t => {
 		issueKey: 'TEST-123',
 		timeSpent: '2h 30m',
 		comment: 'Integration test work',
-		date: '2024-01-15'
+		date: '2024-01-15',
 	};
 	const expectedApiCall = {
 		issueIdOrKey: 'TEST-123',
 		timeSpentSeconds: 9000, // 2.5 hours in seconds
 		comment: 'Integration test work',
-		started: '2024-01-15T09:00:00.000+0000'
+		started: '2024-01-15T09:00:00.000+0000',
 	};
-	
+
 	// Mock the full integration chain
 	const mockJiraClient = {
-		addWorklog: sinon.stub().resolves({ id: '12345' })
+		addWorklog: sinon.stub().resolves({id: '12345'}),
 	};
-	
+
 	// 2. OPERATIONS - Full user flow
 	const {stdin, lastFrame} = render(
-		<WeeklyTimetableView jiraClient={mockJiraClient} />
+		<WeeklyTimetableView jiraClient={mockJiraClient} />,
 	);
-	
+
 	// Navigate to issue and open form
 	stdin.write('\r'); // Open worklog form
 	await waitFor(() => lastFrame()?.includes('Time Spent:'));
-	
+
 	// Fill out form
 	stdin.write(worklogData.timeSpent);
 	stdin.write('\t'); // Tab to comment
 	stdin.write(worklogData.comment);
 	stdin.write('\r'); // Submit
-	
+
 	// Wait for API call and success state
 	await waitFor(() => mockJiraClient.addWorklog.called);
 	await waitFor(() => lastFrame()?.includes('Success'));
-	
+
 	// 3. SPECIFIC VALUE COMPARISONS - Verify complete integration
-	t.true(mockJiraClient.addWorklog.calledOnce, 'Should call Jira API exactly once');
+	t.true(
+		mockJiraClient.addWorklog.calledOnce,
+		'Should call Jira API exactly once',
+	);
 	const apiCallArgs = mockJiraClient.addWorklog.getCall(0).args[0];
-	t.deepEqual(apiCallArgs, expectedApiCall, 'Should call API with correct transformed data');
-	
+	t.deepEqual(
+		apiCallArgs,
+		expectedApiCall,
+		'Should call API with correct transformed data',
+	);
+
 	const finalOutput = lastFrame();
 	t.true(finalOutput?.includes('Success'), 'Should show success message');
-	t.false(finalOutput?.includes('Time Spent:'), 'Should close form after success');
+	t.false(
+		finalOutput?.includes('Time Spent:'),
+		'Should close form after success',
+	);
 });
 ```
 
@@ -949,38 +986,47 @@ test('AttendanceEditFormArea handles callbacks', t => {
 // ✅ REQUIRED - Actual callback verification
 test('AttendanceEditFormArea calls onSubmit with transformed form data', t => {
 	// 1. EXPLICIT TEST DATA
-	const initialData = { id: '123', start: '09:00', end: '17:00' };
+	const initialData = {id: '123', start: '09:00', end: '17:00'};
 	const expectedSubmission = {
 		id: '123',
 		start: '09:00',
 		end: '17:00',
 		hoursWorked: 8.0,
-		breakMinutes: 45
+		breakMinutes: 45,
 	};
-	
+
 	let submittedData = null;
-	const onSubmit = (data) => { submittedData = data; };
+	const onSubmit = data => {
+		submittedData = data;
+	};
 	const onCancel = sinon.spy();
-	
+
 	// 2. OPERATIONS
 	const {stdin, lastFrame} = render(
 		<AttendanceEditFormArea
 			data={initialData}
 			onSubmit={onSubmit}
 			onCancel={onCancel}
-		/>
+		/>,
 	);
-	
+
 	// Navigate to save button and submit
 	stdin.write('\t'); // Tab to save
 	stdin.write('\r'); // Submit
-	
+
 	// 3. SPECIFIC VALUE COMPARISONS
-	t.deepEqual(submittedData, expectedSubmission, 'Should submit correctly transformed data');
+	t.deepEqual(
+		submittedData,
+		expectedSubmission,
+		'Should submit correctly transformed data',
+	);
 	t.false(onCancel.called, 'Should not call onCancel during successful submit');
-	
+
 	const output = lastFrame();
-	t.true(output?.includes('Speichern'), 'Should still show save button structure');
+	t.true(
+		output?.includes('Speichern'),
+		'Should still show save button structure',
+	);
 });
 ```
 
