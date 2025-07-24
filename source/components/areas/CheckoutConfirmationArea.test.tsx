@@ -4,22 +4,20 @@ import {render} from 'ink-testing-library';
 import {CheckoutConfirmationArea} from './CheckoutConfirmationArea.js';
 
 test('CheckoutConfirmationArea renders checkout confirmation dialog', t => {
+	// Explicit test data
+	const expectedText = 'End Work';
 	const mockOnConfirm = () => {};
 
+	// Operations
 	const {lastFrame} = render(
 		<CheckoutConfirmationArea onConfirm={mockOnConfirm} />,
 	);
 
+	// Specific value comparison
 	const output = lastFrame();
-	// Check that the component renders with checkout-related content
-	t.truthy(output);
-	t.true(output!.length > 0);
-	// Should contain some form of checkout confirmation text
 	t.true(
-		output!.includes('Check') ||
-			output!.includes('check') ||
-			output!.includes('end') ||
-			output!.includes('work'),
+		output?.includes(expectedText) ?? false,
+		'Should display check-out specific confirmation text',
 	);
 });
 
@@ -64,47 +62,60 @@ test('CheckoutConfirmationArea handles cancellation callback', t => {
 });
 
 test('CheckoutConfirmationArea uses correct dialog styling', t => {
+	// Explicit test data
+	const expectedText = 'End Work';
 	const mockOnConfirm = () => {};
 
+	// Operations
 	const {lastFrame} = render(
 		<CheckoutConfirmationArea onConfirm={mockOnConfirm} />,
 	);
 
+	// Specific value comparison
 	const output = lastFrame();
-	// Check that the component renders (yellow border is handled by ConfirmationDialog)
-	t.truthy(output);
-	t.true(output!.length > 0);
+	t.true(
+		output?.includes(expectedText) ?? false,
+		'Should render with check-out specific content',
+	);
 });
 
-test('CheckoutConfirmationArea handles escape key', t => {
+test('CheckoutConfirmationArea handles escape key for checkout cancellation', t => {
+	// Explicit test data
+	const expectedText = 'End Work';
 	const mockOnConfirm = () => {};
 
-	const {stdin} = render(
+	// Operations
+	const {stdin, lastFrame} = render(
 		<CheckoutConfirmationArea onConfirm={mockOnConfirm} />,
 	);
 
-	// Simulate pressing escape (CheckoutConfirmation handles escape internally)
+	// Simulate escape key for checkout cancellation
 	stdin.write('\u001B');
 
-	// Note: Escape handling depends on CheckoutConfirmation component implementation
-	// This test verifies the component can handle escape input without errors
-	t.pass(); // Component renders and handles input without crashing
+	// Specific value comparisons
+	const output = lastFrame();
+	t.true(
+		output?.includes(expectedText) ?? false,
+		'Should show check-out specific text',
+	);
+	// Note: Escape handling behavior depends on underlying CheckoutConfirmation component
+	// This verifies the component displays correct checkout context
 });
 
-test('CheckoutConfirmationArea maintains consistent interface with checkin', t => {
+test('CheckoutConfirmationArea maintains consistent interface behavior', t => {
+	// Explicit test data
+	const expectedText = 'End Work';
 	const mockOnConfirm = () => {};
 
-	const checkinResult = render(
-		<CheckoutConfirmationArea onConfirm={mockOnConfirm} />,
-	);
-
+	// Operations
 	const checkoutResult = render(
 		<CheckoutConfirmationArea onConfirm={mockOnConfirm} />,
 	);
 
-	// Both should render without errors
-	t.truthy(checkinResult.lastFrame());
-	t.truthy(checkoutResult.lastFrame());
-	t.true(checkinResult.lastFrame()!.length > 0);
-	t.true(checkoutResult.lastFrame()!.length > 0);
+	// Specific value comparison
+	const output = checkoutResult.lastFrame();
+	t.true(
+		output?.includes(expectedText) ?? false,
+		'Should consistently display checkout-specific interface',
+	);
 });
