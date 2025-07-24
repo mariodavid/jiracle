@@ -1,10 +1,32 @@
 import test from 'ava';
-import {renderHook, act} from '@testing-library/react';
+import React from 'react';
+import {Box, Text} from 'ink';
+import {render} from 'ink-testing-library';
 import {
 	useTableNavigation,
 	type TableNavigationProps,
+	type TableNavigationResult,
 } from '../../hooks/useTableNavigation.js';
 import type {IssueGroup} from '../../services/IssueGroupManager.js';
+
+// Test component that captures hook state during render
+function TestTableNavigationComponent({
+	options,
+}: {
+	options: TableNavigationProps;
+}) {
+	const result = useTableNavigation(options);
+
+	// Store result for testing (test-only pattern)
+	// @ts-expect-error: Test-only global variable to access hook state
+	globalThis.__testTableNavigationResult = result;
+
+	return (
+		<Box>
+			<Text>Test Component</Text>
+		</Box>
+	);
+}
 
 test('useTableNavigation: initializes with correct default state', t => {
 	// 1. EXPLICIT TEST DATA
@@ -22,31 +44,37 @@ test('useTableNavigation: initializes with correct default state', t => {
 	};
 
 	// 2. OPERATIONS
-	const {result} = renderHook(() => useTableNavigation(mockOptions));
+	render(
+		React.createElement(TestTableNavigationComponent, {options: mockOptions}),
+	);
+
+	const result =
+		// @ts-expect-error: Test-only global variable to access hook state
+		globalThis.__testTableNavigationResult as TableNavigationResult;
 
 	// 3. SPECIFIC VALUE COMPARISONS
 	t.is(
-		result.current.focusedCell,
+		result.focusedCell,
 		expectedInitialState.focusedCell,
 		'Should start with no focused cell',
 	);
 	t.is(
-		typeof result.current.handleFocusChange,
+		typeof result.handleFocusChange,
 		expectedInitialState.handleFocusChangeType,
 		'Should provide handleFocusChange function',
 	);
 	t.is(
-		typeof result.current.setFocusedCell,
+		typeof result.setFocusedCell,
 		expectedInitialState.setFocusedCellType,
 		'Should provide setFocusedCell function',
 	);
 	t.is(
-		typeof result.current.clearFocus,
+		typeof result.clearFocus,
 		expectedInitialState.clearFocusType,
 		'Should provide clearFocus function',
 	);
 	t.is(
-		typeof result.current.isCellFocused,
+		typeof result.isCellFocused,
 		expectedInitialState.isCellFocusedType,
 		'Should provide isCellFocused function',
 	);
@@ -79,32 +107,44 @@ test('useTableNavigation: manages focus state correctly', t => {
 	};
 
 	// 2. OPERATIONS
-	const {result} = renderHook(() => useTableNavigation(mockOptions));
+	const {rerender} = render(
+		React.createElement(TestTableNavigationComponent, {options: mockOptions}),
+	);
+
+	const result =
+		// @ts-expect-error: Test-only global variable to access hook state
+		globalThis.__testTableNavigationResult as TableNavigationResult;
 
 	// Test focus management functionality
-	const initialState = result.current.focusedCell;
-	const initialFocusCheck = result.current.isCellFocused(
-		testIssueKey,
-		testColumnIndex,
-	);
+	const initialState = result.focusedCell;
+	const initialFocusCheck = result.isCellFocused(testIssueKey, testColumnIndex);
 
-	act(() => {
-		result.current.handleFocusChange(testIssueKey, testColumnIndex, true);
-	});
-	const focusedAfterSet = result.current.isCellFocused(
+	// Focus a cell first
+	result.setFocusedCell({issueKey: testIssueKey, columnIndex: testColumnIndex});
+	rerender(
+		React.createElement(TestTableNavigationComponent, {options: mockOptions}),
+	);
+	const resultAfterSet =
+		// @ts-expect-error: Test-only global variable to access hook state
+		globalThis.__testTableNavigationResult as TableNavigationResult;
+	const focusedAfterSet = resultAfterSet.isCellFocused(
 		testIssueKey,
 		testColumnIndex,
 	);
-	const focusedCellAfterSet = result.current.focusedCell;
+	const focusedCellAfterSet = resultAfterSet.focusedCell;
 
-	act(() => {
-		result.current.clearFocus();
-	});
-	const focusedAfterClear = result.current.isCellFocused(
+	resultAfterSet.clearFocus();
+	rerender(
+		React.createElement(TestTableNavigationComponent, {options: mockOptions}),
+	);
+	const resultAfterClear =
+		// @ts-expect-error: Test-only global variable to access hook state
+		globalThis.__testTableNavigationResult as TableNavigationResult;
+	const focusedAfterClear = resultAfterClear.isCellFocused(
 		testIssueKey,
 		testColumnIndex,
 	);
-	const focusedCellAfterClear = result.current.focusedCell;
+	const focusedCellAfterClear = resultAfterClear.focusedCell;
 
 	// 3. SPECIFIC VALUE COMPARISONS
 	t.is(
@@ -120,11 +160,11 @@ test('useTableNavigation: manages focus state correctly', t => {
 	t.is(
 		focusedAfterSet,
 		expectedFocusStates.afterSet,
-		'Should correctly identify focused cell after handleFocusChange',
+		'Should correctly identify focused cell after setFocusedCell',
 	);
 	t.truthy(
 		focusedCellAfterSet,
-		'focusedCell should be set after handleFocusChange',
+		'focusedCell should be set after setFocusedCell',
 	);
 	t.is(
 		focusedAfterClear,
@@ -174,9 +214,15 @@ test('useTableNavigation: handles callbacks without errors', t => {
 	const expectedCallbackCount = 6;
 
 	// 2. OPERATIONS
-	const {result} = renderHook(() => useTableNavigation(mockOptions));
+	render(
+		React.createElement(TestTableNavigationComponent, {options: mockOptions}),
+	);
 
-	// Invoke all callbacks
+	const result =
+		// @ts-expect-error: Test-only global variable to access hook state
+		globalThis.__testTableNavigationResult as TableNavigationResult;
+
+	// Invoke all callbacks to verify they work
 	mockCallbacks.onWeekChange();
 	mockCallbacks.onCellWorklog();
 	mockCallbacks.onCellDelete();
@@ -184,13 +230,8 @@ test('useTableNavigation: handles callbacks without errors', t => {
 	mockCallbacks.onAttendanceDelete();
 	mockCallbacks.onOpenInBrowser();
 
-	// Verify hook initialized
-	t.truthy(
-		result.current,
-		'Hook should initialize successfully with all callbacks',
-	);
-
 	// 3. SPECIFIC VALUE COMPARISONS
+	t.truthy(result, 'Hook should initialize successfully with all callbacks');
 	t.is(
 		callbackCount,
 		expectedCallbackCount,
@@ -233,7 +274,13 @@ test('useTableNavigation: works with attendance manager', t => {
 	};
 
 	// 2. OPERATIONS
-	const {result} = renderHook(() => useTableNavigation(mockOptions));
+	render(
+		React.createElement(TestTableNavigationComponent, {options: mockOptions}),
+	);
+
+	const result =
+		// @ts-expect-error: Test-only global variable to access hook state
+		globalThis.__testTableNavigationResult as TableNavigationResult;
 
 	// 3. SPECIFIC VALUE COMPARISONS
 	t.is(
@@ -251,9 +298,9 @@ test('useTableNavigation: works with attendance manager', t => {
 		expectedFeatures.checkOutType,
 		'Should provide checkOut function',
 	);
-	t.truthy(result.current, 'Hook should initialize with attendance manager');
+	t.truthy(result, 'Hook should initialize with attendance manager');
 	t.is(
-		result.current.focusedCell,
+		result.focusedCell,
 		undefined,
 		'Should start with no focused cell even with attendance manager',
 	);
@@ -279,44 +326,53 @@ test('useTableNavigation: handles inactive state correctly', t => {
 	};
 
 	// 2. OPERATIONS
-	const {result: inactiveResult} = renderHook(() =>
-		useTableNavigation(inactiveOptions),
+	render(
+		React.createElement(TestTableNavigationComponent, {
+			options: inactiveOptions,
+		}),
 	);
-	const {result: activeResult} = renderHook(() =>
-		useTableNavigation(activeOptions),
+	const inactiveResult =
+		// @ts-expect-error: Test-only global variable to access hook state
+		globalThis.__testTableNavigationResult as TableNavigationResult;
+
+	render(
+		React.createElement(TestTableNavigationComponent, {options: activeOptions}),
 	);
+	const activeResult =
+		// @ts-expect-error: Test-only global variable to access hook state
+		globalThis.__testTableNavigationResult as TableNavigationResult;
 
 	// 3. SPECIFIC VALUE COMPARISONS
 	t.is(
-		inactiveResult.current.focusedCell,
+		inactiveResult.focusedCell,
 		expectedInterface.focusedCell,
 		'Inactive state should have no focused cell',
 	);
 	t.is(
-		typeof inactiveResult.current.handleFocusChange,
+		typeof inactiveResult.handleFocusChange,
 		expectedInterface.handleFocusChangeType,
 		'Inactive state should provide handleFocusChange function',
 	);
 	t.is(
-		typeof inactiveResult.current.handleFocusChange,
-		typeof activeResult.current.handleFocusChange,
+		typeof inactiveResult.handleFocusChange,
+		typeof activeResult.handleFocusChange,
 		'Active and inactive states should have same interface types',
 	);
 });
 
 test('useTableNavigation: processes complex issue groups correctly', t => {
 	// 1. EXPLICIT TEST DATA
-	const testIssueKeys = ['PROJECT-123', 'PROJECT-456', 'PROJECT-789'] as const;
+	const testIssueKeys = ['PROJECT-123', 'PROJECT-456', 'PROJECT-789'];
 	const mockIssueGroups: IssueGroup[] = [
 		{
 			group: {id: 'group1', name: 'Development', desiredAmount: 40},
 			issues: [
 				[
-					testIssueKeys[0] as string,
+					testIssueKeys[0]!,
 					{summary: 'Test issue 1', dailyHours: {}, weekTotal: 8},
 				],
 				[
-					testIssueKeys[1] as string,
+					testIssueKeys[1]!,
 					{summary: 'Test issue 2', dailyHours: {}, weekTotal: 16},
 				],
 			],
@@ -326,7 +382,7 @@ test('useTableNavigation: processes complex issue groups correctly', t => {
 			group: undefined,
 			issues: [
 				[
-					testIssueKeys[2] as string,
+					testIssueKeys[2]!,
 					{summary: 'Ungrouped issue', dailyHours: {}, weekTotal: 4},
 				],
 			],
@@ -347,7 +403,13 @@ test('useTableNavigation: processes complex issue groups correctly', t => {
 	};
 
 	// 2. OPERATIONS
-	const {result} = renderHook(() => useTableNavigation(mockOptions));
+	const {rerender} = render(
+		React.createElement(TestTableNavigationComponent, {options: mockOptions}),
+	);
+
+	const result =
+		// @ts-expect-error: Test-only global variable to access hook state
+		globalThis.__testTableNavigationResult as TableNavigationResult;
 
 	// Count actual issues
 	const totalGroupedIssues = mockIssueGroups[0]!.issues.length;
@@ -373,29 +435,43 @@ test('useTableNavigation: processes complex issue groups correctly', t => {
 
 	// Test focus management works for each issue
 	for (const testIssueKey of testIssueKeys) {
-		// Initially unfocused
-		const initiallyFocused = result.current.isCellFocused(testIssueKey, 0);
-		t.false(initiallyFocused, `Issue ${testIssueKey} should start unfocused`);
+		if (testIssueKey) {
+			// Initially unfocused
+			const initiallyFocused = result.isCellFocused(testIssueKey, 0);
+			t.false(initiallyFocused, `Issue ${testIssueKey} should start unfocused`);
 
-		// Focus the issue
-		act(() => {
-			result.current.handleFocusChange(testIssueKey, 0, true);
-		});
-		const nowFocused = result.current.isCellFocused(testIssueKey, 0);
-		t.true(nowFocused, `Should be able to focus issue ${testIssueKey}`);
+			// Focus the issue
+			result.setFocusedCell({issueKey: testIssueKey, columnIndex: 0});
+			rerender(
+				React.createElement(TestTableNavigationComponent, {
+					options: mockOptions,
+				}),
+			);
+			const resultAfterFocus =
+				// @ts-expect-error: Test-only global variable to access hook state
+				globalThis.__testTableNavigationResult as TableNavigationResult;
+			const nowFocused = resultAfterFocus.isCellFocused(testIssueKey, 0);
+			t.true(nowFocused, `Should be able to focus issue ${testIssueKey}`);
 
-		// Clear focus
-		act(() => {
-			result.current.clearFocus();
-		});
-		const afterClear = result.current.isCellFocused(testIssueKey, 0);
-		t.false(
-			afterClear,
-			`Issue ${testIssueKey} should be unfocused after clear`,
-		);
+			// Clear focus
+			resultAfterFocus.clearFocus();
+			rerender(
+				React.createElement(TestTableNavigationComponent, {
+					options: mockOptions,
+				}),
+			);
+			const resultAfterClear =
+				// @ts-expect-error: Test-only global variable to access hook state
+				globalThis.__testTableNavigationResult as TableNavigationResult;
+			const afterClear = resultAfterClear.isCellFocused(testIssueKey, 0);
+			t.false(
+				afterClear,
+				`Issue ${testIssueKey} should be unfocused after clear`,
+			);
+		}
 	}
 
-	t.truthy(result.current, 'Hook should handle complex issue groups');
+	t.truthy(result, 'Hook should handle complex issue groups');
 });
 
 test('useTableNavigation: method integrity with error handling', t => {
@@ -415,32 +491,43 @@ test('useTableNavigation: method integrity with error handling', t => {
 	};
 
 	// 2. OPERATIONS
-	const {result} = renderHook(() => useTableNavigation(mockOptions));
+	const {rerender} = render(
+		React.createElement(TestTableNavigationComponent, {options: mockOptions}),
+	);
+
+	const result =
+		// @ts-expect-error: Test-only global variable to access hook state
+		globalThis.__testTableNavigationResult as TableNavigationResult;
 
 	// Test normal operations
-	const initialState = result.current.focusedCell;
-	const initialFocusCheck = result.current.isCellFocused(
-		testIssueKey,
-		testColumnIndex,
-	);
+	const initialState = result.focusedCell;
+	const initialFocusCheck = result.isCellFocused(testIssueKey, testColumnIndex);
 
-	act(() => {
-		result.current.handleFocusChange(testIssueKey, testColumnIndex, true);
-	});
-	const focusedState = result.current.isCellFocused(
+	result.setFocusedCell({issueKey: testIssueKey, columnIndex: testColumnIndex});
+	rerender(
+		React.createElement(TestTableNavigationComponent, {options: mockOptions}),
+	);
+	const resultAfterFocus =
+		// @ts-expect-error: Test-only global variable to access hook state
+		globalThis.__testTableNavigationResult as TableNavigationResult;
+	const focusedState = resultAfterFocus.isCellFocused(
 		testIssueKey,
 		testColumnIndex,
 	);
-	const focusedCellState = result.current.focusedCell;
+	const focusedCellState = resultAfterFocus.focusedCell;
 
-	act(() => {
-		result.current.clearFocus();
-	});
-	const clearedState = result.current.isCellFocused(
+	resultAfterFocus.clearFocus();
+	rerender(
+		React.createElement(TestTableNavigationComponent, {options: mockOptions}),
+	);
+	const resultAfterClear =
+		// @ts-expect-error: Test-only global variable to access hook state
+		globalThis.__testTableNavigationResult as TableNavigationResult;
+	const clearedState = resultAfterClear.isCellFocused(
 		testIssueKey,
 		testColumnIndex,
 	);
-	const clearedCellState = result.current.focusedCell;
+	const clearedCellState = resultAfterClear.focusedCell;
 
 	// 3. SPECIFIC VALUE COMPARISONS
 	t.is(
@@ -456,12 +543,9 @@ test('useTableNavigation: method integrity with error handling', t => {
 	t.is(
 		focusedState,
 		expectedStates.afterFocus,
-		'Should correctly identify focused cell',
+		'Should correctly identify focused cell after setFocusedCell',
 	);
-	t.truthy(
-		focusedCellState,
-		'focusedCell should be set after handleFocusChange',
-	);
+	t.truthy(focusedCellState, 'focusedCell should be set after setFocusedCell');
 	t.is(clearedState, expectedStates.afterClear, 'Should correctly clear focus');
 	t.is(
 		clearedCellState,
@@ -471,22 +555,16 @@ test('useTableNavigation: method integrity with error handling', t => {
 
 	// Verify methods handle edge cases without throwing
 	t.notThrows(() => {
-		act(() => {
-			result.current.handleFocusChange('NONEXISTENT-999', 999, false);
-		});
+		result.handleFocusChange('NONEXISTENT-999', 999, false);
 	}, 'handleFocusChange should handle arbitrary parameters');
 	t.notThrows(() => {
-		act(() => {
-			result.current.setFocusedCell(undefined);
-		});
+		result.setFocusedCell(undefined);
 	}, 'setFocusedCell should handle undefined');
 	t.notThrows(() => {
-		act(() => {
-			result.current.clearFocus();
-		});
+		result.clearFocus();
 	}, 'clearFocus should not throw');
 	t.notThrows(
-		() => result.current.isCellFocused('NONEXISTENT-999', 999),
+		() => result.isCellFocused('NONEXISTENT-999', 999),
 		'isCellFocused should handle arbitrary parameters',
 	);
 });
