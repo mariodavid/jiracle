@@ -89,8 +89,8 @@ test('ConfirmationDialog renders proper structure', t => {
 
 	const output = lastFrame() ?? '';
 	t.true(output.includes('Test content'));
-	// The component should render without errors
-	t.pass();
+	// Verify dialog structure is present
+	t.true(output.length > 0, 'Should render dialog content');
 });
 
 test('ConfirmationDialog loading state structure', t => {
