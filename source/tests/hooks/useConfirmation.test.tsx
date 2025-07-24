@@ -112,7 +112,11 @@ test('useConfirmation show() displays dialog with custom config', async t => {
 		expectedConfig.paddingX,
 		'Should apply custom padding',
 	);
-	t.not(hookState!.onConfirm, undefined, 'Should set confirm handler');
+	t.is(
+		typeof hookState!.onConfirm,
+		'function',
+		'Should set confirm handler as function',
+	);
 
 	// Clean up
 	hookState!.handleConfirm(false);
