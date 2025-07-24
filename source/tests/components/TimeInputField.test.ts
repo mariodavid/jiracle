@@ -10,15 +10,25 @@ const defaultProps = {
 };
 
 test('TimeInputField renders with initial value', t => {
-	const {lastFrame} = render(
-		React.createElement(TimeInputField, {
-			...defaultProps,
-			value: '09:15',
-		}),
-	);
+	// 1. EXPLICIT TEST DATA
+	const expectedValue = '09:15';
+	const expectedProps = {
+		...defaultProps,
+		value: expectedValue,
+	};
 
+	// 2. OPERATIONS
+	const {lastFrame} = render(
+		React.createElement(TimeInputField, expectedProps),
+	);
 	const output = lastFrame() ?? '';
-	t.true(output.includes('09:15'));
+
+	// 3. SPECIFIC VALUE COMPARISONS
+	t.true(
+		output.includes(expectedValue),
+		`Should display time value ${expectedValue}`,
+	);
+	t.true(output.includes('█'), 'Should display cursor indicator');
 });
 
 test('TimeInputField renders in compact mode', t => {

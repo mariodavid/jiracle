@@ -2,6 +2,9 @@ name: Test Review (Automatic)
 
 on:
   workflow_call:
+    secrets:
+      CLAUDE_CODE_OAUTH_TOKEN:
+        required: true
 
 jobs:
   test-review:
