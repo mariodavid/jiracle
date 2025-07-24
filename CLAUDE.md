@@ -67,6 +67,53 @@ See [guidelines/tests.md](guidelines/tests.md) for comprehensive testing pattern
 
 **IMPORTANT**: For ALL GitHub interactions, ALWAYS use the `gh` command-line tool, even when user provides GitHub URLs.
 
+### Mandatory PR Creation Process
+
+**⚠️ CRITICAL: Before creating ANY pull request, you MUST:**
+
+1. **Run complete linting and tests locally:**
+   ```bash
+   npm run lint:fix  # Fix all linting issues
+   npm test         # Run full test suite
+   ```
+   
+2. **Only proceed if both commands succeed without errors**
+
+3. **After creating PR, ALWAYS wait for and check CI status:**
+   ```bash
+   gh pr checks <PR_NUMBER>  # Check PR status
+   ```
+   
+4. **If checks fail, you MUST:**
+   - Examine the failure details with `gh pr checks <PR_NUMBER>`
+   - Fix all issues locally
+   - Re-run `npm run lint:fix` and `npm test` 
+   - Push fixes and wait for checks again
+   - **Never merge PRs with failing checks**
+
+**Example complete workflow:**
+```bash
+# 1. MANDATORY: Run local checks first
+npm run lint:fix
+npm test
+
+# 2. Only if both succeed, create PR
+git checkout -b feature/my-change
+git add .
+git commit -m "My change"
+git push -u origin feature/my-change
+gh pr create --title "My change" --body "Description"
+
+# 3. MANDATORY: Wait for and verify CI checks
+gh pr checks <PR_NUMBER>
+# If checks fail, fix issues and repeat until all pass
+
+# 4. Only merge when all checks are green
+gh pr merge <PR_NUMBER>
+```
+
+**This prevents failed CI runs and maintains code quality standards.**
+
 ## Configuration
 
 The app reads configuration from `~/.config/jiracle.json` for Jira credentials and preferences.
