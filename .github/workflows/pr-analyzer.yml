@@ -37,9 +37,41 @@ jobs:
       - name: Parse Analysis Result
         id: parse
         run: |
-          # Extract decision from Claude's response
-          DECISION=$(echo "${{ steps.analysis.outputs.response }}" | grep "TEST_REVIEW_DECISION:" | cut -d: -f2 | tr -d ' ')
-
+          # Get Claude's response
+          RESPONSE="${{ steps.analysis.outputs.response }}"
+          echo "Full Claude Response:" >> $GITHUB_STEP_SUMMARY
+          echo "$RESPONSE" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Extract decision with multiple fallback methods
+          DECISION=""
+          
+          # Method 1: Look for exact format
+          if echo "$RESPONSE" | grep -q "TEST_REVIEW_DECISION:"; then
+            DECISION=$(echo "$RESPONSE" | grep "TEST_REVIEW_DECISION:" | head -1 | cut -d: -f2 | tr -d ' ')
+            echo "Found decision via Method 1: $DECISION"
+          fi
+          
+          # Method 2: Look for test file patterns if no explicit decision
+          if [[ -z "$DECISION" ]]; then
+            if echo "$RESPONSE" | grep -qi "\.test\.ts\|\.test\.js\|test.*file\|testing.*pattern"; then
+              DECISION="REQUIRED"
+              echo "Found decision via Method 2 (test file detected): $DECISION"
+            fi
+          fi
+          
+          # Method 3: Conservative fallback - check changed files directly
+          if [[ -z "$DECISION" ]]; then
+            if git diff --name-only HEAD~1 | grep -E '\.(test|spec)\.(ts|js)$'; then
+              DECISION="REQUIRED"
+              echo "Found decision via Method 3 (git diff test files): $DECISION"
+            else
+              DECISION="SKIP"
+              echo "Found decision via Method 3 (no test files): $DECISION"
+            fi
+          fi
+          
+          # Apply decision
           if [[ "$DECISION" == "REQUIRED" ]]; then
             echo "needs_test_review=true" >> $GITHUB_OUTPUT
             echo "🧪 Test review will be triggered automatically"
@@ -47,10 +79,10 @@ jobs:
             echo "needs_test_review=false" >> $GITHUB_OUTPUT  
             echo "✅ No test review needed based on analysis"
           fi
-
-          # Log the full reasoning
+          
           echo "## 🔍 PR Analysis Result" >> $GITHUB_STEP_SUMMARY
-          echo "${{ steps.analysis.outputs.response }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Decision:** $DECISION" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
 
   trigger-test-review:
     needs: analyze-pr
