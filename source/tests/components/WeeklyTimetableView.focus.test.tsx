@@ -12,38 +12,50 @@ const mockConfig: JiraConfig = {
 	favorites: [],
 };
 
-test('WeeklyTimetableView has auto-focus behavior after week navigation', t => {
-	// This test documents the expected behavior:
-	// - navigateToNextWeek() calls setActiveArea('timetable') and setShouldFocusCell(true)
-	// - navigateToPreviousWeek() calls setActiveArea('timetable') and setShouldFocusCell(true)
-	// - handleCurrentWeek() calls setActiveArea('timetable') and setShouldFocusCell(true)
+test('WeeklyTimetableView displays week navigation and keyboard shortcuts', t => {
+	// 1. EXPLICIT TEST DATA
+	const expectedElements = [
+		'KW', // Week format
+		'[↑↓←→] Navigate Cells',
+		'[A] Add Worklog',
+		'[Q] Quit',
+		'[T] Today',
+	];
+	const mockOnBack = () => {};
 
+	// 2. OPERATIONS
 	const {lastFrame} = render(
 		<WeeklyTimetableView
 			config={mockConfig}
 			userEmail="test@example.com"
-			onBack={() => {}}
+			onBack={mockOnBack}
 		/>,
 	);
 
 	const output = lastFrame()!;
 
-	// Should render the timetable view structure
-	t.true(output.includes('Week'), 'Should show week information');
+	// 3. SPECIFIC VALUE COMPARISONS
+	for (const element of expectedElements) {
+		t.true(output.includes(element), `Should display ${element}`);
+	}
 
-	// Document the expected auto-focus behavior
-	t.pass(
-		'Auto-focus behavior documented: after week navigation (Shift+Arrow/today), focus returns to timetable',
-	);
+	// Verify week display format is present
+	t.regex(output, /KW\d+/, 'Should show week number in KW format');
 });
 
-test('WeeklyTimetableView week navigation functions set correct focus state', t => {
-	// This test documents the implementation of auto-focus after week navigation
-	// The following functions should set activeArea to 'timetable' and shouldFocusCell to true:
-	// - navigateToNextWeek()
-	// - navigateToPreviousWeek()
-	// - handleCurrentWeek()
+test('WeeklyTimetableView renders complete keyboard shortcut help', t => {
+	// 1. EXPLICIT TEST DATA
+	const expectedShortcuts = [
+		'[↑↓←→] Navigate Cells',
+		'[Enter] Log Work',
+		'[A] Add Worklog',
+		'[Shift+←→] Week Navigation',
+		'[T] Today',
+		'[R] Refresh',
+		'[Q] Quit',
+	];
 
+	// 2. OPERATIONS
 	const {lastFrame} = render(
 		<WeeklyTimetableView
 			config={mockConfig}
@@ -54,45 +66,64 @@ test('WeeklyTimetableView week navigation functions set correct focus state', t 
 
 	const output = lastFrame()!;
 
-	// Should render navigation controls
-	t.true(output.includes('Week'), 'Should show week information');
+	// 3. SPECIFIC VALUE COMPARISONS
+	for (const shortcut of expectedShortcuts) {
+		t.true(
+			output.includes(shortcut),
+			`Should show keyboard shortcut: ${shortcut}`,
+		);
+	}
 
-	// The auto-focus behavior is implemented in the navigation functions:
-	// 1. setCurrentWeek(newWeek) - updates the week
-	// 2. setActiveArea('timetable') - returns focus to table
-	// 3. setShouldFocusCell(true) - triggers cell focus
-	t.pass(
-		'Week navigation auto-focus implementation verified: navigation functions set activeArea=timetable and shouldFocusCell=true',
-	);
+	// Verify shortcut format structure
+	t.regex(output, /\[.*]/, 'Should use bracket format for shortcuts');
+	t.true(output.includes('Navigate'), 'Should show navigation help');
+	t.true(output.includes('Shift+'), 'Should show modifier key combinations');
 });
 
-test('WeeklyTimetableView focus management integration', t => {
-	// This test verifies the focus management integration between:
-	// - Week navigation buttons (prev/next)
-	// - Timetable grid focus
-	// - Auto-focus after navigation
+test('WeeklyTimetableView renders main interface structure', t => {
+	// 1. EXPLICIT TEST DATA
+	const testUserEmail = 'testuser@example.com';
+	const testConfig = {
+		...mockConfig,
+		defaultTime: '1h',
+		defaultComment: 'Daily work',
+	};
+	const expectedStructureElements = [
+		'█', // ASCII art header
+		'KW', // Week display format
+		'[Q] Quit',
+		'Navigate',
+	];
 
+	// 2. OPERATIONS
 	const {lastFrame} = render(
 		<WeeklyTimetableView
-			config={mockConfig}
-			userEmail="test@example.com"
+			config={testConfig}
+			userEmail={testUserEmail}
 			onBack={() => {}}
 		/>,
 	);
 
 	const output = lastFrame()!;
 
-	// Should show the complete interface structure
-	t.true(output.includes('Week'), 'Should show week information');
+	// 3. SPECIFIC VALUE COMPARISONS
+	for (const element of expectedStructureElements) {
+		t.true(output.includes(element), `Should display ${element}`);
+	}
 
-	// The expected flow:
-	// 1. User presses Shift+Arrow keys for week navigation
-	// 2. TimetableGrid handles the navigation and calls onWeekChange
-	// 3. navigateToNextWeek() sets new week AND calls setActiveArea('timetable')
-	// 4. Focus automatically returns to timetable grid
-	// 5. User doesn't need to manually navigate back to the table
+	// Verify the main interface components are present
+	t.regex(output, /KW\d+/, 'Should show week number');
+	t.true(output.includes('█'), 'Should show ASCII art header');
+	t.regex(output, /\[.*] Quit/, 'Should show quit shortcut');
 
-	t.pass(
-		'Focus management integration verified: week navigation automatically returns focus to timetable',
-	);
+	// Verify component renders without errors with valid props
+	t.notThrows(() => {
+		render(
+			<WeeklyTimetableView
+				config={testConfig}
+				userEmail={testUserEmail}
+				onBack={() => {}}
+			/>,
+		);
+	}, 'Should render without errors with valid props');
 });
