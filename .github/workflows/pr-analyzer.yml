@@ -1,0 +1,59 @@
+name: PR Analyzer
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  analyze-pr:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      actions: write
+      id-token: write
+
+    outputs:
+      needs_test_review: ${{ steps.analysis.outputs.needs_test_review }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Analyze PR for Test Review Need
+        id: analysis
+        uses: anthropics/claude-code-action@beta
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+
+          direct_prompt: |
+            /pr-analyzer
+
+          # Allow analysis tools
+          allowed_tools: 'Read,Grep,Glob,Bash'
+
+      - name: Parse Analysis Result
+        id: parse
+        run: |
+          # Extract decision from Claude's response
+          DECISION=$(echo "${{ steps.analysis.outputs.response }}" | grep "TEST_REVIEW_DECISION:" | cut -d: -f2 | tr -d ' ')
+
+          if [[ "$DECISION" == "REQUIRED" ]]; then
+            echo "needs_test_review=true" >> $GITHUB_OUTPUT
+            echo "🧪 Test review will be triggered automatically"
+          else
+            echo "needs_test_review=false" >> $GITHUB_OUTPUT  
+            echo "✅ No test review needed based on analysis"
+          fi
+
+          # Log the full reasoning
+          echo "## 🔍 PR Analysis Result" >> $GITHUB_STEP_SUMMARY
+          echo "${{ steps.analysis.outputs.response }}" >> $GITHUB_STEP_SUMMARY
+
+  trigger-test-review:
+    needs: analyze-pr
+    if: needs.analyze-pr.outputs.needs_test_review == 'true'
+    uses: ./.github/workflows/test-review-auto.yml
+    secrets: inherit
