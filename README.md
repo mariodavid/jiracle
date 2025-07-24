@@ -41,9 +41,24 @@ Create `~/.config/jiracle.json`:
 	"apiToken": "your-jira-api-token",
 	"defaultTime": "4h",
 	"defaultComment": "Development work",
-	"favorites": [{"key": "PROJ-123", "alias": "Main Feature"}]
+	"favorites": [{"key": "PROJ-123", "alias": "Main Feature"}],
+	"slidingWindowDays": {
+		"past": 7,
+		"future": 0
+	}
 }
 ```
+
+### Configuration Options
+
+#### Sliding Window
+
+The `slidingWindowDays` option controls which recently worked issues appear in new weeks:
+
+- `past`: Number of days to look back for recent issues (default: 7)
+- `future`: Number of days to look ahead (default: 0)
+
+Example: Issues worked on in the last 7 days will automatically appear in new weeks, even if no time has been logged yet that week.
 
 Get API token: [Atlassian Account Settings](https://id.atlassian.com/manage-profile/security/api-tokens)
 

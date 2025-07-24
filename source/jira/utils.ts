@@ -15,7 +15,7 @@ export function normalizeSlidingWindowConfig(
 	const slidingWindow = config.slidingWindowDays;
 
 	if (!slidingWindow) {
-		return {past: 0, future: 0};
+		return {past: 7, future: 0};
 	}
 
 	return {
