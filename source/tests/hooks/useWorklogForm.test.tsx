@@ -284,7 +284,16 @@ test('useWorklogForm handleWorklogCancel hides form', t => {
 	t.is(activeAreaChanged, 'timetable');
 });
 
-test('useWorklogForm clearError removes error message', t => {
+test('useWorklogForm clearError removes error after validation failure', async t => {
+	// 1. EXPLICIT TEST DATA
+	const invalidSubmissionData = {
+		issueKey: '', // Invalid: empty issue key
+		date: new Date('2024-01-15'),
+		timeSpent: '2h',
+		comment: 'Valid comment',
+	};
+	const expectedValidationError =
+		'Issue key is required. Please enter a valid Jira issue key (e.g., DEF-123).';
 	let capturedState: any;
 
 	const mockOptions: UseWorklogFormOptions = {
@@ -294,7 +303,8 @@ test('useWorklogForm clearError removes error message', t => {
 		onActiveAreaChange() {},
 	};
 
-	render(
+	// 2. OPERATIONS
+	const {rerender} = render(
 		React.createElement(TestWorklogFormComponent, {
 			options: mockOptions,
 			onStateChange(state: any) {
@@ -303,22 +313,67 @@ test('useWorklogForm clearError removes error message', t => {
 		}),
 	);
 
-	// Simulate having an error (this would normally come from form submission)
-	// For testing purposes, we verify the clearError function exists
-	t.is(typeof capturedState.clearError, 'function');
+	// Open form and trigger validation error
+	capturedState.handleAddWorklog();
+	await capturedState.handleWorklogSubmit(invalidSubmissionData);
+	rerender(
+		React.createElement(TestWorklogFormComponent, {
+			options: mockOptions,
+			onStateChange(state: any) {
+				capturedState = state;
+			},
+		}),
+	);
+
+	// Verify error exists after validation failure
+	t.is(
+		capturedState.worklogError,
+		expectedValidationError,
+		'Should have validation error',
+	);
+
+	// Clear the error
+	capturedState.clearError();
+	rerender(
+		React.createElement(TestWorklogFormComponent, {
+			options: mockOptions,
+			onStateChange(state: any) {
+				capturedState = state;
+			},
+		}),
+	);
+
+	// 3. SPECIFIC VALUE COMPARISONS
+	t.is(
+		capturedState.worklogError,
+		undefined,
+		'Should clear error message after calling clearError',
+	);
 });
 
-test('useWorklogForm hook structure is correct', t => {
+test('useWorklogForm handleAddWorklog sets correct initial state', t => {
+	// 1. EXPLICIT TEST DATA
+	const expectedInitialState = {
+		issueKey: '',
+		timeSpent: mockConfig.defaultTime,
+		comment: mockConfig.defaultComment,
+		isVisible: true,
+		isIssueKeyEditable: true,
+	};
 	let capturedState: any;
+	let activeAreaChanged = '';
 
 	const mockOptions: UseWorklogFormOptions = {
 		config: mockConfig,
 		userEmail: 'test@example.com',
 		onRefresh() {},
-		onActiveAreaChange() {},
+		onActiveAreaChange(area: string) {
+			activeAreaChanged = area;
+		},
 	};
 
-	render(
+	// 2. OPERATIONS
+	const {rerender} = render(
 		React.createElement(TestWorklogFormComponent, {
 			options: mockOptions,
 			onStateChange(state: any) {
@@ -327,27 +382,77 @@ test('useWorklogForm hook structure is correct', t => {
 		}),
 	);
 
-	// Check that all expected properties exist
-	t.is(typeof capturedState.worklogForm, 'object');
-	t.is(typeof capturedState.worklogSubmitting, 'boolean');
-	t.is(typeof capturedState.handleCellWorklog, 'function');
-	t.is(typeof capturedState.handleAddWorklog, 'function');
-	t.is(typeof capturedState.handleWorklogSubmit, 'function');
-	t.is(typeof capturedState.handleWorklogCancel, 'function');
-	t.is(typeof capturedState.clearError, 'function');
+	// Verify initial hidden state
+	t.false(capturedState.worklogForm.isVisible, 'Should start hidden');
+
+	// Open form
+	capturedState.handleAddWorklog();
+	rerender(
+		React.createElement(TestWorklogFormComponent, {
+			options: mockOptions,
+			onStateChange(state: any) {
+				capturedState = state;
+			},
+		}),
+	);
+
+	// 3. SPECIFIC VALUE COMPARISONS
+	t.is(
+		capturedState.worklogForm.issueKey,
+		expectedInitialState.issueKey,
+		'Should set empty issue key for new worklog',
+	);
+	t.is(
+		capturedState.worklogForm.timeSpent,
+		expectedInitialState.timeSpent,
+		'Should use default time from config',
+	);
+	t.is(
+		capturedState.worklogForm.comment,
+		expectedInitialState.comment,
+		'Should use default comment from config',
+	);
+	t.is(
+		capturedState.worklogForm.isVisible,
+		expectedInitialState.isVisible,
+		'Should make form visible',
+	);
+	t.is(
+		capturedState.worklogForm.isIssueKeyEditable,
+		expectedInitialState.isIssueKeyEditable,
+		'Should allow issue key editing in add mode',
+	);
+	t.is(
+		activeAreaChanged,
+		'worklog-form',
+		'Should change active area to worklog-form',
+	);
 });
 
-test('useWorklogForm worklogForm structure is correct', t => {
+test('useWorklogForm validates required fields on submission', async t => {
+	// 1. EXPLICIT TEST DATA
+	const invalidSubmissionData = {
+		issueKey: '',
+		date: new Date('2024-01-15'),
+		timeSpent: '2h',
+		comment: 'Valid comment',
+	};
+	const expectedErrorMessage =
+		'Issue key is required. Please enter a valid Jira issue key (e.g., DEF-123).';
 	let capturedState: any;
+	let refreshCalled = false;
 
 	const mockOptions: UseWorklogFormOptions = {
 		config: mockConfig,
 		userEmail: 'test@example.com',
-		onRefresh() {},
+		onRefresh() {
+			refreshCalled = true;
+		},
 		onActiveAreaChange() {},
 	};
 
-	render(
+	// 2. OPERATIONS
+	const {rerender} = render(
 		React.createElement(TestWorklogFormComponent, {
 			options: mockOptions,
 			onStateChange(state: any) {
@@ -356,38 +461,43 @@ test('useWorklogForm worklogForm structure is correct', t => {
 		}),
 	);
 
-	const form = capturedState.worklogForm;
-	t.is(typeof form.issueKey, 'string');
-	t.true(form.date instanceof Date);
-	t.is(typeof form.timeSpent, 'string');
-	t.is(typeof form.comment, 'string');
-	t.is(typeof form.isVisible, 'boolean');
-	t.is(typeof form.isIssueKeyEditable, 'boolean');
-});
-
-test('useWorklogForm displays form state correctly', t => {
-	const mockOptions: UseWorklogFormOptions = {
-		config: mockConfig,
-		userEmail: 'test@example.com',
-		onRefresh() {},
-		onActiveAreaChange() {},
-	};
-
-	const {lastFrame} = render(
+	// Open form first
+	capturedState.handleAddWorklog();
+	rerender(
 		React.createElement(TestWorklogFormComponent, {
 			options: mockOptions,
+			onStateChange(state: any) {
+				capturedState = state;
+			},
 		}),
 	);
 
-	const output = lastFrame() ?? '';
+	// Attempt submission with invalid data (empty issue key)
+	await capturedState.handleWorklogSubmit(invalidSubmissionData);
+	rerender(
+		React.createElement(TestWorklogFormComponent, {
+			options: mockOptions,
+			onStateChange(state: any) {
+				capturedState = state;
+			},
+		}),
+	);
 
-	// Check initial values are displayed
-	t.true(output.includes('Visible: false'));
-	t.true(output.includes('Submitting: false'));
-	t.true(output.includes('Error: none'));
-	t.true(output.includes('IssueKey:')); // Remove the space after colon since empty string follows
-	t.true(output.includes('IsEditable: false'));
-	t.true(output.includes('IsEditMode: false'));
+	// 3. SPECIFIC VALUE COMPARISONS
+	t.false(refreshCalled, 'Should not call onRefresh with invalid data');
+	t.is(
+		capturedState.worklogError,
+		expectedErrorMessage,
+		'Should show validation error for empty issue key',
+	);
+	t.false(
+		capturedState.worklogSubmitting,
+		'Should not be in submitting state after validation error',
+	);
+	t.true(
+		capturedState.worklogForm.isVisible,
+		'Should keep form visible after validation error',
+	);
 });
 
 test('useWorklogForm formats date correctly for Jira API compatibility', t => {
