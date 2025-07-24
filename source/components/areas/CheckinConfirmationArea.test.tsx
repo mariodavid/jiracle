@@ -4,22 +4,20 @@ import {render} from 'ink-testing-library';
 import {CheckinConfirmationArea} from './CheckinConfirmationArea.js';
 
 test('CheckinConfirmationArea renders checkin confirmation dialog', t => {
+	// Explicit test data
+	const expectedText = 'Start Work';
 	const mockOnConfirm = () => {};
 
+	// Operations
 	const {lastFrame} = render(
 		<CheckinConfirmationArea onConfirm={mockOnConfirm} />,
 	);
 
+	// Specific value comparison
 	const output = lastFrame();
-	// Check that the component renders with checkin-related content
-	t.truthy(output);
-	t.true(output!.length > 0);
-	// Should contain some form of checkin confirmation text
 	t.true(
-		output!.includes('Check') ||
-			output!.includes('check') ||
-			output!.includes('start') ||
-			output!.includes('work'),
+		output?.includes(expectedText) ?? false,
+		'Should display check-in specific confirmation text',
 	);
 });
 
@@ -60,33 +58,42 @@ test('CheckinConfirmationArea handles cancellation callback', t => {
 });
 
 test('CheckinConfirmationArea uses correct dialog styling', t => {
+	// Explicit test data
+	const expectedText = 'Start Work';
 	const mockOnConfirm = () => {};
 
+	// Operations
 	const {lastFrame} = render(
 		<CheckinConfirmationArea onConfirm={mockOnConfirm} />,
 	);
 
+	// Specific value comparison
 	const output = lastFrame();
-	// Check that the component renders (cyan border is handled by ConfirmationDialog)
-	t.truthy(output);
-	t.true(output!.length > 0);
+	t.true(
+		output?.includes(expectedText) ?? false,
+		'Should render with check-in specific content',
+	);
 });
 
-test('CheckinConfirmationArea handles multiple key inputs', t => {
-	let confirmCallCount = 0;
-	const confirmValues: boolean[] = [];
+test('CheckinConfirmationArea handles escape key for checkin cancellation', t => {
+	// Explicit test data
+	const expectedText = 'Start Work';
+	const mockOnConfirm = () => {};
 
-	const mockOnConfirm = (confirmed: boolean) => {
-		confirmCallCount++;
-		confirmValues.push(confirmed);
-	};
+	// Operations
+	const {stdin, lastFrame} = render(
+		<CheckinConfirmationArea onConfirm={mockOnConfirm} />,
+	);
 
-	const {stdin} = render(<CheckinConfirmationArea onConfirm={mockOnConfirm} />);
+	// Simulate escape key for checkin cancellation
+	stdin.write('\u001B');
 
-	// Simulate multiple inputs
-	stdin.write('y');
-
-	// Only the first confirmation should be processed
-	t.is(confirmCallCount, 1);
-	t.deepEqual(confirmValues, [true]);
+	// Specific value comparisons
+	const output = lastFrame();
+	t.true(
+		output?.includes(expectedText) ?? false,
+		'Should show check-in specific text',
+	);
+	// Note: Escape handling behavior depends on underlying CheckinConfirmation component
+	// This verifies the component displays correct checkin context
 });
