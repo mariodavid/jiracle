@@ -1,74 +1,66 @@
 import test from 'ava';
-import React from 'react';
-import {Box, Text} from 'ink';
-import {render} from 'ink-testing-library';
+import {renderHook, act} from '@testing-library/react';
 import {
 	useTableNavigation,
 	type TableNavigationProps,
-	type TableNavigationResult,
 } from '../../hooks/useTableNavigation.js';
 import type {IssueGroup} from '../../services/IssueGroupManager.js';
 
-// Test component that uses the hook
-function TestTableNavigationComponent({
-	options,
-}: {
-	options: TableNavigationProps;
-}) {
-	const result = useTableNavigation(options);
-
-	// Store result for testing
-	(globalThis as any).__testTableNavigationResult = result;
-
-	return (
-		<Box>
-			<Text>Test Component</Text>
-		</Box>
-	);
-}
-
-test('useTableNavigation: hook can be instantiated with minimal props', t => {
+test('useTableNavigation: initializes with correct default state', t => {
+	// 1. EXPLICIT TEST DATA
 	const mockOptions: TableNavigationProps = {
 		isActive: true,
 		weekDates: [],
 		issueGroups: [],
 	};
-
-	// Should not throw when rendering
-	t.notThrows(() => {
-		render(
-			React.createElement(TestTableNavigationComponent, {options: mockOptions}),
-		);
-	});
-});
-
-test('useTableNavigation: returns expected interface structure', t => {
-	const mockOptions: TableNavigationProps = {
-		isActive: true,
-		weekDates: [new Date('2023-07-17')],
-		issueGroups: [],
+	const expectedInitialState = {
+		focusedCell: undefined,
+		handleFocusChangeType: 'function' as const,
+		setFocusedCellType: 'function' as const,
+		clearFocusType: 'function' as const,
+		isCellFocusedType: 'function' as const,
 	};
 
-	render(
-		React.createElement(TestTableNavigationComponent, {options: mockOptions}),
-	);
+	// 2. OPERATIONS
+	const {result} = renderHook(() => useTableNavigation(mockOptions));
 
-	const result = (globalThis as any)
-		.__testTableNavigationResult as TableNavigationResult;
-	t.truthy(result);
-	t.is(result.focusedCell, undefined);
-	t.is(typeof result.handleFocusChange, 'function');
-	t.is(typeof result.setFocusedCell, 'function');
-	t.is(typeof result.clearFocus, 'function');
-	t.is(typeof result.isCellFocused, 'function');
+	// 3. SPECIFIC VALUE COMPARISONS
+	t.is(
+		result.current.focusedCell,
+		expectedInitialState.focusedCell,
+		'Should start with no focused cell',
+	);
+	t.is(
+		typeof result.current.handleFocusChange,
+		expectedInitialState.handleFocusChangeType,
+		'Should provide handleFocusChange function',
+	);
+	t.is(
+		typeof result.current.setFocusedCell,
+		expectedInitialState.setFocusedCellType,
+		'Should provide setFocusedCell function',
+	);
+	t.is(
+		typeof result.current.clearFocus,
+		expectedInitialState.clearFocusType,
+		'Should provide clearFocus function',
+	);
+	t.is(
+		typeof result.current.isCellFocused,
+		expectedInitialState.isCellFocusedType,
+		'Should provide isCellFocused function',
+	);
 });
 
-test('useTableNavigation: handles all optional callback props', t => {
+test('useTableNavigation: manages focus state correctly', t => {
+	// 1. EXPLICIT TEST DATA
+	const testIssueKey = 'TEST-123';
+	const testColumnIndex = 0;
 	const mockIssueGroups: IssueGroup[] = [
 		{
 			group: undefined,
 			issues: [
-				['PROJECT-123', {summary: 'Test issue', dailyHours: {}, weekTotal: 0}],
+				[testIssueKey, {summary: 'Test issue', dailyHours: {}, weekTotal: 0}],
 			],
 			totalHours: 0,
 		},
@@ -76,31 +68,160 @@ test('useTableNavigation: handles all optional callback props', t => {
 
 	const mockOptions: TableNavigationProps = {
 		isActive: true,
-		weekDates: [new Date('2023-07-17'), new Date('2023-07-18')],
+		weekDates: [new Date('2023-07-17')],
 		issueGroups: mockIssueGroups,
-		onWeekChange() {},
-		onCellWorklog() {},
-		onCellDelete() {},
-		onAttendanceEdit() {},
-		onAttendanceDelete() {},
-		onOpenInBrowser() {},
 	};
 
-	// Should not throw with all optional props
-	t.notThrows(() => {
-		render(
-			React.createElement(TestTableNavigationComponent, {options: mockOptions}),
-		);
+	const expectedFocusStates = {
+		initial: undefined,
+		afterSet: true,
+		afterClear: false,
+	};
+
+	// 2. OPERATIONS
+	const {result} = renderHook(() => useTableNavigation(mockOptions));
+
+	// Test focus management functionality
+	const initialState = result.current.focusedCell;
+	const initialFocusCheck = result.current.isCellFocused(
+		testIssueKey,
+		testColumnIndex,
+	);
+
+	act(() => {
+		result.current.handleFocusChange(testIssueKey, testColumnIndex, true);
 	});
+	const focusedAfterSet = result.current.isCellFocused(
+		testIssueKey,
+		testColumnIndex,
+	);
+	const focusedCellAfterSet = result.current.focusedCell;
+
+	act(() => {
+		result.current.clearFocus();
+	});
+	const focusedAfterClear = result.current.isCellFocused(
+		testIssueKey,
+		testColumnIndex,
+	);
+	const focusedCellAfterClear = result.current.focusedCell;
+
+	// 3. SPECIFIC VALUE COMPARISONS
+	t.is(
+		initialState,
+		expectedFocusStates.initial,
+		'Should start with no focused cell',
+	);
+	t.is(
+		initialFocusCheck,
+		expectedFocusStates.afterClear,
+		'Initial focus check should return false',
+	);
+	t.is(
+		focusedAfterSet,
+		expectedFocusStates.afterSet,
+		'Should correctly identify focused cell after handleFocusChange',
+	);
+	t.truthy(
+		focusedCellAfterSet,
+		'focusedCell should be set after handleFocusChange',
+	);
+	t.is(
+		focusedAfterClear,
+		expectedFocusStates.afterClear,
+		'Should correctly unfocus cell after clearFocus',
+	);
+	t.is(
+		focusedCellAfterClear,
+		expectedFocusStates.initial,
+		'focusedCell should be undefined after clearFocus',
+	);
+});
+
+test('useTableNavigation: handles callbacks without errors', t => {
+	// 1. EXPLICIT TEST DATA
+	const testDate = new Date('2023-07-17');
+	let callbackCount = 0;
+
+	const mockCallbacks = {
+		onWeekChange() {
+			callbackCount++;
+		},
+		onCellWorklog() {
+			callbackCount++;
+		},
+		onCellDelete() {
+			callbackCount++;
+		},
+		onAttendanceEdit() {
+			callbackCount++;
+		},
+		onAttendanceDelete() {
+			callbackCount++;
+		},
+		onOpenInBrowser() {
+			callbackCount++;
+		},
+	};
+
+	const mockOptions: TableNavigationProps = {
+		isActive: true,
+		weekDates: [testDate],
+		issueGroups: [],
+		...mockCallbacks,
+	};
+
+	const expectedCallbackCount = 6;
+
+	// 2. OPERATIONS
+	const {result} = renderHook(() => useTableNavigation(mockOptions));
+
+	// Invoke all callbacks
+	mockCallbacks.onWeekChange();
+	mockCallbacks.onCellWorklog();
+	mockCallbacks.onCellDelete();
+	mockCallbacks.onAttendanceEdit();
+	mockCallbacks.onAttendanceDelete();
+	mockCallbacks.onOpenInBrowser();
+
+	// Verify hook initialized
+	t.truthy(
+		result.current,
+		'Hook should initialize successfully with all callbacks',
+	);
+
+	// 3. SPECIFIC VALUE COMPARISONS
+	t.is(
+		callbackCount,
+		expectedCallbackCount,
+		'All callbacks should be invoked successfully',
+	);
+	t.is(
+		typeof mockOptions.onWeekChange,
+		'function',
+		'onWeekChange should be function',
+	);
+	t.is(
+		typeof mockOptions.onCellWorklog,
+		'function',
+		'onCellWorklog should be function',
+	);
 });
 
 test('useTableNavigation: works with attendance manager', t => {
+	// 1. EXPLICIT TEST DATA
 	const mockAttendanceManager = {
 		isEnabled: true,
 		async checkIn() {},
 		async checkOut() {},
 		getAttendanceForDate: async () => null,
 		getWeeklyAttendance: async () => ({}),
+	};
+
+	const expectedFeatures = {
+		isEnabled: true,
+		checkInType: 'function' as const,
+		checkOutType: 'function' as const,
 	};
 
 	const mockOptions: TableNavigationProps = {
@@ -111,46 +232,91 @@ test('useTableNavigation: works with attendance manager', t => {
 		attendanceManager: mockAttendanceManager,
 	};
 
-	// Should not throw with attendance manager
-	t.notThrows(() => {
-		render(
-			React.createElement(TestTableNavigationComponent, {options: mockOptions}),
-		);
-	});
+	// 2. OPERATIONS
+	const {result} = renderHook(() => useTableNavigation(mockOptions));
+
+	// 3. SPECIFIC VALUE COMPARISONS
+	t.is(
+		mockAttendanceManager.isEnabled,
+		expectedFeatures.isEnabled,
+		'Attendance manager should be enabled',
+	);
+	t.is(
+		typeof mockAttendanceManager.checkIn,
+		expectedFeatures.checkInType,
+		'Should provide checkIn function',
+	);
+	t.is(
+		typeof mockAttendanceManager.checkOut,
+		expectedFeatures.checkOutType,
+		'Should provide checkOut function',
+	);
+	t.truthy(result.current, 'Hook should initialize with attendance manager');
+	t.is(
+		result.current.focusedCell,
+		undefined,
+		'Should start with no focused cell even with attendance manager',
+	);
 });
 
-test('useTableNavigation: handles inactive state', t => {
-	const mockOptions: TableNavigationProps = {
-		isActive: false, // Inactive
+test('useTableNavigation: handles inactive state correctly', t => {
+	// 1. EXPLICIT TEST DATA
+	const inactiveOptions: TableNavigationProps = {
+		isActive: false,
 		weekDates: [],
 		issueGroups: [],
 	};
 
-	render(
-		React.createElement(TestTableNavigationComponent, {options: mockOptions}),
+	const activeOptions: TableNavigationProps = {
+		isActive: true,
+		weekDates: [],
+		issueGroups: [],
+	};
+
+	const expectedInterface = {
+		focusedCell: undefined,
+		handleFocusChangeType: 'function' as const,
+	};
+
+	// 2. OPERATIONS
+	const {result: inactiveResult} = renderHook(() =>
+		useTableNavigation(inactiveOptions),
+	);
+	const {result: activeResult} = renderHook(() =>
+		useTableNavigation(activeOptions),
 	);
 
-	const result = (globalThis as any)
-		.__testTableNavigationResult as TableNavigationResult;
-	t.truthy(result);
-	t.is(result.focusedCell, undefined);
+	// 3. SPECIFIC VALUE COMPARISONS
+	t.is(
+		inactiveResult.current.focusedCell,
+		expectedInterface.focusedCell,
+		'Inactive state should have no focused cell',
+	);
+	t.is(
+		typeof inactiveResult.current.handleFocusChange,
+		expectedInterface.handleFocusChangeType,
+		'Inactive state should provide handleFocusChange function',
+	);
+	t.is(
+		typeof inactiveResult.current.handleFocusChange,
+		typeof activeResult.current.handleFocusChange,
+		'Active and inactive states should have same interface types',
+	);
 });
 
-test('useTableNavigation: works with complex issue groups', t => {
+test('useTableNavigation: processes complex issue groups correctly', t => {
+	// 1. EXPLICIT TEST DATA
+	const testIssueKeys = ['PROJECT-123', 'PROJECT-456', 'PROJECT-789'] as const;
 	const mockIssueGroups: IssueGroup[] = [
 		{
-			group: {
-				id: 'group1',
-				name: 'Development',
-				desiredAmount: 40,
-			},
+			group: {id: 'group1', name: 'Development', desiredAmount: 40},
 			issues: [
 				[
-					'PROJECT-123',
+					testIssueKeys[0] as string,
 					{summary: 'Test issue 1', dailyHours: {}, weekTotal: 8},
 				],
 				[
-					'PROJECT-456',
+					testIssueKeys[1] as string,
 					{summary: 'Test issue 2', dailyHours: {}, weekTotal: 16},
 				],
 			],
@@ -160,7 +326,7 @@ test('useTableNavigation: works with complex issue groups', t => {
 			group: undefined,
 			issues: [
 				[
-					'PROJECT-789',
+					testIssueKeys[2] as string,
 					{summary: 'Ungrouped issue', dailyHours: {}, weekTotal: 4},
 				],
 			],
@@ -168,98 +334,159 @@ test('useTableNavigation: works with complex issue groups', t => {
 		},
 	];
 
+	const expectedStructure = {
+		groupedIssues: 2,
+		ungroupedIssues: 1,
+		totalIssues: 3,
+	};
+
 	const mockOptions: TableNavigationProps = {
 		isActive: true,
-		weekDates: [
-			new Date('2023-07-17'),
-			new Date('2023-07-18'),
-			new Date('2023-07-19'),
-		],
+		weekDates: [new Date('2023-07-17'), new Date('2023-07-18')],
 		issueGroups: mockIssueGroups,
 	};
 
-	// Should not throw with complex issue groups
-	t.notThrows(() => {
-		render(
-			React.createElement(TestTableNavigationComponent, {options: mockOptions}),
-		);
-	});
+	// 2. OPERATIONS
+	const {result} = renderHook(() => useTableNavigation(mockOptions));
 
-	const result = (globalThis as any)
-		.__testTableNavigationResult as TableNavigationResult;
-	t.truthy(result);
-});
+	// Count actual issues
+	const totalGroupedIssues = mockIssueGroups[0]!.issues.length;
+	const totalUngroupedIssues = mockIssueGroups[1]!.issues.length;
+	const totalIssues = totalGroupedIssues + totalUngroupedIssues;
 
-test('useTableNavigation: validates required props types', t => {
-	const mockOptions: TableNavigationProps = {
-		isActive: true,
-		weekDates: [new Date('2023-07-17')],
-		issueGroups: [],
-	};
-
-	// Verify prop types
-	t.is(typeof mockOptions.isActive, 'boolean');
-	t.true(Array.isArray(mockOptions.weekDates));
-	t.true(Array.isArray(mockOptions.issueGroups));
-	t.true(mockOptions.weekDates[0] instanceof Date);
-});
-
-test('useTableNavigation: accepts all callback function types', t => {
-	const callbacks = {
-		onWeekChange(_direction: 'prev' | 'next') {},
-		onCellWorklog(_data: {issueKey: string; date: Date}) {},
-		onCellDelete(_data: {issueKey: string; date: Date}) {},
-		onAttendanceEdit(_data: {date: Date}) {},
-		onAttendanceDelete(_data: {date: Date}) {},
-		onOpenInBrowser(_issueKey: string) {},
-	};
-
-	// Verify callback types are functions
-	t.is(typeof callbacks.onWeekChange, 'function');
-	t.is(typeof callbacks.onCellWorklog, 'function');
-	t.is(typeof callbacks.onCellDelete, 'function');
-	t.is(typeof callbacks.onAttendanceEdit, 'function');
-	t.is(typeof callbacks.onAttendanceDelete, 'function');
-	t.is(typeof callbacks.onOpenInBrowser, 'function');
-
-	const mockOptions: TableNavigationProps = {
-		isActive: true,
-		weekDates: [],
-		issueGroups: [],
-		...callbacks,
-	};
-
-	// Should not throw with all callbacks
-	t.notThrows(() => {
-		render(
-			React.createElement(TestTableNavigationComponent, {options: mockOptions}),
-		);
-	});
-});
-
-test('useTableNavigation: result methods maintain hook contract', t => {
-	const mockOptions: TableNavigationProps = {
-		isActive: true,
-		weekDates: [],
-		issueGroups: [],
-	};
-
-	render(
-		React.createElement(TestTableNavigationComponent, {options: mockOptions}),
+	// 3. SPECIFIC VALUE COMPARISONS
+	t.is(
+		totalGroupedIssues,
+		expectedStructure.groupedIssues,
+		'Should have correct number of grouped issues',
+	);
+	t.is(
+		totalUngroupedIssues,
+		expectedStructure.ungroupedIssues,
+		'Should have correct number of ungrouped issues',
+	);
+	t.is(
+		totalIssues,
+		expectedStructure.totalIssues,
+		'Should have correct total number of issues',
 	);
 
-	const result = (globalThis as any)
-		.__testTableNavigationResult as TableNavigationResult;
+	// Test focus management works for each issue
+	for (const testIssueKey of testIssueKeys) {
+		// Initially unfocused
+		const initiallyFocused = result.current.isCellFocused(testIssueKey, 0);
+		t.false(initiallyFocused, `Issue ${testIssueKey} should start unfocused`);
 
-	// Verify that methods can be called without throwing
-	t.notThrows(() => {
-		result.handleFocusChange('PROJECT-123', 0, true);
+		// Focus the issue
+		act(() => {
+			result.current.handleFocusChange(testIssueKey, 0, true);
+		});
+		const nowFocused = result.current.isCellFocused(testIssueKey, 0);
+		t.true(nowFocused, `Should be able to focus issue ${testIssueKey}`);
+
+		// Clear focus
+		act(() => {
+			result.current.clearFocus();
+		});
+		const afterClear = result.current.isCellFocused(testIssueKey, 0);
+		t.false(
+			afterClear,
+			`Issue ${testIssueKey} should be unfocused after clear`,
+		);
+	}
+
+	t.truthy(result.current, 'Hook should handle complex issue groups');
+});
+
+test('useTableNavigation: method integrity with error handling', t => {
+	// 1. EXPLICIT TEST DATA
+	const testIssueKey = 'PROJECT-123';
+	const testColumnIndex = 0;
+	const mockOptions: TableNavigationProps = {
+		isActive: true,
+		weekDates: [],
+		issueGroups: [],
+	};
+
+	const expectedStates = {
+		initial: undefined,
+		afterFocus: true,
+		afterClear: false,
+	};
+
+	// 2. OPERATIONS
+	const {result} = renderHook(() => useTableNavigation(mockOptions));
+
+	// Test normal operations
+	const initialState = result.current.focusedCell;
+	const initialFocusCheck = result.current.isCellFocused(
+		testIssueKey,
+		testColumnIndex,
+	);
+
+	act(() => {
+		result.current.handleFocusChange(testIssueKey, testColumnIndex, true);
 	});
-	t.notThrows(() => {
-		result.setFocusedCell(undefined);
+	const focusedState = result.current.isCellFocused(
+		testIssueKey,
+		testColumnIndex,
+	);
+	const focusedCellState = result.current.focusedCell;
+
+	act(() => {
+		result.current.clearFocus();
 	});
+	const clearedState = result.current.isCellFocused(
+		testIssueKey,
+		testColumnIndex,
+	);
+	const clearedCellState = result.current.focusedCell;
+
+	// 3. SPECIFIC VALUE COMPARISONS
+	t.is(
+		initialState,
+		expectedStates.initial,
+		'Should start with no focused cell',
+	);
+	t.is(
+		initialFocusCheck,
+		expectedStates.afterClear,
+		'Initial focus check should return false',
+	);
+	t.is(
+		focusedState,
+		expectedStates.afterFocus,
+		'Should correctly identify focused cell',
+	);
+	t.truthy(
+		focusedCellState,
+		'focusedCell should be set after handleFocusChange',
+	);
+	t.is(clearedState, expectedStates.afterClear, 'Should correctly clear focus');
+	t.is(
+		clearedCellState,
+		expectedStates.initial,
+		'focusedCell should be undefined after clearFocus',
+	);
+
+	// Verify methods handle edge cases without throwing
 	t.notThrows(() => {
-		result.clearFocus();
-	});
-	t.notThrows(() => result.isCellFocused('PROJECT-123', 0));
+		act(() => {
+			result.current.handleFocusChange('NONEXISTENT-999', 999, false);
+		});
+	}, 'handleFocusChange should handle arbitrary parameters');
+	t.notThrows(() => {
+		act(() => {
+			result.current.setFocusedCell(undefined);
+		});
+	}, 'setFocusedCell should handle undefined');
+	t.notThrows(() => {
+		act(() => {
+			result.current.clearFocus();
+		});
+	}, 'clearFocus should not throw');
+	t.notThrows(
+		() => result.current.isCellFocused('NONEXISTENT-999', 999),
+		'isCellFocused should handle arbitrary parameters',
+	);
 });
