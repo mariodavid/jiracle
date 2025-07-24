@@ -34,9 +34,22 @@ const mockAttendanceEdit: AttendanceEditState = {
 };
 
 test('AttendanceEditFormArea renders with attendance form', t => {
+	// Explicit test data
+	const expectedElements = [
+		'Anwesenheit bearbeiten',
+		'Beginn:',
+		'Ende:',
+		'Pause:',
+		'[Speichern]',
+		'[Abbrechen]',
+	];
+	const expectedTimes: string[] = ['09:00', '17:00'];
+	const expectedBreakTime = '30m';
+
 	const mockOnSubmit = () => {};
 	const mockOnCancel = () => {};
 
+	// Operations
 	const {lastFrame} = render(
 		<AttendanceEditFormArea
 			attendanceEdit={mockAttendanceEdit}
@@ -47,17 +60,41 @@ test('AttendanceEditFormArea renders with attendance form', t => {
 	);
 
 	const output = lastFrame();
-	t.truthy(output);
-	t.true(output!.length > 0);
-	// Should contain some form elements
-	t.true(output!.includes('09:00') ?? output!.includes('17:00'));
+
+	// Specific value comparisons
+	for (const element of expectedElements) {
+		t.true(output!.includes(element), `Should display ${element}`);
+	}
+
+	t.true(
+		output!.includes(expectedTimes[0]!),
+		`Should display check-in time ${expectedTimes[0]!}`,
+	);
+	t.true(
+		output!.includes(expectedTimes[1]!),
+		`Should display check-out time ${expectedTimes[1]!}`,
+	);
+	t.true(
+		output!.includes(expectedBreakTime),
+		`Should display break time ${expectedBreakTime}`,
+	);
 });
 
 test('AttendanceEditFormArea handles submit callback', t => {
-	const mockOnSubmit = () => {};
+	// Explicit test data
+	const expectedSubmitButton = '[Speichern]';
+	let callbackReceived = false;
+	let submittedData: any = null;
+
+	const mockOnSubmit = (data: any) => {
+		callbackReceived = true;
+		submittedData = data;
+	};
+
 	const mockOnCancel = () => {};
 
-	render(
+	// Operations
+	const {lastFrame} = render(
 		<AttendanceEditFormArea
 			attendanceEdit={mockAttendanceEdit}
 			config={mockConfig}
@@ -66,16 +103,35 @@ test('AttendanceEditFormArea handles submit callback', t => {
 		/>,
 	);
 
-	// Note: Form submission is handled by AttendanceEditForm component
-	// This test verifies the component renders and passes callbacks correctly
-	t.pass(); // Component renders without errors and callbacks are passed
+	const output = lastFrame();
+
+	// Specific value comparisons
+	t.true(
+		output!.includes(expectedSubmitButton),
+		'Should display submit button',
+	);
+	t.is(
+		typeof mockOnSubmit,
+		'function',
+		'Should receive onSubmit callback function',
+	);
+	// Component renders properly and callback is accessible (actual submission requires user interaction)
+	t.false(callbackReceived, 'Callback should not be triggered on render');
+	t.is(submittedData, null, 'No data should be submitted on render');
 });
 
 test('AttendanceEditFormArea handles cancel callback', t => {
-	const mockOnSubmit = () => {};
-	const mockOnCancel = () => {};
+	// Explicit test data
+	const expectedCancelButton = '[Abbrechen]';
+	let callbackReceived = false;
 
-	render(
+	const mockOnSubmit = () => {};
+	const mockOnCancel = () => {
+		callbackReceived = true;
+	};
+
+	// Operations
+	const {lastFrame} = render(
 		<AttendanceEditFormArea
 			attendanceEdit={mockAttendanceEdit}
 			config={mockConfig}
@@ -84,20 +140,41 @@ test('AttendanceEditFormArea handles cancel callback', t => {
 		/>,
 	);
 
-	// Note: Cancel handling is managed by AttendanceEditForm component
-	// This test verifies the component renders and passes callbacks correctly
-	t.pass(); // Component renders without errors and callbacks are passed
+	const output = lastFrame();
+
+	// Specific value comparisons
+	t.true(
+		output!.includes(expectedCancelButton),
+		'Should display cancel button',
+	);
+	t.is(
+		typeof mockOnCancel,
+		'function',
+		'Should receive onCancel callback function',
+	);
+	// Component renders properly and callback is accessible (actual cancellation requires user interaction)
+	t.false(callbackReceived, 'Callback should not be triggered on render');
 });
 
 test('AttendanceEditFormArea handles attendance without initial data', t => {
+	// Explicit test data
 	const attendanceEditNoData: AttendanceEditState = {
 		date: new Date('2024-01-15'),
 		data: undefined,
 	};
+	const expectedElements = [
+		'Anwesenheit bearbeiten',
+		'Beginn:',
+		'Ende:',
+		'Pause:',
+	];
+	const expectedDefaultTimes: string[] = ['09:00', '17:00']; // Should use config defaults
+	const expectedDefaultBreak = '30m';
 
 	const mockOnSubmit = () => {};
 	const mockOnCancel = () => {};
 
+	// Operations
 	const {lastFrame} = render(
 		<AttendanceEditFormArea
 			attendanceEdit={attendanceEditNoData}
@@ -108,14 +185,43 @@ test('AttendanceEditFormArea handles attendance without initial data', t => {
 	);
 
 	const output = lastFrame();
-	t.truthy(output);
-	t.true(output!.length > 0);
+
+	// Specific value comparisons
+	for (const element of expectedElements) {
+		t.true(output!.includes(element), `Should display ${element}`);
+	}
+
+	t.true(
+		output!.includes(expectedDefaultTimes[0]!),
+		`Should display default check-in time ${expectedDefaultTimes[0]!}`,
+	);
+	t.true(
+		output!.includes(expectedDefaultTimes[1]!),
+		`Should display default check-out time ${expectedDefaultTimes[1]!}`,
+	);
+	t.true(
+		output!.includes(expectedDefaultBreak),
+		`Should display default break time ${expectedDefaultBreak}`,
+	);
 });
 
 test('AttendanceEditFormArea uses correct styling and layout', t => {
+	// Explicit test data
+	const expectedLayoutElements = ['╭', '╮', '╰', '╯']; // Round border characters
+	const expectedFormFields = ['Beginn:', 'Ende:', 'Pause:'];
+	const expectedInstructions = [
+		'[Tab]',
+		'Feld wechseln',
+		'[Enter]',
+		'Speichern',
+		'[Esc]',
+		'Abbrechen',
+	];
+
 	const mockOnSubmit = () => {};
 	const mockOnCancel = () => {};
 
+	// Operations
 	const {lastFrame} = render(
 		<AttendanceEditFormArea
 			attendanceEdit={mockAttendanceEdit}
@@ -126,12 +232,29 @@ test('AttendanceEditFormArea uses correct styling and layout', t => {
 	);
 
 	const output = lastFrame();
-	t.truthy(output);
-	// Check that the form area renders with proper layout
-	t.true(output!.length > 0);
+
+	// Specific value comparisons
+	for (const border of expectedLayoutElements) {
+		t.true(
+			output!.includes(border),
+			`Should display border character ${border}`,
+		);
+	}
+
+	for (const field of expectedFormFields) {
+		t.true(output!.includes(field), `Should display form field ${field}`);
+	}
+
+	for (const instruction of expectedInstructions) {
+		t.true(
+			output!.includes(instruction),
+			`Should display instruction ${instruction}`,
+		);
+	}
 });
 
 test('AttendanceEditFormArea handles different dates', t => {
+	// Explicit test data
 	const differentDateEdit: AttendanceEditState = {
 		date: new Date('2024-12-25'),
 		data: {
@@ -142,10 +265,15 @@ test('AttendanceEditFormArea handles different dates', t => {
 			totalHours: 7.25,
 		},
 	};
+	const expectedDate = 'Mi, 25. Dez'; // German formatted date
+	const expectedCheckInTime = '10:00';
+	const expectedCheckOutTime = '18:00';
+	const expectedBreakTime = '45m';
 
 	const mockOnSubmit = () => {};
 	const mockOnCancel = () => {};
 
+	// Operations
 	const {lastFrame} = render(
 		<AttendanceEditFormArea
 			attendanceEdit={differentDateEdit}
@@ -156,13 +284,28 @@ test('AttendanceEditFormArea handles different dates', t => {
 	);
 
 	const output = lastFrame();
-	t.truthy(output);
-	t.true(output!.length > 0);
-	// Should show the time values
-	t.true(output!.includes('10:00') ?? output!.includes('18:00'));
+
+	// Specific value comparisons
+	t.true(
+		output!.includes(expectedDate),
+		`Should display formatted date ${expectedDate}`,
+	);
+	t.true(
+		output!.includes(expectedCheckInTime),
+		`Should display check-in time ${expectedCheckInTime}`,
+	);
+	t.true(
+		output!.includes(expectedCheckOutTime),
+		`Should display check-out time ${expectedCheckOutTime}`,
+	);
+	t.true(
+		output!.includes(expectedBreakTime),
+		`Should display break time ${expectedBreakTime}`,
+	);
 });
 
 test('AttendanceEditFormArea handles different break configurations', t => {
+	// Explicit test data
 	const longBreakEdit: AttendanceEditState = {
 		date: new Date('2024-01-15'),
 		data: {
@@ -173,10 +316,15 @@ test('AttendanceEditFormArea handles different break configurations', t => {
 			totalHours: 8,
 		},
 	};
+	const expectedCheckInTime = '08:00';
+	const expectedCheckOutTime = '17:00';
+	const expectedLongBreakTime = '60m'; // 1 hour in minutes
+	const expectedFormElements = ['Beginn:', 'Ende:', 'Pause:'];
 
 	const mockOnSubmit = () => {};
 	const mockOnCancel = () => {};
 
+	// Operations
 	const {lastFrame} = render(
 		<AttendanceEditFormArea
 			attendanceEdit={longBreakEdit}
@@ -187,6 +335,22 @@ test('AttendanceEditFormArea handles different break configurations', t => {
 	);
 
 	const output = lastFrame();
-	t.truthy(output);
-	t.true(output!.length > 0);
+
+	// Specific value comparisons
+	for (const element of expectedFormElements) {
+		t.true(output!.includes(element), `Should display form element ${element}`);
+	}
+
+	t.true(
+		output!.includes(expectedCheckInTime),
+		`Should display check-in time ${expectedCheckInTime}`,
+	);
+	t.true(
+		output!.includes(expectedCheckOutTime),
+		`Should display check-out time ${expectedCheckOutTime}`,
+	);
+	t.true(
+		output!.includes(expectedLongBreakTime),
+		`Should display long break time ${expectedLongBreakTime}`,
+	);
 });
