@@ -24,6 +24,8 @@ function TestKeyboardInputComponent({
 }
 
 test('useKeyboardInput: hook can be instantiated', t => {
+	// Explicit test data
+	const expectedText = 'Test Component';
 	const mockHandlers: KeyboardInputHandlers = {
 		handleArrowNavigation() {},
 		handleReverseTabNavigation() {},
@@ -36,12 +38,13 @@ test('useKeyboardInput: hook can be instantiated', t => {
 		handlers: mockHandlers,
 	};
 
-	// Should not throw when rendering
-	t.notThrows(() => {
-		render(
-			React.createElement(TestKeyboardInputComponent, {options: mockOptions}),
-		);
-	});
+	// Operations
+	const {lastFrame} = render(
+		React.createElement(TestKeyboardInputComponent, {options: mockOptions}),
+	);
+
+	// Specific value comparison
+	t.is(lastFrame(), expectedText);
 });
 
 test('useKeyboardInput: handles inactive state correctly', t => {
@@ -69,6 +72,8 @@ test('useKeyboardInput: handles inactive state correctly', t => {
 });
 
 test('useKeyboardInput: accepts all required handler functions', t => {
+	// Explicit test data
+	const expectedText = 'Test Component';
 	const mockHandlers: KeyboardInputHandlers = {
 		handleArrowNavigation() {},
 		handleReverseTabNavigation() {},
@@ -87,15 +92,18 @@ test('useKeyboardInput: accepts all required handler functions', t => {
 		handlers: mockHandlers,
 	};
 
-	// Should not throw with all handlers
-	t.notThrows(() => {
-		render(
-			React.createElement(TestKeyboardInputComponent, {options: mockOptions}),
-		);
-	});
+	// Operations
+	const {lastFrame} = render(
+		React.createElement(TestKeyboardInputComponent, {options: mockOptions}),
+	);
+
+	// Specific value comparison
+	t.is(lastFrame(), expectedText);
 });
 
 test('useKeyboardInput: works with focused cell for issue cells', t => {
+	// Explicit test data
+	const expectedText = 'Test Component';
 	const focusedCell: FocusedCell = {
 		issueKey: 'PROJECT-123',
 		columnIndex: 0,
@@ -117,15 +125,18 @@ test('useKeyboardInput: works with focused cell for issue cells', t => {
 		handlers: mockHandlers,
 	};
 
-	// Should not throw with issue cell focused
-	t.notThrows(() => {
-		render(
-			React.createElement(TestKeyboardInputComponent, {options: mockOptions}),
-		);
-	});
+	// Operations
+	const {lastFrame} = render(
+		React.createElement(TestKeyboardInputComponent, {options: mockOptions}),
+	);
+
+	// Specific value comparison
+	t.is(lastFrame(), expectedText);
 });
 
 test('useKeyboardInput: works with focused cell for attendance cells', t => {
+	// Explicit test data
+	const expectedText = 'Test Component';
 	const focusedCell: FocusedCell = {
 		issueKey: 'attendance-attendance',
 		columnIndex: 1,
@@ -146,16 +157,18 @@ test('useKeyboardInput: works with focused cell for attendance cells', t => {
 		handlers: mockHandlers,
 	};
 
-	// Should not throw with attendance cell focused
-	t.notThrows(() => {
-		render(
-			React.createElement(TestKeyboardInputComponent, {options: mockOptions}),
-		);
-	});
+	// Operations
+	const {lastFrame} = render(
+		React.createElement(TestKeyboardInputComponent, {options: mockOptions}),
+	);
+
+	// Specific value comparison
+	t.is(lastFrame(), expectedText);
 });
 
 test('useKeyboardInput: interface validates correctly', t => {
-	// Test that the KeyboardInputHandlers interface allows optional handlers
+	// Explicit test data
+	const expectedText = 'Test Component';
 	const minimalHandlers: KeyboardInputHandlers = {
 		handleArrowNavigation() {},
 		handleReverseTabNavigation() {},
@@ -169,15 +182,18 @@ test('useKeyboardInput: interface validates correctly', t => {
 		handlers: minimalHandlers,
 	};
 
-	// Should not throw with minimal handlers
-	t.notThrows(() => {
-		render(
-			React.createElement(TestKeyboardInputComponent, {options: mockOptions}),
-		);
-	});
+	// Operations
+	const {lastFrame} = render(
+		React.createElement(TestKeyboardInputComponent, {options: mockOptions}),
+	);
+
+	// Specific value comparison
+	t.is(lastFrame(), expectedText);
 });
 
 test('useKeyboardInput: handles empty weekDates array', t => {
+	// Explicit test data
+	const expectedText = 'Test Component';
 	const mockHandlers: KeyboardInputHandlers = {
 		handleArrowNavigation() {},
 		handleReverseTabNavigation() {},
@@ -190,12 +206,13 @@ test('useKeyboardInput: handles empty weekDates array', t => {
 		handlers: mockHandlers,
 	};
 
-	// Should not throw with empty weekDates
-	t.notThrows(() => {
-		render(
-			React.createElement(TestKeyboardInputComponent, {options: mockOptions}),
-		);
-	});
+	// Operations
+	const {lastFrame} = render(
+		React.createElement(TestKeyboardInputComponent, {options: mockOptions}),
+	);
+
+	// Specific value comparison
+	t.is(lastFrame(), expectedText);
 });
 
 test('useKeyboardInput: validates handler function types', t => {
