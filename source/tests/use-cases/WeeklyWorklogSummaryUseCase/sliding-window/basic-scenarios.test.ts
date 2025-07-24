@@ -197,6 +197,6 @@ test('normalizeSlidingWindowConfig handles configuration formats', t => {
 		apiToken: 'test',
 	};
 	normalized = normalizeSlidingWindowConfig(emptyConfig);
-	t.is(normalized.past, 0);
+	t.is(normalized.past, 7);
 	t.is(normalized.future, 0);
 });
