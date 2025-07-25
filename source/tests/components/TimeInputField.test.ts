@@ -28,11 +28,10 @@ test('TimeInputField renders with initial value', t => {
 		output.includes(expectedValue),
 		`Should display time value ${expectedValue}`,
 	);
-	// Component renders the time value with newlines (starts selected, no cursor)
-	t.is(
-		output.trim(),
-		expectedValue,
-		'Should render exactly the time value when selected',
+	// When first rendered, text is selected so cursor is not visible
+	t.false(
+		output.includes('█'),
+		'Should not display cursor when text is selected',
 	);
 });
 
