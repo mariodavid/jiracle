@@ -28,7 +28,12 @@ test('TimeInputField renders with initial value', t => {
 		output.includes(expectedValue),
 		`Should display time value ${expectedValue}`,
 	);
-	t.true(output.includes('█'), 'Should display cursor indicator');
+	// Component renders the time value with newlines (starts selected, no cursor)
+	t.is(
+		output.trim(),
+		expectedValue,
+		'Should render exactly the time value when selected',
+	);
 });
 
 test('TimeInputField renders in compact mode', t => {

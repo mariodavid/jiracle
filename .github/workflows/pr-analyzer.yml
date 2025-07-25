@@ -64,16 +64,16 @@ jobs:
           echo "Full Claude Response:" >> $GITHUB_STEP_SUMMARY
           echo "$RESPONSE" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          
+
           # Extract decision with multiple fallback methods
           DECISION=""
-          
+
           # Method 1: Look for exact format
           if echo "$RESPONSE" | grep -q "TEST_REVIEW_DECISION:"; then
             DECISION=$(echo "$RESPONSE" | grep "TEST_REVIEW_DECISION:" | head -1 | cut -d: -f2 | tr -d ' ')
             echo "Found decision via Method 1: $DECISION"
           fi
-          
+
           # Method 2: Look for test file patterns if no explicit decision
           if [[ -z "$DECISION" ]]; then
             if echo "$RESPONSE" | grep -qi "\.test\.ts\|\.test\.js\|test.*file\|testing.*pattern"; then
@@ -81,7 +81,7 @@ jobs:
               echo "Found decision via Method 2 (test file detected): $DECISION"
             fi
           fi
-          
+
           # Method 2.5: Hardcoded check for known test files in this PR
           if [[ -z "$DECISION" ]]; then
             if [[ "${{ github.event.pull_request.title }}" == *"browser.test.ts"* ]] || [[ "${{ github.event.pull_request.body }}" == *"browser.test.ts"* ]]; then
@@ -89,7 +89,7 @@ jobs:
               echo "Found decision via Method 2.5 (hardcoded test file in PR): $DECISION"
             fi
           fi
-          
+
           # Method 3: Conservative fallback - check changed files directly
           if [[ -z "$DECISION" ]]; then
             # For PRs, check changed files against base branch
@@ -104,7 +104,7 @@ jobs:
               echo "Found decision via Method 3 (no test files): $DECISION"
             fi
           fi
-          
+
           # Apply decision
           if [[ "$DECISION" == "REQUIRED" ]]; then
             echo "needs_test_review=true" >> $GITHUB_OUTPUT
@@ -113,7 +113,7 @@ jobs:
             echo "needs_test_review=false" >> $GITHUB_OUTPUT  
             echo "✅ No test review needed based on analysis"
           fi
-          
+
           echo "## 🔍 PR Analysis Result" >> $GITHUB_STEP_SUMMARY
           echo "**Decision:** $DECISION" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
