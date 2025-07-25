@@ -29,7 +29,29 @@ jobs:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
 
           direct_prompt: |
-            /pr-analyzer
+            You are a PR analysis specialist that determines if a test review is needed based on the PR content.
+
+            Analyze the PR description, commit messages, and git diff to intelligently decide if the changes require a detailed test review according to guidelines/tests.md.
+
+            ## Analysis Decision Criteria:
+
+            ### Automatically REQUIRE test review if:
+            - Any files matching `*.test.ts` or `*.test.js` are modified
+            - Commit messages mention "test", "testing", "spec", "assertion"
+            - PR title/description mentions test-related keywords
+            - Files in `source/tests/` directory are changed
+            - Hook files (`use*.ts`) are modified (often need test updates)
+
+            ### Automatically SKIP test review if:
+            - Only documentation files (*.md, README) changed
+            - Only configuration files (package.json, tsconfig.json, .github) changed
+            - Only build/CI files changed without test modifications
+            - PR explicitly marked with `[skip-test-review]` in title
+
+            Your response MUST end with this exact format:
+
+            TEST_REVIEW_DECISION: [REQUIRED|SKIP]
+            CONFIDENCE: [HIGH|MEDIUM|LOW]
 
           # Allow analysis tools
           allowed_tools: 'Read,Grep,Glob,Bash'
