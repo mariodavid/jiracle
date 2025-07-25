@@ -92,52 +92,91 @@ test.beforeEach(() => {
 // No cleanup needed since we don't touch the real config file anymore
 
 test('should show weekly timetable after loading', async t => {
+	// EXPLICIT TEST DATA
+	const expectedTimetableElements = [
+		'█ █ █▀█ ▄▀█ █▀▀ █   █▀▀', // JIRACLE title in ASCII art
+		'KW', // Week number display
+		'[T] Today',
+		'[Q] Quit',
+		'[↑↓←→] Navigate Cells',
+		'[Enter] Log Work',
+	];
+	const unexpectedElements = ['Loading configuration and issues'];
+
+	// OPERATIONS
 	const {lastFrame, unmount} = render(
 		React.createElement(App, {config: testConfig}),
 	);
 
-	// Wait a bit for loading to complete
+	// Wait for loading to complete
 	await InkTestHelpers.delay(3000);
 
 	const output = lastFrame();
-	console.log('Test output:', output);
 
-	// First check if we see weekly timetable or if still loading
-	if (output?.includes('Loading configuration and issues')) {
-		t.fail('App is still in loading state');
-		unmount();
-		return;
+	// SPECIFIC VALUE COMPARISONS
+	// Verify app is not stuck in loading state
+	for (const element of unexpectedElements) {
+		t.false(
+			output?.includes(element) ?? true,
+			`Should not display loading state: ${element}`,
+		);
 	}
 
-	// Check if we got to the weekly timetable (BigText renders as ASCII art)
-	t.true(output?.includes('Week') ?? false);
-	t.true(output?.includes('Week') ?? false);
-	t.true(output?.includes('[T] Today') ?? false);
+	// Verify weekly timetable elements are present
+	for (const element of expectedTimetableElements) {
+		t.true(
+			output?.includes(element) ?? false,
+			`Should display timetable element: ${element}`,
+		);
+	}
 
 	unmount();
 });
 
 test('should open worklog form when log work key is pressed', async t => {
+	// EXPLICIT TEST DATA
+	const keyToPress = 'l';
+	const expectedWorklogFormElements = [
+		'Issue Key:',
+		'Time spent:',
+		'[Submit]',
+		'[Cancel]',
+	];
+	const initialElements = ['Week', '[T] Today'];
+
+	// OPERATIONS
 	const {lastFrame, stdin, unmount} = render(
 		React.createElement(App, {config: testConfig}),
 	);
 
-	// Wait for weekly timetable
+	// Wait for weekly timetable to load
 	await InkTestHelpers.delay(3000);
 
-	// Simulate pressing "L" - this should open the worklog form
-	stdin.write('l');
+	// Verify we're in the timetable state first
+	const initialOutput = lastFrame();
+	for (const element of initialElements) {
+		t.true(
+			initialOutput?.includes(element) ?? false,
+			`Initial state should show: ${element}`,
+		);
+	}
 
-	// Wait a bit
+	// Simulate pressing the log work key
+	stdin.write(keyToPress);
+
+	// Wait for form to open
 	await InkTestHelpers.delay(500);
 
 	const output = lastFrame();
 
-	// Should show the worklog form (inline form is opened)
-	t.true(output?.includes('Issue Key:') ?? false);
-	t.true(output?.includes('Time spent:') ?? false);
-	t.true(output?.includes('[Submit]') ?? false);
-	t.true(output?.includes('[Cancel]') ?? false);
+	// SPECIFIC VALUE COMPARISONS
+	// Verify worklog form elements are present
+	for (const element of expectedWorklogFormElements) {
+		t.true(
+			output?.includes(element) ?? false,
+			`Should display worklog form element: ${element}`,
+		);
+	}
 
 	unmount();
 });
