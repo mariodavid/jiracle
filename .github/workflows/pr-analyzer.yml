@@ -93,10 +93,10 @@ jobs:
           # Method 3: Conservative fallback - check changed files directly
           if [[ -z "$DECISION" ]]; then
             # For PRs, check changed files against base branch
-            CHANGED_FILES=$(git diff --name-only origin/main...HEAD 2>/dev/null || git diff --name-only HEAD~1 2>/dev/null || git diff --name-only --cached)
+            CHANGED_FILES=$(git diff --name-only origin/main...HEAD 2>/dev/null || git diff --name-only HEAD~1 2>/dev/null || git diff --name-only --cached || echo "")
             echo "Changed files detected: $CHANGED_FILES" >> $GITHUB_STEP_SUMMARY
             
-            if echo "$CHANGED_FILES" | grep -E '\.(test|spec)\.(ts|js)$'; then
+            if [[ -n "$CHANGED_FILES" ]] && echo "$CHANGED_FILES" | grep -E '\.(test|spec)\.(ts|js)$' > /dev/null; then
               DECISION="REQUIRED"
               echo "Found decision via Method 3 (git diff test files): $DECISION"
             else
@@ -109,9 +109,13 @@ jobs:
           if [[ "$DECISION" == "REQUIRED" ]]; then
             echo "needs_test_review=true" >> $GITHUB_OUTPUT
             echo "🧪 Test review will be triggered automatically"
-          else
+          elif [[ "$DECISION" == "SKIP" ]]; then
             echo "needs_test_review=false" >> $GITHUB_OUTPUT  
             echo "✅ No test review needed based on analysis"
+          else
+            # Fallback for any unexpected decision
+            echo "needs_test_review=false" >> $GITHUB_OUTPUT  
+            echo "⚠️ No valid decision found, defaulting to SKIP"
           fi
 
           echo "## 🔍 PR Analysis Result" >> $GITHUB_STEP_SUMMARY
