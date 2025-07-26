@@ -30,7 +30,7 @@ jobs:
 
           direct_prompt: |
             **🏗️ Rich Domain Analyzer Workflow**
-            
+
             You are a Domain-Driven Design (DDD) expert analyzing code for rich domain modeling opportunities in a time tracking application.
 
             ## Domain Context: Time Tracking & Worklog Management
@@ -107,7 +107,7 @@ jobs:
 
             ```
             DOMAIN_ANALYSIS_RESULT: [IMPROVEMENTS_NEEDED|GOOD_PRACTICES|NO_ISSUES]
-            
+
             ## Issues Found:
             - File: source/hooks/useWorklogForm.ts:42
               Issue: Using {issueKey: string, date: Date} instead of WorklogEntry
@@ -119,7 +119,7 @@ jobs:
               
             ## Positive Patterns:
             - source/utils/Duration.ts: Good use of Duration class with behavior
-            
+
             CONFIDENCE: [HIGH|MEDIUM|LOW]
             ```
 
@@ -219,7 +219,7 @@ jobs:
 
           direct_prompt: |
             **🏗️ Rich Domain Analyzer Workflow**
-            
+
             Create a GitHub issue documenting the domain modeling improvements found in this PR.
 
             Use this template:
