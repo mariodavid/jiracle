@@ -1,6 +1,6 @@
 import React from 'react';
 import {Box, Text} from 'ink';
-import {formatLocalDateKey} from '../utils/date.js';
+import {LocalDate} from '../domain/LocalDate.js';
 import type {WeeklyAttendance} from '../attendance/types.js';
 import {FocusableCell} from './FocusableCell.js';
 
@@ -67,7 +67,7 @@ export function AttendanceRows({
 							{/* Day columns */}
 							{weekDates.map((date, index) => {
 								const cellValue = getTimeRangeCellValue(
-									formatLocalDateKey(date),
+									LocalDate.fromDate(date).toISOString(),
 								);
 
 								return isActive ? (

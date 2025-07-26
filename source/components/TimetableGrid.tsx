@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {Box, Text, useFocusManager} from 'ink';
 import figures from 'figures';
 import {type WeeklyWorklogSummary} from '../domain/WeeklyWorklogSummary.js';
-import {formatLocalDateKey} from '../utils/date.js';
+import {LocalDate} from '../domain/LocalDate.js';
 import type {FavoriteIssue, JiraConfig} from '../jira-client.js';
 import {type AttendanceManager} from '../attendance/AttendanceManager.js';
 import type {WeeklyAttendance} from '../attendance/types.js';
@@ -99,7 +99,7 @@ export function TimetableGrid({
 	// Calculate daily deltas (logged hours - attendance hours)
 	const dailyLoggedHours: Record<string, number> = {};
 	for (const [index, date] of weekDates.entries()) {
-		const dateKey = formatLocalDateKey(date);
+		const dateKey = LocalDate.fromDate(date).toISOString();
 		dailyLoggedHours[dateKey] = dailyTotals[index] ?? 0;
 	}
 
@@ -350,7 +350,9 @@ export function TimetableGrid({
 											<FocusableCell
 												key={`${issueKey}-focusable-cell-${index}`}
 												value={formatHours(
-													issueData.dailyHours[formatLocalDateKey(date)] ?? 0,
+													issueData.dailyHours[
+														LocalDate.fromDate(date).toISOString()
+													] ?? 0,
 												)}
 												focusId={`issue-${issueKey}-${index}`}
 												isActive={true}
@@ -367,7 +369,9 @@ export function TimetableGrid({
 											>
 												<Text>
 													{formatHours(
-														issueData.dailyHours[formatLocalDateKey(date)] ?? 0,
+														issueData.dailyHours[
+															LocalDate.fromDate(date).toISOString()
+														] ?? 0,
 													)}
 												</Text>
 											</Box>

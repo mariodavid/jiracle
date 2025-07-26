@@ -5,7 +5,7 @@ import {
 	type WorklogRequest,
 	resolveDefaults,
 } from '../jira-client.js';
-import {formatLocalDateKey} from '../utils/date.js';
+import {LocalDate} from '../domain/LocalDate.js';
 import {uiLogger} from '../utils/logger.js';
 import {
 	detectWorklogForEdit,
@@ -73,7 +73,7 @@ export function useWorklogForm(
 				}
 
 				const attendanceManager = new AttendanceManager(config.attendance);
-				const dateKey = formatLocalDateKey(date);
+				const dateKey = LocalDate.fromDate(date).toISOString();
 				// Use getAllAttendance and filter instead of accessing private storage
 				const allAttendance = await attendanceManager.getAllAttendance();
 				const attendance = allAttendance.find(a => a.date === dateKey);
@@ -85,7 +85,7 @@ export function useWorklogForm(
 				// Find daily summary for this date
 				const dailySummary = data?.dailySummaries.find(
 					(summary: DailyWorklogSummary) =>
-						formatLocalDateKey(summary.date) === dateKey,
+						LocalDate.fromDate(summary.date).toISOString() === dateKey,
 				);
 
 				if (!dailySummary) {
@@ -132,9 +132,10 @@ export function useWorklogForm(
 	const handleCellWorklog = useCallback(
 		(cellData: {issueKey: string; date: Date}) => {
 			// Find the specific daily summary for this date
-			const targetDateKey = formatLocalDateKey(cellData.date);
+			const targetDateKey = LocalDate.fromDate(cellData.date).toISOString();
 			const dailySummary = data?.dailySummaries.find(
-				(summary: any) => formatLocalDateKey(summary.date) === targetDateKey,
+				(summary: any) =>
+					LocalDate.fromDate(summary.date).toISOString() === targetDateKey,
 			);
 
 			// Find the worklog entry for this issue on this date

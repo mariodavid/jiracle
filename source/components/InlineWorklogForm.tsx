@@ -6,6 +6,7 @@ import {resolveDefaults} from '../jira-client.js';
 import {getCommentWithPrefill} from '../jira/utils.js';
 import {uiLogger} from '../utils/logger.js';
 import {Duration} from '../utils/Duration.js';
+import {LocalDate} from '../domain/LocalDate.js';
 import DurationInput from './WorklogForm/DurationInput.js';
 
 type InlineWorklogFormProps = {
@@ -362,15 +363,12 @@ export function InlineWorklogForm({
 		setDateInputValue(value);
 
 		// Only update the date state if it's a valid date format
-		if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
-			try {
-				const newDate = new Date(value + 'T00:00:00.000Z');
-				if (!Number.isNaN(newDate.getTime())) {
-					setCurrentDate(newDate);
-				}
-			} catch {
-				// Ignore invalid dates
-			}
+		try {
+			const localDate = LocalDate.fromString(value);
+			const newDate = new Date(localDate.toISOString() + 'T00:00:00.000Z');
+			setCurrentDate(newDate);
+		} catch {
+			// Ignore invalid dates
 		}
 	};
 

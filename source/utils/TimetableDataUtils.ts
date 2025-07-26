@@ -1,6 +1,6 @@
 import type {WeeklyWorklogSummary} from '../domain/WeeklyWorklogSummary.js';
 import type {FavoriteIssue} from '../jira-client.js';
-import {formatLocalDateKey} from './date.js';
+import {LocalDate} from '../domain/LocalDate.js';
 
 export type IssueData = {
 	summary: string;
@@ -9,22 +9,13 @@ export type IssueData = {
 };
 
 export function generateWeekDates(weekStart: Date): Date[] {
-	const dates: Date[] = [];
-	const current = new Date(weekStart);
+	const mondayStart = LocalDate.fromDate(weekStart).getWeekStart();
 
-	// Get Monday of the week (same logic as AttendanceCalculations.getWeekDates)
-	const day = current.getDay();
-	const diff = current.getDate() - day + (day === 0 ? -6 : 1);
-	current.setDate(diff);
-
-	// Only generate weekdays (Monday to Friday)
-	for (let i = 0; i < 5; i++) {
-		const date = new Date(current);
-		dates.push(date);
-		current.setDate(current.getDate() + 1);
-	}
-
-	return dates;
+	// Only generate weekdays (Monday to Friday) using LocalDate arithmetic
+	return Array.from({length: 5}, (_, i) => {
+		const localDate = mondayStart.addDays(i);
+		return new Date(localDate.toISOString() + 'T00:00:00.000Z');
+	});
 }
 
 export function buildIssueMap(
@@ -34,7 +25,7 @@ export function buildIssueMap(
 
 	// Process all worklog data (includes favorites with 0 hours from WeeklyWorklogSummaryUseCase)
 	for (const dailySummary of data.dailySummaries) {
-		const dateKey = formatLocalDateKey(dailySummary.date);
+		const dateKey = LocalDate.fromDate(dailySummary.date).toISOString();
 
 		for (const issue of dailySummary.issues) {
 			if (!issueMap[issue.issueKey]) {
