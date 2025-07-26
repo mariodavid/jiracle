@@ -8,6 +8,7 @@ import {
 } from '../../hooks/useDeleteOperations.js';
 import type {JiraConfig} from '../../jira-client.js';
 import type {AttendanceManager} from '../../attendance/AttendanceManager.js';
+import {type LocalDate} from '../../domain/LocalDate.js';
 
 // Mock the JiraClient module
 const mockConfig: JiraConfig = {
@@ -23,7 +24,7 @@ const mockConfig: JiraConfig = {
 
 // Mock AttendanceManager
 const mockAttendanceManager: Partial<AttendanceManager> = {
-	async deleteAttendance(_dateString: string) {
+	async deleteAttendance(_dateString: LocalDate) {
 		// Simulate successful deletion
 		return true;
 	},

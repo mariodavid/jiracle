@@ -16,7 +16,7 @@ import {Duration} from '../domain/Duration.js';
 
 export type WorklogFormData = {
 	issueKey: string;
-	date: Date;
+	date: LocalDate;
 	timeSpent: Duration;
 	comment: string;
 	isVisible: boolean;
@@ -45,7 +45,7 @@ export type UseWorklogFormReturn = {
 	handleAddWorklog: () => void;
 	handleWorklogSubmit: (data: {
 		issueKey: string;
-		date: Date;
+		date: LocalDate;
 		timeSpent: Duration;
 		comment: string;
 		worklogId?: string;
@@ -69,7 +69,7 @@ export function useWorklogForm(
 				}
 
 				const attendanceManager = new AttendanceManager(config.attendance);
-				const dateKey = LocalDate.fromDate(date).toISOString();
+				const dateKey = date.toISOString();
 				// Use getAllAttendance and filter instead of accessing private storage
 				const allAttendance = await attendanceManager.getAllAttendance();
 				const attendance = allAttendance.find(a => a.date === dateKey);
@@ -113,7 +113,7 @@ export function useWorklogForm(
 
 	const [worklogForm, setWorklogForm] = useState<WorklogFormData>({
 		issueKey: '',
-		date: new Date(),
+		date: LocalDate.today(),
 		timeSpent: new Duration('1h'),
 		comment: '',
 		isVisible: false,
@@ -152,7 +152,7 @@ export function useWorklogForm(
 				// Edit mode: use existing data
 				setWorklogForm({
 					issueKey: cellData.issueKey,
-					date: new Date(cellData.date.toISOString()),
+					date: cellData.date,
 					timeSpent: new Duration(detectionResult.timeSpent),
 					comment: detectionResult.comment,
 					isVisible: true,
@@ -200,7 +200,7 @@ export function useWorklogForm(
 						// Show form with calculated suggestion
 						setWorklogForm({
 							issueKey: cellData.issueKey,
-							date: new Date(cellData.date.toISOString()),
+							date: cellData.date,
 							timeSpent: suggestedTime,
 							comment: defaults.comment,
 							isVisible: true,
@@ -215,7 +215,7 @@ export function useWorklogForm(
 						// Fallback to defaults on error
 						setWorklogForm({
 							issueKey: cellData.issueKey,
-							date: new Date(cellData.date.toISOString()),
+							date: cellData.date,
 							timeSpent: new Duration(defaults.time),
 							comment: defaults.comment,
 							isVisible: true,
@@ -235,7 +235,7 @@ export function useWorklogForm(
 
 		setWorklogForm({
 			issueKey: '',
-			date: new Date(), // Default to today
+			date: LocalDate.today(), // Default to today
 			timeSpent: new Duration(defaults.time),
 			comment: defaults.comment,
 			isVisible: true,
@@ -248,7 +248,7 @@ export function useWorklogForm(
 	const handleWorklogSubmit = useCallback(
 		async (data: {
 			issueKey: string;
-			date: Date;
+			date: LocalDate;
 			timeSpent: Duration;
 			comment: string;
 			worklogId?: string;
@@ -275,7 +275,7 @@ export function useWorklogForm(
 					issueKey: data.issueKey,
 					duration: durationSeconds,
 					comment: data.comment,
-					date: data.date,
+					date: new Date(data.date.toISOString()),
 					author: {
 						displayName: options.userEmail ?? 'Unknown User',
 						emailAddress: options.userEmail ?? 'unknown@example.com',

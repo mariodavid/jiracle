@@ -94,9 +94,7 @@ export function useDeleteOperations(
 				);
 
 				// Filter worklogs for the selected date and current user only
-				const targetDateString = LocalDate.fromDate(
-					deleteCandidate.date,
-				).toISOString();
+				const targetDateString = deleteCandidate.date.toISOString();
 				const worklogsToDelete = worklogResponse.worklogs.filter(worklog => {
 					if (!worklog.started) return false;
 

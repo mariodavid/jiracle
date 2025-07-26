@@ -3,6 +3,7 @@ import {join} from 'node:path';
 import {writeFileSync} from 'node:fs';
 import test from 'ava';
 import {AttendanceManager} from '../../attendance/AttendanceManager.js';
+import {LocalDate} from '../../domain/LocalDate.js';
 import type {JiraConfig} from '../../jira-client.js';
 
 function createTestConfig(): {configPath: string; csvPath: string} {
@@ -51,19 +52,25 @@ test.serial(
 		const manager = new AttendanceManager(config, csvPath);
 
 		// Create an attendance record
-		await manager.checkIn('2025-07-11', '08:30');
-		await manager.checkOut('2025-07-11', '17:30');
+		await manager.checkIn(LocalDate.fromString('2025-07-11'), '08:30');
+		await manager.checkOut(LocalDate.fromString('2025-07-11'), '17:30');
 
 		// Verify record exists
-		const beforeDelete = await manager.getStatus('2025-07-11');
+		const beforeDelete = await manager.getStatus(
+			LocalDate.fromString('2025-07-11'),
+		);
 		t.truthy(beforeDelete.today);
 
 		// Delete the record
-		const deleted = await manager.deleteAttendance('2025-07-11');
+		const deleted = await manager.deleteAttendance(
+			LocalDate.fromString('2025-07-11'),
+		);
 		t.true(deleted);
 
 		// Verify record is gone
-		const afterDelete = await manager.getStatus('2025-07-11');
+		const afterDelete = await manager.getStatus(
+			LocalDate.fromString('2025-07-11'),
+		);
 		t.falsy(afterDelete.today);
 	},
 );
@@ -84,7 +91,9 @@ test.serial(
 		const manager = new AttendanceManager(config, csvPath);
 
 		// Try to delete non-existent record
-		const deleted = await manager.deleteAttendance('2025-07-11');
+		const deleted = await manager.deleteAttendance(
+			LocalDate.fromString('2025-07-11'),
+		);
 		t.false(deleted);
 	},
 );
@@ -105,22 +114,28 @@ test.serial(
 		const manager = new AttendanceManager(config, csvPath);
 
 		// Create multiple attendance records
-		await manager.checkIn('2025-07-11', '08:30');
-		await manager.checkOut('2025-07-11', '17:30');
+		await manager.checkIn(LocalDate.fromString('2025-07-11'), '08:30');
+		await manager.checkOut(LocalDate.fromString('2025-07-11'), '17:30');
 
-		await manager.checkIn('2025-07-12', '09:00');
-		await manager.checkOut('2025-07-12', '18:00');
+		await manager.checkIn(LocalDate.fromString('2025-07-12'), '09:00');
+		await manager.checkOut(LocalDate.fromString('2025-07-12'), '18:00');
 
 		// Delete one record
-		const deleted = await manager.deleteAttendance('2025-07-11');
+		const deleted = await manager.deleteAttendance(
+			LocalDate.fromString('2025-07-11'),
+		);
 		t.true(deleted);
 
 		// Verify first record is gone
-		const afterDelete1 = await manager.getStatus('2025-07-11');
+		const afterDelete1 = await manager.getStatus(
+			LocalDate.fromString('2025-07-11'),
+		);
 		t.falsy(afterDelete1.today);
 
 		// Verify second record still exists
-		const afterDelete2 = await manager.getStatus('2025-07-12');
+		const afterDelete2 = await manager.getStatus(
+			LocalDate.fromString('2025-07-12'),
+		);
 		t.truthy(afterDelete2.today);
 		t.is(afterDelete2.today!.checkIn, '09:00');
 		t.is(afterDelete2.today!.checkOut, '18:00');
@@ -143,16 +158,16 @@ test.serial(
 		const manager = new AttendanceManager(config, csvPath);
 
 		// Create test data
-		await manager.checkIn('2025-07-10', '08:00');
-		await manager.checkIn('2025-07-11', '08:30');
-		await manager.checkIn('2025-07-12', '09:00');
+		await manager.checkIn(LocalDate.fromString('2025-07-10'), '08:00');
+		await manager.checkIn(LocalDate.fromString('2025-07-11'), '08:30');
+		await manager.checkIn(LocalDate.fromString('2025-07-12'), '09:00');
 
 		// Get all records before deletion
 		const beforeDelete = await manager.getAllAttendance();
 		t.is(beforeDelete.length, 3);
 
 		// Delete middle record
-		await manager.deleteAttendance('2025-07-11');
+		await manager.deleteAttendance(LocalDate.fromString('2025-07-11'));
 
 		// Verify only 2 records remain
 		const afterDelete = await manager.getAllAttendance();
@@ -182,7 +197,9 @@ test.serial(
 		const manager = new AttendanceManager(config, csvPath);
 
 		// Try to delete from empty file
-		const deleted = await manager.deleteAttendance('2025-07-11');
+		const deleted = await manager.deleteAttendance(
+			LocalDate.fromString('2025-07-11'),
+		);
 		t.false(deleted);
 
 		// Verify still no records
