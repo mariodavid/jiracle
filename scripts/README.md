@@ -5,13 +5,15 @@ This directory contains scripts for testing the PR analyzer logic locally withou
 ## Scripts
 
 ### `test-pr-analyzer.sh`
+
 Basic test script that runs hardcoded scenarios to verify the PR analyzer logic works correctly.
 
 ```bash
 ./scripts/test-pr-analyzer.sh
 ```
 
-### `test-pr-analyzer-with-mocks.sh`  
+### `test-pr-analyzer-with-mocks.sh`
+
 Extended test script that uses mock response files to simulate different Claude responses.
 
 ```bash
@@ -23,7 +25,7 @@ Extended test script that uses mock response files to simulate different Claude 
 Located in `mock-responses/`:
 
 - `claude-valid-skip.txt` - Proper Claude response with `TEST_REVIEW_DECISION: SKIP`
-- `claude-valid-required.txt` - Proper Claude response with `TEST_REVIEW_DECISION: REQUIRED` 
+- `claude-valid-required.txt` - Proper Claude response with `TEST_REVIEW_DECISION: REQUIRED`
 - `claude-invalid-format.txt` - Claude response without proper format (tests fallback logic)
 - `claude-empty.txt` - Empty response (tests git diff fallback)
 
@@ -43,6 +45,7 @@ Located in `mock-responses/`:
 ## Output
 
 The scripts show:
+
 - ✅ Which methods succeed/fail
 - 🧪 Final decision (REQUIRED/SKIP)
 - 📋 Git diff analysis of current branch
