@@ -1,10 +1,5 @@
 import {useState, useCallback} from 'react';
-import {
-	JiraClient,
-	type JiraConfig,
-	type WorklogRequest,
-	resolveDefaults,
-} from '../jira-client.js';
+import {JiraClient, type JiraConfig, resolveDefaults} from '../jira-client.js';
 import {LocalDate} from '../domain/LocalDate.js';
 import {uiLogger} from '../utils/logger.js';
 import {
@@ -16,7 +11,8 @@ import type {
 	DailyWorklogSummary,
 } from '../domain/WeeklyWorklogSummary.js';
 import {AttendanceManager} from '../attendance/AttendanceManager.js';
-import {Duration} from '../utils/Duration.js';
+import {WorklogEntry} from '../domain/WorklogEntry.js';
+import {Duration} from '../domain/Duration.js';
 
 export type WorklogFormData = {
 	issueKey: string;
@@ -270,39 +266,27 @@ export function useWorklogForm(
 				isEditMode: Boolean(data.worklogId),
 			});
 
-			// Validate issue key
-			if (!data.issueKey || data.issueKey.trim() === '') {
-				setWorklogError(
-					'Issue key is required. Please enter a valid Jira issue key (e.g., DEF-123).',
-				);
-				return;
-			}
-
-			// Basic issue key format validation
-			if (!/^[a-z]+-\d+$/i.test(data.issueKey.trim())) {
-				setWorklogError(
-					'Invalid issue key format. Expected format: PROJECT-123 (e.g., DEF-123, ABC-456).',
-				);
-				return;
-			}
-
-			setWorklogSubmitting(true);
-			setWorklogError(undefined);
-
 			try {
+				// Get duration in seconds for validation
+				const durationSeconds = data.timeSpent.toSeconds();
+
+				// Create WorklogEntry for validation and API request generation
+				const worklogEntry = WorklogEntry.create({
+					issueKey: data.issueKey,
+					duration: durationSeconds,
+					comment: data.comment,
+					date: data.date,
+					author: {
+						displayName: options.userEmail ?? 'Unknown User',
+						emailAddress: options.userEmail ?? 'unknown@example.com',
+					},
+				});
+
+				setWorklogSubmitting(true);
+				setWorklogError(undefined);
+
 				const jiraClient = new JiraClient(config);
-
-				// Format the date to match Jira's expected format
-				// Use the date from the form data (which may be different from worklogForm.date)
-				const selectedDateTime = new Date(data.date);
-				// Set time to 9:00 AM for worklog start time
-				selectedDateTime.setHours(9, 0, 0, 0);
-
-				const worklogData: WorklogRequest = {
-					timeSpent: data.timeSpent.toString(),
-					comment: data.comment ?? 'Work logged via Jiracle',
-					started: selectedDateTime.toISOString().replace('Z', '+0000'),
-				};
+				const worklogData = worklogEntry.toApiRequest();
 
 				if (data.worklogId) {
 					// Edit existing worklog

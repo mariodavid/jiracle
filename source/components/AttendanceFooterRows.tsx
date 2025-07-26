@@ -3,7 +3,7 @@ import {Box, Text} from 'ink';
 import {LocalDate} from '../domain/LocalDate.js';
 import {formatHours} from '../utils/TimetableCalculations.js';
 import {AttendanceCalculations} from '../attendance/AttendanceCalculations.js';
-import {Duration} from '../utils/Duration.js';
+import {Duration} from '../domain/Duration.js';
 import type {WeeklyAttendance} from '../attendance/types.js';
 import type {JiraConfig} from '../jira-client.js';
 

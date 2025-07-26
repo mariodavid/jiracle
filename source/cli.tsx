@@ -6,11 +6,9 @@ import meow from 'meow';
 import winston from 'winston';
 import {LocalDate} from './domain/LocalDate.js';
 import App from './app.js';
-import {
-	JiraClient,
-	type WorklogRequest,
-	type JiraConfig,
-} from './jira-client.js';
+import {JiraClient, type JiraConfig} from './jira-client.js';
+import {WorklogEntry} from './domain/WorklogEntry.js';
+import {Duration} from './domain/Duration.js';
 import {loadJiraConfig} from './utils/config-loader.js';
 import {
 	executeCheckIn,
@@ -177,18 +175,28 @@ export async function executeWorklogAdd(
 		const config = loadConfig(configPath);
 		const client = new JiraClient(config, createSilentLogger());
 
+		// Parse duration and create WorklogEntry for validation and API formatting
+		const durationMinutes = Duration.parseToMinutes(time);
+		const durationSeconds = durationMinutes * 60;
+
+		// Use LocalDate for consistent date handling
 		const workDate = new Date(
 			LocalDate.fromString(date).toISOString() + 'T00:00:00.000Z',
 		);
 		workDate.setHours(9, 0, 0, 0);
-		const formattedStarted = workDate.toISOString().replace('Z', '+0000');
 
-		const worklogData: WorklogRequest = {
-			timeSpent: time,
+		const worklogEntry = WorklogEntry.create({
+			issueKey: issue,
+			duration: durationSeconds,
 			comment,
-			started: formattedStarted,
-		};
+			date: new Date(date),
+			author: {
+				displayName: 'CLI User',
+				emailAddress: config.username,
+			},
+		});
 
+		const worklogData = worklogEntry.toApiRequest();
 		await client.addWorklog(issue, worklogData);
 
 		return {

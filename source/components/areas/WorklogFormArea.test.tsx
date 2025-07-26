@@ -2,7 +2,7 @@ import test from 'ava';
 import React from 'react';
 import {render} from 'ink-testing-library';
 import type {WorklogFormData} from '../../hooks/useWorklogForm.js';
-import {Duration} from '../../utils/Duration.js';
+import {Duration} from '../../domain/Duration.js';
 import {JiraClient, type JiraConfig} from '../../jira-client.js';
 import {WorklogFormArea} from './WorklogFormArea.js';
 
