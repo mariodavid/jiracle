@@ -175,7 +175,7 @@ test('WorklogEntry.fromApiResponse - validates issue key is provided', t => {
 			instanceOf: Error,
 		},
 	);
-	t.is(error!.message, 'Issue key is required when creating from API response');
+	t.is(error!.message, 'Issue key is required and cannot be empty');
 });
 
 test('WorklogEntry.fromApiResponse - validates started date format', t => {

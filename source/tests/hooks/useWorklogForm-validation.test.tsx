@@ -60,7 +60,7 @@ test('useWorklogForm validates invalid issue key format', async t => {
 	// 1. EXPLICIT TEST DATA
 	const invalidIssueKey = 'invalid';
 	const expectedError =
-		'Invalid issue key format. Expected format: PROJECT-123 (e.g., DEF-123, ABC-456).';
+		'Invalid issue key format: "invalid". Expected format: PROJECT-123 (e.g., DEF-123, ABC-456)';
 	const submissionData = {
 		issueKey: invalidIssueKey,
 		date: new Date('2024-01-15'),
@@ -151,7 +151,7 @@ test('useWorklogForm accepts valid issue key format', async t => {
 	// 3. SPECIFIC VALUE COMPARISONS
 	t.not(
 		capturedState.worklogError,
-		'Invalid issue key format. Expected format: PROJECT-123 (e.g., DEF-123, ABC-456).',
+		'Invalid issue key format: "TEST-123". Expected format: PROJECT-123 (e.g., DEF-123, ABC-456)',
 		'Should accept valid issue key format',
 	);
 });

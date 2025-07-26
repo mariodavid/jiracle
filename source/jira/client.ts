@@ -1,5 +1,6 @@
 import process from 'node:process';
 import type winston from 'winston';
+import {IssueKey} from '../domain/IssueKey.js';
 import type {
 	JiraConfig,
 	JiraIssue,
@@ -11,7 +12,7 @@ import type {
 import {getFavoriteKeys} from './utils.js';
 import {JiraHttpClient} from './http-client.js';
 import {createJiraLogger} from './logger.js';
-import {validateConfiguration, validateIssueKey} from './validation.js';
+import {validateConfiguration} from './validation.js';
 
 export class JiraClient {
 	readonly jiraUrl: string;
@@ -150,11 +151,11 @@ export class JiraClient {
 			throw new Error(`Configuration errors: ${validation.errors.join(', ')}`);
 		}
 
-		validateIssueKey(issueKey);
-		const trimmedIssueKey = issueKey.trim();
+		// Validate and normalize issue key using domain object
+		const validatedIssueKey = IssueKey.fromString(issueKey);
 
 		await this.httpClient.post(
-			`/issue/${trimmedIssueKey}/worklog`,
+			`/issue/${validatedIssueKey.toString()}/worklog`,
 			worklogData,
 		);
 	}
@@ -274,8 +275,8 @@ export class JiraClient {
 			throw new Error(`Configuration errors: ${validation.errors.join(', ')}`);
 		}
 
-		validateIssueKey(issueKey);
-		const trimmedIssueKey = issueKey.trim();
+		// Validate and normalize issue key using domain object
+		const validatedIssueKey = IssueKey.fromString(issueKey);
 
 		if (
 			!worklogId ||
@@ -286,7 +287,7 @@ export class JiraClient {
 		}
 
 		await this.httpClient.put(
-			`/issue/${trimmedIssueKey}/worklog/${worklogId}`,
+			`/issue/${validatedIssueKey.toString()}/worklog/${worklogId}`,
 			worklogData,
 		);
 	}

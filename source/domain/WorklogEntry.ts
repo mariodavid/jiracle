@@ -2,6 +2,7 @@ import type {
 	WorklogEntry as ApiWorklogEntry,
 	WorklogRequest,
 } from '../jira/types.js';
+import {IssueKey} from './IssueKey.js';
 
 type WorklogEntryData = {
 	id: string;
@@ -22,15 +23,8 @@ type CreateWorklogOptions = {
 
 export class WorklogEntry {
 	static create(options: CreateWorklogOptions): WorklogEntry {
-		if (!options.issueKey || options.issueKey.trim() === '') {
-			throw new Error('Issue key is required and cannot be empty');
-		}
-
-		if (!/^[a-z]+-\d+$/i.test(options.issueKey.trim())) {
-			throw new Error(
-				'Invalid issue key format. Expected format: PROJECT-123 (e.g., DEF-123, ABC-456).',
-			);
-		}
+		// Validate and normalize issue key using domain object
+		const validatedIssueKey = IssueKey.fromString(options.issueKey);
 
 		if (options.duration <= 0) {
 			throw new Error('Duration must be greater than 0');
@@ -45,7 +39,7 @@ export class WorklogEntry {
 
 		return new WorklogEntry({
 			id,
-			issueKey: options.issueKey.trim().toUpperCase(),
+			issueKey: validatedIssueKey.toString(),
 			duration: Math.round(options.duration),
 			comment: options.comment.trim(),
 			date: new Date(options.date),
@@ -61,9 +55,8 @@ export class WorklogEntry {
 			throw new Error('API worklog entry must have an id');
 		}
 
-		if (!issueKey || issueKey.trim() === '') {
-			throw new Error('Issue key is required when creating from API response');
-		}
+		// Validate and normalize issue key using domain object
+		const validatedIssueKey = IssueKey.fromString(issueKey);
 
 		const startedDate = new Date(apiEntry.started);
 		if (Number.isNaN(startedDate.getTime())) {
@@ -72,7 +65,7 @@ export class WorklogEntry {
 
 		return new WorklogEntry({
 			id: apiEntry.id,
-			issueKey: issueKey.trim().toUpperCase(),
+			issueKey: validatedIssueKey.toString(),
 			duration: apiEntry.timeSpentSeconds,
 			comment: apiEntry.comment ?? '',
 			date: startedDate,
