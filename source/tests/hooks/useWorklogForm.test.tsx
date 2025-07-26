@@ -7,7 +7,7 @@ import {
 	type UseWorklogFormOptions,
 } from '../../hooks/useWorklogForm.js';
 import type {JiraConfig} from '../../jira-client.js';
-import {Duration} from '../../utils/Duration.js';
+import {Duration} from '../../domain/Duration.js';
 
 // Mock the JiraClient module
 const mockConfig: JiraConfig = {
@@ -292,11 +292,10 @@ test('useWorklogForm clearError removes error after validation failure', async t
 	const invalidSubmissionData = {
 		issueKey: '', // Invalid: empty issue key
 		date: new Date('2024-01-15'),
-		timeSpent: '2h',
+		timeSpent: new Duration('2h'),
 		comment: 'Valid comment',
 	};
-	const expectedValidationError =
-		'Issue key is required. Please enter a valid Jira issue key (e.g., DEF-123).';
+	const expectedValidationError = 'Issue key is required and cannot be empty';
 	let capturedState: any;
 
 	const mockOptions: UseWorklogFormOptions = {
@@ -441,11 +440,10 @@ test('useWorklogForm validates required fields on submission', async t => {
 	const invalidSubmissionData = {
 		issueKey: '',
 		date: new Date('2024-01-15'),
-		timeSpent: '2h',
+		timeSpent: new Duration('2h'),
 		comment: 'Valid comment',
 	};
-	const expectedErrorMessage =
-		'Issue key is required. Please enter a valid Jira issue key (e.g., DEF-123).';
+	const expectedErrorMessage = 'Issue key is required and cannot be empty';
 	let capturedState: any;
 	let refreshCalled = false;
 

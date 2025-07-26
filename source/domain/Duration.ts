@@ -176,6 +176,13 @@ export class Duration {
 	}
 
 	/**
+	 * Get duration in seconds
+	 */
+	toSeconds(): number {
+		return this.minutes * 60;
+	}
+
+	/**
 	 * Format as readable string (e.g., "1h15m", "30m", "2h")
 	 */
 	toString(): string {
