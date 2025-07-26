@@ -27,7 +27,9 @@ export class WorklogEntry {
 		}
 
 		if (!/^[a-z]+-\d+$/i.test(options.issueKey.trim())) {
-			throw new Error('Invalid issue key format. Expected format: PROJECT-123');
+			throw new Error(
+				'Invalid issue key format. Expected format: PROJECT-123 (e.g., DEF-123, ABC-456).',
+			);
 		}
 
 		if (options.duration <= 0) {
