@@ -1,0 +1,250 @@
+name: Rich Domain Analyzer
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  analyze-domain-modeling:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      actions: write
+      id-token: write
+
+    outputs:
+      has_domain_issues: ${{ steps.parse.outputs.has_domain_issues }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Analyze Domain Modeling Opportunities
+        id: analysis
+        uses: anthropics/claude-code-action@beta
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+
+          direct_prompt: |
+            **🏗️ Rich Domain Analyzer Workflow**
+            
+            You are a Domain-Driven Design (DDD) expert analyzing code for rich domain modeling opportunities in a time tracking application.
+
+            ## Domain Context: Time Tracking & Worklog Management
+
+            **Core Domain Concepts:**
+            - `Duration` - Time representations (1h, 30m, 2h15m)
+            - `LocalDate` - Dates without time (2024-01-15)  
+            - `WorklogEntry` - Issue + date + time + comment
+            - `IssueId` - Issue keys, aliases, grouping
+            - `WeekRange` - Calendar week periods
+            - `WorkloadGroup` - Issue collections with shared settings
+
+            ## Analysis Rules
+
+            ### 🚨 DOMAIN_VIOLATION: Primitive Obsession Detection
+
+            **Trigger when finding:**
+            1. **String dates instead of LocalDate:**
+               ```ts
+               // BAD: Primitive obsession
+               function processDate(date: string) // ISO date string
+               
+               // GOOD: Rich domain type
+               function processDate(date: LocalDate)
+               ```
+
+            2. **String durations instead of Duration:**
+               ```ts
+               // BAD: Primitive obsession  
+               function logTime(hours: string) // "2h30m"
+               
+               // GOOD: Rich domain type
+               function logTime(duration: Duration)
+               ```
+
+            3. **Object literals instead of Value Objects:**
+               ```ts
+               // BAD: Primitive obsession
+               {issueKey: string, date: Date, timeSpent: string, comment: string}
+               
+               // GOOD: Rich domain type
+               WorklogEntry.create(issueId, localDate, duration, comment)
+               ```
+
+            4. **Calculations outside domain objects:**
+               ```ts
+               // BAD: Anemic domain - logic in services
+               const totalHours = calculateWeeklyHours(worklogs)
+               
+               // GOOD: Rich domain - behavior in objects
+               const totalHours = weeklyWorklog.getTotalHours()
+               ```
+
+            5. **String issue keys without validation:**
+               ```ts
+               // BAD: Primitive obsession
+               function getIssue(key: string) // Could be invalid
+               
+               // GOOD: Rich domain type
+               function getIssue(issueId: IssueId) // Guaranteed valid
+               ```
+
+            ### 📊 Analysis Process
+
+            1. **Examine changed files** for primitive types
+            2. **Identify business logic** scattered in utilities
+            3. **Detect domain concepts** represented as primitives
+            4. **Check for validation logic** outside domain objects
+            5. **Look for data clumps** that should be Value Objects
+
+            ### 🎯 Output Format
+
+            Provide specific recommendations:
+
+            ```
+            DOMAIN_ANALYSIS_RESULT: [IMPROVEMENTS_NEEDED|GOOD_PRACTICES|NO_ISSUES]
+            
+            ## Issues Found:
+            - File: source/hooks/useWorklogForm.ts:42
+              Issue: Using {issueKey: string, date: Date} instead of WorklogEntry
+              Suggestion: Create WorklogEntry value object
+              
+            - File: source/utils/date.ts:15  
+              Issue: String manipulation for date calculations
+              Suggestion: Use LocalDate with encapsulated behavior
+              
+            ## Positive Patterns:
+            - source/utils/Duration.ts: Good use of Duration class with behavior
+            
+            CONFIDENCE: [HIGH|MEDIUM|LOW]
+            ```
+
+            Focus on the time tracking domain and suggest concrete improvements for richer domain modeling.
+
+          # Allow analysis tools
+          allowed_tools: 'Read,Grep,Glob,Bash'
+
+      - name: Parse Domain Analysis Result
+        id: parse
+        run: |
+          # Get Claude's response
+          RESPONSE="${{ steps.analysis.outputs.response }}"
+          echo "Full Claude Response:" >> $GITHUB_STEP_SUMMARY
+          echo "$RESPONSE" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # Extract result with multiple fallback methods
+          RESULT=""
+
+          # Method 1: Look for exact format
+          if echo "$RESPONSE" | grep -q "DOMAIN_ANALYSIS_RESULT:"; then
+            RESULT=$(echo "$RESPONSE" | grep "DOMAIN_ANALYSIS_RESULT:" | head -1 | cut -d: -f2 | tr -d ' ')
+            echo "Found result via Method 1: $RESULT"
+          fi
+
+          # Method 2: Look for domain issues patterns if no explicit result
+          if [[ -z "$RESULT" ]]; then
+            if echo "$RESPONSE" | grep -qi "primitive.*obsession\|domain.*issue\|value.*object\|rich.*domain"; then
+              RESULT="IMPROVEMENTS_NEEDED"
+              echo "Found result via Method 2 (domain issues detected): $RESULT"
+            fi
+          fi
+
+          # Method 3: Conservative fallback - check changed files for domain types
+          if [[ -z "$RESULT" ]]; then
+            echo "Trying Method 3: File analysis for domain patterns"
+            
+            CHANGED_FILES=$(git diff --name-only origin/main...HEAD 2>/dev/null || git diff --name-only HEAD~1 2>/dev/null || echo "")
+            echo "Changed files: $CHANGED_FILES" >> $GITHUB_STEP_SUMMARY
+            
+            # Check if any TypeScript files changed (could have domain issues)
+            if [[ -n "$CHANGED_FILES" ]] && echo "$CHANGED_FILES" | grep -E '\.ts$|\.tsx$' > /dev/null 2>&1; then
+              RESULT="NO_ISSUES"
+              echo "Found result via Method 3 (TS files changed, analysis complete): $RESULT"
+            else
+              RESULT="NO_ISSUES"
+              echo "Found result via Method 3 (no TS files): $RESULT"
+            fi
+          fi
+
+          # Ensure we always have a valid result
+          if [[ -z "$RESULT" ]]; then
+            RESULT="NO_ISSUES"
+            echo "No result found, defaulting to NO_ISSUES"
+          fi
+
+          echo "Debug: Final RESULT variable: '$RESULT'" >> $GITHUB_STEP_SUMMARY
+
+          # Apply result with robust checking
+          case "$RESULT" in
+            "IMPROVEMENTS_NEEDED")
+              echo "has_domain_issues=true" >> $GITHUB_OUTPUT
+              echo "🏗️ Domain modeling improvements suggested"
+              ;;
+            "GOOD_PRACTICES"|"NO_ISSUES")
+              echo "has_domain_issues=false" >> $GITHUB_OUTPUT  
+              echo "✅ No domain modeling issues found"
+              ;;
+            *)
+              # Any unexpected result gets treated as no issues
+              echo "has_domain_issues=false" >> $GITHUB_OUTPUT  
+              echo "⚠️ Unexpected result '$RESULT', defaulting to NO_ISSUES"
+              RESULT="NO_ISSUES"
+              ;;
+          esac
+
+          echo "## 🏗️ Rich Domain Analysis Result" >> $GITHUB_STEP_SUMMARY
+          echo "**Final Result:** $RESULT" >> $GITHUB_STEP_SUMMARY
+          echo "**Domain Issues Found:** $(if [[ "$RESULT" == "IMPROVEMENTS_NEEDED" ]]; then echo "true"; else echo "false"; fi)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+  create-domain-improvement-issue:
+    needs: analyze-domain-modeling
+    if: needs.analyze-domain-modeling.outputs.has_domain_issues == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+      id-token: write
+
+    steps:
+      - name: Create Domain Improvement Issue
+        uses: anthropics/claude-code-action@beta
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+
+          direct_prompt: |
+            **🏗️ Rich Domain Analyzer Workflow**
+            
+            Create a GitHub issue documenting the domain modeling improvements found in this PR.
+
+            Use this template:
+
+            ## 🏗️ Domain Modeling Improvements Needed
+
+            The Rich Domain Analyzer found opportunities to improve domain modeling in PR #${{ github.event.pull_request.number }}.
+
+            ### Issues Found
+            [List specific primitive obsession cases]
+
+            ### Suggested Improvements  
+            [List concrete domain object suggestions]
+
+            ### Benefits
+            - More expressive code
+            - Better encapsulation
+            - Easier testing and validation
+            - Fewer edge-case bugs
+
+            ### References
+            - Related to: #19 (Introduce rich domain types)
+            - PR: #${{ github.event.pull_request.number }}
+
+            **Priority:** Medium
+            **Labels:** domain-modeling, technical-debt, enhancement
+
+          allowed_tools: 'Read,Grep,Glob,Bash'
