@@ -10,8 +10,7 @@ import type {
 	WorklogEntry,
 } from './types.js';
 
-// Default duration fallbacks (kept for backward compatibility)
-// const DEFAULT_TIME_FALLBACK = new Duration('1h');
+// Default duration fallbacks (handled by WorklogGroupService)
 
 export function normalizeSlidingWindowConfig(
 	config: JiraConfig,
