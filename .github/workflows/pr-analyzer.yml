@@ -84,9 +84,11 @@ jobs:
 
           # Method 2.5: Hardcoded check for known test files in this PR
           if [[ -z "$DECISION" ]]; then
-            if [[ "${{ github.event.pull_request.title }}" == *"browser.test.ts"* ]] || [[ "${{ github.event.pull_request.body }}" == *"browser.test.ts"* ]]; then
+            PR_TITLE="${{ github.event.pull_request.title }}"
+            # Safely check for browser.test.ts without multiline issues
+            if [[ "$PR_TITLE" == *"browser.test.ts"* ]]; then
               DECISION="REQUIRED"
-              echo "Found decision via Method 2.5 (hardcoded test file in PR): $DECISION"
+              echo "Found decision via Method 2.5 (hardcoded test file in PR title): $DECISION"
             fi
           fi
 
@@ -137,9 +139,9 @@ jobs:
             DECISION="SKIP"
             echo "No decision found, defaulting to SKIP"
           fi
-          
+
           echo "Debug: Final DECISION variable: '$DECISION'" >> $GITHUB_STEP_SUMMARY
-          
+
           # Apply decision with robust checking
           case "$DECISION" in
             "REQUIRED")
