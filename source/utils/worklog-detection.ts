@@ -1,5 +1,5 @@
 import type {IssueWorklogEntry} from '../domain/WeeklyWorklogSummary.js';
-import {Duration} from './Duration.js';
+import {Duration} from '../domain/Duration.js';
 
 /**
  * Utility functions for detecting editable worklogs

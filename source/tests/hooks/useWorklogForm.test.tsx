@@ -292,7 +292,7 @@ test('useWorklogForm clearError removes error after validation failure', async t
 	const invalidSubmissionData = {
 		issueKey: '', // Invalid: empty issue key
 		date: new Date('2024-01-15'),
-		timeSpent: '2h',
+		timeSpent: new Duration('2h'),
 		comment: 'Valid comment',
 	};
 	const expectedValidationError = 'Issue key is required and cannot be empty';
@@ -440,7 +440,7 @@ test('useWorklogForm validates required fields on submission', async t => {
 	const invalidSubmissionData = {
 		issueKey: '',
 		date: new Date('2024-01-15'),
-		timeSpent: '2h',
+		timeSpent: new Duration('2h'),
 		comment: 'Valid comment',
 	};
 	const expectedErrorMessage = 'Issue key is required and cannot be empty';

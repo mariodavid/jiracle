@@ -7,7 +7,7 @@ import winston from 'winston';
 import App from './app.js';
 import {JiraClient, type JiraConfig} from './jira-client.js';
 import {WorklogEntry} from './domain/WorklogEntry.js';
-import {Duration} from './utils/Duration.js';
+import {Duration} from './domain/Duration.js';
 import {loadJiraConfig} from './utils/config-loader.js';
 import {
 	executeCheckIn,
