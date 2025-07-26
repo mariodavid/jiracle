@@ -6,18 +6,49 @@ import {
 } from '../../utils/browser.js';
 
 test('isBrowserOpenSupported returns true for supported platforms', t => {
-	// The function should always return true for supported platforms
-	// as the open package handles platform detection internally
+	// Explicit test data - expected platforms and results
+	const supportedPlatforms = ['darwin', 'win32', 'linux'];
+	const currentPlatform = process.platform;
+
+	// Test operation on current platform
 	const result = isBrowserOpenSupported();
-	t.is(typeof result, 'boolean');
-	// On current platform (macOS/Linux/Windows), this should be true
-	if (
-		process.platform === 'darwin' ||
-		process.platform === 'win32' ||
-		process.platform === 'linux'
-	) {
-		t.true(result);
+
+	// Specific value comparisons based on current platform
+	if (supportedPlatforms.includes(currentPlatform)) {
+		t.true(
+			result,
+			`Should return true for supported platform: ${currentPlatform}`,
+		);
+	} else {
+		t.false(
+			result,
+			`Should return false for unsupported platform: ${currentPlatform}`,
+		);
 	}
+});
+
+test('isBrowserOpenSupported returns false for unsupported platforms', t => {
+	// Explicit test data - mock unsupported platform
+	const originalPlatform = process.platform;
+	const unsupportedPlatform = 'unsupported-os';
+
+	// Mock process.platform temporarily
+	Object.defineProperty(process, 'platform', {
+		value: unsupportedPlatform,
+		configurable: true,
+	});
+
+	// Test operation
+	const result = isBrowserOpenSupported();
+
+	// Specific value comparison
+	t.false(result, 'Should return false for unsupported platform');
+
+	// Restore original platform
+	Object.defineProperty(process, 'platform', {
+		value: originalPlatform,
+		configurable: true,
+	});
 });
 
 test('generateJiraIssueUrl creates correct URL', t => {

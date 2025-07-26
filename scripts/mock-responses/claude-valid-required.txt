@@ -1,0 +1,11 @@
+I analyzed the PR and found modifications to test files that require detailed review according to guidelines/tests.md.
+
+Changes detected:
+- source/tests/components/WeeklyTimetableView.test.tsx
+- source/tests/hooks/useWorklogForm.test.tsx
+- source/tests/app.navigation.test.ts
+
+The PR modifies existing test assertions and adds new test cases. These changes need to be validated against the Test Data Pattern requirements to ensure they follow the mandatory structure.
+
+TEST_REVIEW_DECISION: REQUIRED
+CONFIDENCE: HIGH

@@ -28,8 +28,11 @@ test('TimeInputField renders with initial value', t => {
 		output.includes(expectedValue),
 		`Should display time value ${expectedValue}`,
 	);
-	// Remove cursor test as it depends on interaction state
-	t.true(output.length > 0, 'Should render content');
+	// When first rendered, text is selected so cursor is not visible
+	t.false(
+		output.includes('█'),
+		'Should not display cursor when text is selected',
+	);
 });
 
 test('TimeInputField renders in compact mode', t => {

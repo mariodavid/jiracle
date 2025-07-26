@@ -137,9 +137,15 @@ test('should handle navigation and select second issue', async t => {
 	stdin.write('\r'); // Enter
 	await InkTestHelpers.delay(500);
 
-	// The Select component navigation might not work reliably in tests
-	// For now, just verify that onSelect was called
-	t.true(selectedKey.length >= 0);
+	// Verify specific selection behavior
+	if (selectedKey) {
+		t.true(
+			['TEST-123', 'TEST-124', 'TEST-125'].includes(selectedKey),
+			`Should select valid issue key, got: ${selectedKey}`,
+		);
+	} else {
+		t.fail('onSelect should be called with a valid issue key');
+	}
 
 	unmount();
 });
@@ -291,10 +297,11 @@ test('should render with proper layout structure', async t => {
 
 	const output = lastFrame();
 
-	// Should render something substantial
-	t.true(output !== null);
-	t.true(output !== '');
-	t.true(output!.length > 50); // Should have substantial content
+	// Verify specific layout components are present
+	const expectedStructure = ['TEST-123', 'TEST-124', 'Press ESC'];
+	for (const element of expectedStructure) {
+		t.true(output?.includes(element) ?? false, `Should contain ${element}`);
+	}
 
 	unmount();
 });
