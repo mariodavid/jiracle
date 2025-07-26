@@ -132,21 +132,35 @@ jobs:
             fi
           fi
 
-          # Apply decision
-          if [[ "$DECISION" == "REQUIRED" ]]; then
-            echo "needs_test_review=true" >> $GITHUB_OUTPUT
-            echo "🧪 Test review will be triggered automatically"
-          elif [[ "$DECISION" == "SKIP" ]]; then
-            echo "needs_test_review=false" >> $GITHUB_OUTPUT  
-            echo "✅ No test review needed based on analysis"
-          else
-            # Fallback for any unexpected decision
-            echo "needs_test_review=false" >> $GITHUB_OUTPUT  
-            echo "⚠️ No valid decision found, defaulting to SKIP"
+          # Ensure we always have a valid decision
+          if [[ -z "$DECISION" ]]; then
+            DECISION="SKIP"
+            echo "No decision found, defaulting to SKIP"
           fi
+          
+          echo "Debug: Final DECISION variable: '$DECISION'" >> $GITHUB_STEP_SUMMARY
+          
+          # Apply decision with robust checking
+          case "$DECISION" in
+            "REQUIRED")
+              echo "needs_test_review=true" >> $GITHUB_OUTPUT
+              echo "🧪 Test review will be triggered automatically"
+              ;;
+            "SKIP")
+              echo "needs_test_review=false" >> $GITHUB_OUTPUT  
+              echo "✅ No test review needed based on analysis"
+              ;;
+            *)
+              # Any unexpected decision gets treated as SKIP
+              echo "needs_test_review=false" >> $GITHUB_OUTPUT  
+              echo "⚠️ Unexpected decision '$DECISION', defaulting to SKIP"
+              DECISION="SKIP"
+              ;;
+          esac
 
           echo "## 🔍 PR Analysis Result" >> $GITHUB_STEP_SUMMARY
-          echo "**Decision:** $DECISION" >> $GITHUB_STEP_SUMMARY
+          echo "**Final Decision:** $DECISION" >> $GITHUB_STEP_SUMMARY
+          echo "**Output Set:** needs_test_review=$(if [[ "$DECISION" == "REQUIRED" ]]; then echo "true"; else echo "false"; fi)" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
 
   trigger-test-review:
