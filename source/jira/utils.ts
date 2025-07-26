@@ -9,6 +9,9 @@ import type {
 	WorklogEntry,
 } from './types.js';
 
+// Default duration fallbacks
+const DEFAULT_TIME_FALLBACK = new Duration('1h');
+
 export function normalizeSlidingWindowConfig(
 	config: JiraConfig,
 ): SlidingWindowConfig {
@@ -127,7 +130,7 @@ export function resolveDefaults(
 		commentSource = 'fallback';
 	}
 
-	let time = '1h';
+	let time = DEFAULT_TIME_FALLBACK.toString();
 	let timeSource: 'issue' | 'group' | 'global' | 'fallback' = 'fallback';
 
 	if (favorite?.defaultTime) {
@@ -140,7 +143,7 @@ export function resolveDefaults(
 		time = config.defaultTime;
 		timeSource = 'global';
 	} else {
-		time = '1h';
+		time = DEFAULT_TIME_FALLBACK.toString();
 		timeSource = 'fallback';
 	}
 

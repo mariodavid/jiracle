@@ -3,6 +3,7 @@ import React from 'react';
 import {render} from 'ink-testing-library';
 import {InlineWorklogForm} from '../../components/InlineWorklogForm.js';
 import type {JiraConfig} from '../../jira-client.js';
+import {Duration} from '../../utils/Duration.js';
 
 const mockConfig: JiraConfig = {
 	jiraUrl: 'https://jira.example.com/',
@@ -13,7 +14,7 @@ const mockConfig: JiraConfig = {
 const mockProps = {
 	issueKey: 'TEST-123',
 	date: new Date('2025-07-10T00:00:00.000Z'),
-	defaultTimeSpent: '1h',
+	defaultTimeSpent: new Duration('1h'),
 	defaultComment: '',
 	onSubmit() {},
 	onCancel() {},

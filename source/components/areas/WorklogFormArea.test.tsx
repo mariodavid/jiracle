@@ -2,6 +2,7 @@ import test from 'ava';
 import React from 'react';
 import {render} from 'ink-testing-library';
 import type {WorklogFormData} from '../../hooks/useWorklogForm.js';
+import {Duration} from '../../utils/Duration.js';
 import {JiraClient, type JiraConfig} from '../../jira-client.js';
 import {WorklogFormArea} from './WorklogFormArea.js';
 
@@ -21,7 +22,7 @@ const mockWorklogForm: WorklogFormData = {
 	isVisible: true,
 	issueKey: 'PROJECT-123',
 	date: new Date('2024-01-15'),
-	timeSpent: '4h',
+	timeSpent: new Duration('4h'),
 	comment: 'Test work',
 	isIssueKeyEditable: true,
 	isEditMode: false,

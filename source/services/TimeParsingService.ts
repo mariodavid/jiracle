@@ -1,43 +1,31 @@
+import {Duration} from '../utils/Duration.js';
+
 /**
- * Parse time strings to hours
+ * Parse time strings to Duration object
+ * @param timeString - Time string (e.g., "2h30m", "1.5h", "90m", "1d")
+ * @returns Duration object
+ */
+function parseTimeToDuration(timeString: string): Duration {
+	if (!timeString) return new Duration('1h');
+
+	try {
+		return Duration.parseOrThrow(timeString);
+	} catch {
+		return new Duration('1h');
+	}
+}
+
+/**
+ * Parse time strings to hours (legacy compatibility)
  * @param timeString - Time string (e.g., "2h30m", "1.5h", "90m", "1d")
  * @returns Number of hours
  */
 function parseTimeToHours(timeString: string): number {
-	if (!timeString) return 1;
-
-	// Handle combined format (2h30m, 1h15m, etc.)
-	const combinedMatch = /^(\d+)h(\d+)m$/i.exec(timeString);
-	if (combinedMatch?.[1] && combinedMatch[2]) {
-		const hours = Number.parseFloat(combinedMatch[1]);
-		const minutes = Number.parseFloat(combinedMatch[2]);
-		return hours + minutes / 60;
-	}
-
-	// Handle days (1d = 8h)
-	const dayMatch = /^(\d+(?:[.,]\d+)?)d$/i.exec(timeString);
-	if (dayMatch?.[1]) {
-		return Number.parseFloat(dayMatch[1].replace(',', '.')) * 8;
-	}
-
-	// Handle hours (1h, 2.5h, etc.)
-	const hourMatch = /^(\d+(?:[.,]\d+)?)h?$/i.exec(timeString);
-	if (hourMatch?.[1]) {
-		return Number.parseFloat(hourMatch[1].replace(',', '.'));
-	}
-
-	// Handle minutes (30m, 90m, etc.)
-	const minuteMatch = /^(\d+)m$/i.exec(timeString);
-	if (minuteMatch?.[1]) {
-		return Number.parseFloat(minuteMatch[1]) / 60;
-	}
-
-	// Default to 1 hour if unparseable
-	return 1;
+	return parseTimeToDuration(timeString).toHours();
 }
 
 /**
- * Normalize time string on submission
+ * Normalize time string on submission using Duration parsing
  * @param inputValue - Raw input value
  * @returns Normalized time string
  */
@@ -70,7 +58,14 @@ function normalizeTimeString(inputValue: string): string {
 	// Final cleanup: ensure any remaining commas are converted to dots
 	normalizedValue = normalizedValue.replace(/,/g, '.');
 
-	return normalizedValue;
+	// Validate and normalize through Duration parsing
+	try {
+		const duration = Duration.parseOrThrow(normalizedValue);
+		return duration.toString();
+	} catch {
+		// If parsing fails, return original value
+		return normalizedValue;
+	}
 }
 
 /**
@@ -88,7 +83,7 @@ function generateTimeMarks(incrementMinutes: number): number[] {
 }
 
 /**
- * Adjust time up or down to nearest increment
+ * Adjust time up or down to nearest increment using Duration
  * @param currentTimeString - Current time string
  * @param direction - 'up' or 'down'
  * @param incrementMinutes - Minutes to increment by
@@ -99,8 +94,8 @@ function adjustTime(
 	direction: 'up' | 'down',
 	incrementMinutes: number,
 ): string {
-	const currentHours = parseTimeToHours(currentTimeString);
-	const totalMinutes = Math.round(currentHours * 60);
+	const currentDuration = parseTimeToDuration(currentTimeString);
+	const totalMinutes = currentDuration.toMinutes();
 
 	const marks = generateTimeMarks(incrementMinutes);
 
@@ -118,23 +113,12 @@ function adjustTime(
 	// Ensure minimum value
 	newTotalMinutes = Math.max(newTotalMinutes, incrementMinutes);
 
-	// Convert back to appropriate format
-	const hours = Math.floor(newTotalMinutes / 60);
-	const minutes = newTotalMinutes % 60;
-
-	let timeString: string;
-	if (hours > 0 && minutes > 0) {
-		timeString = `${hours}h${minutes}m`;
-	} else if (hours > 0) {
-		timeString = `${hours}h`;
-	} else {
-		timeString = `${minutes}m`;
-	}
-
-	return timeString;
+	// Create new Duration from minutes and return string representation
+	return Duration.fromMinutes(newTotalMinutes).toString();
 }
 
 export const TimeParsingService = {
+	parseTimeToDuration,
 	parseTimeToHours,
 	normalizeTimeString,
 	generateTimeMarks,

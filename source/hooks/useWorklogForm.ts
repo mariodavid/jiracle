@@ -17,7 +17,7 @@ import {Duration} from '../utils/Duration.js';
 export type WorklogFormData = {
 	issueKey: string;
 	date: Date;
-	timeSpent: string;
+	timeSpent: Duration;
 	comment: string;
 	isVisible: boolean;
 	isIssueKeyEditable: boolean;
@@ -46,7 +46,7 @@ export type UseWorklogFormReturn = {
 	handleWorklogSubmit: (data: {
 		issueKey: string;
 		date: Date;
-		timeSpent: string;
+		timeSpent: Duration;
 		comment: string;
 		worklogId?: string;
 	}) => Promise<void>;
@@ -114,7 +114,7 @@ export function useWorklogForm(
 	const [worklogForm, setWorklogForm] = useState<WorklogFormData>({
 		issueKey: '',
 		date: new Date(),
-		timeSpent: '1h',
+		timeSpent: new Duration('1h'),
 		comment: '',
 		isVisible: false,
 		isIssueKeyEditable: false,
@@ -153,7 +153,7 @@ export function useWorklogForm(
 				setWorklogForm({
 					issueKey: cellData.issueKey,
 					date: cellData.date,
-					timeSpent: detectionResult.timeSpent,
+					timeSpent: new Duration(detectionResult.timeSpent),
 					comment: detectionResult.comment,
 					isVisible: true,
 					isIssueKeyEditable: false,
@@ -166,31 +166,22 @@ export function useWorklogForm(
 				// New entry mode: calculate remaining time first, then show form
 				calculateRemainingTime(cellData.date, cellData.issueKey)
 					.then(remainingTime => {
-						let suggestedTime: string;
+						let suggestedTime: Duration;
 
 						if (remainingTime !== undefined && remainingTime > 0) {
 							// Use remaining time as suggestion
-							const hours = Math.floor(remainingTime);
-							const minutes = Math.round((remainingTime - hours) * 60);
-
-							if (hours === 0 && minutes > 0) {
-								suggestedTime = `${minutes}m`;
-							} else if (minutes === 0) {
-								suggestedTime = `${hours}h`;
-							} else {
-								suggestedTime = `${hours}h ${minutes}m`;
-							}
+							suggestedTime = Duration.fromHours(remainingTime);
 
 							uiLogger.debug('Using remaining time as suggestion', {
 								issueKey: cellData.issueKey,
 								date: cellData.date.toISOString(),
 								remainingTime,
-								suggestion: suggestedTime,
+								suggestion: suggestedTime.toString(),
 							});
 						} else if (remainingTime !== undefined && remainingTime === 0) {
 							// Remaining time is 0 (all attendance hours already logged),
 							// use config defaults for "clock out" workflow
-							suggestedTime = defaults.time;
+							suggestedTime = new Duration(defaults.time);
 
 							uiLogger.debug(
 								'Remaining time is 0, using config defaults for clock out',
@@ -198,12 +189,12 @@ export function useWorklogForm(
 									issueKey: cellData.issueKey,
 									date: cellData.date.toISOString(),
 									remainingTime,
-									suggestion: suggestedTime,
+									suggestion: suggestedTime.toString(),
 								},
 							);
 						} else {
 							// No remaining time calculation possible, use defaults
-							suggestedTime = defaults.time;
+							suggestedTime = new Duration(defaults.time);
 						}
 
 						// Show form with calculated suggestion
@@ -225,7 +216,7 @@ export function useWorklogForm(
 						setWorklogForm({
 							issueKey: cellData.issueKey,
 							date: cellData.date,
-							timeSpent: defaults.time,
+							timeSpent: new Duration(defaults.time),
 							comment: defaults.comment,
 							isVisible: true,
 							isIssueKeyEditable: false,
@@ -245,7 +236,7 @@ export function useWorklogForm(
 		setWorklogForm({
 			issueKey: '',
 			date: new Date(), // Default to today
-			timeSpent: defaults.time,
+			timeSpent: new Duration(defaults.time),
 			comment: defaults.comment,
 			isVisible: true,
 			isIssueKeyEditable: true, // Allow editing issue key in add mode
@@ -258,7 +249,7 @@ export function useWorklogForm(
 		async (data: {
 			issueKey: string;
 			date: Date;
-			timeSpent: string;
+			timeSpent: Duration;
 			comment: string;
 			worklogId?: string;
 		}) => {
@@ -270,7 +261,7 @@ export function useWorklogForm(
 
 			uiLogger.debug('useWorklogForm: handleWorklogSubmit called', {
 				issueKey: data.issueKey,
-				timeSpent: data.timeSpent,
+				timeSpent: data.timeSpent.toString(),
 				comment: data.comment,
 				isEditMode: Boolean(data.worklogId),
 			});
@@ -312,7 +303,9 @@ export function useWorklogForm(
 					);
 
 					uiLogger.info(
-						`Successfully updated worklog for ${data.issueKey}: ${data.timeSpent}`,
+						`Successfully updated worklog for ${
+							data.issueKey
+						}: ${data.timeSpent.toString()}`,
 					);
 				} else {
 					// Add new worklog
@@ -323,7 +316,9 @@ export function useWorklogForm(
 					await jiraClient.addWorklog(data.issueKey, worklogData);
 
 					uiLogger.info(
-						`Successfully logged work for ${data.issueKey}: ${data.timeSpent}`,
+						`Successfully logged work for ${
+							data.issueKey
+						}: ${data.timeSpent.toString()}`,
 					);
 				}
 

@@ -101,6 +101,36 @@ export class Duration {
 	}
 
 	/**
+	 * Parse time string and throw if invalid
+	 */
+	static parseOrThrow(input: string): Duration {
+		const duration = new Duration(input);
+		if (
+			duration.minutes === 0 &&
+			input.trim() !== '0' &&
+			input.trim() !== '0m' &&
+			input.trim() !== '0h'
+		) {
+			throw new Error(
+				`Invalid time format: "${input}". Expected formats: 1h, 30m, 1h15m, 2.5h, 45, etc.`,
+			);
+		}
+
+		return duration;
+	}
+
+	/**
+	 * Try to parse time string, return undefined if invalid
+	 */
+	static tryParse(input: string): Duration | undefined {
+		try {
+			return Duration.parseOrThrow(input);
+		} catch {
+			return undefined;
+		}
+	}
+
+	/**
 	 * Calculate working duration between check-in and check-out times, minus break time
 	 * @param checkIn Time in HH:MM format (e.g., "08:00")
 	 * @param checkOut Time in HH:MM format (e.g., "17:00")
@@ -171,5 +201,68 @@ export class Duration {
 	toDecimalHours(): string {
 		const decimalHours = this.minutes / 60;
 		return decimalHours.toFixed(2).replace(/\.?0+$/, ''); // Remove trailing zeros
+	}
+
+	/**
+	 * Add another duration to this duration
+	 */
+	add(other: Duration): Duration {
+		return Duration.fromMinutes(this.minutes + other.minutes);
+	}
+
+	/**
+	 * Subtract another duration from this duration
+	 */
+	subtract(other: Duration): Duration {
+		return Duration.fromMinutes(Math.max(0, this.minutes - other.minutes));
+	}
+
+	/**
+	 * Multiply duration by a factor
+	 */
+	multiply(factor: number): Duration {
+		return Duration.fromMinutes(Math.round(this.minutes * factor));
+	}
+
+	/**
+	 * Check if duration is zero
+	 */
+	isZero(): boolean {
+		return this.minutes === 0;
+	}
+
+	/**
+	 * Check if this duration is greater than another
+	 */
+	isGreaterThan(other: Duration): boolean {
+		return this.minutes > other.minutes;
+	}
+
+	/**
+	 * Check if this duration is less than another
+	 */
+	isLessThan(other: Duration): boolean {
+		return this.minutes < other.minutes;
+	}
+
+	/**
+	 * Check if this duration equals another
+	 */
+	equals(other: Duration): boolean {
+		return this.minutes === other.minutes;
+	}
+
+	/**
+	 * Check if this duration is greater than or equal to another
+	 */
+	isGreaterThanOrEqual(other: Duration): boolean {
+		return this.minutes >= other.minutes;
+	}
+
+	/**
+	 * Check if this duration is less than or equal to another
+	 */
+	isLessThanOrEqual(other: Duration): boolean {
+		return this.minutes <= other.minutes;
 	}
 }

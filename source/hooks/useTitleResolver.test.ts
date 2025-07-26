@@ -1,4 +1,5 @@
 import test from 'ava';
+import {Duration} from '../utils/Duration.js';
 import {useTitleResolver} from './useTitleResolver.js';
 import type {
 	DeleteCandidate,
@@ -14,7 +15,7 @@ const createWorklogForm = (
 	isVisible: false,
 	issueKey: '',
 	date: new Date(),
-	timeSpent: '',
+	timeSpent: new Duration('0h'),
 	comment: '',
 	isIssueKeyEditable: false,
 	isEditMode: false,

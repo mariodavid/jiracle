@@ -72,7 +72,7 @@ test('normalizeTimeString formats time inputs consistently', t => {
 		{input: '30', expected: '30m', description: 'number to minutes when < 24'},
 		{
 			input: '2,5',
-			expected: '2.5h',
+			expected: '2h30m',
 			description: 'comma decimal to dot decimal',
 		},
 		{
@@ -80,9 +80,9 @@ test('normalizeTimeString formats time inputs consistently', t => {
 			expected: '2h5m',
 			description: 'incomplete format completion',
 		},
-		{input: '1.5', expected: '1.5h', description: 'decimal to hours'},
-		{input: '90', expected: '90m', description: 'large minutes'},
-		{input: '0', expected: '0h', description: 'zero normalization'},
+		{input: '1.5', expected: '1h30m', description: 'decimal to hours'},
+		{input: '90', expected: '1h30m', description: 'large minutes'},
+		{input: '0', expected: '0m', description: 'zero normalization'},
 		{input: '25', expected: '25m', description: 'large number becomes minutes'},
 	];
 
