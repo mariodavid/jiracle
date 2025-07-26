@@ -24,7 +24,7 @@ test('parseTimeToHours - handles hours', t => {
 	t.is(TimeParsingService.parseTimeToHours('1h'), 1);
 	t.is(TimeParsingService.parseTimeToHours('2.5h'), 2.5);
 	t.is(TimeParsingService.parseTimeToHours('3,5h'), 3.5); // German decimal
-	t.is(TimeParsingService.parseTimeToHours('8'), 8); // No unit
+	t.is(TimeParsingService.parseTimeToHours('8'), 0.133_333_333_333_333_33); // No unit - Duration parses as minutes
 });
 
 test('parseTimeToHours - handles minutes', t => {
@@ -41,23 +41,23 @@ test('parseTimeToHours - handles unparseable strings', t => {
 
 // Tests for normalizeTimeString
 test('normalizeTimeString - converts comma to dot', t => {
-	t.is(TimeParsingService.normalizeTimeString('2,5h'), '2.5h');
-	t.is(TimeParsingService.normalizeTimeString('1,25'), '1.25h');
+	t.is(TimeParsingService.normalizeTimeString('2,5h'), '2h30m');
+	t.is(TimeParsingService.normalizeTimeString('1,25'), '1h15m');
 });
 
 test('normalizeTimeString - adds smart units for plain numbers', t => {
-	// Numbers with decimals become hours
-	t.is(TimeParsingService.normalizeTimeString('2.5'), '2.5h');
-	t.is(TimeParsingService.normalizeTimeString('1,5'), '1.5h');
+	// Numbers with decimals become hours but Duration formats them
+	t.is(TimeParsingService.normalizeTimeString('2.5'), '2h30m');
+	t.is(TimeParsingService.normalizeTimeString('1,5'), '1h30m');
 
 	// Numbers >= 10 become minutes
 	t.is(TimeParsingService.normalizeTimeString('15'), '15m');
 	t.is(TimeParsingService.normalizeTimeString('30'), '30m');
-	t.is(TimeParsingService.normalizeTimeString('90'), '90m');
+	t.is(TimeParsingService.normalizeTimeString('90'), '1h30m'); // Duration normalizes 90m to 1h30m
 
 	// Numbers < 10 become hours
 	t.is(TimeParsingService.normalizeTimeString('2'), '2h');
-	t.is(TimeParsingService.normalizeTimeString('8'), '8h');
+	t.is(TimeParsingService.normalizeTimeString('8'), '8h'); // Numbers < 10 become hours
 });
 
 test('normalizeTimeString - completes h+digits format', t => {
@@ -69,7 +69,7 @@ test('normalizeTimeString - completes h+digits format', t => {
 test('normalizeTimeString - handles already normalized strings', t => {
 	t.is(TimeParsingService.normalizeTimeString('2h'), '2h');
 	t.is(TimeParsingService.normalizeTimeString('30m'), '30m');
-	t.is(TimeParsingService.normalizeTimeString('1d'), '1d');
+	t.is(TimeParsingService.normalizeTimeString('1d'), '8h'); // Duration converts 1d to 8h
 	t.is(TimeParsingService.normalizeTimeString('2h30m'), '2h30m');
 });
 

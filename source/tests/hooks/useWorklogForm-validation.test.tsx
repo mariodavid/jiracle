@@ -43,7 +43,7 @@ function TestWorklogFormComponent({
 			<Text>Submitting: {worklogForm.worklogSubmitting.toString()}</Text>
 			<Text>Error: {worklogForm.worklogError ?? 'none'}</Text>
 			<Text>IssueKey: {worklogForm.worklogForm.issueKey}</Text>
-			<Text>TimeSpent: {worklogForm.worklogForm.timeSpent}</Text>
+			<Text>TimeSpent: {worklogForm.worklogForm.timeSpent.toString()}</Text>
 			<Text>Comment: {worklogForm.worklogForm.comment}</Text>
 			<Text>
 				IsEditable: {worklogForm.worklogForm.isIssueKeyEditable.toString()}

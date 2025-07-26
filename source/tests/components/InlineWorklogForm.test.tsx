@@ -2,11 +2,12 @@ import test from 'ava';
 import React from 'react';
 import {render} from 'ink-testing-library';
 import {InlineWorklogForm} from '../../components/InlineWorklogForm.js';
+import {Duration} from '../../utils/Duration.js';
 
 const mockProps = {
 	issueKey: 'TEST-123',
 	date: new Date('2025-07-10T00:00:00.000Z'),
-	defaultTimeSpent: '1h',
+	defaultTimeSpent: new Duration('1h'),
 	defaultComment: '',
 	onSubmit() {},
 	onCancel() {},
@@ -72,7 +73,7 @@ test('InlineWorklogForm shows custom time input when selected', t => {
 test('InlineWorklogForm handles default values', t => {
 	const defaultProps = {
 		...mockProps,
-		defaultTimeSpent: '4h',
+		defaultTimeSpent: new Duration('4h'),
 		defaultComment: 'Initial comment',
 	};
 
@@ -109,7 +110,7 @@ test('InlineWorklogForm supports edit mode', t => {
 		...mockProps,
 		isEditMode: true,
 		worklogId: 'worklog-123',
-		defaultTimeSpent: '2h',
+		defaultTimeSpent: new Duration('2h'),
 		defaultComment: 'Existing worklog comment',
 	};
 
@@ -128,13 +129,16 @@ test('InlineWorklogForm calls onSubmit with worklogId in edit mode', async t => 
 	// EXPLICIT TEST DATA
 	const expectedWorklogId = 'worklog-123';
 	const expectedIssueKey = 'TEST-123';
+	const expectedTimeSpent = new Duration('2h');
 	let submittedData: any = null;
 	let submitCalled = false;
 
+	// OPERATIONS
 	const editProps = {
 		...mockProps,
 		isEditMode: true,
 		worklogId: expectedWorklogId,
+		defaultTimeSpent: expectedTimeSpent,
 		onSubmit(data: any) {
 			submittedData = data;
 			submitCalled = true;
@@ -162,8 +166,11 @@ test('InlineWorklogForm calls onSubmit with worklogId in edit mode', async t => 
 			expectedIssueKey,
 			'Should include correct issueKey',
 		);
-		t.truthy(submittedData.timeSpent, 'Should include timeSpent');
-		t.truthy(submittedData.date, 'Should include date');
+		t.true(
+			submittedData.timeSpent instanceof Duration,
+			'Should include Duration timeSpent',
+		);
+		t.true(submittedData.date instanceof Date, 'Should include date');
 	} else {
 		// If form submission is async and hasn't completed yet, verify the form structure at least
 		t.false(submitCalled, 'Submit should be called but data may be pending');
@@ -179,12 +186,15 @@ test('InlineWorklogForm calls onSubmit with worklogId in edit mode', async t => 
 test('InlineWorklogForm does not include worklogId in create mode', async t => {
 	// EXPLICIT TEST DATA
 	const expectedIssueKey = 'TEST-123';
+	const expectedTimeSpent = new Duration('1h');
 	let submittedData: any = null;
 	let submitCalled = false;
 
+	// OPERATIONS
 	const createProps = {
 		...mockProps,
 		isEditMode: false, // Explicitly create mode
+		defaultTimeSpent: expectedTimeSpent,
 		onSubmit(data: any) {
 			submittedData = data;
 			submitCalled = true;
@@ -212,8 +222,11 @@ test('InlineWorklogForm does not include worklogId in create mode', async t => {
 			expectedIssueKey,
 			'Should include correct issueKey',
 		);
-		t.truthy(submittedData.timeSpent, 'Should include timeSpent');
-		t.truthy(submittedData.date, 'Should include date');
+		t.true(
+			submittedData.timeSpent instanceof Duration,
+			'Should include Duration timeSpent',
+		);
+		t.true(submittedData.date instanceof Date, 'Should include date');
 	} else {
 		// If form submission is async and hasn't completed yet, verify the form structure at least
 		t.false(submitCalled, 'Submit should be called but data may be pending');
@@ -368,7 +381,7 @@ test('InlineWorklogForm falls back to 1h when no config provided', t => {
 test('InlineWorklogForm explicit defaultTimeSpent overrides config', t => {
 	const explicitProps = {
 		...mockProps,
-		defaultTimeSpent: '10h', // Explicitly provided
+		defaultTimeSpent: new Duration('10h'), // Explicitly provided
 		config: {
 			jiraUrl: 'https://jira.example.com/',
 			username: 'test@example.com',
