@@ -65,8 +65,8 @@ test('WeeklyWorklogSummaryUseCase supports bidirectional sliding window', async 
 			};
 		}
 
-		// Future sliding window (Oct 22-28)
-		if (jql.includes('2024-10-22') && jql.includes('2024-10-28')) {
+		// Future sliding window (Oct 21-27)
+		if (jql.includes('2024-10-21') && jql.includes('2024-10-27')) {
 			return {
 				issues: [
 					{
@@ -159,7 +159,7 @@ test('WeeklyWorklogSummaryUseCase supports bidirectional sliding window', async 
 		jqlQueries.some(q => q.includes('2024-10-07') && q.includes('2024-10-13')),
 	); // Past window
 	t.true(
-		jqlQueries.some(q => q.includes('2024-10-22') && q.includes('2024-10-28')),
+		jqlQueries.some(q => q.includes('2024-10-21') && q.includes('2024-10-27')),
 	); // Future window
 
 	// Should have both past and future issues as 0h entries
@@ -321,8 +321,8 @@ test('WeeklyWorklogSummaryUseCase skips past window when past is 0', async t => 
 			jqlQueries[0]!.includes('2024-10-20'),
 	); // Current week
 	t.true(
-		jqlQueries[1]!.includes('2024-10-22') &&
-			jqlQueries[1]!.includes('2024-10-24'),
+		jqlQueries[1]!.includes('2024-10-21') &&
+			jqlQueries[1]!.includes('2024-10-23'),
 	); // Future window only
 
 	// Should not have any past window queries
