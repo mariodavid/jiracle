@@ -45,7 +45,7 @@ export type UseWorklogFormReturn = {
 	worklogError: string | undefined;
 
 	// Actions
-	handleCellWorklog: (cellData: {issueKey: string; date: Date}) => void;
+	handleCellWorklog: (cellData: {issueKey: string; date: LocalDate}) => void;
 	handleAddWorklog: () => void;
 	handleWorklogSubmit: (data: {
 		issueKey: string;
@@ -65,7 +65,7 @@ export function useWorklogForm(
 
 	// Helper function to calculate remaining time for a date
 	const calculateRemainingTime = useCallback(
-		async (date: Date, currentIssueKey: string) => {
+		async (date: LocalDate, currentIssueKey: string) => {
 			try {
 				// Check if attendance is enabled and get attendance data
 				if (!config.attendance?.enabled) {
@@ -130,12 +130,11 @@ export function useWorklogForm(
 	);
 
 	const handleCellWorklog = useCallback(
-		(cellData: {issueKey: string; date: Date}) => {
+		(cellData: {issueKey: string; date: LocalDate}) => {
 			// Find the specific daily summary for this date
-			const targetDateKey = LocalDate.fromDate(cellData.date).toISOString();
-			const dailySummary = data?.dailySummaries.find(
-				(summary: any) =>
-					LocalDate.fromDate(summary.date).toISOString() === targetDateKey,
+			const targetDate = cellData.date;
+			const dailySummary = data?.dailySummaries.find((summary: any) =>
+				LocalDate.fromDate(summary.date).equals(targetDate),
 			);
 
 			// Find the worklog entry for this issue on this date
@@ -157,7 +156,7 @@ export function useWorklogForm(
 				// Edit mode: use existing data
 				setWorklogForm({
 					issueKey: cellData.issueKey,
-					date: cellData.date,
+					date: new Date(cellData.date.toISOString()),
 					timeSpent: new Duration(detectionResult.timeSpent),
 					comment: detectionResult.comment,
 					isVisible: true,
@@ -205,7 +204,7 @@ export function useWorklogForm(
 						// Show form with calculated suggestion
 						setWorklogForm({
 							issueKey: cellData.issueKey,
-							date: cellData.date,
+							date: new Date(cellData.date.toISOString()),
 							timeSpent: suggestedTime,
 							comment: defaults.comment,
 							isVisible: true,
@@ -220,7 +219,7 @@ export function useWorklogForm(
 						// Fallback to defaults on error
 						setWorklogForm({
 							issueKey: cellData.issueKey,
-							date: cellData.date,
+							date: new Date(cellData.date.toISOString()),
 							timeSpent: new Duration(defaults.time),
 							comment: defaults.comment,
 							isVisible: true,

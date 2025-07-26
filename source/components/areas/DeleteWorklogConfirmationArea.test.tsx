@@ -1,12 +1,13 @@
 import test from 'ava';
 import React from 'react';
 import {render} from 'ink-testing-library';
+import {LocalDate} from '../../domain/LocalDate.js';
 import type {DeleteCandidate} from '../../hooks/useDeleteOperations.js';
 import {DeleteWorklogConfirmationArea} from './DeleteWorklogConfirmationArea.js';
 
 const mockDeleteCandidate: DeleteCandidate = {
 	issueKey: 'PROJECT-123',
-	date: new Date('2024-01-15'),
+	date: LocalDate.fromString('2024-01-15'),
 };
 
 const mockFormatDate = (date: Date) => {

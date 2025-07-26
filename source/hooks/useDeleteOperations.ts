@@ -6,11 +6,11 @@ import type {AttendanceManager} from '../attendance/AttendanceManager.js';
 
 export type DeleteCandidate = {
 	issueKey: string;
-	date: Date;
+	date: LocalDate;
 };
 
 export type DeleteAttendanceCandidate = {
-	date: Date;
+	date: LocalDate;
 };
 
 export type UseDeleteOperationsOptions = {
@@ -31,8 +31,8 @@ export type UseDeleteOperationsReturn = {
 	deleteError: string | undefined;
 
 	// Actions
-	handleCellDelete: (data: {issueKey: string; date: Date}) => void;
-	handleDeleteAttendance: (data: {date: Date}) => void;
+	handleCellDelete: (data: {issueKey: string; date: LocalDate}) => void;
+	handleDeleteAttendance: (data: {date: LocalDate}) => void;
 	handleDeleteConfirm: (confirmed: boolean) => Promise<void>;
 	handleDeleteAttendanceConfirm: (confirmed: boolean) => Promise<void>;
 	clearDeleteError: () => void;

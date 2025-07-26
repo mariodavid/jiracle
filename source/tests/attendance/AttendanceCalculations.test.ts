@@ -1,4 +1,5 @@
 import test from 'ava';
+import {LocalDate} from '../../domain/LocalDate.js';
 import {AttendanceCalculations} from '../../attendance/AttendanceCalculations.js';
 import type {Attendance, WeeklyAttendance} from '../../attendance/types.js';
 
@@ -151,11 +152,11 @@ test('should get week dates starting from Monday', t => {
 	const weekDates = AttendanceCalculations.getWeekDates(wednesday);
 
 	t.deepEqual(weekDates, [
-		'2025-07-07', // Monday
-		'2025-07-08', // Tuesday
-		'2025-07-09', // Wednesday
-		'2025-07-10', // Thursday
-		'2025-07-11', // Friday
+		LocalDate.fromString('2025-07-07'), // Monday
+		LocalDate.fromString('2025-07-08'), // Tuesday
+		LocalDate.fromString('2025-07-09'), // Wednesday
+		LocalDate.fromString('2025-07-10'), // Thursday
+		LocalDate.fromString('2025-07-11'), // Friday
 	]);
 });
 
@@ -165,11 +166,11 @@ test('should get week dates when starting on Sunday', t => {
 	const weekDates = AttendanceCalculations.getWeekDates(sunday);
 
 	t.deepEqual(weekDates, [
-		'2025-07-07', // Monday of previous week
-		'2025-07-08', // Tuesday
-		'2025-07-09', // Wednesday
-		'2025-07-10', // Thursday
-		'2025-07-11', // Friday
+		LocalDate.fromString('2025-07-07'), // Monday of previous week
+		LocalDate.fromString('2025-07-08'), // Tuesday
+		LocalDate.fromString('2025-07-09'), // Wednesday
+		LocalDate.fromString('2025-07-10'), // Thursday
+		LocalDate.fromString('2025-07-11'), // Friday
 	]);
 });
 

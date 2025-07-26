@@ -4,6 +4,7 @@ import React from 'react';
 import {render} from 'ink';
 import meow from 'meow';
 import winston from 'winston';
+import {LocalDate} from './domain/LocalDate.js';
 import App from './app.js';
 import {
 	JiraClient,
@@ -99,15 +100,9 @@ function validateWorklogParameters(parameters: WorklogAddParameters): void {
 		);
 	}
 
-	if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
-		throw new Error('Date must be in YYYY-MM-DD format');
-	}
-
-	const testDate = new Date(date);
-	if (
-		Number.isNaN(testDate.getTime()) ||
-		testDate.toISOString().split('T')[0] !== date
-	) {
+	try {
+		LocalDate.fromString(date);
+	} catch {
 		throw new Error('Date must be in YYYY-MM-DD format');
 	}
 
@@ -182,7 +177,9 @@ export async function executeWorklogAdd(
 		const config = loadConfig(configPath);
 		const client = new JiraClient(config, createSilentLogger());
 
-		const workDate = new Date(date);
+		const workDate = new Date(
+			LocalDate.fromString(date).toISOString() + 'T00:00:00.000Z',
+		);
 		workDate.setHours(9, 0, 0, 0);
 		const formattedStarted = workDate.toISOString().replace('Z', '+0000');
 

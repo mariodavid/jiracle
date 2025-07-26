@@ -49,20 +49,26 @@ export class WeeklyWorklogSummaryUseCase {
 			const futureDays = slidingWindowConfig.future;
 
 			// Calculate window start from the week start (past sliding window)
-			const windowStart = new Date(weekStart);
-			windowStart.setDate(weekStart.getDate() - pastDays);
+			const weekStartLocal = LocalDate.fromDate(weekStart);
+			const windowStartLocal = weekStartLocal.addDays(-pastDays);
+			const windowStart = new Date(
+				windowStartLocal.toISOString() + 'T00:00:00.000Z',
+			);
 
 			// Calculate window end from the week end (future sliding window)
-			const windowEnd = new Date(weekEnd);
-			windowEnd.setTime(weekEnd.getTime() + futureDays * 24 * 60 * 60 * 1000);
+			const weekEndLocal = LocalDate.fromDate(weekEnd);
+			const windowEndLocal = weekEndLocal.addDays(futureDays);
+			const windowEnd = new Date(
+				windowEndLocal.toISOString() + 'T23:59:59.999Z',
+			);
 
 			uiLogger.debug('Sliding window configured', {
 				pastDays,
 				futureDays,
-				windowStart: windowStart.toISOString().split('T')[0],
-				windowEnd: windowEnd.toISOString().split('T')[0],
-				weekStart: weekStart.toISOString().split('T')[0],
-				weekEnd: weekEnd.toISOString().split('T')[0],
+				windowStart: windowStartLocal.toISOString(),
+				windowEnd: windowEndLocal.toISOString(),
+				weekStart: weekStartLocal.toISOString(),
+				weekEnd: weekEndLocal.toISOString(),
 			});
 
 			// Search for issues in the extended sliding window, excluding the current week
@@ -70,13 +76,17 @@ export class WeeklyWorklogSummaryUseCase {
 				pastDays > 0
 					? await this.fetchSlidingWindowIssues(
 							windowStart,
-							new Date(weekStart.getTime() - 1),
+							new Date(
+								weekStartLocal.addDays(-1).toISOString() + 'T23:59:59.999Z',
+							),
 					  )
 					: {issues: []};
 			const futureSearchResults =
 				futureDays > 0
 					? await this.fetchSlidingWindowIssues(
-							new Date(weekEnd.getTime() + 24 * 60 * 60 * 1000),
+							new Date(
+								weekEndLocal.addDays(1).toISOString() + 'T00:00:00.000Z',
+							),
 							windowEnd,
 					  )
 					: {issues: []};

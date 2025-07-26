@@ -25,7 +25,9 @@ export function DeleteAttendanceConfirmationArea({
 			loadingText="Deleting attendance..."
 		>
 			<DeleteAttendanceConfirmation
-				dayLabel={formatDate(deleteAttendanceCandidate.date)}
+				dayLabel={formatDate(
+					new Date(deleteAttendanceCandidate.date.toISOString()),
+				)}
 				onConfirm={onConfirm}
 			/>
 		</ConfirmationDialog>
