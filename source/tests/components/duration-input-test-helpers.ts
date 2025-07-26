@@ -143,10 +143,10 @@ export const invalidDotAfterUnitPatterns = [
 ];
 
 export const commaToHourConversionCases = [
-	{input: '1,5', expected: '1.5h'},
-	{input: '2,25', expected: '2.25h'},
-	{input: '0,5', expected: '0.5h'},
-	{input: '3,75', expected: '3.75h'},
+	{input: '1,5', expected: '1h30m'},
+	{input: '2,25', expected: '2h15m'},
+	{input: '0,5', expected: '30m'},
+	{input: '3,75', expected: '3h45m'},
 ];
 
 export const wholeNumberToMinutesCases = [

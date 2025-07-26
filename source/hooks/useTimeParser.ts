@@ -1,10 +1,15 @@
 import {TimeParsingService} from '../services/TimeParsingService.js';
+import type {Duration} from '../domain/Duration.js';
 
 /**
  * Hook that provides time parsing functionality
  * Wraps TimeParsingService for use in React components
  */
 export function useTimeParser() {
+	const parseTimeToDuration = (timeString: string): Duration => {
+		return TimeParsingService.parseTimeToDuration(timeString);
+	};
+
 	const parseTimeToHours = (timeString: string): number => {
 		return TimeParsingService.parseTimeToHours(timeString);
 	};
@@ -30,6 +35,7 @@ export function useTimeParser() {
 	};
 
 	return {
+		parseTimeToDuration,
 		parseTimeToHours,
 		normalizeTimeString,
 		generateTimeMarks,

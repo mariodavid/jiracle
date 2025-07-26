@@ -7,6 +7,7 @@ import {
 	type UseWorklogFormOptions,
 } from '../../hooks/useWorklogForm.js';
 import type {JiraConfig} from '../../jira-client.js';
+import {Duration} from '../../domain/Duration.js';
 
 // Mock the JiraClient module
 const mockConfig: JiraConfig = {
@@ -43,7 +44,7 @@ function TestWorklogFormComponent({
 			<Text>Submitting: {worklogForm.worklogSubmitting.toString()}</Text>
 			<Text>Error: {worklogForm.worklogError ?? 'none'}</Text>
 			<Text>IssueKey: {worklogForm.worklogForm.issueKey}</Text>
-			<Text>TimeSpent: {worklogForm.worklogForm.timeSpent}</Text>
+			<Text>TimeSpent: {worklogForm.worklogForm.timeSpent.toString()}</Text>
 			<Text>Comment: {worklogForm.worklogForm.comment}</Text>
 			<Text>
 				IsEditable: {worklogForm.worklogForm.isIssueKeyEditable.toString()}
@@ -120,7 +121,8 @@ test('useWorklogForm handleAddWorklog makes form visible with defaults', t => {
 	// Now check the updated state
 	t.true(capturedState.worklogForm.isVisible);
 	t.true(capturedState.worklogForm.isIssueKeyEditable);
-	t.is(capturedState.worklogForm.timeSpent, mockConfig.defaultTime);
+	t.true(capturedState.worklogForm.timeSpent instanceof Duration);
+	t.is(capturedState.worklogForm.timeSpent.toString(), mockConfig.defaultTime);
 	t.is(capturedState.worklogForm.comment, mockConfig.defaultComment);
 	t.is(activeAreaChanged, 'worklog-form');
 });
@@ -232,7 +234,8 @@ test('useWorklogForm handleCellWorklog uses favorite defaults', async t => {
 		}),
 	);
 
-	t.is(capturedState.worklogForm.timeSpent, '2h'); // From favorite config
+	t.true(capturedState.worklogForm.timeSpent instanceof Duration);
+	t.is(capturedState.worklogForm.timeSpent.toString(), '2h'); // From favorite config
 	t.is(capturedState.worklogForm.comment, 'Favorite work'); // From favorite config
 });
 
@@ -289,11 +292,10 @@ test('useWorklogForm clearError removes error after validation failure', async t
 	const invalidSubmissionData = {
 		issueKey: '', // Invalid: empty issue key
 		date: new Date('2024-01-15'),
-		timeSpent: '2h',
+		timeSpent: new Duration('2h'),
 		comment: 'Valid comment',
 	};
-	const expectedValidationError =
-		'Issue key is required. Please enter a valid Jira issue key (e.g., DEF-123).';
+	const expectedValidationError = 'Issue key is required and cannot be empty';
 	let capturedState: any;
 
 	const mockOptions: UseWorklogFormOptions = {
@@ -402,8 +404,12 @@ test('useWorklogForm handleAddWorklog sets correct initial state', t => {
 		expectedInitialState.issueKey,
 		'Should set empty issue key for new worklog',
 	);
+	t.true(
+		capturedState.worklogForm.timeSpent instanceof Duration,
+		'timeSpent should be a Duration instance',
+	);
 	t.is(
-		capturedState.worklogForm.timeSpent,
+		capturedState.worklogForm.timeSpent.toString(),
 		expectedInitialState.timeSpent,
 		'Should use default time from config',
 	);
@@ -434,11 +440,10 @@ test('useWorklogForm validates required fields on submission', async t => {
 	const invalidSubmissionData = {
 		issueKey: '',
 		date: new Date('2024-01-15'),
-		timeSpent: '2h',
+		timeSpent: new Duration('2h'),
 		comment: 'Valid comment',
 	};
-	const expectedErrorMessage =
-		'Issue key is required. Please enter a valid Jira issue key (e.g., DEF-123).';
+	const expectedErrorMessage = 'Issue key is required and cannot be empty';
 	let capturedState: any;
 	let refreshCalled = false;
 

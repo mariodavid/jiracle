@@ -6,16 +6,17 @@ import {resolveDefaults} from '../jira-client.js';
 import {getCommentWithPrefill} from '../jira/utils.js';
 import {uiLogger} from '../utils/logger.js';
 import {LocalDate} from '../domain/LocalDate.js';
+import {Duration} from '../domain/Duration.js';
 import DurationInput from './WorklogForm/DurationInput.js';
 
 type InlineWorklogFormProps = {
 	issueKey: string;
 	date: Date;
-	defaultTimeSpent?: string;
+	defaultTimeSpent?: Duration;
 	defaultComment?: string;
 	onSubmit: (data: {
 		issueKey: string;
-		timeSpent: string;
+		timeSpent: Duration;
 		comment: string;
 		date: Date;
 		worklogId?: string; // For edit mode
@@ -58,11 +59,11 @@ export function InlineWorklogForm({
 		// Use the new hierarchical default resolution
 		if (config) {
 			const defaults = resolveDefaults(config, issueKey);
-			return defaults.time;
+			return new Duration(defaults.time);
 		}
 
 		// Fallback to 1h
-		return '1h';
+		return new Duration('1h');
 	};
 
 	// Determine default comment with recent worklog prefill
@@ -89,7 +90,7 @@ export function InlineWorklogForm({
 		return getDefaultTime();
 	});
 	const [timeInputValue, setTimeInputValue] = useState(() => {
-		return getDefaultTime();
+		return getDefaultTime().toString();
 	});
 	const [comment, setComment] = useState(() => {
 		return getDefaultComment();
@@ -289,7 +290,7 @@ export function InlineWorklogForm({
 
 	const handleTimeInputChange = (value: string) => {
 		setTimeInputValue(value);
-		setSelectedTime(value);
+		setSelectedTime(new Duration(value));
 	};
 
 	const normalizeTimeOnBlur = (inputValue: string) => {
@@ -297,7 +298,7 @@ export function InlineWorklogForm({
 		if (/^\d+([.,]\d+)?$/.test(inputValue)) {
 			const normalizedValue = inputValue + 'h';
 			setTimeInputValue(normalizedValue);
-			setSelectedTime(normalizedValue);
+			setSelectedTime(new Duration(normalizedValue));
 			return normalizedValue;
 		}
 

@@ -1,4 +1,5 @@
 import test from 'ava';
+import {Duration} from '../domain/Duration.js';
 import {
 	useActiveAreaResolver,
 	type ResolvedActiveArea,
@@ -18,7 +19,7 @@ const createWorklogForm = (
 	isVisible: false,
 	issueKey: '',
 	date: new Date(),
-	timeSpent: '',
+	timeSpent: new Duration('0h'),
 	comment: '',
 	isIssueKeyEditable: false,
 	isEditMode: false,

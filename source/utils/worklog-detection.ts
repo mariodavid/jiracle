@@ -1,4 +1,5 @@
 import type {IssueWorklogEntry} from '../domain/WeeklyWorklogSummary.js';
+import {Duration} from '../domain/Duration.js';
 
 /**
  * Utility functions for detecting editable worklogs
@@ -48,27 +49,16 @@ export function detectWorklogForEdit(
 }
 
 /**
- * Converts hours (decimal) to Jira time spent format
+ * Converts hours (decimal) to Jira time spent format using Duration
  * @param hours Decimal hours (e.g., 2.5)
- * @returns Time spent string (e.g., "2h 30m")
+ * @returns Time spent string (e.g., "2h30m")
  */
 function formatHoursAsTimeSpent(hours: number): string {
 	if (hours <= 0) {
-		return '0m';
+		return new Duration('0m').toString();
 	}
 
-	const wholeHours = Math.floor(hours);
-	const minutes = Math.round((hours - wholeHours) * 60);
-
-	if (wholeHours > 0 && minutes > 0) {
-		return `${wholeHours}h ${minutes}m`;
-	}
-
-	if (wholeHours > 0) {
-		return `${wholeHours}h`;
-	}
-
-	return `${minutes}m`;
+	return Duration.fromHours(hours).toString();
 }
 
 /**

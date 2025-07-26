@@ -33,9 +33,15 @@ jobs:
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
 
-          # Use the custom test-review slash command
+          # Use the custom test-review slash command with manual workflow identifier
           direct_prompt: |
             /test-review
+
+            IMPORTANT: When creating pull requests or commits, START the PR description with this header:
+            **🤖 Manual Test Review Workflow**
+
+            Then add the standard footer at the end:
+            🤖 Generated with [Claude Code](https://claude.ai/code)
 
           # Enable sticky comments for consistent review updates
           use_sticky_comment: true

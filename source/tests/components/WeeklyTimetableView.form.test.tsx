@@ -314,3 +314,249 @@ test('WeeklyTimetableView component structure meets accessibility requirements',
 		'Should render meaningful content for accessibility',
 	);
 });
+
+test('WeeklyTimetableView opens worklog form when Add Worklog key is pressed', async t => {
+	// 1. EXPLICIT TEST DATA
+	const expectedFormElements = [
+		'Time spent:',
+		'Comment:',
+		'Issue Key:',
+		'Submit',
+		'Cancel',
+	];
+	const expectedTransition = {
+		from: ['[A] Add Worklog', 'Navigate Cells'],
+		to: ['Time spent:', 'Switch Areas'],
+	};
+
+	// 2. OPERATIONS
+	const {lastFrame, stdin} = render(<WeeklyTimetableView {...defaultProps} />);
+
+	// Wait for initial render
+	await new Promise(resolve => {
+		setTimeout(resolve, 100);
+	});
+
+	// Verify initial state shows main navigation
+	const initialOutput = lastFrame() ?? '';
+	for (const element of expectedTransition.from) {
+		t.true(
+			initialOutput.includes(element),
+			`Initial state should show: ${element}`,
+		);
+	}
+
+	// Press 'a' to open Add Worklog form
+	stdin.write('a');
+
+	// Wait for form to open
+	await new Promise(resolve => {
+		setTimeout(resolve, 150);
+	});
+
+	// 3. SPECIFIC VALUE COMPARISONS
+	const formOutput = lastFrame() ?? '';
+
+	// Verify form elements are displayed
+	for (const element of expectedFormElements) {
+		t.true(
+			formOutput.includes(element),
+			`Form should display element: ${element}`,
+		);
+	}
+
+	// Verify transition to form instructions
+	for (const element of expectedTransition.to) {
+		t.true(formOutput.includes(element), `Form state should show: ${element}`);
+	}
+
+	// Verify main navigation is hidden when form is open
+	t.false(
+		formOutput.includes('[A] Add Worklog') &&
+			formOutput.includes('Navigate Cells'),
+		'Should hide main navigation when form is open',
+	);
+});
+
+test('WeeklyTimetableView handles form cancellation correctly', async t => {
+	// 1. EXPLICIT TEST DATA
+	const expectedReturnElements = [
+		'[A] Add Worklog',
+		'Navigate Cells',
+		'[Q] Quit',
+	];
+	const formElementsToDisappear = ['Time spent:', 'Switch Areas', 'Submit'];
+
+	// 2. OPERATIONS
+	const {lastFrame, stdin} = render(<WeeklyTimetableView {...defaultProps} />);
+
+	// Wait for initial render
+	await new Promise(resolve => {
+		setTimeout(resolve, 100);
+	});
+
+	// Open form
+	stdin.write('a');
+	await new Promise(resolve => {
+		setTimeout(resolve, 100);
+	});
+
+	// Verify form is open
+	const formOutput = lastFrame() ?? '';
+	t.true(
+		formOutput.includes('Time spent:'),
+		'Form should be open before cancellation',
+	);
+
+	// Cancel form with Escape
+	stdin.write('\u001B'); // ESC key
+	await new Promise(resolve => {
+		setTimeout(resolve, 100);
+	});
+
+	// 3. SPECIFIC VALUE COMPARISONS
+	const cancelOutput = lastFrame() ?? '';
+
+	// Verify return to main navigation
+	for (const element of expectedReturnElements) {
+		t.true(
+			cancelOutput.includes(element),
+			`Should return to main navigation: ${element}`,
+		);
+	}
+
+	// Verify form elements are hidden
+	for (const element of formElementsToDisappear) {
+		t.false(
+			cancelOutput.includes(element),
+			`Form element should be hidden after cancel: ${element}`,
+		);
+	}
+});
+
+test('WeeklyTimetableView form displays field validation and error states', async t => {
+	// 1. EXPLICIT TEST DATA
+	const validationScenarios = [
+		{
+			name: 'empty form submission',
+			formData: '',
+			expectedError: 'required',
+			shouldRemainOpen: true,
+		},
+	];
+	const formFieldsRequired = ['Time spent:', 'Comment:'];
+
+	// 2. OPERATIONS
+	const {lastFrame, stdin} = render(<WeeklyTimetableView {...defaultProps} />);
+
+	// Wait for initial render
+	await new Promise(resolve => {
+		setTimeout(resolve, 100);
+	});
+
+	// Open form
+	stdin.write('a');
+	await new Promise(resolve => {
+		setTimeout(resolve, 150);
+	});
+
+	// Verify form fields are present
+	const formOutput = lastFrame() ?? '';
+	for (const field of formFieldsRequired) {
+		t.true(
+			formOutput.includes(field),
+			`Form should display required field: ${field}`,
+		);
+	}
+
+	// Try to submit empty form
+	stdin.write('\r'); // Enter key
+	await new Promise(resolve => {
+		setTimeout(resolve, 100);
+	});
+
+	// 3. SPECIFIC VALUE COMPARISONS
+	const validationOutput = lastFrame() ?? '';
+	const scenario = validationScenarios[0]!;
+
+	// Form should still be open after failed validation
+	t.true(
+		scenario.shouldRemainOpen,
+		'Form should remain open for validation scenario',
+	);
+
+	// Should still show form fields (form remains open)
+	t.true(
+		validationOutput.includes('Time spent:'),
+		'Form should remain open when validation fails',
+	);
+
+	// Verify form doesn't just disappear without proper submission
+	t.true(
+		validationOutput.includes('Submit') || validationOutput.includes('Cancel'),
+		'Form controls should remain visible during validation',
+	);
+});
+
+test('WeeklyTimetableView integrates form behavior with keyboard navigation correctly', async t => {
+	// 1. EXPLICIT TEST DATA
+	const keyboardIntegration = {
+		mainNavigation: ['[A] Add Worklog', '[R] Refresh', '[Q] Quit'],
+		formNavigation: ['[Tab] Switch Areas', '[Enter] Submit', '[Esc] Cancel'],
+		transitionKeys: ['a', '\u001B'], // 'a' for add, ESC for cancel
+	};
+
+	// 2. OPERATIONS
+	const {lastFrame, stdin} = render(<WeeklyTimetableView {...defaultProps} />);
+
+	// Wait for initial render
+	await new Promise(resolve => {
+		setTimeout(resolve, 100);
+	});
+
+	// Test main navigation is present
+	const mainOutput = lastFrame() ?? '';
+	for (const nav of keyboardIntegration.mainNavigation) {
+		t.true(mainOutput.includes(nav), `Main navigation should include: ${nav}`);
+	}
+
+	// Open form with 'a' key
+	stdin.write(keyboardIntegration.transitionKeys[0]!);
+	await new Promise(resolve => {
+		setTimeout(resolve, 150);
+	});
+
+	// Test form navigation is present
+	const formOutput = lastFrame() ?? '';
+	for (const nav of keyboardIntegration.formNavigation) {
+		t.true(formOutput.includes(nav), `Form navigation should include: ${nav}`);
+	}
+
+	// Cancel with ESC key
+	stdin.write(keyboardIntegration.transitionKeys[1]!);
+	await new Promise(resolve => {
+		setTimeout(resolve, 100);
+	});
+
+	// 3. SPECIFIC VALUE COMPARISONS
+	const returnOutput = lastFrame() ?? '';
+
+	// Should return to main navigation
+	t.true(
+		returnOutput.includes('[A] Add Worklog'),
+		'Should return to main navigation after form cancel',
+	);
+
+	// Form navigation should be hidden
+	t.false(
+		returnOutput.includes('[Tab] Switch Areas'),
+		'Form-specific navigation should be hidden when form is closed',
+	);
+
+	// Verify integration works both ways
+	t.is(
+		keyboardIntegration.transitionKeys.length,
+		2,
+		'Should test both form open and close transitions',
+	);
+});

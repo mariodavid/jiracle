@@ -302,12 +302,12 @@ test('DurationInput converts comma to dot on submit with Enter', t => {
 		compact: true,
 	});
 
-	// Type "1,5" and press Enter - should convert comma to dot and auto-complete to "1.5h"
+	// Type "1,5" and press Enter - should convert comma to dot and auto-complete to "1h30m"
 	typeString(stdin, '1,5');
 	pressEnter(stdin);
 
-	t.is(submittedValue, '1.5h');
-	t.is(changedValue, '1.5h'); // Should also update the displayed value
+	t.is(submittedValue, '1h30m');
+	t.is(changedValue, '1h30m'); // Should also update the displayed value
 });
 
 test('DurationInput converts comma to dot on submit with Tab', t => {
@@ -328,12 +328,12 @@ test('DurationInput converts comma to dot on submit with Tab', t => {
 		compact: true,
 	});
 
-	// Type "2,5" and press Tab - should convert comma to dot and auto-complete to "2.5h"
+	// Type "2,5" and press Tab - should convert comma to dot and auto-complete to "2h30m"
 	typeString(stdin, '2,5');
 	pressTab(stdin);
 
-	t.is(submittedValue, '2.5h');
-	t.is(changedValue, '2.5h'); // Should also update the displayed value
+	t.is(submittedValue, '2h30m');
+	t.is(changedValue, '2h30m'); // Should also update the displayed value
 });
 
 test('DurationInput calls onBlur with normalized value on Tab', t => {
@@ -364,9 +364,9 @@ test('DurationInput calls onBlur with normalized value on Tab', t => {
 	typeString(stdin, '4,5');
 	pressTab(stdin);
 
-	t.is(blurredValue, '4.5h'); // OnBlur should receive normalized value
-	t.is(submittedValue, '4.5h'); // OnSubmit should also receive normalized value
-	t.is(changedValue, '4.5h'); // Should also update the displayed value
+	t.is(blurredValue, '4h30m'); // OnBlur should receive normalized value
+	t.is(submittedValue, '4h30m'); // OnSubmit should also receive normalized value
+	t.is(changedValue, '4h30m'); // Should also update the displayed value
 });
 
 // === CONFIGURATION TESTS ===

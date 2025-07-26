@@ -1,5 +1,5 @@
 import process from 'node:process';
-import {Duration} from '../utils/Duration.js';
+import {Duration} from '../domain/Duration.js';
 import type {
 	JiraConfig,
 	FavoriteIssue,
@@ -8,6 +8,9 @@ import type {
 	SlidingWindowConfig,
 	WorklogEntry,
 } from './types.js';
+
+// Default duration fallbacks
+const DEFAULT_TIME_FALLBACK = new Duration('1h');
 
 export function normalizeSlidingWindowConfig(
 	config: JiraConfig,
@@ -127,7 +130,7 @@ export function resolveDefaults(
 		commentSource = 'fallback';
 	}
 
-	let time = '1h';
+	let time = DEFAULT_TIME_FALLBACK.toString();
 	let timeSource: 'issue' | 'group' | 'global' | 'fallback' = 'fallback';
 
 	if (favorite?.defaultTime) {
@@ -140,7 +143,7 @@ export function resolveDefaults(
 		time = config.defaultTime;
 		timeSource = 'global';
 	} else {
-		time = '1h';
+		time = DEFAULT_TIME_FALLBACK.toString();
 		timeSource = 'fallback';
 	}
 

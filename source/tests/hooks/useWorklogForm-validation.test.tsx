@@ -7,6 +7,7 @@ import {
 	type UseWorklogFormOptions,
 } from '../../hooks/useWorklogForm.js';
 import type {JiraConfig} from '../../jira-client.js';
+import {Duration} from '../../domain/Duration.js';
 
 // Mock the JiraClient module
 const mockConfig: JiraConfig = {
@@ -43,7 +44,7 @@ function TestWorklogFormComponent({
 			<Text>Submitting: {worklogForm.worklogSubmitting.toString()}</Text>
 			<Text>Error: {worklogForm.worklogError ?? 'none'}</Text>
 			<Text>IssueKey: {worklogForm.worklogForm.issueKey}</Text>
-			<Text>TimeSpent: {worklogForm.worklogForm.timeSpent}</Text>
+			<Text>TimeSpent: {worklogForm.worklogForm.timeSpent.toString()}</Text>
 			<Text>Comment: {worklogForm.worklogForm.comment}</Text>
 			<Text>
 				IsEditable: {worklogForm.worklogForm.isIssueKeyEditable.toString()}
@@ -63,7 +64,7 @@ test('useWorklogForm validates invalid issue key format', async t => {
 	const submissionData = {
 		issueKey: invalidIssueKey,
 		date: new Date('2024-01-15'),
-		timeSpent: '2h',
+		timeSpent: new Duration('2h'),
 		comment: 'Valid comment',
 	};
 	let capturedState: any;
@@ -114,7 +115,7 @@ test('useWorklogForm accepts valid issue key format', async t => {
 	const submissionData = {
 		issueKey: validIssueKey,
 		date: new Date('2024-01-15'),
-		timeSpent: '2h',
+		timeSpent: new Duration('2h'),
 		comment: 'Valid comment',
 	};
 	let capturedState: any;
@@ -160,7 +161,7 @@ test('useWorklogForm tracks submitting state correctly', async t => {
 	const validSubmissionData = {
 		issueKey: 'TEST-123',
 		date: new Date('2024-01-15'),
-		timeSpent: '2h',
+		timeSpent: new Duration('2h'),
 		comment: 'Valid comment',
 	};
 	let capturedState: any;
@@ -235,7 +236,7 @@ test('useWorklogForm handles submission errors gracefully', async t => {
 	const invalidSubmissionData = {
 		issueKey: 'NONEXISTENT-999',
 		date: new Date('2024-01-15'),
-		timeSpent: '2h',
+		timeSpent: new Duration('2h'),
 		comment: 'Valid comment',
 	};
 	let capturedState: any;
