@@ -1,5 +1,5 @@
 import test from 'ava';
-import {Duration} from '../../utils/Duration.js';
+import {Duration} from '../../domain/Duration.js';
 import {
 	WorklogGroup,
 	type CreateGroupParameters,

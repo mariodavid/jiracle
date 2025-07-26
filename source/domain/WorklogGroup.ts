@@ -1,4 +1,4 @@
-import {Duration} from '../utils/Duration.js';
+import {Duration} from '../domain/Duration.js';
 import type {FavoriteIssue, Group} from '../jira/types.js';
 
 export type GroupId = string;
