@@ -1,6 +1,6 @@
 import {useState, useCallback} from 'react';
 import {JiraClient, type JiraConfig, resolveDefaults} from '../jira-client.js';
-import {formatLocalDateKey} from '../utils/date.js';
+import {LocalDate} from '../domain/LocalDate.js';
 import {uiLogger} from '../utils/logger.js';
 import {
 	detectWorklogForEdit,
@@ -16,7 +16,7 @@ import {Duration} from '../domain/Duration.js';
 
 export type WorklogFormData = {
 	issueKey: string;
-	date: Date;
+	date: LocalDate;
 	timeSpent: Duration;
 	comment: string;
 	isVisible: boolean;
@@ -41,11 +41,11 @@ export type UseWorklogFormReturn = {
 	worklogError: string | undefined;
 
 	// Actions
-	handleCellWorklog: (cellData: {issueKey: string; date: Date}) => void;
+	handleCellWorklog: (cellData: {issueKey: string; date: LocalDate}) => void;
 	handleAddWorklog: () => void;
 	handleWorklogSubmit: (data: {
 		issueKey: string;
-		date: Date;
+		date: LocalDate;
 		timeSpent: Duration;
 		comment: string;
 		worklogId?: string;
@@ -61,7 +61,7 @@ export function useWorklogForm(
 
 	// Helper function to calculate remaining time for a date
 	const calculateRemainingTime = useCallback(
-		async (date: Date, currentIssueKey: string) => {
+		async (date: LocalDate, currentIssueKey: string) => {
 			try {
 				// Check if attendance is enabled and get attendance data
 				if (!config.attendance?.enabled) {
@@ -69,7 +69,7 @@ export function useWorklogForm(
 				}
 
 				const attendanceManager = new AttendanceManager(config.attendance);
-				const dateKey = formatLocalDateKey(date);
+				const dateKey = date.toISOString();
 				// Use getAllAttendance and filter instead of accessing private storage
 				const allAttendance = await attendanceManager.getAllAttendance();
 				const attendance = allAttendance.find(a => a.date === dateKey);
@@ -81,7 +81,7 @@ export function useWorklogForm(
 				// Find daily summary for this date
 				const dailySummary = data?.dailySummaries.find(
 					(summary: DailyWorklogSummary) =>
-						formatLocalDateKey(summary.date) === dateKey,
+						LocalDate.fromDate(summary.date).toISOString() === dateKey,
 				);
 
 				if (!dailySummary) {
@@ -113,7 +113,7 @@ export function useWorklogForm(
 
 	const [worklogForm, setWorklogForm] = useState<WorklogFormData>({
 		issueKey: '',
-		date: new Date(),
+		date: LocalDate.today(),
 		timeSpent: new Duration('1h'),
 		comment: '',
 		isVisible: false,
@@ -126,11 +126,11 @@ export function useWorklogForm(
 	);
 
 	const handleCellWorklog = useCallback(
-		(cellData: {issueKey: string; date: Date}) => {
+		(cellData: {issueKey: string; date: LocalDate}) => {
 			// Find the specific daily summary for this date
-			const targetDateKey = formatLocalDateKey(cellData.date);
-			const dailySummary = data?.dailySummaries.find(
-				(summary: any) => formatLocalDateKey(summary.date) === targetDateKey,
+			const targetDate = cellData.date;
+			const dailySummary = data?.dailySummaries.find((summary: any) =>
+				LocalDate.fromDate(summary.date).equals(targetDate),
 			);
 
 			// Find the worklog entry for this issue on this date
@@ -235,7 +235,7 @@ export function useWorklogForm(
 
 		setWorklogForm({
 			issueKey: '',
-			date: new Date(), // Default to today
+			date: LocalDate.today(), // Default to today
 			timeSpent: new Duration(defaults.time),
 			comment: defaults.comment,
 			isVisible: true,
@@ -248,7 +248,7 @@ export function useWorklogForm(
 	const handleWorklogSubmit = useCallback(
 		async (data: {
 			issueKey: string;
-			date: Date;
+			date: LocalDate;
 			timeSpent: Duration;
 			comment: string;
 			worklogId?: string;
@@ -275,7 +275,7 @@ export function useWorklogForm(
 					issueKey: data.issueKey,
 					duration: durationSeconds,
 					comment: data.comment,
-					date: data.date,
+					date: new Date(data.date.toISOString()),
 					author: {
 						displayName: options.userEmail ?? 'Unknown User',
 						emailAddress: options.userEmail ?? 'unknown@example.com',

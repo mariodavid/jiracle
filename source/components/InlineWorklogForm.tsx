@@ -5,19 +5,20 @@ import type {JiraConfig, WorklogEntry} from '../jira-client.js';
 import {resolveDefaults} from '../jira-client.js';
 import {getCommentWithPrefill} from '../jira/utils.js';
 import {uiLogger} from '../utils/logger.js';
+import {LocalDate} from '../domain/LocalDate.js';
 import {Duration} from '../domain/Duration.js';
 import DurationInput from './WorklogForm/DurationInput.js';
 
 type InlineWorklogFormProps = {
 	issueKey: string;
-	date: Date;
+	date: LocalDate;
 	defaultTimeSpent?: Duration;
 	defaultComment?: string;
 	onSubmit: (data: {
 		issueKey: string;
 		timeSpent: Duration;
 		comment: string;
-		date: Date;
+		date: LocalDate;
 		worklogId?: string; // For edit mode
 	}) => void;
 	onCancel: () => void;
@@ -74,7 +75,7 @@ export function InlineWorklogForm({
 		const result = getCommentWithPrefill(config, issueKey, recentWorklogs, {
 			isEditMode,
 			explicitDefault: defaultComment,
-			referenceDate: currentDate,
+			referenceDate: new Date(currentDate.toISOString()),
 		});
 
 		return result;
@@ -106,7 +107,7 @@ export function InlineWorklogForm({
 				{
 					isEditMode,
 					explicitDefault: defaultComment,
-					referenceDate: currentDate,
+					referenceDate: new Date(currentDate.toISOString()),
 				},
 			);
 
@@ -362,15 +363,11 @@ export function InlineWorklogForm({
 		setDateInputValue(value);
 
 		// Only update the date state if it's a valid date format
-		if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
-			try {
-				const newDate = new Date(value + 'T00:00:00.000Z');
-				if (!Number.isNaN(newDate.getTime())) {
-					setCurrentDate(newDate);
-				}
-			} catch {
-				// Ignore invalid dates
-			}
+		try {
+			const localDate = LocalDate.fromString(value);
+			setCurrentDate(localDate);
+		} catch {
+			// Ignore invalid dates
 		}
 	};
 

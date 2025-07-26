@@ -3,6 +3,7 @@ import {tmpdir} from 'node:os';
 import {unlinkSync, existsSync} from 'node:fs';
 import test from 'ava';
 import {AttendanceManager} from '../../attendance/AttendanceManager.js';
+import {LocalDate} from '../../domain/LocalDate.js';
 import type {AttendanceConfig} from '../../attendance/types.js';
 
 function createTemporaryCSVPath(): string {
@@ -35,7 +36,7 @@ test('should check in with current time', async t => {
 
 	// Get current time before check-in
 	const beforeCheckIn = new Date();
-	const attendance = await manager.checkIn('2025-07-12');
+	const attendance = await manager.checkIn(LocalDate.fromString('2025-07-12'));
 	const afterCheckIn = new Date();
 
 	t.is(attendance.date, '2025-07-12');
@@ -64,7 +65,10 @@ test('should check in with custom time', async t => {
 	const csvPath = createTemporaryCSVPath();
 	const manager = new AttendanceManager(defaultConfig, csvPath);
 
-	const attendance = await manager.checkIn('2025-07-12', '08:30');
+	const attendance = await manager.checkIn(
+		LocalDate.fromString('2025-07-12'),
+		'08:30',
+	);
 
 	t.is(attendance.date, '2025-07-12');
 	t.is(attendance.checkIn, '08:30');
@@ -77,9 +81,12 @@ test('should throw error for invalid check-in time', async t => {
 	const csvPath = createTemporaryCSVPath();
 	const manager = new AttendanceManager(defaultConfig, csvPath);
 
-	await t.throwsAsync(manager.checkIn('2025-07-12', 'invalid'), {
-		message: 'Invalid check-in time format: invalid',
-	});
+	await t.throwsAsync(
+		manager.checkIn(LocalDate.fromString('2025-07-12'), 'invalid'),
+		{
+			message: 'Invalid check-in time format: invalid',
+		},
+	);
 
 	cleanup(csvPath);
 });
@@ -89,11 +96,11 @@ test('should check out with current time', async t => {
 	const manager = new AttendanceManager(defaultConfig, csvPath);
 
 	// Check in first with specific time (earlier in the day to ensure positive work hours)
-	await manager.checkIn('2025-07-12', '06:00');
+	await manager.checkIn(LocalDate.fromString('2025-07-12'), '06:00');
 
 	// Get current time before check-out
 	const beforeCheckOut = new Date();
-	const attendance = await manager.checkOut('2025-07-12');
+	const attendance = await manager.checkOut(LocalDate.fromString('2025-07-12'));
 	const afterCheckOut = new Date();
 
 	t.is(attendance.date, '2025-07-12');
@@ -123,8 +130,11 @@ test('should check out with custom time', async t => {
 	const csvPath = createTemporaryCSVPath();
 	const manager = new AttendanceManager(defaultConfig, csvPath);
 
-	await manager.checkIn('2025-07-12', '08:30');
-	const attendance = await manager.checkOut('2025-07-12', '17:30');
+	await manager.checkIn(LocalDate.fromString('2025-07-12'), '08:30');
+	const attendance = await manager.checkOut(
+		LocalDate.fromString('2025-07-12'),
+		'17:30',
+	);
 
 	t.is(attendance.checkOut, '17:30');
 	t.is(attendance.totalHours, 8.5); // 9 hours - 0.5 break
@@ -136,9 +146,12 @@ test('should throw error for invalid check-out time', async t => {
 	const csvPath = createTemporaryCSVPath();
 	const manager = new AttendanceManager(defaultConfig, csvPath);
 
-	await t.throwsAsync(manager.checkOut('2025-07-12', 'invalid'), {
-		message: 'Invalid check-out time format: invalid',
-	});
+	await t.throwsAsync(
+		manager.checkOut(LocalDate.fromString('2025-07-12'), 'invalid'),
+		{
+			message: 'Invalid check-out time format: invalid',
+		},
+	);
 
 	cleanup(csvPath);
 });
@@ -148,10 +161,10 @@ test('should get status for today', async t => {
 	const manager = new AttendanceManager(defaultConfig, csvPath);
 
 	// Use fixed times to get predictable status
-	await manager.checkIn('2025-07-12', '08:00');
-	await manager.checkOut('2025-07-12', '17:00');
+	await manager.checkIn(LocalDate.fromString('2025-07-12'), '08:00');
+	await manager.checkOut(LocalDate.fromString('2025-07-12'), '17:00');
 
-	const status = await manager.getStatus('2025-07-12');
+	const status = await manager.getStatus(LocalDate.fromString('2025-07-12'));
 
 	t.is(status.totalHours, 8.5); // 9 hours - 0.5 hour break
 	t.is(status.shouldHours, 8);
@@ -166,7 +179,7 @@ test('should get status for day with no attendance', async t => {
 	const csvPath = createTemporaryCSVPath();
 	const manager = new AttendanceManager(defaultConfig, csvPath);
 
-	const status = await manager.getStatus('2025-07-12');
+	const status = await manager.getStatus(LocalDate.fromString('2025-07-12'));
 
 	t.is(status.today, undefined);
 	t.is(status.totalHours, 0);
@@ -218,11 +231,11 @@ test('should get weekly attendance', async t => {
 	const manager = new AttendanceManager(defaultConfig, csvPath);
 
 	// Add attendance for some days
-	await manager.checkIn('2025-07-07', '08:00');
-	await manager.checkOut('2025-07-07', '17:00');
+	await manager.checkIn(LocalDate.fromString('2025-07-07'), '08:00');
+	await manager.checkOut(LocalDate.fromString('2025-07-07'), '17:00');
 
-	await manager.checkIn('2025-07-08', '08:15');
-	await manager.checkOut('2025-07-08', '17:15');
+	await manager.checkIn(LocalDate.fromString('2025-07-08'), '08:15');
+	await manager.checkOut(LocalDate.fromString('2025-07-08'), '17:15');
 
 	// Test with a date in that week (Wednesday)
 	const weeklyAttendance = await manager.getWeeklyAttendance(
@@ -242,14 +255,14 @@ test('should get weekly totals', async t => {
 	const manager = new AttendanceManager(defaultConfig, csvPath);
 
 	// Add full week attendance
-	await manager.checkIn('2025-07-07', '08:00');
-	await manager.checkOut('2025-07-07', '17:00');
+	await manager.checkIn(LocalDate.fromString('2025-07-07'), '08:00');
+	await manager.checkOut(LocalDate.fromString('2025-07-07'), '17:00');
 
-	await manager.checkIn('2025-07-08', '08:00');
-	await manager.checkOut('2025-07-08', '17:00');
+	await manager.checkIn(LocalDate.fromString('2025-07-08'), '08:00');
+	await manager.checkOut(LocalDate.fromString('2025-07-08'), '17:00');
 
-	await manager.checkIn('2025-07-09', '08:00');
-	await manager.checkOut('2025-07-09', '16:30');
+	await manager.checkIn(LocalDate.fromString('2025-07-09'), '08:00');
+	await manager.checkOut(LocalDate.fromString('2025-07-09'), '16:30');
 
 	const totals = await manager.getWeeklyTotals(new Date('2025-07-09'));
 
@@ -268,12 +281,12 @@ test('should correct time entries', async t => {
 	const manager = new AttendanceManager(defaultConfig, csvPath);
 
 	// Initial entry
-	await manager.checkIn('2025-07-12', '08:00');
-	await manager.checkOut('2025-07-12', '17:00');
+	await manager.checkIn(LocalDate.fromString('2025-07-12'), '08:00');
+	await manager.checkOut(LocalDate.fromString('2025-07-12'), '17:00');
 
 	// Correct the times
 	const corrected = await manager.correctTime(
-		'2025-07-12',
+		LocalDate.fromString('2025-07-12'),
 		'08:15', // New check-in
 		'17:30', // New check-out
 		45, // New break minutes
@@ -292,7 +305,7 @@ test('should check attendance status methods', async t => {
 	const manager = new AttendanceManager(defaultConfig, csvPath);
 
 	// Mock current date by using a specific date
-	const testDate = '2025-07-12';
+	const testDate = LocalDate.fromString('2025-07-12');
 
 	// Initially no check-in
 	t.false(await manager.hasCheckedInToday()); // This will check actual today
@@ -320,19 +333,25 @@ test('should format status messages correctly', async t => {
 	const manager = new AttendanceManager(defaultConfig, csvPath);
 
 	// Test with no attendance
-	const emptyStatus = await manager.getStatus('2025-07-12');
+	const emptyStatus = await manager.getStatus(
+		LocalDate.fromString('2025-07-12'),
+	);
 	const emptyMessage = manager.formatStatusMessage(emptyStatus);
 	t.is(emptyMessage, 'No attendance recorded. Expected: 8h');
 
 	// Test with check-in only
-	await manager.checkIn('2025-07-12', '08:00');
-	const checkedInStatus = await manager.getStatus('2025-07-12');
+	await manager.checkIn(LocalDate.fromString('2025-07-12'), '08:00');
+	const checkedInStatus = await manager.getStatus(
+		LocalDate.fromString('2025-07-12'),
+	);
 	const checkedInMessage = manager.formatStatusMessage(checkedInStatus);
 	t.is(checkedInMessage, 'Checked in at 08:00');
 
 	// Test with full day
-	await manager.checkOut('2025-07-12', '17:00');
-	const fullStatus = await manager.getStatus('2025-07-12');
+	await manager.checkOut(LocalDate.fromString('2025-07-12'), '17:00');
+	const fullStatus = await manager.getStatus(
+		LocalDate.fromString('2025-07-12'),
+	);
 	const fullMessage = manager.formatStatusMessage(fullStatus);
 	t.is(fullMessage, '08:00-17:00 (8h 30m, Target: 8h) +0h 30m ✅');
 

@@ -2,6 +2,7 @@ import {join} from 'node:path';
 import {tmpdir} from 'node:os';
 import {unlinkSync, existsSync} from 'node:fs';
 import test from 'ava';
+import {LocalDate} from '../../domain/LocalDate.js';
 import {AttendanceCSVStorage} from '../../attendance/AttendanceCSVStorage.js';
 import type {Attendance} from '../../attendance/types.js';
 
@@ -90,13 +91,13 @@ test('should get attendance by date', async t => {
 
 	await storage.write(attendances);
 
-	const result = await storage.getByDate('2025-07-11');
+	const result = await storage.getByDate(LocalDate.fromString('2025-07-11'));
 	t.is(result?.date, '2025-07-11');
 	t.is(result?.checkIn, '08:15');
 	t.is(result?.checkOut, '17:15');
 	t.is(result?.breakMinutes, 30);
 
-	const notFound = await storage.getByDate('2025-07-12');
+	const notFound = await storage.getByDate(LocalDate.fromString('2025-07-12'));
 	t.is(notFound, undefined);
 
 	cleanup(csvPath);
@@ -142,12 +143,15 @@ test('should get attendances by date range', async t => {
 	await storage.write(attendances);
 
 	const weekAttendances = await storage.getByDateRange(
-		'2025-07-08',
-		'2025-07-12',
+		LocalDate.fromString('2025-07-08'),
+		LocalDate.fromString('2025-07-12'),
 	);
 	t.is(weekAttendances.length, 5);
 
-	const midWeek = await storage.getByDateRange('2025-07-09', '2025-07-11');
+	const midWeek = await storage.getByDateRange(
+		LocalDate.fromString('2025-07-09'),
+		LocalDate.fromString('2025-07-11'),
+	);
 	t.is(midWeek.length, 3);
 
 	cleanup(csvPath);
@@ -164,7 +168,7 @@ test('should upsert attendance data', async t => {
 	};
 
 	await storage.upsert(initial);
-	let result = await storage.getByDate('2025-07-12');
+	let result = await storage.getByDate(LocalDate.fromString('2025-07-12'));
 	t.is(result?.date, '2025-07-12');
 	t.is(result?.checkIn, '08:00');
 	t.is(result?.breakMinutes, 30);
@@ -180,7 +184,7 @@ test('should upsert attendance data', async t => {
 	};
 
 	await storage.upsert(updated);
-	result = await storage.getByDate('2025-07-12');
+	result = await storage.getByDate(LocalDate.fromString('2025-07-12'));
 	t.is(result?.date, '2025-07-12');
 	t.is(result?.checkIn, '08:00');
 	t.is(result?.checkOut, '17:00');

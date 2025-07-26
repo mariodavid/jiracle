@@ -4,6 +4,7 @@ import {render} from 'ink-testing-library';
 import {InlineWorklogForm} from '../../components/InlineWorklogForm.js';
 import type {JiraConfig} from '../../jira-client.js';
 import {Duration} from '../../domain/Duration.js';
+import {LocalDate} from '../../domain/LocalDate.js';
 
 const mockConfig: JiraConfig = {
 	jiraUrl: 'https://jira.example.com/',
@@ -13,7 +14,7 @@ const mockConfig: JiraConfig = {
 
 const mockProps = {
 	issueKey: 'TEST-123',
-	date: new Date('2025-07-10T00:00:00.000Z'),
+	date: LocalDate.fromString('2025-07-10'),
 	defaultTimeSpent: new Duration('1h'),
 	defaultComment: '',
 	onSubmit() {},
@@ -111,7 +112,7 @@ test('InlineWorklogForm shows proper field layout in cell worklog mode', t => {
 });
 
 test('InlineWorklogForm displays date value correctly', t => {
-	const testDate = new Date('2025-12-25T00:00:00.000Z'); // Christmas
+	const testDate = LocalDate.fromString('2025-12-25'); // Christmas
 	const editableProps = {
 		...mockProps,
 		date: testDate,
@@ -167,7 +168,7 @@ test('InlineWorklogForm shows submitting state correctly', t => {
 });
 
 test('InlineWorklogForm uses current date by default in add worklog mode', t => {
-	const today = new Date();
+	const today = LocalDate.today();
 	const addWorklogProps = {
 		...mockProps,
 		date: today,
@@ -180,8 +181,8 @@ test('InlineWorklogForm uses current date by default in add worklog mode', t => 
 	const output = lastFrame() ?? '';
 
 	// Should show today's date in YYYY-MM-DD format
-	const expectedDate = today.toISOString().split('T')[0];
-	t.true(output.includes(expectedDate!));
+	const expectedDate = today.toISOString();
+	t.true(output.includes(expectedDate));
 });
 
 test('InlineWorklogForm SimpleDateInput allows editing', t => {

@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {Box, Text, useFocusManager} from 'ink';
 import figures from 'figures';
 import {type WeeklyWorklogSummary} from '../domain/WeeklyWorklogSummary.js';
-import {formatLocalDateKey} from '../utils/date.js';
+import {LocalDate} from '../domain/LocalDate.js';
 import type {FavoriteIssue, JiraConfig} from '../jira-client.js';
 import {type AttendanceManager} from '../attendance/AttendanceManager.js';
 import type {WeeklyAttendance} from '../attendance/types.js';
@@ -29,10 +29,10 @@ export type TimetableGridProps = {
 	data: WeeklyWorklogSummary | undefined;
 	isLoading: boolean;
 	onWeekChange?: (direction: 'prev' | 'next') => void;
-	onCellWorklog?: (data: {issueKey: string; date: Date}) => void;
-	onCellDelete?: (data: {issueKey: string; date: Date}) => void;
-	onAttendanceEdit?: (data: {date: Date}) => void;
-	onAttendanceDelete?: (data: {date: Date}) => void;
+	onCellWorklog?: (data: {issueKey: string; date: LocalDate}) => void;
+	onCellDelete?: (data: {issueKey: string; date: LocalDate}) => void;
+	onAttendanceEdit?: (data: {date: LocalDate}) => void;
+	onAttendanceDelete?: (data: {date: LocalDate}) => void;
 	onOpenInBrowser?: (issueKey: string) => void;
 	isActive?: boolean;
 	favoriteIssues?: FavoriteIssue[];
@@ -72,6 +72,7 @@ export function TimetableGrid({
 
 		const loadAttendanceData = async () => {
 			try {
+				// Convert to Date only at API boundary
 				const weekStart = new Date(data.weekStart);
 				const weekly = await attendanceManager.getWeeklyAttendance(weekStart);
 				setWeeklyAttendance(weekly);
@@ -88,8 +89,12 @@ export function TimetableGrid({
 	const {findInitialFocus} = useGridNavigation();
 
 	// Calculate values that depend on data (with safe defaults)
-	const weekStart = data ? new Date(data.weekStart) : new Date();
-	const weekDates = generateWeekDates(weekStart);
+	const weekStartLocal = data
+		? LocalDate.fromDate(new Date(data.weekStart))
+		: LocalDate.today().getWeekStart();
+	const weekDates = generateWeekDates(
+		new Date(weekStartLocal.toISOString() + 'T00:00:00.000Z'),
+	);
 	const issueMap =
 		data && data.dailySummaries.length > 0
 			? buildIssueMap(data)
@@ -99,7 +104,7 @@ export function TimetableGrid({
 	// Calculate daily deltas (logged hours - attendance hours)
 	const dailyLoggedHours: Record<string, number> = {};
 	for (const [index, date] of weekDates.entries()) {
-		const dateKey = formatLocalDateKey(date);
+		const dateKey = LocalDate.fromDate(date).toISOString();
 		dailyLoggedHours[dateKey] = dailyTotals[index] ?? 0;
 	}
 
@@ -168,14 +173,13 @@ export function TimetableGrid({
 			});
 
 			// Calculate preferred column index (today's weekday)
-			const today = new Date();
-			const todayDayOfWeek = today.getDay(); // 0=Sunday, 1=Monday, ..., 6=Saturday
-			const todayColumnIndex =
-				todayDayOfWeek >= 1 && todayDayOfWeek <= 5
-					? todayDayOfWeek - 1 // Monday=0, Tuesday=1, ..., Friday=4
-					: 0; // Default to Monday for weekends
+			const today = LocalDate.today();
+			const todayColumnIndex = weekDates.findIndex(date =>
+				LocalDate.fromDate(date).equals(today),
+			);
+			const preferredColumn = todayColumnIndex >= 0 ? todayColumnIndex : 0; // Default to Monday
 
-			const initialItem = findInitialFocus(focusableItems, todayColumnIndex);
+			const initialItem = findInitialFocus(focusableItems, preferredColumn);
 
 			if (initialItem) {
 				focus(initialItem.focusId);
@@ -350,7 +354,9 @@ export function TimetableGrid({
 											<FocusableCell
 												key={`${issueKey}-focusable-cell-${index}`}
 												value={formatHours(
-													issueData.dailyHours[formatLocalDateKey(date)] ?? 0,
+													issueData.dailyHours[
+														LocalDate.fromDate(date).toISOString()
+													] ?? 0,
 												)}
 												focusId={`issue-${issueKey}-${index}`}
 												isActive={true}
@@ -367,7 +373,9 @@ export function TimetableGrid({
 											>
 												<Text>
 													{formatHours(
-														issueData.dailyHours[formatLocalDateKey(date)] ?? 0,
+														issueData.dailyHours[
+															LocalDate.fromDate(date).toISOString()
+														] ?? 0,
 													)}
 												</Text>
 											</Box>

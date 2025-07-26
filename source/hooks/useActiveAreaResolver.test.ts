@@ -1,5 +1,6 @@
 import test from 'ava';
 import {Duration} from '../domain/Duration.js';
+import {LocalDate} from '../domain/LocalDate.js';
 import {
 	useActiveAreaResolver,
 	type ResolvedActiveArea,
@@ -18,7 +19,7 @@ const createWorklogForm = (
 ): WorklogFormData => ({
 	isVisible: false,
 	issueKey: '',
-	date: new Date(),
+	date: LocalDate.today(),
 	timeSpent: new Duration('0h'),
 	comment: '',
 	isIssueKeyEditable: false,
@@ -31,21 +32,21 @@ const createDeleteCandidate = (
 	overrides: Partial<DeleteCandidate> = {},
 ): DeleteCandidate => ({
 	issueKey: 'TEST-123',
-	date: new Date('2024-01-15'),
+	date: LocalDate.fromString('2024-01-15'),
 	...overrides,
 });
 
 const createDeleteAttendanceCandidate = (
 	overrides: Partial<DeleteAttendanceCandidate> = {},
 ): DeleteAttendanceCandidate => ({
-	date: new Date('2024-01-15'),
+	date: LocalDate.fromString('2024-01-15'),
 	...overrides,
 });
 
 const createAttendanceEdit = (
 	overrides: Partial<AttendanceEditState> = {},
 ): AttendanceEditState => ({
-	date: new Date('2024-01-15'),
+	date: LocalDate.fromString('2024-01-15'),
 	data: {
 		date: '2024-01-15',
 		checkIn: '09:00',

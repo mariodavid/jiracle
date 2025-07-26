@@ -1,4 +1,5 @@
 import process from 'node:process';
+import {LocalDate} from '../domain/LocalDate.js';
 import {AttendanceCSVStorage} from './AttendanceCSVStorage.js';
 import {AttendanceCalculations} from './AttendanceCalculations.js';
 import type {
@@ -17,8 +18,8 @@ export class AttendanceManager {
 		this.storage = new AttendanceCSVStorage(finalCsvPath);
 	}
 
-	async checkIn(date?: string, time?: string): Promise<Attendance> {
-		const targetDate = date ?? this.getCurrentDate();
+	async checkIn(date?: LocalDate, time?: string): Promise<Attendance> {
+		const targetDate = date ?? LocalDate.today();
 		const checkInTime = time ?? this.getCurrentTime();
 
 		if (!AttendanceCalculations.isValidTimeString(checkInTime)) {
@@ -29,7 +30,7 @@ export class AttendanceManager {
 
 		if (!attendance) {
 			attendance = {
-				date: targetDate,
+				date: targetDate.toISOString(),
 				breakMinutes: this.config.defaultBreakMinutes,
 			};
 		}
@@ -49,8 +50,8 @@ export class AttendanceManager {
 		return attendance;
 	}
 
-	async checkOut(date?: string, time?: string): Promise<Attendance> {
-		const targetDate = date ?? this.getCurrentDate();
+	async checkOut(date?: LocalDate, time?: string): Promise<Attendance> {
+		const targetDate = date ?? LocalDate.today();
 		const checkOutTime = time ?? this.getCurrentTime();
 
 		if (!AttendanceCalculations.isValidTimeString(checkOutTime)) {
@@ -61,7 +62,7 @@ export class AttendanceManager {
 
 		if (!attendance) {
 			attendance = {
-				date: targetDate,
+				date: targetDate.toISOString(),
 				breakMinutes: this.config.defaultBreakMinutes,
 			};
 		}
@@ -81,8 +82,8 @@ export class AttendanceManager {
 		return attendance;
 	}
 
-	async getStatus(date?: string): Promise<AttendanceStatus> {
-		const targetDate = date ?? this.getCurrentDate();
+	async getStatus(date?: LocalDate): Promise<AttendanceStatus> {
+		const targetDate = date ?? LocalDate.today();
 		const attendance = await this.storage.getByDate(targetDate);
 
 		return AttendanceCalculations.calculateStatus(
@@ -126,7 +127,7 @@ export class AttendanceManager {
 
 		const attendances = await Promise.all(
 			weekDates.map(async date => ({
-				date,
+				date: date.toISOString(),
 				attendance: await this.storage.getByDate(date),
 			})),
 		);
@@ -160,8 +161,8 @@ export class AttendanceManager {
 	}
 
 	async getAttendanceRange(
-		startDate: string,
-		endDate: string,
+		startDate: LocalDate,
+		endDate: LocalDate,
 	): Promise<Attendance[]> {
 		return this.storage.getByDateRange(startDate, endDate);
 	}
@@ -171,16 +172,17 @@ export class AttendanceManager {
 	}
 
 	async correctTime(
-		date: string,
+		date: LocalDate,
 		checkIn?: string,
 		checkOut?: string,
 		breakMinutes?: number,
 	): Promise<Attendance> {
-		let attendance = await this.storage.getByDate(date);
+		const targetDate = date;
+		let attendance = await this.storage.getByDate(targetDate);
 
 		if (!attendance) {
 			attendance = {
-				date,
+				date: targetDate.toISOString(),
 				breakMinutes: breakMinutes ?? this.config.defaultBreakMinutes,
 			};
 		}
@@ -234,32 +236,33 @@ export class AttendanceManager {
 		this.config = {...this.config, ...newConfig};
 	}
 
-	async deleteAttendance(date: string): Promise<boolean> {
-		const attendance = await this.storage.getByDate(date);
+	async deleteAttendance(date: LocalDate): Promise<boolean> {
+		const targetDate = date;
+		const attendance = await this.storage.getByDate(targetDate);
 		if (!attendance) {
 			return false; // No attendance record found for this date
 		}
 
 		// Remove the attendance record from storage
-		await this.storage.deleteByDate(date);
+		await this.storage.deleteByDate(targetDate);
 		return true;
 	}
 
 	// Utility methods for UI
 	async hasCheckedInToday(): Promise<boolean> {
-		const today = this.getCurrentDate();
+		const today = LocalDate.today();
 		const attendance = await this.storage.getByDate(today);
 		return Boolean(attendance?.checkIn);
 	}
 
 	async hasCheckedOutToday(): Promise<boolean> {
-		const today = this.getCurrentDate();
+		const today = LocalDate.today();
 		const attendance = await this.storage.getByDate(today);
 		return Boolean(attendance?.checkOut);
 	}
 
 	async getTodaysWorkTime(): Promise<number> {
-		const today = this.getCurrentDate();
+		const today = LocalDate.today();
 		const attendance = await this.storage.getByDate(today);
 
 		if (!attendance) {
@@ -314,10 +317,6 @@ export class AttendanceManager {
 		}
 
 		return parts.join(' ');
-	}
-
-	private getCurrentDate(): string {
-		return new Date().toISOString().split('T')[0]!;
 	}
 
 	private getCurrentTime(): string {

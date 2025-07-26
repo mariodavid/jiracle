@@ -1,6 +1,7 @@
 import {AttendanceManager} from '../attendance/AttendanceManager.js';
 import type {JiraConfig} from '../jira-client.js';
 import {loadJiraConfig} from '../utils/config-loader.js';
+import {LocalDate} from '../domain/LocalDate.js';
 
 export type AttendanceCommandResult = {
 	success: boolean;
@@ -37,15 +38,9 @@ function getAttendanceManager(
 }
 
 function validateDate(date: string): void {
-	if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
-		throw new Error('Date must be in YYYY-MM-DD format');
-	}
-
-	const testDate = new Date(date);
-	if (
-		Number.isNaN(testDate.getTime()) ||
-		testDate.toISOString().split('T')[0] !== date
-	) {
+	try {
+		LocalDate.fromString(date);
+	} catch {
 		throw new Error('Date must be in YYYY-MM-DD format');
 	}
 }
@@ -71,7 +66,10 @@ export async function executeCheckIn(
 		}
 
 		const manager = getAttendanceManager(configPath, csvPath);
-		const attendance = await manager.checkIn(parameters.date, parameters.time);
+		const dateLocal = parameters.date
+			? LocalDate.fromString(parameters.date)
+			: undefined;
+		const attendance = await manager.checkIn(dateLocal, parameters.time);
 
 		const time = attendance.checkIn!;
 
@@ -103,7 +101,10 @@ export async function executeCheckOut(
 		}
 
 		const manager = getAttendanceManager(configPath, csvPath);
-		const attendance = await manager.checkOut(parameters.date, parameters.time);
+		const dateLocal = parameters.date
+			? LocalDate.fromString(parameters.date)
+			: undefined;
+		const attendance = await manager.checkOut(dateLocal, parameters.time);
 
 		const {checkIn} = attendance;
 		const checkOut = attendance.checkOut!;
@@ -138,12 +139,14 @@ export async function executeStatus(
 		}
 
 		const manager = getAttendanceManager(configPath, csvPath);
-		const status = await manager.getStatus(parameters.date);
+		const dateLocal = parameters.date
+			? LocalDate.fromString(parameters.date)
+			: undefined;
+		const status = await manager.getStatus(dateLocal);
 
-		const date =
-			parameters.date ?? new Date().toISOString().split('T')[0] ?? '';
-		const todayString = new Date().toISOString().split('T')[0] ?? '';
-		const dateLabel = date === todayString ? 'Today' : date;
+		const date = dateLocal ?? LocalDate.today();
+		const today = LocalDate.today();
+		const dateLabel = date.equals(today) ? 'Today' : date.toISOString();
 
 		const statusMessage = manager.formatStatusMessage(status);
 

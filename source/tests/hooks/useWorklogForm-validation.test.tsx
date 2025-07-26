@@ -8,6 +8,7 @@ import {
 } from '../../hooks/useWorklogForm.js';
 import type {JiraConfig} from '../../jira-client.js';
 import {Duration} from '../../domain/Duration.js';
+import {LocalDate} from '../../domain/LocalDate.js';
 
 // Mock the JiraClient module
 const mockConfig: JiraConfig = {
@@ -290,12 +291,12 @@ test('useWorklogForm distinguishes between edit and new worklog modes', async t 
 	// 1. EXPLICIT TEST DATA
 	const existingWorklogData = {
 		issueKey: 'TEST-123',
-		date: new Date('2024-01-15'),
+		date: LocalDate.fromString('2024-01-15'),
 		worklogId: 'existing-worklog-123',
 	};
 	const newWorklogData = {
 		issueKey: 'TEST-456',
-		date: new Date('2024-01-15'),
+		date: LocalDate.fromString('2024-01-15'),
 	};
 	let capturedState: any;
 
@@ -357,6 +358,14 @@ test('useWorklogForm distinguishes between edit and new worklog modes', async t 
 
 	// Test new worklog mode
 	await capturedState.handleCellWorklog(newWorklogData);
+	rerender(
+		React.createElement(TestWorklogFormComponent, {
+			options: mockOptions,
+			onStateChange(state: any) {
+				capturedState = state;
+			},
+		}),
+	);
 	rerender(
 		React.createElement(TestWorklogFormComponent, {
 			options: mockOptions,

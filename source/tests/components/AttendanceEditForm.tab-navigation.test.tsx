@@ -3,9 +3,10 @@ import React from 'react';
 import {render} from 'ink-testing-library';
 import {AttendanceEditForm} from '../../components/AttendanceEditForm.js';
 import {InkTestHelpers} from '../utils/ink-test-helpers.js';
+import {LocalDate} from '../../domain/LocalDate.js';
 
 const mockProps = {
-	date: new Date('2025-07-11T00:00:00.000Z'),
+	date: LocalDate.fromString('2025-07-11'),
 	onSubmit() {},
 	onCancel() {},
 };

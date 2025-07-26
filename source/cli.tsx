@@ -4,6 +4,7 @@ import React from 'react';
 import {render} from 'ink';
 import meow from 'meow';
 import winston from 'winston';
+import {LocalDate} from './domain/LocalDate.js';
 import App from './app.js';
 import {JiraClient, type JiraConfig} from './jira-client.js';
 import {WorklogEntry} from './domain/WorklogEntry.js';
@@ -97,15 +98,9 @@ function validateWorklogParameters(parameters: WorklogAddParameters): void {
 		);
 	}
 
-	if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
-		throw new Error('Date must be in YYYY-MM-DD format');
-	}
-
-	const testDate = new Date(date);
-	if (
-		Number.isNaN(testDate.getTime()) ||
-		testDate.toISOString().split('T')[0] !== date
-	) {
+	try {
+		LocalDate.fromString(date);
+	} catch {
 		throw new Error('Date must be in YYYY-MM-DD format');
 	}
 
@@ -183,6 +178,12 @@ export async function executeWorklogAdd(
 		// Parse duration and create WorklogEntry for validation and API formatting
 		const durationMinutes = Duration.parseToMinutes(time);
 		const durationSeconds = durationMinutes * 60;
+
+		// Use LocalDate for consistent date handling
+		const workDate = new Date(
+			LocalDate.fromString(date).toISOString() + 'T00:00:00.000Z',
+		);
+		workDate.setHours(9, 0, 0, 0);
 
 		const worklogEntry = WorklogEntry.create({
 			issueKey: issue,
