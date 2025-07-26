@@ -92,16 +92,43 @@ jobs:
 
           # Method 3: Conservative fallback - check changed files directly
           if [[ -z "$DECISION" ]]; then
-            # For PRs, check changed files against base branch
-            CHANGED_FILES=$(git diff --name-only origin/main...HEAD 2>/dev/null || git diff --name-only HEAD~1 2>/dev/null || git diff --name-only --cached || echo "")
-            echo "Changed files detected: $CHANGED_FILES" >> $GITHUB_STEP_SUMMARY
+            echo "Trying Method 3: Git diff analysis" >> $GITHUB_STEP_SUMMARY
             
-            if [[ -n "$CHANGED_FILES" ]] && echo "$CHANGED_FILES" | grep -E '\.(test|spec)\.(ts|js)$' > /dev/null; then
+            # Try multiple git diff approaches for GitHub Actions
+            CHANGED_FILES=""
+            
+            # Method 3a: Try with PR base/head
+            if [[ -n "${{ github.event.pull_request.base.sha }}" ]] && [[ -n "${{ github.event.pull_request.head.sha }}" ]]; then
+              CHANGED_FILES=$(git diff --name-only ${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }} 2>/dev/null || echo "")
+              echo "Method 3a (PR base..head): $CHANGED_FILES" >> $GITHUB_STEP_SUMMARY
+            fi
+            
+            # Method 3b: Try origin/main...HEAD if 3a failed
+            if [[ -z "$CHANGED_FILES" ]]; then
+              CHANGED_FILES=$(git diff --name-only origin/main...HEAD 2>/dev/null || echo "")
+              echo "Method 3b (origin/main...HEAD): $CHANGED_FILES" >> $GITHUB_STEP_SUMMARY
+            fi
+            
+            # Method 3c: Try HEAD~1 if others failed
+            if [[ -z "$CHANGED_FILES" ]]; then
+              CHANGED_FILES=$(git diff --name-only HEAD~1 2>/dev/null || echo "")
+              echo "Method 3c (HEAD~1): $CHANGED_FILES" >> $GITHUB_STEP_SUMMARY
+            fi
+            
+            # Method 3d: Final fallback - use GitHub API data
+            if [[ -z "$CHANGED_FILES" ]]; then
+              CHANGED_FILES="${{ github.event.pull_request.changed_files }}"
+              echo "Method 3d (GitHub API): Using changed_files count as fallback" >> $GITHUB_STEP_SUMMARY
+            fi
+            
+            echo "Final changed files: $CHANGED_FILES" >> $GITHUB_STEP_SUMMARY
+            
+            if [[ -n "$CHANGED_FILES" ]] && echo "$CHANGED_FILES" | grep -E '\.(test|spec)\.(ts|js)$' > /dev/null 2>&1; then
               DECISION="REQUIRED"
-              echo "Found decision via Method 3 (git diff test files): $DECISION"
+              echo "Found decision via Method 3 (test files detected): $DECISION"
             else
               DECISION="SKIP"
-              echo "Found decision via Method 3 (no test files): $DECISION"
+              echo "Found decision via Method 3 (no test files detected): $DECISION"
             fi
           fi
 
