@@ -1,4 +1,4 @@
-import {Duration} from '../utils/Duration.js';
+import {Duration} from '../domain/Duration.js';
 
 /**
  * Parse time strings to Duration object
