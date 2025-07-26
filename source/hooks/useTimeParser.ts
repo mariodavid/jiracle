@@ -1,5 +1,5 @@
 import {TimeParsingService} from '../services/TimeParsingService.js';
-import type {Duration} from '../utils/Duration.js';
+import type {Duration} from '../domain/Duration.js';
 
 /**
  * Hook that provides time parsing functionality

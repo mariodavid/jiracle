@@ -3,7 +3,7 @@ import React from 'react';
 import {render} from 'ink-testing-library';
 import {InlineWorklogForm} from '../../components/InlineWorklogForm.js';
 import type {JiraConfig} from '../../jira-client.js';
-import {Duration} from '../../utils/Duration.js';
+import {Duration} from '../../domain/Duration.js';
 
 const mockConfig: JiraConfig = {
 	jiraUrl: 'https://jira.example.com/',

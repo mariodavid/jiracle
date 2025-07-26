@@ -2,7 +2,7 @@ import test from 'ava';
 import React from 'react';
 import {render} from 'ink-testing-library';
 import {InlineWorklogForm} from '../../components/InlineWorklogForm.js';
-import {Duration} from '../../utils/Duration.js';
+import {Duration} from '../../domain/Duration.js';
 
 const mockProps = {
 	issueKey: 'TEST-123',

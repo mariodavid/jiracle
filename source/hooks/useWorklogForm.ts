@@ -12,7 +12,7 @@ import type {
 } from '../domain/WeeklyWorklogSummary.js';
 import {AttendanceManager} from '../attendance/AttendanceManager.js';
 import {WorklogEntry} from '../domain/WorklogEntry.js';
-import {Duration} from '../utils/Duration.js';
+import {Duration} from '../domain/Duration.js';
 
 export type WorklogFormData = {
 	issueKey: string;
@@ -267,9 +267,8 @@ export function useWorklogForm(
 			});
 
 			try {
-				// Parse duration to seconds for validation
-				const durationMinutes = Duration.parseToMinutes(data.timeSpent);
-				const durationSeconds = durationMinutes * 60;
+				// Get duration in seconds for validation
+				const durationSeconds = data.timeSpent.toSeconds();
 
 				// Create WorklogEntry for validation and API request generation
 				const worklogEntry = WorklogEntry.create({

@@ -7,7 +7,7 @@ import {
 	type UseWorklogFormOptions,
 } from '../../hooks/useWorklogForm.js';
 import type {JiraConfig} from '../../jira-client.js';
-import {Duration} from '../../utils/Duration.js';
+import {Duration} from '../../domain/Duration.js';
 
 // Mock the JiraClient module
 const mockConfig: JiraConfig = {

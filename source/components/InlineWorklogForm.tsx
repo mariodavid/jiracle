@@ -5,7 +5,7 @@ import type {JiraConfig, WorklogEntry} from '../jira-client.js';
 import {resolveDefaults} from '../jira-client.js';
 import {getCommentWithPrefill} from '../jira/utils.js';
 import {uiLogger} from '../utils/logger.js';
-import {Duration} from '../utils/Duration.js';
+import {Duration} from '../domain/Duration.js';
 import DurationInput from './WorklogForm/DurationInput.js';
 
 type InlineWorklogFormProps = {

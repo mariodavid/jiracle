@@ -1,5 +1,5 @@
 import process from 'node:process';
-import {Duration} from '../utils/Duration.js';
+import {Duration} from '../domain/Duration.js';
 import type {
 	JiraConfig,
 	FavoriteIssue,
