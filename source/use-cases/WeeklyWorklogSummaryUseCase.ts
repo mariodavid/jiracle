@@ -4,7 +4,7 @@ import {
 	type JiraIssue,
 	type WorklogEntry,
 } from '../jira-client.js';
-import {formatLocalDateKey} from '../utils/date.js';
+import {LocalDate} from '../domain/LocalDate.js';
 import {uiLogger} from '../utils/logger.js';
 import {
 	type WeeklyWorklogSummary,
@@ -257,7 +257,7 @@ export class WeeklyWorklogSummaryUseCase {
 
 			for (const worklog of filteredWorklogs) {
 				const worklogDate = new Date(worklog.started);
-				const localDateKey = formatLocalDateKey(worklogDate);
+				const localDateKey = LocalDate.fromDate(worklogDate).toISOString();
 				const issueWorklogKey = `${issue.key}|${localDateKey}`;
 
 				// Track worklogs for this issue/date combination

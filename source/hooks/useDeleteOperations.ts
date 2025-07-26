@@ -1,6 +1,6 @@
 import {useState, useEffect, useCallback} from 'react';
 import {JiraClient, type JiraConfig} from '../jira-client.js';
-import {formatLocalDateKey} from '../utils/date.js';
+import {LocalDate} from '../domain/LocalDate.js';
 import {uiLogger} from '../utils/logger.js';
 import type {AttendanceManager} from '../attendance/AttendanceManager.js';
 
@@ -94,12 +94,15 @@ export function useDeleteOperations(
 				);
 
 				// Filter worklogs for the selected date and current user only
-				const targetDateString = formatLocalDateKey(deleteCandidate.date);
+				const targetDateString = LocalDate.fromDate(
+					deleteCandidate.date,
+				).toISOString();
 				const worklogsToDelete = worklogResponse.worklogs.filter(worklog => {
 					if (!worklog.started) return false;
 
 					const worklogDate = new Date(worklog.started);
-					const worklogDateString = formatLocalDateKey(worklogDate);
+					const worklogDateString =
+						LocalDate.fromDate(worklogDate).toISOString();
 
 					// Check if worklog is for the target date
 					if (worklogDateString !== targetDateString) return false;
@@ -157,9 +160,9 @@ export function useDeleteOperations(
 			setDeleteError(undefined);
 
 			try {
-				const targetDateString = formatLocalDateKey(
+				const targetDateString = LocalDate.fromDate(
 					deleteAttendanceCandidate.date,
-				);
+				).toISOString();
 				const deleted = await attendanceManager.deleteAttendance(
 					targetDateString,
 				);

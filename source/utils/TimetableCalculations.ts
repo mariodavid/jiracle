@@ -1,5 +1,5 @@
 import {type WeeklyWorklogSummary} from '../domain/WeeklyWorklogSummary.js';
-import {formatLocalDateKey} from './date.js';
+import {LocalDate} from '../domain/LocalDate.js';
 
 export function calculateDailyTotals(
 	data: WeeklyWorklogSummary,
@@ -8,9 +8,9 @@ export function calculateDailyTotals(
 	const totals: number[] = Array.from({length: 5}, () => 0);
 
 	for (const dailySummary of data.dailySummaries) {
-		const dateKey = formatLocalDateKey(dailySummary.date);
+		const dateKey = LocalDate.fromDate(dailySummary.date).toISOString();
 		const dayIndex = weekDates.findIndex(
-			date => formatLocalDateKey(date) === dateKey,
+			date => LocalDate.fromDate(date).toISOString() === dateKey,
 		);
 
 		if (dayIndex >= 0) {

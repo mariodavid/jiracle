@@ -2,7 +2,7 @@ import {useState, useEffect, useCallback} from 'react';
 import {AttendanceManager} from '../attendance/AttendanceManager.js';
 import type {Attendance} from '../attendance/types.js';
 import type {JiraConfig} from '../jira-client.js';
-import {formatLocalDateKey} from '../utils/date.js';
+import {LocalDate} from '../domain/LocalDate.js';
 
 export type AttendanceEditState = {
 	date: Date;
@@ -60,7 +60,7 @@ export function useAttendanceManagement(
 			try {
 				// Load existing attendance data for this date
 				// Use local date format to avoid timezone issues
-				const dateKey = formatLocalDateKey(data.date);
+				const dateKey = LocalDate.fromDate(data.date).toISOString();
 				// Load attendance data directly for this specific date using getAllAttendance
 				const allAttendance = await attendanceManager.getAllAttendance();
 				const existingData = allAttendance.find(a => a.date === dateKey);

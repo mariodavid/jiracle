@@ -1,6 +1,6 @@
 import React from 'react';
 import {Box, Text} from 'ink';
-import {formatLocalDateKey} from '../utils/date.js';
+import {LocalDate} from '../domain/LocalDate.js';
 import {formatHours} from '../utils/TimetableCalculations.js';
 import {AttendanceCalculations} from '../attendance/AttendanceCalculations.js';
 import {Duration} from '../utils/Duration.js';
@@ -70,7 +70,7 @@ export function AttendanceFooterRows({
 					{/* Day columns */}
 					{weekDates.map((date, index) => {
 						const cellValue = getWorkingHoursCellValue(
-							formatLocalDateKey(date),
+							LocalDate.fromDate(date).toISOString(),
 						);
 						return (
 							<Box
@@ -89,7 +89,7 @@ export function AttendanceFooterRows({
 								let totalHours = 0;
 								for (const date of weekDates) {
 									const cellValue = getWorkingHoursCellValue(
-										formatLocalDateKey(date),
+										LocalDate.fromDate(date).toISOString(),
 									);
 									const hours =
 										cellValue === '-' ? 0 : Number.parseFloat(cellValue);
@@ -108,7 +108,9 @@ export function AttendanceFooterRows({
 	// Render delta row
 	const renderDeltaRow = () => {
 		// Calculate deltas once for the entire week
-		const weekDateKeys = weekDates.map(date => formatLocalDateKey(date));
+		const weekDateKeys = weekDates.map(date =>
+			LocalDate.fromDate(date).toISOString(),
+		);
 		const dailyDeltas = AttendanceCalculations.calculateDailyDeltas(
 			weeklyAttendance,
 			dailyLoggedHours,
@@ -153,7 +155,7 @@ export function AttendanceFooterRows({
 					</Box>
 					{/* Day columns */}
 					{weekDates.map((date, index) => {
-						const dateKey = formatLocalDateKey(date);
+						const dateKey = LocalDate.fromDate(date).toISOString();
 						return (
 							<Box key={`delta-${index}`} width={12} justifyContent="flex-end">
 								<Text color={getDeltaCellColor(dateKey)}>
