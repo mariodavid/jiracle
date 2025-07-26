@@ -61,7 +61,7 @@ export function useDeleteOperations(
 	const [deleteError, setDeleteError] = useState<string | undefined>(undefined);
 
 	const handleCellDelete = useCallback(
-		(data: {issueKey: string; date: Date}) => {
+		(data: {issueKey: string; date: LocalDate}) => {
 			setDeleteCandidate(data);
 			onActiveAreaChange('delete-confirmation');
 		},
@@ -69,7 +69,7 @@ export function useDeleteOperations(
 	);
 
 	const handleDeleteAttendance = useCallback(
-		(data: {date: Date}) => {
+		(data: {date: LocalDate}) => {
 			setDeleteAttendanceCandidate(data);
 			onActiveAreaChange('delete-attendance-confirmation');
 		},
@@ -160,11 +160,8 @@ export function useDeleteOperations(
 			setDeleteError(undefined);
 
 			try {
-				const targetDateString = LocalDate.fromDate(
-					deleteAttendanceCandidate.date,
-				).toISOString();
 				const deleted = await attendanceManager.deleteAttendance(
-					targetDateString,
+					deleteAttendanceCandidate.date,
 				);
 
 				if (deleted) {
@@ -176,7 +173,7 @@ export function useDeleteOperations(
 					}
 
 					uiLogger.info(
-						`Successfully deleted attendance for ${targetDateString}`,
+						`Successfully deleted attendance for ${deleteAttendanceCandidate.date.toISOString()}`,
 					);
 				} else {
 					setDeleteError('No attendance found for the selected date');

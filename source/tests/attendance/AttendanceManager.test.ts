@@ -3,6 +3,7 @@ import {tmpdir} from 'node:os';
 import {unlinkSync, existsSync} from 'node:fs';
 import test from 'ava';
 import {AttendanceManager} from '../../attendance/AttendanceManager.js';
+import {LocalDate} from '../../domain/LocalDate.js';
 import type {AttendanceConfig} from '../../attendance/types.js';
 
 function createTemporaryCSVPath(): string {
@@ -35,7 +36,7 @@ test('should check in with current time', async t => {
 
 	// Get current time before check-in
 	const beforeCheckIn = new Date();
-	const attendance = await manager.checkIn('2025-07-12');
+	const attendance = await manager.checkIn(LocalDate.fromString('2025-07-12'));
 	const afterCheckIn = new Date();
 
 	t.is(attendance.date, '2025-07-12');
@@ -64,7 +65,10 @@ test('should check in with custom time', async t => {
 	const csvPath = createTemporaryCSVPath();
 	const manager = new AttendanceManager(defaultConfig, csvPath);
 
-	const attendance = await manager.checkIn('2025-07-12', '08:30');
+	const attendance = await manager.checkIn(
+		LocalDate.fromString('2025-07-12'),
+		'08:30',
+	);
 
 	t.is(attendance.date, '2025-07-12');
 	t.is(attendance.checkIn, '08:30');
@@ -123,7 +127,7 @@ test('should check out with custom time', async t => {
 	const csvPath = createTemporaryCSVPath();
 	const manager = new AttendanceManager(defaultConfig, csvPath);
 
-	await manager.checkIn('2025-07-12', '08:30');
+	await manager.checkIn(LocalDate.fromString('2025-07-12'), '08:30');
 	const attendance = await manager.checkOut('2025-07-12', '17:30');
 
 	t.is(attendance.checkOut, '17:30');
@@ -149,9 +153,9 @@ test('should get status for today', async t => {
 
 	// Use fixed times to get predictable status
 	await manager.checkIn('2025-07-12', '08:00');
-	await manager.checkOut('2025-07-12', '17:00');
+	await manager.checkOut(LocalDate.fromString('2025-07-12'), '17:00');
 
-	const status = await manager.getStatus('2025-07-12');
+	const status = await manager.getStatus(LocalDate.fromString('2025-07-12'));
 
 	t.is(status.totalHours, 8.5); // 9 hours - 0.5 hour break
 	t.is(status.shouldHours, 8);
@@ -166,7 +170,7 @@ test('should get status for day with no attendance', async t => {
 	const csvPath = createTemporaryCSVPath();
 	const manager = new AttendanceManager(defaultConfig, csvPath);
 
-	const status = await manager.getStatus('2025-07-12');
+	const status = await manager.getStatus(LocalDate.fromString('2025-07-12'));
 
 	t.is(status.today, undefined);
 	t.is(status.totalHours, 0);
@@ -269,7 +273,7 @@ test('should correct time entries', async t => {
 
 	// Initial entry
 	await manager.checkIn('2025-07-12', '08:00');
-	await manager.checkOut('2025-07-12', '17:00');
+	await manager.checkOut(LocalDate.fromString('2025-07-12'), '17:00');
 
 	// Correct the times
 	const corrected = await manager.correctTime(
@@ -320,19 +324,25 @@ test('should format status messages correctly', async t => {
 	const manager = new AttendanceManager(defaultConfig, csvPath);
 
 	// Test with no attendance
-	const emptyStatus = await manager.getStatus('2025-07-12');
+	const emptyStatus = await manager.getStatus(
+		LocalDate.fromString('2025-07-12'),
+	);
 	const emptyMessage = manager.formatStatusMessage(emptyStatus);
 	t.is(emptyMessage, 'No attendance recorded. Expected: 8h');
 
 	// Test with check-in only
-	await manager.checkIn('2025-07-12', '08:00');
-	const checkedInStatus = await manager.getStatus('2025-07-12');
+	await manager.checkIn(LocalDate.fromString('2025-07-12'), '08:00');
+	const checkedInStatus = await manager.getStatus(
+		LocalDate.fromString('2025-07-12'),
+	);
 	const checkedInMessage = manager.formatStatusMessage(checkedInStatus);
 	t.is(checkedInMessage, 'Checked in at 08:00');
 
 	// Test with full day
-	await manager.checkOut('2025-07-12', '17:00');
-	const fullStatus = await manager.getStatus('2025-07-12');
+	await manager.checkOut(LocalDate.fromString('2025-07-12'), '17:00');
+	const fullStatus = await manager.getStatus(
+		LocalDate.fromString('2025-07-12'),
+	);
 	const fullMessage = manager.formatStatusMessage(fullStatus);
 	t.is(fullMessage, '08:00-17:00 (8h 30m, Target: 8h) +0h 30m ✅');
 

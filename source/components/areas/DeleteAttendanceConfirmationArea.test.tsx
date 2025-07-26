@@ -1,11 +1,12 @@
 import test from 'ava';
 import React from 'react';
 import {render} from 'ink-testing-library';
+import {LocalDate} from '../../domain/LocalDate.js';
 import type {DeleteAttendanceCandidate} from '../../hooks/useDeleteOperations.js';
 import {DeleteAttendanceConfirmationArea} from './DeleteAttendanceConfirmationArea.js';
 
 const mockDeleteAttendanceCandidate: DeleteAttendanceCandidate = {
-	date: new Date('2024-01-15'),
+	date: LocalDate.fromString('2024-01-15'),
 };
 
 const mockFormatDate = (date: Date) => {
@@ -123,7 +124,7 @@ test('DeleteAttendanceConfirmationArea handles cancellation callback', t => {
 
 test('DeleteAttendanceConfirmationArea handles different dates', t => {
 	const differentCandidate: DeleteAttendanceCandidate = {
-		date: new Date('2024-12-25'),
+		date: LocalDate.fromString('2024-12-25'),
 	};
 
 	const mockOnConfirm = () => {};

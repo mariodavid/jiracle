@@ -120,7 +120,7 @@ test('DeleteWorklogConfirmationArea uses correct dialog styling', t => {
 test('DeleteWorklogConfirmationArea handles different issue keys', t => {
 	const differentCandidate: DeleteCandidate = {
 		issueKey: 'DIFFERENT-456',
-		date: new Date('2024-02-20'),
+		date: LocalDate.fromString('2024-02-20'),
 	};
 
 	const mockOnConfirm = () => {};
