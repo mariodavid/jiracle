@@ -3,6 +3,7 @@ import {Box} from 'ink';
 import {InlineWorklogForm} from '../InlineWorklogForm.js';
 import type {WorklogFormData} from '../../hooks/useWorklogForm.js';
 import type {JiraConfig, WorklogEntry, JiraClient} from '../../jira-client.js';
+import type {Duration} from '../../utils/Duration.js';
 
 export type WorklogFormAreaProps = {
 	worklogForm: WorklogFormData;
@@ -13,7 +14,7 @@ export type WorklogFormAreaProps = {
 	onSubmit: (data: {
 		issueKey: string;
 		date: Date;
-		timeSpent: string;
+		timeSpent: Duration;
 		comment: string;
 		worklogId?: string;
 	}) => Promise<void>;

@@ -46,7 +46,7 @@ test('detectWorklogForEdit - single editable worklog with ID', t => {
 	t.true(result.isEditable);
 	t.is(result.worklogId, 'worklog-456');
 	t.is(result.comment, 'Development work');
-	t.is(result.timeSpent, '2h 30m');
+	t.is(result.timeSpent, '2h30m');
 });
 
 test('detectWorklogForEdit - single editable worklog with empty comment', t => {
@@ -87,11 +87,11 @@ test('detectWorklogForEdit - time spent formatting', t => {
 	const testCases = [
 		{hours: 1, expected: '1h'},
 		{hours: 0.5, expected: '30m'},
-		{hours: 2.25, expected: '2h 15m'},
+		{hours: 2.25, expected: '2h15m'},
 		{hours: 0.25, expected: '15m'},
 		{hours: 3, expected: '3h'},
 		{hours: 0.1, expected: '6m'},
-		{hours: 8.75, expected: '8h 45m'},
+		{hours: 8.75, expected: '8h45m'},
 	];
 
 	for (const {hours, expected} of testCases) {

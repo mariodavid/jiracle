@@ -184,11 +184,11 @@ test('DurationInput converts comma to dot with smart unit detection for decimals
 		compact: true,
 	});
 
-	// Type "1,5" and press Enter - should convert to "1.5h"
+	// Type "1,5" and press Enter - should convert to "1h30m"
 	typeString(stdin, '1,5');
 	pressEnter(stdin);
 
-	t.is(submittedValue, '1.5h');
+	t.is(submittedValue, '1h30m');
 });
 
 test('DurationInput converts comma to dot with smart unit detection for minutes', t => {
@@ -203,11 +203,11 @@ test('DurationInput converts comma to dot with smart unit detection for minutes'
 		compact: true,
 	});
 
-	// Type "30,5" and press Enter - decimals are always hours, so should be "30.5h"
+	// Type "30,5" and press Enter - decimals are always hours, so should be "30h30m"
 	typeString(stdin, '30,5');
 	pressEnter(stdin);
 
-	t.is(submittedValue, '30.5h');
+	t.is(submittedValue, '30h30m');
 });
 
 test('DurationInput converts comma to dot when unit is already present', t => {
@@ -222,11 +222,11 @@ test('DurationInput converts comma to dot when unit is already present', t => {
 		compact: true,
 	});
 
-	// Type "2,5h" and press Enter - should convert to "2.5h"
+	// Type "2,5h" and press Enter - should convert to "2h30m"
 	typeString(stdin, '2,5h');
 	pressEnter(stdin);
 
-	t.is(submittedValue, '2.5h');
+	t.is(submittedValue, '2h30m');
 });
 
 test('DurationInput converts comma to dot with Tab key', t => {
@@ -241,11 +241,11 @@ test('DurationInput converts comma to dot with Tab key', t => {
 		compact: true,
 	});
 
-	// Type "1,5" and press Tab - should convert to "1.5h"
+	// Type "1,5" and press Tab - should convert to "1h30m"
 	typeString(stdin, '1,5');
 	pressTab(stdin);
 
-	t.is(submittedValue, '1.5h');
+	t.is(submittedValue, '1h30m');
 });
 
 test('DurationInput handles multiple commas correctly', t => {
@@ -272,10 +272,10 @@ test('DurationInput handles multiple commas correctly', t => {
 	stdin.write('5'); // This might be accepted as another digit
 	pressEnter(stdin);
 
-	// The actual behavior might accept "1,55" -> "1.55h" due to validation logic
-	// Check that comma is converted to dot in final result
-	t.true(submittedValue.includes('.'));
-	t.true(submittedValue.endsWith('h'));
+	// The actual behavior might accept "1,55" -> "1h33m" due to validation logic
+	// Check that comma is converted and formatted as Duration
+	t.true(submittedValue.includes('h'));
+	t.false(submittedValue.includes('.'));
 	t.false(submittedValue.includes(','));
 });
 
