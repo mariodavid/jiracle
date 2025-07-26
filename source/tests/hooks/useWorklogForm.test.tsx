@@ -292,8 +292,7 @@ test('useWorklogForm clearError removes error after validation failure', async t
 		timeSpent: '2h',
 		comment: 'Valid comment',
 	};
-	const expectedValidationError =
-		'Issue key is required. Please enter a valid Jira issue key (e.g., DEF-123).';
+	const expectedValidationError = 'Issue key is required and cannot be empty';
 	let capturedState: any;
 
 	const mockOptions: UseWorklogFormOptions = {
@@ -437,8 +436,7 @@ test('useWorklogForm validates required fields on submission', async t => {
 		timeSpent: '2h',
 		comment: 'Valid comment',
 	};
-	const expectedErrorMessage =
-		'Issue key is required. Please enter a valid Jira issue key (e.g., DEF-123).';
+	const expectedErrorMessage = 'Issue key is required and cannot be empty';
 	let capturedState: any;
 	let refreshCalled = false;
 
