@@ -5,6 +5,7 @@ import figures from 'figures';
 import {TimetableGrid} from '../../components/TimetableGrid.js';
 import type {WeeklyWorklogSummary} from '../../domain/WeeklyWorklogSummary.js';
 import {LocalDate} from '../../domain/LocalDate.js';
+import {IssueKey} from '../../domain/IssueKey.js';
 
 test('TimetableGrid shows favorite issues with asterisk marker', t => {
 	const sampleData: WeeklyWorklogSummary = {
@@ -16,12 +17,12 @@ test('TimetableGrid shows favorite issues with asterisk marker', t => {
 				totalHours: 6,
 				issues: [
 					{
-						issueKey: 'ABC-5417',
+						issueKey: IssueKey.fromString('ABC-5417'),
 						issueSummary: 'Favorite issue',
 						hours: 3,
 					},
 					{
-						issueKey: 'DEF-2456',
+						issueKey: IssueKey.fromString('DEF-2456'),
 						issueSummary: 'Regular issue',
 						hours: 3,
 					},
@@ -77,7 +78,7 @@ test('TimetableGrid handles favorite issues without worklogs', t => {
 				totalHours: 3,
 				issues: [
 					{
-						issueKey: 'DEF-2456',
+						issueKey: IssueKey.fromString('DEF-2456'),
 						issueSummary: 'Issue with worklog',
 						hours: 3,
 					},
@@ -187,12 +188,12 @@ test('TimetableGrid displays aliases for favorite issues', t => {
 				totalHours: 6,
 				issues: [
 					{
-						issueKey: 'DEF-2456',
+						issueKey: IssueKey.fromString('DEF-2456'),
 						issueSummary: 'Dev work issue',
 						hours: 4,
 					},
 					{
-						issueKey: 'ABC-5419',
+						issueKey: IssueKey.fromString('ABC-5419'),
 						issueSummary: 'Monitoring issue',
 						hours: 2,
 					},
@@ -256,7 +257,7 @@ test('TimetableGrid shows original key when no alias is configured', t => {
 				totalHours: 4,
 				issues: [
 					{
-						issueKey: 'DEF-2456',
+						issueKey: IssueKey.fromString('DEF-2456'),
 						issueSummary: 'Issue without alias',
 						hours: 4,
 					},
@@ -301,12 +302,12 @@ test('TimetableGrid handles mixed alias and non-alias favorites', t => {
 				totalHours: 6,
 				issues: [
 					{
-						issueKey: 'DEF-2456',
+						issueKey: IssueKey.fromString('DEF-2456'),
 						issueSummary: 'Dev work',
 						hours: 3,
 					},
 					{
-						issueKey: 'ABC-5419',
+						issueKey: IssueKey.fromString('ABC-5419'),
 						issueSummary: 'Regular work',
 						hours: 3,
 					},

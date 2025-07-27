@@ -4,9 +4,10 @@ import {render} from 'ink-testing-library';
 import {InlineWorklogForm} from '../../components/InlineWorklogForm.js';
 import {Duration} from '../../domain/Duration.js';
 import {LocalDate} from '../../domain/LocalDate.js';
+import {IssueKey} from '../../domain/IssueKey.js';
 
 const mockProps = {
-	issueKey: 'TEST-123',
+	issueKey: IssueKey.fromString('TEST-123'),
 	date: LocalDate.fromString('2025-07-10'),
 	defaultTimeSpent: new Duration('1h'),
 	defaultComment: '',
@@ -405,7 +406,7 @@ test('InlineWorklogForm explicit defaultTimeSpent overrides config', t => {
 test('InlineWorklogForm shows issue key field when isIssueKeyEditable is true', t => {
 	const editableKeyProps = {
 		...mockProps,
-		issueKey: '',
+		issueKey: undefined,
 		isIssueKeyEditable: true,
 	};
 
@@ -438,7 +439,7 @@ test('InlineWorklogForm hides issue key field when isIssueKeyEditable is false',
 test('InlineWorklogForm shows date field when isIssueKeyEditable is true', t => {
 	const editableKeyProps = {
 		...mockProps,
-		issueKey: '',
+		issueKey: undefined,
 		isIssueKeyEditable: true,
 	};
 	const {lastFrame} = render(
@@ -467,7 +468,7 @@ test('InlineWorklogForm hides date field when isIssueKeyEditable is false', t =>
 test('InlineWorklogForm calls onSubmit with date when form is submitted', t => {
 	const editableKeyProps = {
 		...mockProps,
-		issueKey: 'TEST-123',
+		issueKey: IssueKey.fromString('TEST-123'),
 		isIssueKeyEditable: true,
 	};
 
@@ -486,7 +487,7 @@ test('InlineWorklogForm calls onSubmit with date when form is submitted', t => {
 test('InlineWorklogForm handles empty issue key in add worklog mode', t => {
 	const editableKeyProps = {
 		...mockProps,
-		issueKey: '', // Empty issue key for add worklog mode
+		issueKey: undefined, // Empty issue key for add worklog mode
 		isIssueKeyEditable: true,
 	};
 	const {lastFrame} = render(
