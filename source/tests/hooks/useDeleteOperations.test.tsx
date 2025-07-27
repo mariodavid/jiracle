@@ -18,7 +18,11 @@ const mockConfig: JiraConfig = {
 	defaultTime: '4h',
 	defaultComment: 'Test work',
 	favorites: [
-		{key: 'TEST-123', defaultTime: '2h', defaultComment: 'Favorite work'},
+		{
+			key: IssueKey.fromString('TEST-123'),
+			defaultTime: '2h',
+			defaultComment: 'Favorite work',
+		},
 	],
 };
 
@@ -115,7 +119,10 @@ test('useDeleteOperations handleCellDelete sets candidate and changes area', t =
 	);
 
 	// Call handleCellDelete
-	const testData = {issueKey: 'TEST-456', date: new Date('2024-01-15')};
+	const testData = {
+		issueKey: IssueKey.fromString('TEST-456'),
+		date: new Date('2024-01-15'),
+	};
 	capturedState.handleCellDelete(testData);
 	rerender(
 		React.createElement(TestDeleteOperationsComponent, {
@@ -192,7 +199,10 @@ test('useDeleteOperations handleDeleteConfirm cancels when not confirmed', async
 	);
 
 	// Set up a delete candidate first
-	capturedState.handleCellDelete({issueKey: 'TEST-123', date: new Date()});
+	capturedState.handleCellDelete({
+		issueKey: IssueKey.fromString('TEST-123'),
+		date: new Date(),
+	});
 	rerender(
 		React.createElement(TestDeleteOperationsComponent, {
 			options: mockOptions,
@@ -363,7 +373,10 @@ test('useDeleteOperations candidate structures are correct', t => {
 	);
 
 	// Test delete candidate structure
-	const deleteData = {issueKey: 'TEST-789', date: new Date('2024-02-01')};
+	const deleteData = {
+		issueKey: IssueKey.fromString('TEST-789'),
+		date: new Date('2024-02-01'),
+	};
 	capturedState.handleCellDelete(deleteData);
 	rerender(
 		React.createElement(TestDeleteOperationsComponent, {

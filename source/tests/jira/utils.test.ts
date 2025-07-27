@@ -303,7 +303,7 @@ test('getCommentWithPrefill respects configurable lookback days with reference d
 		defaultComment: 'Fallback comment',
 		favorites: [
 			{
-				key: 'TEST-123',
+				key: IssueKey.fromString('TEST-123'),
 				commentPrefillDays: 5, // But issue-specific is only 5 days
 			},
 		],

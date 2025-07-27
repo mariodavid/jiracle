@@ -41,7 +41,7 @@ test('WeeklyWorklogSummaryUseCase supports bidirectional sliding window', async 
 				issues: [
 					{
 						id: '111111',
-						key: 'PAST-100',
+						key: IssueKey.fromString('PAST-100'),
 						fields: {
 							summary: 'Past sliding window issue',
 							status: {
@@ -71,7 +71,7 @@ test('WeeklyWorklogSummaryUseCase supports bidirectional sliding window', async 
 				issues: [
 					{
 						id: '222222',
-						key: 'FUTURE-100',
+						key: IssueKey.fromString('FUTURE-100'),
 						fields: {
 							summary: 'Future sliding window issue',
 							status: {name: 'Open', statusCategory: {name: 'To Do'}},
@@ -203,7 +203,7 @@ test('WeeklyWorklogSummaryUseCase bidirectional deduplication works correctly', 
 				issues: [
 					{
 						id: '111111',
-						key: 'SHARED-100',
+						key: IssueKey.fromString('SHARED-100'),
 						fields: {
 							summary: 'Issue in both windows',
 							status: {

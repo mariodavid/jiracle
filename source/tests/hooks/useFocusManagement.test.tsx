@@ -53,7 +53,7 @@ test('useFocusManagement: handles focus change to regular issue', t => {
 	const testColumnIndex = 2;
 	const isFocused = true;
 	const expectedFocusedCell = {
-		issueKey: 'PROJ-123',
+		issueKey: IssueKey.fromString('PROJ-123'),
 		columnIndex: 2,
 		isAttendance: false,
 	};
@@ -126,7 +126,7 @@ test('useFocusManagement: ignores blur events', t => {
 	const testIssueKey = 'PROJ-456';
 	const testColumnIndex = 0;
 	const initialFocusedCell = {
-		issueKey: 'PROJ-456',
+		issueKey: IssueKey.fromString('PROJ-456'),
 		columnIndex: 0,
 		isAttendance: false,
 	};

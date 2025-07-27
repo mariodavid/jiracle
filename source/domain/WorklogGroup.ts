@@ -1,9 +1,8 @@
 import {Duration} from '../domain/Duration.js';
 import type {FavoriteIssue, Group} from '../jira/types.js';
+import type {IssueKey} from './IssueKey.js';
 
 export type GroupId = string;
-
-export type IssueKey = string;
 
 export type WorklogGroupResolvedDefaults = {
 	comment: string;
@@ -74,7 +73,9 @@ export class WorklogGroup {
 		issueKey: IssueKey,
 		globalDefaults?: {comment?: string; time?: string},
 	): WorklogGroupResolvedDefaults {
-		const favorite = this.data.favoriteIssues.find(fav => fav.key === issueKey);
+		const favorite = this.data.favoriteIssues.find(fav =>
+			fav.key.equals(issueKey),
+		);
 
 		let comment = '';
 		let commentSource: 'issue' | 'group' | 'global' | 'fallback' = 'fallback';
@@ -139,7 +140,7 @@ export class WorklogGroup {
 
 	removeFavoriteIssue(issueKey: IssueKey): WorklogGroup {
 		const updatedFavorites = this.data.favoriteIssues.filter(
-			fav => fav.key !== issueKey,
+			fav => !fav.key.equals(issueKey),
 		);
 
 		const updatedGroupData: GroupData = {
@@ -192,7 +193,7 @@ export class WorklogGroup {
 	}
 
 	containsIssue(issueKey: IssueKey): boolean {
-		return this.data.favoriteIssues.some(fav => fav.key === issueKey);
+		return this.data.favoriteIssues.some(fav => fav.key.equals(issueKey));
 	}
 
 	toConfig(): GroupConfig {

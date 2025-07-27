@@ -333,7 +333,8 @@ export function TimetableGrid({
 						</Box>
 					)}
 					{group.issues.map(([issueKey, issueData]) => {
-						const isRowHighlighted = focusedCell?.issueKey === issueKey;
+						const isRowHighlighted =
+							focusedCell?.issueKey.toString() === issueKey;
 						return (
 							<Box key={issueKey} flexDirection="column">
 								<Box flexDirection="row">
@@ -361,7 +362,7 @@ export function TimetableGrid({
 												)}
 												focusId={`issue-${issueKey}-${index}`}
 												isActive={true}
-												issueKey={issueKey}
+												issueKey={IssueKey.fromString(issueKey)}
 												columnIndex={index}
 												width={12}
 												onFocusChange={handleFocusChange}

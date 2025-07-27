@@ -5,6 +5,7 @@ import {InlineWorklogForm} from '../../components/InlineWorklogForm.js';
 import type {JiraConfig} from '../../jira-client.js';
 import {Duration} from '../../domain/Duration.js';
 import {LocalDate} from '../../domain/LocalDate.js';
+import {IssueKey} from '../../domain/IssueKey.js';
 
 const mockConfig: JiraConfig = {
 	jiraUrl: 'https://jira.example.com/',
@@ -13,7 +14,7 @@ const mockConfig: JiraConfig = {
 };
 
 const mockProps = {
-	issueKey: 'TEST-123',
+	issueKey: IssueKey.fromString('TEST-123'),
 	date: LocalDate.fromString('2025-07-10'),
 	defaultTimeSpent: new Duration('1h'),
 	defaultComment: '',
@@ -26,7 +27,7 @@ const mockProps = {
 test('InlineWorklogForm tab navigation includes date field when issue key is editable', t => {
 	const editableProps = {
 		...mockProps,
-		issueKey: '',
+		issueKey: undefined,
 		isIssueKeyEditable: true,
 	};
 
@@ -48,7 +49,7 @@ test('InlineWorklogForm tab navigation includes date field when issue key is edi
 test('InlineWorklogForm tab navigation excludes date field when issue key is not editable', t => {
 	const nonEditableProps = {
 		...mockProps,
-		issueKey: 'FIXED-123',
+		issueKey: IssueKey.fromString('FIXED-123'),
 		isIssueKeyEditable: false,
 	};
 
@@ -69,7 +70,7 @@ test('InlineWorklogForm tab navigation excludes date field when issue key is not
 test('InlineWorklogForm shows proper field layout in add worklog mode', t => {
 	const addWorklogProps = {
 		...mockProps,
-		issueKey: '', // Empty for add worklog mode
+		issueKey: undefined, // Empty for add worklog mode
 		isIssueKeyEditable: true,
 	};
 
@@ -93,7 +94,7 @@ test('InlineWorklogForm shows proper field layout in add worklog mode', t => {
 test('InlineWorklogForm shows proper field layout in cell worklog mode', t => {
 	const cellWorklogProps = {
 		...mockProps,
-		issueKey: 'PROJECT-123', // Specific issue key for cell worklog mode
+		issueKey: IssueKey.fromString('PROJECT-123'), // Specific issue key for cell worklog mode
 		isIssueKeyEditable: false,
 	};
 
@@ -131,7 +132,7 @@ test('InlineWorklogForm displays date value correctly', t => {
 test('InlineWorklogForm handles form validation for add worklog mode', t => {
 	const addWorklogProps = {
 		...mockProps,
-		issueKey: '', // Empty issue key should show validation
+		issueKey: undefined, // Empty issue key should show validation
 		isIssueKeyEditable: true,
 		error:
 			'Issue key is required. Please enter a valid Jira issue key (e.g., DEF-123).',
@@ -188,7 +189,7 @@ test('InlineWorklogForm uses current date by default in add worklog mode', t => 
 test('InlineWorklogForm SimpleDateInput allows editing', t => {
 	const editableProps = {
 		...mockProps,
-		issueKey: '',
+		issueKey: undefined,
 		isIssueKeyEditable: true,
 	};
 
@@ -207,7 +208,7 @@ test('InlineWorklogForm SimpleDateInput allows editing', t => {
 test('InlineWorklogForm date input shows proper visual feedback when focused', t => {
 	const editableProps = {
 		...mockProps,
-		issueKey: '',
+		issueKey: undefined,
 		isIssueKeyEditable: true,
 	};
 

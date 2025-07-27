@@ -3,6 +3,7 @@ import React from 'react';
 import {render} from 'ink-testing-library';
 import IssueList from '../../components/IssueList.js';
 import {createMockIssue, createMockIssueList} from '../utils/testUtils.js';
+import {IssueKey} from '../../domain/IssueKey.js';
 import type {JiraIssue} from '../../jira-client.js';
 import {InkTestHelpers} from '../utils/ink-test-helpers.js';
 
@@ -182,7 +183,7 @@ test('should handle empty issue list gracefully', async t => {
 
 test('should handle issues with long summaries', async t => {
 	const issueWithLongSummary = createMockIssue({
-		key: 'LONG-999',
+		key: IssueKey.fromString('LONG-999'),
 		fields: {
 			...createMockIssue().fields,
 			summary:
@@ -218,7 +219,7 @@ test('should handle issues with long summaries', async t => {
 
 test('should handle issues with special characters in summary', async t => {
 	const issueWithSpecialChars = createMockIssue({
-		key: 'SPEC-123',
+		key: IssueKey.fromString('SPEC-123'),
 		fields: {
 			...createMockIssue().fields,
 			summary: 'Issue with special chars: áéíóú, ñ, ¿¡, & < > " \'',

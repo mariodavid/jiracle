@@ -20,7 +20,7 @@ test('WeeklyWorklogSummaryUseCase includes favorite issues without worklogs', as
 		issues: [
 			{
 				id: '263906',
-				key: 'TEST-117',
+				key: IssueKey.fromString('TEST-117'),
 				fields: {
 					summary: 'Issue with worklog',
 					status: {name: 'In Progress', statusCategory: {name: 'In Progress'}},
@@ -42,7 +42,7 @@ test('WeeklyWorklogSummaryUseCase includes favorite issues without worklogs', as
 	client.fetchFavoriteIssues = async _favorites => [
 		{
 			id: '999999',
-			key: 'FAV-123',
+			key: IssueKey.fromString('FAV-123'),
 			fields: {
 				summary: 'Favorite issue without worklog',
 				status: {name: 'Open', statusCategory: {name: 'To Do'}},
@@ -56,7 +56,7 @@ test('WeeklyWorklogSummaryUseCase includes favorite issues without worklogs', as
 		},
 		{
 			id: '263906',
-			key: 'TEST-117',
+			key: IssueKey.fromString('TEST-117'),
 			fields: {
 				summary: 'Issue with worklog',
 				status: {name: 'In Progress', statusCategory: {name: 'In Progress'}},
@@ -107,8 +107,8 @@ test('WeeklyWorklogSummaryUseCase includes favorite issues without worklogs', as
 	};
 
 	const favoriteIssues = [
-		{key: 'FAV-123', defaultTime: '4h'},
-		{key: 'TEST-117', defaultTime: '2h'},
+		{key: IssueKey.fromString('FAV-123'), defaultTime: '4h'},
+		{key: IssueKey.fromString('TEST-117'), defaultTime: '2h'},
 	];
 
 	const result = await useCase.execute({

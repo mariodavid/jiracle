@@ -1,11 +1,12 @@
 import {useState, useEffect, useCallback} from 'react';
 import {JiraClient, type JiraConfig} from '../jira-client.js';
 import {LocalDate} from '../domain/LocalDate.js';
+import type {IssueKey} from '../domain/IssueKey.js';
 import {uiLogger} from '../utils/logger.js';
 import type {AttendanceManager} from '../attendance/AttendanceManager.js';
 
 export type DeleteCandidate = {
-	issueKey: string;
+	issueKey: IssueKey;
 	date: LocalDate;
 };
 
@@ -31,7 +32,7 @@ export type UseDeleteOperationsReturn = {
 	deleteError: string | undefined;
 
 	// Actions
-	handleCellDelete: (data: {issueKey: string; date: LocalDate}) => void;
+	handleCellDelete: (data: {issueKey: IssueKey; date: LocalDate}) => void;
 	handleDeleteAttendance: (data: {date: LocalDate}) => void;
 	handleDeleteConfirm: (confirmed: boolean) => Promise<void>;
 	handleDeleteAttendanceConfirm: (confirmed: boolean) => Promise<void>;
@@ -61,7 +62,7 @@ export function useDeleteOperations(
 	const [deleteError, setDeleteError] = useState<string | undefined>(undefined);
 
 	const handleCellDelete = useCallback(
-		(data: {issueKey: string; date: LocalDate}) => {
+		(data: {issueKey: IssueKey; date: LocalDate}) => {
 			setDeleteCandidate(data);
 			onActiveAreaChange('delete-confirmation');
 		},
@@ -110,7 +111,9 @@ export function useDeleteOperations(
 				});
 
 				uiLogger.debug(
-					`Found ${worklogsToDelete.length} worklogs to delete for ${deleteCandidate.issueKey} on ${targetDateString}`,
+					`Found ${
+						worklogsToDelete.length
+					} worklogs to delete for ${deleteCandidate.issueKey.toString()} on ${targetDateString}`,
 				);
 
 				// Delete each matching worklog
@@ -130,7 +133,9 @@ export function useDeleteOperations(
 				onRefresh();
 
 				uiLogger.info(
-					`Successfully deleted ${worklogsToDelete.length} worklogs for ${deleteCandidate.issueKey}`,
+					`Successfully deleted ${
+						worklogsToDelete.length
+					} worklogs for ${deleteCandidate.issueKey.toString()}`,
 				);
 			} catch (error: unknown) {
 				console.error('Error deleting worklogs:', error);

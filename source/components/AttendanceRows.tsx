@@ -1,6 +1,7 @@
 import React from 'react';
 import {Box, Text} from 'ink';
 import {LocalDate} from '../domain/LocalDate.js';
+import {IssueKey} from '../domain/IssueKey.js';
 import type {WeeklyAttendance} from '../attendance/types.js';
 import {FocusableCell} from './FocusableCell.js';
 
@@ -9,7 +10,7 @@ type AttendanceRowsProps = {
 	weeklyAttendance: WeeklyAttendance;
 	isActive: boolean;
 	onFocusChange: (
-		issueKey: string,
+		issueKey: IssueKey,
 		columnIndex: number,
 		isFocused: boolean,
 	) => void;
@@ -76,7 +77,7 @@ export function AttendanceRows({
 										value={cellValue}
 										focusId={`attendance-${row.key}-${index}`}
 										isActive={true}
-										issueKey={`attendance-${row.key}`}
+										issueKey={IssueKey.fromString(`attendance-${row.key}`)}
 										columnIndex={index}
 										width={12}
 										rightAlign={true}

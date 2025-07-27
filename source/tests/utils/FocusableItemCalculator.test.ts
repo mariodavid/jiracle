@@ -92,7 +92,7 @@ test('calculateFocusableItems: grid with issues but no attendance', t => {
 	for (let i = 0; i < 5; i++) {
 		assertFocusableItem(t, items[i]!, {
 			focusId: `issue-PROJECT-123-${i}`,
-			issueKey: 'PROJECT-123',
+			issueKey: IssueKey.fromString('PROJECT-123'),
 			columnIndex: i,
 			isAttendance: false,
 		});
@@ -102,7 +102,7 @@ test('calculateFocusableItems: grid with issues but no attendance', t => {
 	for (let i = 0; i < 5; i++) {
 		assertFocusableItem(t, items[5 + i]!, {
 			focusId: `issue-PROJECT-456-${i}`,
-			issueKey: 'PROJECT-456',
+			issueKey: IssueKey.fromString('PROJECT-456'),
 			columnIndex: i,
 			isAttendance: false,
 		});
@@ -133,7 +133,7 @@ test('calculateFocusableItems: grid with both attendance and issues', t => {
 	for (let i = 0; i < 5; i++) {
 		assertFocusableItem(t, items[5 + i]!, {
 			focusId: `issue-PROJECT-123-${i}`,
-			issueKey: 'PROJECT-123',
+			issueKey: IssueKey.fromString('PROJECT-123'),
 			columnIndex: i,
 			isAttendance: false,
 		});
@@ -194,7 +194,7 @@ test('calculateFocusableItems: custom column count', t => {
 	for (let i = 0; i < 3; i++) {
 		assertFocusableItem(t, items[i]!, {
 			focusId: `issue-PROJECT-123-${i}`,
-			issueKey: 'PROJECT-123',
+			issueKey: IssueKey.fromString('PROJECT-123'),
 			columnIndex: i,
 			isAttendance: false,
 		});
@@ -285,7 +285,7 @@ test('getFocusableItemIndex: finds correct index for target item', t => {
 
 	// Find PROJECT-456 at column 3 (should be at index 5 + 3 = 8)
 	const index = getFocusableItemIndex(items, {
-		issueKey: 'PROJECT-456',
+		issueKey: IssueKey.fromString('PROJECT-456'),
 		columnIndex: 3,
 	});
 

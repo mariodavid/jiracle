@@ -136,7 +136,7 @@ test('loadJiraConfig - handles complex config with nested objects', t => {
 		],
 		favorites: [
 			{
-				key: 'TEST-123',
+				key: IssueKey.fromString('TEST-123'),
 				defaultTime: '2h',
 			},
 		],

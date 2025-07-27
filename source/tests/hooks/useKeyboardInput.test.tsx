@@ -105,7 +105,7 @@ test('useKeyboardInput: works with focused cell for issue cells', t => {
 	// Explicit test data
 	const expectedText = 'Test Component';
 	const focusedCell: FocusedCell = {
-		issueKey: 'PROJECT-123',
+		issueKey: IssueKey.fromString('PROJECT-123'),
 		columnIndex: 0,
 		isAttendance: false,
 	};

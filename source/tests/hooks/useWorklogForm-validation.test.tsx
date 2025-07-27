@@ -18,7 +18,11 @@ const mockConfig: JiraConfig = {
 	defaultTime: '4h',
 	defaultComment: 'Test work',
 	favorites: [
-		{key: 'TEST-123', defaultTime: '2h', defaultComment: 'Favorite work'},
+		{
+			key: IssueKey.fromString('TEST-123'),
+			defaultTime: '2h',
+			defaultComment: 'Favorite work',
+		},
 	],
 };
 
@@ -160,7 +164,7 @@ test('useWorklogForm accepts valid issue key format', async t => {
 test('useWorklogForm tracks submitting state correctly', async t => {
 	// 1. EXPLICIT TEST DATA
 	const validSubmissionData = {
-		issueKey: 'TEST-123',
+		issueKey: IssueKey.fromString('TEST-123'),
 		date: new Date('2024-01-15'),
 		timeSpent: new Duration('2h'),
 		comment: 'Valid comment',
@@ -235,7 +239,7 @@ test('useWorklogForm tracks submitting state correctly', async t => {
 test('useWorklogForm handles submission errors gracefully', async t => {
 	// 1. EXPLICIT TEST DATA
 	const invalidSubmissionData = {
-		issueKey: 'NONEXISTENT-999',
+		issueKey: IssueKey.fromString('NONEXISTENT-999'),
 		date: new Date('2024-01-15'),
 		timeSpent: new Duration('2h'),
 		comment: 'Valid comment',
@@ -290,12 +294,12 @@ test('useWorklogForm handles submission errors gracefully', async t => {
 test('useWorklogForm distinguishes between edit and new worklog modes', async t => {
 	// 1. EXPLICIT TEST DATA
 	const existingWorklogData = {
-		issueKey: 'TEST-123',
+		issueKey: IssueKey.fromString('TEST-123'),
 		date: LocalDate.fromString('2024-01-15'),
 		worklogId: 'existing-worklog-123',
 	};
 	const newWorklogData = {
-		issueKey: 'TEST-456',
+		issueKey: IssueKey.fromString('TEST-456'),
 		date: LocalDate.fromString('2024-01-15'),
 	};
 	let capturedState: any;
@@ -309,7 +313,7 @@ test('useWorklogForm distinguishes between edit and new worklog modes', async t 
 				totalHours: 3,
 				issues: [
 					{
-						issueKey: 'TEST-123',
+						issueKey: IssueKey.fromString('TEST-123'),
 						issueSummary: 'Test issue for worklog editing',
 						hours: 3,
 						worklogId: 'existing-worklog-123',

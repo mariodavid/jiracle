@@ -1,5 +1,6 @@
 import test from 'ava';
 import {WorklogGroupService} from '../../services/WorklogGroupService.js';
+import {IssueKey} from '../../domain/IssueKey.js';
 import type {JiraConfig, FavoriteIssue} from '../../jira/types.js';
 
 test('WorklogGroupService - resolveDefaultsFor with group assignment via project mapping', t => {
@@ -26,7 +27,7 @@ test('WorklogGroupService - resolveDefaultsFor with group assignment via project
 		],
 		favorites: [
 			{
-				key: 'PROJ-123',
+				key: IssueKey.fromString('PROJ-123'),
 				alias: 'Test issue',
 			},
 		],
@@ -62,7 +63,7 @@ test('WorklogGroupService - resolveDefaultsFor without group assignment', t => {
 		defaultTime: '3h',
 		favorites: [
 			{
-				key: 'UNGROUPED-456',
+				key: IssueKey.fromString('UNGROUPED-456'),
 				defaultComment: 'Issue comment',
 				defaultTime: '4h',
 			},
@@ -102,7 +103,7 @@ test('WorklogGroupService - getGroupForIssue returns group for favorite issue', 
 		],
 		favorites: [
 			{
-				key: 'QA-789',
+				key: IssueKey.fromString('QA-789'),
 				groupId: 'qa-team',
 			},
 		],
@@ -250,7 +251,7 @@ test('WorklogGroupService - addFavoriteToGroup adds favorite to existing group',
 	const service = new WorklogGroupService(config);
 	const groupId = 'target-group';
 	const newFavorite: FavoriteIssue = {
-		key: 'NEW-123',
+		key: IssueKey.fromString('NEW-123'),
 		alias: 'New issue',
 		defaultComment: 'New comment',
 	};
@@ -281,7 +282,7 @@ test('WorklogGroupService - addFavoriteToGroup returns false for non-existent gr
 	const service = new WorklogGroupService(config);
 	const nonExistentGroupId = 'non-existent';
 	const newFavorite: FavoriteIssue = {
-		key: 'TEST-456',
+		key: IssueKey.fromString('TEST-456'),
 		alias: 'Test issue',
 	};
 
@@ -308,7 +309,7 @@ test('WorklogGroupService - removeFavoriteFromGroup removes favorite from group'
 		],
 		favorites: [
 			{
-				key: 'REMOVE-789',
+				key: IssueKey.fromString('REMOVE-789'),
 				groupId: 'source-group',
 				alias: 'Issue to remove',
 			},
@@ -373,7 +374,7 @@ test('WorklogGroupService - resolveCommentPrefillDaysFor uses group configuratio
 		],
 		favorites: [
 			{
-				key: 'PREFILL-111',
+				key: IssueKey.fromString('PREFILL-111'),
 				groupId: 'prefill-group',
 			},
 		],

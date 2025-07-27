@@ -4,6 +4,7 @@ import {render} from 'ink-testing-library';
 import figures from 'figures';
 import {TimetableGrid} from '../../components/TimetableGrid.js';
 import type {WeeklyWorklogSummary} from '../../domain/WeeklyWorklogSummary.js';
+import {IssueKey} from '../../domain/IssueKey.js';
 
 test('TimetableGrid shows favorite issues with asterisk marker', t => {
 	const sampleData: WeeklyWorklogSummary = {
@@ -15,12 +16,12 @@ test('TimetableGrid shows favorite issues with asterisk marker', t => {
 				totalHours: 6,
 				issues: [
 					{
-						issueKey: 'ABC-5417',
+						issueKey: IssueKey.fromString('ABC-5417'),
 						issueSummary: 'Favorite issue',
 						hours: 3,
 					},
 					{
-						issueKey: 'DEF-2456',
+						issueKey: IssueKey.fromString('DEF-2456'),
 						issueSummary: 'Regular issue',
 						hours: 3,
 					},
@@ -32,7 +33,7 @@ test('TimetableGrid shows favorite issues with asterisk marker', t => {
 
 	const favoriteIssues = [
 		{
-			key: 'ABC-5417',
+			key: IssueKey.fromString('ABC-5417'),
 			defaultTime: '4h',
 			defaultComment: 'Favorite work',
 		},
@@ -76,7 +77,7 @@ test('TimetableGrid handles favorite issues without worklogs', t => {
 				totalHours: 3,
 				issues: [
 					{
-						issueKey: 'DEF-2456',
+						issueKey: IssueKey.fromString('DEF-2456'),
 						issueSummary: 'Issue with worklog',
 						hours: 3,
 					},
@@ -90,12 +91,12 @@ test('TimetableGrid handles favorite issues without worklogs', t => {
 	// but has no worklogs, so it would appear with 0 hours
 	const favoriteIssues = [
 		{
-			key: 'ABC-5417',
+			key: IssueKey.fromString('ABC-5417'),
 			defaultTime: '4h',
 			defaultComment: 'Favorite without worklog',
 		},
 		{
-			key: 'DEF-2456',
+			key: IssueKey.fromString('DEF-2456'),
 			defaultTime: '2h',
 			defaultComment: 'Favorite with worklog',
 		},
@@ -136,12 +137,12 @@ test('TimetableGrid shows favorite issues even when no worklogs exist', t => {
 
 	const favoriteIssues = [
 		{
-			key: 'ABC-5417',
+			key: IssueKey.fromString('ABC-5417'),
 			defaultTime: '4h',
 			defaultComment: 'Favorite work',
 		},
 		{
-			key: 'DEF-2456',
+			key: IssueKey.fromString('DEF-2456'),
 			defaultTime: '2h',
 			defaultComment: 'Other favorite',
 		},
@@ -186,12 +187,12 @@ test('TimetableGrid displays aliases for favorite issues', t => {
 				totalHours: 6,
 				issues: [
 					{
-						issueKey: 'DEF-2456',
+						issueKey: IssueKey.fromString('DEF-2456'),
 						issueSummary: 'Dev work issue',
 						hours: 4,
 					},
 					{
-						issueKey: 'ABC-5419',
+						issueKey: IssueKey.fromString('ABC-5419'),
 						issueSummary: 'Monitoring issue',
 						hours: 2,
 					},
@@ -203,13 +204,13 @@ test('TimetableGrid displays aliases for favorite issues', t => {
 
 	const favoriteIssues = [
 		{
-			key: 'DEF-2456',
+			key: IssueKey.fromString('DEF-2456'),
 			alias: 'Dev Work',
 			defaultTime: '8h',
 			defaultComment: 'Development work',
 		},
 		{
-			key: 'ABC-5419',
+			key: IssueKey.fromString('ABC-5419'),
 			alias: 'Monitoring API',
 			defaultTime: '4h',
 		},
@@ -255,7 +256,7 @@ test('TimetableGrid shows original key when no alias is configured', t => {
 				totalHours: 4,
 				issues: [
 					{
-						issueKey: 'DEF-2456',
+						issueKey: IssueKey.fromString('DEF-2456'),
 						issueSummary: 'Issue without alias',
 						hours: 4,
 					},
@@ -267,7 +268,7 @@ test('TimetableGrid shows original key when no alias is configured', t => {
 
 	const favoriteIssues = [
 		{
-			key: 'DEF-2456',
+			key: IssueKey.fromString('DEF-2456'),
 			// No alias property set
 			defaultTime: '8h',
 			defaultComment: 'Development work',
@@ -300,12 +301,12 @@ test('TimetableGrid handles mixed alias and non-alias favorites', t => {
 				totalHours: 6,
 				issues: [
 					{
-						issueKey: 'DEF-2456',
+						issueKey: IssueKey.fromString('DEF-2456'),
 						issueSummary: 'Dev work',
 						hours: 3,
 					},
 					{
-						issueKey: 'ABC-5419',
+						issueKey: IssueKey.fromString('ABC-5419'),
 						issueSummary: 'Regular work',
 						hours: 3,
 					},
@@ -317,12 +318,12 @@ test('TimetableGrid handles mixed alias and non-alias favorites', t => {
 
 	const favoriteIssues = [
 		{
-			key: 'DEF-2456',
+			key: IssueKey.fromString('DEF-2456'),
 			alias: 'Dev Work',
 			defaultTime: '8h',
 		},
 		{
-			key: 'ABC-5419',
+			key: IssueKey.fromString('ABC-5419'),
 			// No alias - should show original key
 			defaultTime: '4h',
 		},
@@ -362,12 +363,12 @@ test('TimetableGrid displays aliases with proper padding', t => {
 
 	const favoriteIssues = [
 		{
-			key: 'DEF-2456',
+			key: IssueKey.fromString('DEF-2456'),
 			alias: 'A', // Very short alias
 			defaultTime: '8h',
 		},
 		{
-			key: 'ABC-5419',
+			key: IssueKey.fromString('ABC-5419'),
 			alias: 'Very Long Alias Name', // Long alias (longer than 12 chars)
 			defaultTime: '4h',
 		},

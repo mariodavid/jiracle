@@ -52,7 +52,7 @@ test('WeeklyWorklogSummaryUseCase includes sliding window issues', async t => {
 			return createSearchResponseWithIssues([
 				createMockIssue({
 					id: '263906',
-					key: 'SLIDING-123',
+					key: IssueKey.fromString('SLIDING-123'),
 					summary: 'Recent issue from last week',
 				}),
 			]) as any;

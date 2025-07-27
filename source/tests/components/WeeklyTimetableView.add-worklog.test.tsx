@@ -70,8 +70,12 @@ test('WeeklyTimetableView handles configuration with favorites', t => {
 	const configWithFavorites: JiraConfig = {
 		...mockConfig,
 		favorites: [
-			{key: 'FAV-123', defaultTime: '2h', defaultComment: 'Favorite work'},
-			{key: 'FAV-456', defaultTime: '4h'},
+			{
+				key: IssueKey.fromString('FAV-123'),
+				defaultTime: '2h',
+				defaultComment: 'Favorite work',
+			},
+			{key: IssueKey.fromString('FAV-456'), defaultTime: '4h'},
 		],
 	};
 
@@ -120,8 +124,16 @@ test('WeeklyTimetableView renders without errors with comprehensive config', t =
 		defaultTime: '6h',
 		defaultComment: 'Development work',
 		favorites: [
-			{key: 'DEV-123', defaultTime: '8h', defaultComment: 'Main feature work'},
-			{key: 'BUG-456', defaultTime: '2h', defaultComment: 'Bug fixing'},
+			{
+				key: IssueKey.fromString('DEV-123'),
+				defaultTime: '8h',
+				defaultComment: 'Main feature work',
+			},
+			{
+				key: IssueKey.fromString('BUG-456'),
+				defaultTime: '2h',
+				defaultComment: 'Bug fixing',
+			},
 		],
 		projects: [{key: 'DEV'}, {key: 'BUG'}],
 		slidingWindowDays: {past: 14, future: 7},

@@ -65,7 +65,7 @@ test.beforeEach(() => {
 				json: async () => ({
 					issues: [
 						{
-							key: 'TEST-123',
+							key: IssueKey.fromString('TEST-123'),
 							fields: {
 								summary: 'Test Issue',
 								worklog: {

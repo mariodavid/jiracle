@@ -120,7 +120,7 @@ export function useTitleResolver({
 
 	if (activeArea === 'delete-confirmation' && deleteCandidate) {
 		return {
-			title: `Delete worklogs for ${deleteCandidate.issueKey}`,
+			title: `Delete worklogs for ${deleteCandidate.issueKey.toString()}`,
 			titleColor: 'red',
 		};
 	}

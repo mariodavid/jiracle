@@ -23,7 +23,7 @@ test('should render submitting variant correctly', async t => {
 
 test('should render success variant with all worklog details', async t => {
 	const mockIssue = createMockIssue({
-		key: 'TEST-456',
+		key: IssueKey.fromString('TEST-456'),
 		fields: {
 			...createMockIssue().fields,
 			summary: 'Test issue for worklog',

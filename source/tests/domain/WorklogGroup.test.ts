@@ -4,8 +4,8 @@ import {
 	WorklogGroup,
 	type CreateGroupParameters,
 	type GroupId,
-	type IssueKey,
 } from '../../domain/WorklogGroup.js';
+import {IssueKey} from '../../domain/IssueKey.js';
 import type {FavoriteIssue, Group} from '../../jira/types.js';
 
 test('WorklogGroup.create - creates group with all parameters', t => {
@@ -18,7 +18,7 @@ test('WorklogGroup.create - creates group with all parameters', t => {
 	const commentPrefillDays = 14;
 	const favoriteIssues: FavoriteIssue[] = [
 		{
-			key: 'PROJ-123',
+			key: IssueKey.fromString('PROJ-123'),
 			alias: 'Main feature',
 			defaultComment: 'Feature development',
 			defaultTime: '3h',
@@ -143,7 +143,7 @@ test('WorklogGroup.fromConfig - handles invalid time format gracefully', t => {
 test('resolveDefaultsFor - resolves from favorite issue (highest priority)', t => {
 	// EXPLICIT TEST DATA
 	const favoriteIssue: FavoriteIssue = {
-		key: 'PROJ-456',
+		key: IssueKey.fromString('PROJ-456'),
 		alias: 'Priority feature',
 		defaultComment: 'Issue-specific comment',
 		defaultTime: '4h',
@@ -259,7 +259,7 @@ test('addFavoriteIssue - adds new favorite issue with group ID', t => {
 	});
 
 	const newFavorite: FavoriteIssue = {
-		key: 'PROJ-NEW',
+		key: IssueKey.fromString('PROJ-NEW'),
 		alias: 'New feature',
 		defaultComment: 'New comment',
 		defaultTime: '2h',
@@ -283,7 +283,7 @@ test('addFavoriteIssue - adds new favorite issue with group ID', t => {
 test('addFavoriteIssue - replaces existing favorite with same key', t => {
 	// EXPLICIT TEST DATA
 	const existingFavorite: FavoriteIssue = {
-		key: 'PROJ-EXISTING',
+		key: IssueKey.fromString('PROJ-EXISTING'),
 		alias: 'Old feature',
 		defaultComment: 'Old comment',
 	};
@@ -295,7 +295,7 @@ test('addFavoriteIssue - replaces existing favorite with same key', t => {
 	});
 
 	const updatedFavorite: FavoriteIssue = {
-		key: 'PROJ-EXISTING',
+		key: IssueKey.fromString('PROJ-EXISTING'),
 		alias: 'Updated feature',
 		defaultComment: 'Updated comment',
 		defaultTime: '3h',
@@ -322,12 +322,12 @@ test('addFavoriteIssue - replaces existing favorite with same key', t => {
 test('removeFavoriteIssue - removes existing favorite issue', t => {
 	// EXPLICIT TEST DATA
 	const favoriteToKeep: FavoriteIssue = {
-		key: 'PROJ-KEEP',
+		key: IssueKey.fromString('PROJ-KEEP'),
 		alias: 'Keep this',
 	};
 
 	const favoriteToRemove: FavoriteIssue = {
-		key: 'PROJ-REMOVE',
+		key: IssueKey.fromString('PROJ-REMOVE'),
 		alias: 'Remove this',
 	};
 
@@ -355,7 +355,7 @@ test('removeFavoriteIssue - removes existing favorite issue', t => {
 test('removeFavoriteIssue - handles non-existent issue key', t => {
 	// EXPLICIT TEST DATA
 	const existingFavorite: FavoriteIssue = {
-		key: 'PROJ-EXISTS',
+		key: IssueKey.fromString('PROJ-EXISTS'),
 		alias: 'Existing',
 	};
 
@@ -521,7 +521,7 @@ test('shouldPrefillComment - uses default 7 days when not configured', t => {
 test('containsIssue - returns true for existing favorite issue', t => {
 	// EXPLICIT TEST DATA
 	const favoriteIssue: FavoriteIssue = {
-		key: 'PROJ-FAVORITE',
+		key: IssueKey.fromString('PROJ-FAVORITE'),
 		alias: 'Favorite feature',
 	};
 
@@ -545,7 +545,7 @@ test('containsIssue - returns true for existing favorite issue', t => {
 test('containsIssue - returns false for non-existent issue', t => {
 	// EXPLICIT TEST DATA
 	const favoriteIssue: FavoriteIssue = {
-		key: 'PROJ-FAVORITE',
+		key: IssueKey.fromString('PROJ-FAVORITE'),
 		alias: 'Favorite feature',
 	};
 

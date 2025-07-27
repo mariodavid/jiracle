@@ -27,7 +27,7 @@ test('IssueGroupManager - groups issues by resolved groups', t => {
 		],
 		favorites: [
 			{
-				key: 'PROJ-123',
+				key: IssueKey.fromString('PROJ-123'),
 				groupId: 'backend',
 			},
 		],

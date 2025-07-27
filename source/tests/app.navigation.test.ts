@@ -3,6 +3,7 @@ import React from 'react';
 import {render} from 'ink-testing-library';
 import App from '../app.js';
 import type {JiraConfig} from '../jira-client.js';
+import {IssueKey} from '../domain/IssueKey.js';
 import {InkTestHelpers} from './utils/ink-test-helpers.js';
 
 // Test config that will be passed directly to the App component
@@ -10,7 +11,10 @@ const testConfig: JiraConfig = {
 	jiraUrl: 'https://jira.example.com/',
 	username: 'test@example.com',
 	apiToken: 'test-token',
-	favorites: [{key: 'TEST-123'}, {key: 'TEST-456'}],
+	favorites: [
+		{key: IssueKey.fromString('TEST-123')},
+		{key: IssueKey.fromString('TEST-456')},
+	],
 };
 
 // Mock fetch globally for all tests
@@ -30,7 +34,7 @@ test.beforeEach(() => {
 					issues: [
 						{
 							id: '1',
-							key: 'TEST-123',
+							key: IssueKey.fromString('TEST-123'),
 							fields: {
 								summary: 'Test Issue 1',
 								status: {name: 'In Progress'},
@@ -46,7 +50,7 @@ test.beforeEach(() => {
 						},
 						{
 							id: '2',
-							key: 'TEST-456',
+							key: IssueKey.fromString('TEST-456'),
 							fields: {
 								summary: 'Test Issue 2',
 								status: {name: 'To Do'},

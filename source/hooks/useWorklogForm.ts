@@ -232,10 +232,14 @@ export function useWorklogForm(
 	);
 
 	const handleAddWorklog = useCallback(() => {
-		const defaults = resolveDefaults(config, '');
+		// Use global defaults when no issue key is available
+		const defaults = {
+			time: config.defaultTime ?? '8h',
+			comment: config.defaultComment ?? '',
+		};
 
 		setWorklogForm({
-			issueKey: '',
+			issueKey: undefined,
 			date: LocalDate.today(), // Default to today
 			timeSpent: new Duration(defaults.time),
 			comment: defaults.comment,
@@ -248,7 +252,7 @@ export function useWorklogForm(
 
 	const handleWorklogSubmit = useCallback(
 		async (data: {
-			issueKey: string;
+			issueKey: IssueKey;
 			date: LocalDate;
 			timeSpent: Duration;
 			comment: string;
@@ -303,9 +307,7 @@ export function useWorklogForm(
 					);
 
 					uiLogger.info(
-						`Successfully updated worklog for ${
-							data.issueKey
-						}: ${data.timeSpent.toString()}`,
+						`Successfully updated worklog for ${data.issueKey.toString()}: ${data.timeSpent.toString()}`,
 					);
 				} else {
 					// Add new worklog
@@ -316,9 +318,7 @@ export function useWorklogForm(
 					await jiraClient.addWorklog(data.issueKey, worklogData);
 
 					uiLogger.info(
-						`Successfully logged work for ${
-							data.issueKey
-						}: ${data.timeSpent.toString()}`,
+						`Successfully logged work for ${data.issueKey.toString()}: ${data.timeSpent.toString()}`,
 					);
 				}
 

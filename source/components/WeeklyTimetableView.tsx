@@ -13,6 +13,7 @@ import {useActiveAreaResolver} from '../hooks/useActiveAreaResolver.js';
 import {useNotification} from '../hooks/useNotification.js';
 import {JiraClient, type JiraConfig} from '../jira-client.js';
 import {getStartOfWeek, getEndOfWeek} from '../utils/date.js';
+import type {IssueKey} from '../domain/IssueKey.js';
 import {
 	isBrowserOpenSupported,
 	openInBrowser,
@@ -194,7 +195,7 @@ export function WeeklyTimetableView({
 		};
 	}, []); // Empty dependency array means this runs only on mount
 
-	const handleOpenInBrowser = async (issueKey: string) => {
+	const handleOpenInBrowser = async (issueKey: IssueKey) => {
 		if (!config.jiraUrl) return;
 		try {
 			const url = generateJiraIssueUrl(config.jiraUrl, issueKey);

@@ -114,7 +114,7 @@ test('useIssueGroups - accepts complex config correctly', t => {
 		],
 		favorites: [
 			{
-				key: 'PROJ-123',
+				key: IssueKey.fromString('PROJ-123'),
 				groupId: 'backend', // Override project default
 			},
 		],

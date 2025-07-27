@@ -1,5 +1,6 @@
 import type {JiraConfig, Group} from '../jira-client.js';
 import {resolveDefaults} from '../jira-client.js';
+import {IssueKey} from '../domain/IssueKey.js';
 import type {IssueData} from '../utils/TimetableDataUtils.js';
 
 export type IssueGroup = {
@@ -30,7 +31,8 @@ export class IssueGroupManager {
 		const ungroupedIssues: Array<[string, IssueData]> = [];
 
 		for (const [issueKey, issueData] of issues) {
-			const resolved = resolveDefaults(this.config, issueKey);
+			const issueKeyObject = IssueKey.fromString(issueKey);
+			const resolved = resolveDefaults(this.config, issueKeyObject);
 			const {group} = resolved;
 
 			if (group) {

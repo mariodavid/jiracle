@@ -1,5 +1,6 @@
 import React from 'react';
 import {Box, Text, useFocus} from 'ink';
+import type {IssueKey} from '../domain/IssueKey.js';
 
 export type FocusableCellProps = {
 	value: string;
@@ -8,11 +9,11 @@ export type FocusableCellProps = {
 	isTotal?: boolean;
 	width?: number;
 	isActive?: boolean;
-	issueKey?: string;
+	issueKey?: IssueKey;
 	columnIndex?: number;
 	rightAlign?: boolean;
 	onFocusChange?: (
-		issueKey: string,
+		issueKey: IssueKey,
 		columnIndex: number,
 		isFocused: boolean,
 	) => void;

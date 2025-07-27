@@ -9,7 +9,7 @@ const validAuthor = {
 };
 
 const validCreateOptions = {
-	issueKey: 'ABC-123',
+	issueKey: IssueKey.fromString('ABC-123'),
 	duration: 3600, // 1 hour in seconds
 	comment: 'Test comment',
 	date: new Date('2024-01-15T10:00:00Z'),
@@ -373,7 +373,7 @@ test('WorklogEntry - toString formats correctly', t => {
 	// TEST DATA
 	const worklog = WorklogEntry.create({
 		...validCreateOptions,
-		issueKey: 'ABC-123',
+		issueKey: IssueKey.fromString('ABC-123'),
 		duration: 5400, // 1.5 hours
 		date: new Date('2024-01-15T14:30:00Z'),
 	});

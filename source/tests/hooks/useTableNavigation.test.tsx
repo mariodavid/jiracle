@@ -8,6 +8,7 @@ import {
 	type TableNavigationResult,
 } from '../../hooks/useTableNavigation.js';
 import type {IssueGroup} from '../../services/IssueGroupManager.js';
+import {IssueKey} from '../../domain/IssueKey.js';
 
 // Test component that captures hook state during render
 function TestTableNavigationComponent({
@@ -82,13 +83,17 @@ test('useTableNavigation: initializes with correct default state', t => {
 
 test('useTableNavigation: manages focus state correctly', t => {
 	// 1. EXPLICIT TEST DATA
-	const testIssueKey = 'TEST-123';
+	const testIssueKeyString = 'TEST-123';
+	const testIssueKey = IssueKey.fromString(testIssueKeyString);
 	const testColumnIndex = 0;
 	const mockIssueGroups: IssueGroup[] = [
 		{
 			group: undefined,
 			issues: [
-				[testIssueKey, {summary: 'Test issue', dailyHours: {}, weekTotal: 0}],
+				[
+					testIssueKeyString,
+					{summary: 'Test issue', dailyHours: {}, weekTotal: 0},
+				],
 			],
 			totalHours: 0,
 		},

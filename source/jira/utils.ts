@@ -103,7 +103,7 @@ export function loadConfigWithEnvVars(config: JiraConfig): JiraConfig {
 
 export function resolveDefaults(
 	config: JiraConfig,
-	issueKey: string | IssueKey,
+	issueKey: IssueKey,
 ): ResolvedDefaults {
 	const worklogGroupService = new WorklogGroupService(config);
 	const worklogGroupResult = worklogGroupService.resolveDefaultsFor(issueKey);
@@ -205,7 +205,7 @@ export function resolveCommentPrefillDays(
 
 export function getCommentWithPrefill(
 	config: JiraConfig,
-	issueKey: string | IssueKey,
+	issueKey: IssueKey,
 	recentWorklogs: WorklogEntry[],
 	options: {
 		isEditMode: boolean;

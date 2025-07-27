@@ -1,4 +1,5 @@
 import test from 'ava';
+import {IssueKey} from '../../domain/IssueKey.js';
 import {
 	mockIssue,
 	defaultConfig,
@@ -391,12 +392,12 @@ test('DurationInput uses favorite-specific default time', t => {
 	const config = {
 		...defaultConfig,
 		defaultTime: '4h',
-		favorites: [{key: 'TEST-123', defaultTime: '8h'}],
+		favorites: [{key: IssueKey.fromString('TEST-123'), defaultTime: '8h'}],
 	};
 
 	const testIssue = {
 		...mockIssue,
-		key: 'TEST-123',
+		key: IssueKey.fromString('TEST-123'),
 	};
 
 	const {lastFrame} = renderDurationInput({
@@ -415,12 +416,12 @@ test('DurationInput favorite default time overrides global default', t => {
 	const config = {
 		...defaultConfig,
 		defaultTime: '4h',
-		favorites: [{key: 'TEST-123', defaultTime: '6h'}],
+		favorites: [{key: IssueKey.fromString('TEST-123'), defaultTime: '6h'}],
 	};
 
 	const testIssue = {
 		...mockIssue,
-		key: 'TEST-123',
+		key: IssueKey.fromString('TEST-123'),
 	};
 
 	const {lastFrame} = renderDurationInput({

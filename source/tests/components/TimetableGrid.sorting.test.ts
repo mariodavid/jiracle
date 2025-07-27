@@ -14,27 +14,27 @@ test('TimetableGrid sorts issues by project prefix and number', t => {
 				totalHours: 12,
 				issues: [
 					{
-						issueKey: 'DEF-2457',
+						issueKey: IssueKey.fromString('DEF-2457'),
 						issueSummary: 'DEF issue 2457',
 						hours: 2,
 					},
 					{
-						issueKey: 'ABC-5417',
+						issueKey: IssueKey.fromString('ABC-5417'),
 						issueSummary: 'ABC issue 5417',
 						hours: 3,
 					},
 					{
-						issueKey: 'DEF-2456',
+						issueKey: IssueKey.fromString('DEF-2456'),
 						issueSummary: 'DEF issue 2456',
 						hours: 1,
 					},
 					{
-						issueKey: 'ABC-5420',
+						issueKey: IssueKey.fromString('ABC-5420'),
 						issueSummary: 'ABC issue 5420',
 						hours: 4,
 					},
 					{
-						issueKey: 'ABC-5419',
+						issueKey: IssueKey.fromString('ABC-5419'),
 						issueSummary: 'ABC issue 5419',
 						hours: 2,
 					},
@@ -88,17 +88,17 @@ test('TimetableGrid sorts issues with different project prefixes correctly', t =
 				totalHours: 9,
 				issues: [
 					{
-						issueKey: 'ZZZ-100',
+						issueKey: IssueKey.fromString('ZZZ-100'),
 						issueSummary: 'Last project issue',
 						hours: 3,
 					},
 					{
-						issueKey: 'AAA-200',
+						issueKey: IssueKey.fromString('AAA-200'),
 						issueSummary: 'First project issue',
 						hours: 3,
 					},
 					{
-						issueKey: 'BBB-50',
+						issueKey: IssueKey.fromString('BBB-50'),
 						issueSummary: 'Second project issue',
 						hours: 3,
 					},
@@ -141,12 +141,12 @@ test('TimetableGrid sorts issues numerically within same project (124 before 102
 				totalHours: 6,
 				issues: [
 					{
-						issueKey: 'ABC-1029',
+						issueKey: IssueKey.fromString('ABC-1029'),
 						issueSummary: 'Higher number issue',
 						hours: 3,
 					},
 					{
-						issueKey: 'ABC-124',
+						issueKey: IssueKey.fromString('ABC-124'),
 						issueSummary: 'Lower number issue',
 						hours: 3,
 					},

@@ -308,8 +308,12 @@ test('useWeeklyWorklogSummary - parameter combinations and edge cases', t => {
 		slidingWindowDays: {past: 14, future: 7},
 	});
 	const {weekStart, weekEnd} = hookTestUtils.createTestWeekRange();
-	const favoriteIssues1 = [{key: 'TEST-1', defaultTime: '2h'}];
-	const favoriteIssues2 = [{key: 'TEST-2', defaultTime: '4h'}];
+	const favoriteIssues1 = [
+		{key: IssueKey.fromString('TEST-1'), defaultTime: '2h'},
+	];
+	const favoriteIssues2 = [
+		{key: IssueKey.fromString('TEST-2'), defaultTime: '4h'},
+	];
 
 	// Test that different configurations generate different parameter sets
 	const expectedDifferentParameters = [

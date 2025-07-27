@@ -4,6 +4,7 @@ import {render} from 'ink-testing-library';
 import {TimetableGrid} from '../../components/TimetableGrid.js';
 import {type WeeklyWorklogSummary} from '../../domain/WeeklyWorklogSummary.js';
 import type {FavoriteIssue, JiraConfig} from '../../jira-client.js';
+import {IssueKey} from '../../domain/IssueKey.js';
 
 // Mock data for testing
 const mockWeekStart = new Date('2023-01-02'); // Monday
@@ -18,12 +19,12 @@ const mockData: WeeklyWorklogSummary = {
 			totalHours: 8,
 			issues: [
 				{
-					issueKey: 'PROJ-1',
+					issueKey: IssueKey.fromString('PROJ-1'),
 					issueSummary: 'First issue',
 					hours: 4,
 				},
 				{
-					issueKey: 'PROJ-2',
+					issueKey: IssueKey.fromString('PROJ-2'),
 					issueSummary: 'Second issue',
 					hours: 4,
 				},
@@ -34,12 +35,12 @@ const mockData: WeeklyWorklogSummary = {
 
 const mockFavoriteIssues: FavoriteIssue[] = [
 	{
-		key: 'PROJ-1',
+		key: IssueKey.fromString('PROJ-1'),
 		defaultTime: '4h',
 		defaultComment: 'Work on first project',
 	},
 	{
-		key: 'PROJ-2',
+		key: IssueKey.fromString('PROJ-2'),
 		defaultTime: '4h',
 		defaultComment: 'Work on second project',
 	},

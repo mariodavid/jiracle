@@ -1,4 +1,5 @@
 import test from 'ava';
+import {IssueKey} from '../domain/IssueKey.js';
 import {Duration} from '../domain/Duration.js';
 import {LocalDate} from '../domain/LocalDate.js';
 import {useTitleResolver} from './useTitleResolver.js';
@@ -14,7 +15,7 @@ const createWorklogForm = (
 	overrides: Partial<WorklogFormData> = {},
 ): WorklogFormData => ({
 	isVisible: false,
-	issueKey: '',
+	issueKey: undefined,
 	date: LocalDate.today(),
 	timeSpent: new Duration('0h'),
 	comment: '',
@@ -27,7 +28,7 @@ const createWorklogForm = (
 const createDeleteCandidate = (
 	overrides: Partial<DeleteCandidate> = {},
 ): DeleteCandidate => ({
-	issueKey: 'TEST-123',
+	issueKey: IssueKey.fromString('TEST-123'),
 	date: LocalDate.fromString('2024-01-15'),
 	...overrides,
 });
@@ -55,7 +56,7 @@ const createAttendanceEdit = (
 test('useTitleResolver returns worklog form title when form is visible', t => {
 	const worklogForm = createWorklogForm({
 		isVisible: true,
-		issueKey: 'PROJECT-456',
+		issueKey: IssueKey.fromString('PROJECT-456'),
 		date: LocalDate.fromString('2024-01-15'),
 	});
 
@@ -74,7 +75,7 @@ test('useTitleResolver returns worklog form title when form is visible', t => {
 
 test('useTitleResolver returns delete confirmation title with red color', t => {
 	const deleteCandidate = createDeleteCandidate({
-		issueKey: 'PROJECT-789',
+		issueKey: IssueKey.fromString('PROJECT-789'),
 	});
 
 	const result = useTitleResolver({
@@ -143,7 +144,7 @@ test('useTitleResolver returns week title as default', t => {
 test('useTitleResolver prioritizes worklog form over other states', t => {
 	const worklogForm = createWorklogForm({
 		isVisible: true,
-		issueKey: 'PRIORITY-TEST',
+		issueKey: IssueKey.fromString('PRIORITY-TEST'),
 		date: LocalDate.fromString('2024-01-15'),
 	});
 
@@ -199,7 +200,7 @@ test('useTitleResolver formats different weekdays correctly', t => {
 		currentWeek: new Date('2024-01-16'), // Tuesday
 		worklogForm: createWorklogForm({
 			isVisible: true,
-			issueKey: 'TEST-DAY',
+			issueKey: IssueKey.fromString('TEST-DAY'),
 			date: LocalDate.fromString('2024-01-16'),
 		}),
 		deleteCandidate: undefined,
@@ -215,7 +216,7 @@ test('useTitleResolver formats different weekdays correctly', t => {
 		currentWeek: new Date('2024-01-14'), // Sunday
 		worklogForm: createWorklogForm({
 			isVisible: true,
-			issueKey: 'TEST-SUNDAY',
+			issueKey: IssueKey.fromString('TEST-SUNDAY'),
 			date: LocalDate.fromString('2024-01-14'),
 		}),
 		deleteCandidate: undefined,

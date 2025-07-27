@@ -40,7 +40,7 @@ test('WeeklyWorklogSummaryUseCase aggregates worklogs by day', async t => {
 		issues: [
 			{
 				id: '263906',
-				key: 'TEST-117',
+				key: IssueKey.fromString('TEST-117'),
 				fields: {
 					summary: 'Test Issue Summary',
 					status: {name: 'In Progress', statusCategory: {name: 'In Progress'}},
@@ -140,7 +140,7 @@ test('WeeklyWorklogSummaryUseCase filters by current user email', async t => {
 		issues: [
 			{
 				id: '263906',
-				key: 'TEST-117',
+				key: IssueKey.fromString('TEST-117'),
 				fields: {
 					summary: 'Test Issue Summary',
 					status: {name: 'In Progress', statusCategory: {name: 'In Progress'}},
@@ -215,7 +215,7 @@ test('WeeklyWorklogSummaryUseCase filters by date range', async t => {
 		issues: [
 			{
 				id: '263906',
-				key: 'TEST-117',
+				key: IssueKey.fromString('TEST-117'),
 				fields: {
 					summary: 'Test Issue Summary',
 					status: {name: 'In Progress', statusCategory: {name: 'In Progress'}},
@@ -326,7 +326,7 @@ test('WeeklyWorklogSummaryUseCase converts time correctly', async t => {
 		issues: [
 			{
 				id: '263906',
-				key: 'TEST-117',
+				key: IssueKey.fromString('TEST-117'),
 				fields: {
 					summary: 'Test Issue Summary',
 					status: {name: 'In Progress', statusCategory: {name: 'In Progress'}},

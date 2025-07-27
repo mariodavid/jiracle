@@ -3,6 +3,7 @@ import React from 'react';
 import {render} from 'ink-testing-library';
 import {TimetableGrid} from '../../components/TimetableGrid.js';
 import type {WeeklyWorklogSummary} from '../../domain/WeeklyWorklogSummary.js';
+import {IssueKey} from '../../domain/IssueKey.js';
 
 test('TimetableGrid shows dash for empty group total', t => {
 	// Create data with the group issue but 0 hours
@@ -15,7 +16,7 @@ test('TimetableGrid shows dash for empty group total', t => {
 				totalHours: 0,
 				issues: [
 					{
-						issueKey: 'TEST-123',
+						issueKey: IssueKey.fromString('TEST-123'),
 						issueSummary: 'Test work',
 						hours: 0, // No hours logged
 					},
@@ -39,7 +40,7 @@ test('TimetableGrid shows dash for empty group total', t => {
 
 	const favoriteIssues = [
 		{
-			key: 'TEST-123',
+			key: IssueKey.fromString('TEST-123'),
 			groupId: 'test-group',
 		},
 	];
@@ -75,7 +76,7 @@ test('TimetableGrid shows group total with hours suffix when not empty', t => {
 				totalHours: 8,
 				issues: [
 					{
-						issueKey: 'TEST-123',
+						issueKey: IssueKey.fromString('TEST-123'),
 						issueSummary: 'Test work',
 						hours: 8,
 					},
@@ -99,7 +100,7 @@ test('TimetableGrid shows group total with hours suffix when not empty', t => {
 
 	const favoriteIssues = [
 		{
-			key: 'TEST-123',
+			key: IssueKey.fromString('TEST-123'),
 			groupId: 'test-group',
 		},
 	];
@@ -135,7 +136,7 @@ test('TimetableGrid shows group total with desired amount and status', t => {
 				totalHours: 8,
 				issues: [
 					{
-						issueKey: 'TEST-123',
+						issueKey: IssueKey.fromString('TEST-123'),
 						issueSummary: 'Test work',
 						hours: 8,
 					},
@@ -160,7 +161,7 @@ test('TimetableGrid shows group total with desired amount and status', t => {
 
 	const favoriteIssues = [
 		{
-			key: 'TEST-123',
+			key: IssueKey.fromString('TEST-123'),
 			groupId: 'test-group',
 		},
 	];

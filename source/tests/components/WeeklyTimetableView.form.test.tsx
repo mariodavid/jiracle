@@ -7,7 +7,7 @@ import {createMockConfig} from '../utils/testUtils.js';
 const mockConfig = createMockConfig({
 	favorites: [
 		{
-			key: 'TEST-123',
+			key: IssueKey.fromString('TEST-123'),
 			defaultTime: '2h',
 			defaultComment: 'Working on test issue',
 		},

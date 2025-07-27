@@ -1,12 +1,13 @@
 import test from 'ava';
 import React from 'react';
 import {render} from 'ink-testing-library';
+import {IssueKey} from '../../domain/IssueKey.js';
 import {LocalDate} from '../../domain/LocalDate.js';
 import type {DeleteCandidate} from '../../hooks/useDeleteOperations.js';
 import {DeleteWorklogConfirmationArea} from './DeleteWorklogConfirmationArea.js';
 
 const mockDeleteCandidate: DeleteCandidate = {
-	issueKey: 'PROJECT-123',
+	issueKey: IssueKey.fromString('PROJECT-123'),
 	date: LocalDate.fromString('2024-01-15'),
 };
 
@@ -119,7 +120,7 @@ test('DeleteWorklogConfirmationArea uses correct dialog styling', t => {
 
 test('DeleteWorklogConfirmationArea handles different issue keys', t => {
 	const differentCandidate: DeleteCandidate = {
-		issueKey: 'DIFFERENT-456',
+		issueKey: IssueKey.fromString('DIFFERENT-456'),
 		date: LocalDate.fromString('2024-02-20'),
 	};
 

@@ -33,15 +33,43 @@ const invalidIssueKeys = [
 ];
 
 const patternMatchTests = [
-	{issueKey: 'ABC-123', pattern: 'ABC-123', shouldMatch: true},
-	{issueKey: 'ABC-123', pattern: 'ABC-*', shouldMatch: true},
-	{issueKey: 'ABC-123', pattern: '*-123', shouldMatch: true},
-	{issueKey: 'ABC-123', pattern: '*', shouldMatch: true},
-	{issueKey: 'ABC-123', pattern: 'DEF-*', shouldMatch: false},
-	{issueKey: 'ABC-123', pattern: '*-456', shouldMatch: false},
-	{issueKey: 'ABC-123', pattern: 'ABC-456', shouldMatch: false},
-	{issueKey: 'ABC-123', pattern: '', shouldMatch: false},
-	{issueKey: 'ABC-123', pattern: 'abc-123', shouldMatch: true}, // Case insensitive
+	{
+		issueKey: IssueKey.fromString('ABC-123'),
+		pattern: 'ABC-123',
+		shouldMatch: true,
+	},
+	{
+		issueKey: IssueKey.fromString('ABC-123'),
+		pattern: 'ABC-*',
+		shouldMatch: true,
+	},
+	{
+		issueKey: IssueKey.fromString('ABC-123'),
+		pattern: '*-123',
+		shouldMatch: true,
+	},
+	{issueKey: IssueKey.fromString('ABC-123'), pattern: '*', shouldMatch: true},
+	{
+		issueKey: IssueKey.fromString('ABC-123'),
+		pattern: 'DEF-*',
+		shouldMatch: false,
+	},
+	{
+		issueKey: IssueKey.fromString('ABC-123'),
+		pattern: '*-456',
+		shouldMatch: false,
+	},
+	{
+		issueKey: IssueKey.fromString('ABC-123'),
+		pattern: 'ABC-456',
+		shouldMatch: false,
+	},
+	{issueKey: IssueKey.fromString('ABC-123'), pattern: '', shouldMatch: false},
+	{
+		issueKey: IssueKey.fromString('ABC-123'),
+		pattern: 'abc-123',
+		shouldMatch: true,
+	}, // Case insensitive
 ];
 
 test('IssueKey.fromString - creates valid issue key', t => {
@@ -166,7 +194,7 @@ test('IssueKey - matches pattern correctly', t => {
 		t.is(
 			result,
 			testCase.shouldMatch,
-			`Expected ${testCase.issueKey} to ${
+			`Expected ${testCase.issueKey.toString()} to ${
 				testCase.shouldMatch ? 'match' : 'not match'
 			} pattern "${testCase.pattern}"`,
 		);

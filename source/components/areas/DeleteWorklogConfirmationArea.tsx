@@ -24,7 +24,7 @@ export function DeleteWorklogConfirmationArea({
 			loadingText="Deleting worklogs..."
 		>
 			<DeleteWorklogConfirmation
-				issueKey={deleteCandidate.issueKey}
+				issueKey={deleteCandidate.issueKey.toString()}
 				dayLabel={formatDate(new Date(deleteCandidate.date.toISOString()))}
 				onConfirm={onConfirm}
 			/>

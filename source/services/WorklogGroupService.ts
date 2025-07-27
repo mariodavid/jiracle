@@ -1,8 +1,8 @@
 import {
 	WorklogGroup,
-	type IssueKey,
 	type WorklogGroupResolvedDefaults,
 } from '../domain/WorklogGroup.js';
+import type {IssueKey} from '../domain/IssueKey.js';
 import {extractProjectKey} from '../jira/utils.js';
 import type {JiraConfig, FavoriteIssue} from '../jira/types.js';
 
@@ -18,7 +18,7 @@ export class WorklogGroupService {
 		const projects = this.config.projects ?? [];
 
 		const projectKey = extractProjectKey(issueKey);
-		const favorite = favorites.find(fav => fav.key === issueKey);
+		const favorite = favorites.find(fav => fav.key.equals(issueKey));
 		const projectDefaults = projectKey
 			? projects.find(proj => proj.key === projectKey)
 			: undefined;
@@ -48,7 +48,7 @@ export class WorklogGroupService {
 		const projects = this.config.projects ?? [];
 
 		const projectKey = extractProjectKey(issueKey);
-		const favorite = favorites.find(fav => fav.key === issueKey);
+		const favorite = favorites.find(fav => fav.key.equals(issueKey));
 		const projectDefaults = projectKey
 			? projects.find(proj => proj.key === projectKey)
 			: undefined;
@@ -106,7 +106,7 @@ export class WorklogGroupService {
 		}
 
 		const favorites = this.config.favorites ?? [];
-		const favorite = favorites.find(fav => fav.key === issueKey);
+		const favorite = favorites.find(fav => fav.key.equals(issueKey));
 
 		if (favorite?.commentPrefillDays !== undefined) {
 			return favorite.commentPrefillDays;

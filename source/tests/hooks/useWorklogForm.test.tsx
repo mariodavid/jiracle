@@ -17,7 +17,11 @@ const mockConfig: JiraConfig = {
 	defaultTime: '4h',
 	defaultComment: 'Test work',
 	favorites: [
-		{key: 'TEST-123', defaultTime: '2h', defaultComment: 'Favorite work'},
+		{
+			key: IssueKey.fromString('TEST-123'),
+			defaultTime: '2h',
+			defaultComment: 'Favorite work',
+		},
 	],
 };
 
@@ -162,7 +166,10 @@ test('useWorklogForm handleCellWorklog opens form for cell editing', async t => 
 	);
 
 	// Call handleCellWorklog and wait for async operation
-	const cellData = {issueKey: 'TEST-456', date: new Date('2024-01-15')};
+	const cellData = {
+		issueKey: IssueKey.fromString('TEST-456'),
+		date: new Date('2024-01-15'),
+	};
 	await capturedState.handleCellWorklog(cellData);
 
 	// Wait a bit for state updates to propagate
@@ -217,7 +224,10 @@ test('useWorklogForm handleCellWorklog uses favorite defaults', async t => {
 	);
 
 	// Call handleCellWorklog with favorite issue and wait for async operation
-	const cellData = {issueKey: 'TEST-123', date: new Date('2024-01-15')};
+	const cellData = {
+		issueKey: IssueKey.fromString('TEST-123'),
+		date: new Date('2024-01-15'),
+	};
 	await capturedState.handleCellWorklog(cellData);
 
 	// Wait a bit for state updates to propagate

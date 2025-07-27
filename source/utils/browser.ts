@@ -1,5 +1,6 @@
 import process from 'node:process';
 import open from 'open';
+import type {IssueKey} from '../domain/IssueKey.js';
 
 /**
  * Opens a URL in the default browser using the `open` package
@@ -34,9 +35,11 @@ export function isBrowserOpenSupported(): boolean {
  */
 export function generateJiraIssueUrl(
 	baseUrl: string,
-	issueKey: string,
+	issueKey: string | IssueKey,
 ): string {
 	// Remove trailing slash from baseUrl if present
 	const cleanBaseUrl = baseUrl.replace(/\/$/, '');
-	return `${cleanBaseUrl}/browse/${issueKey}`;
+	const keyString =
+		typeof issueKey === 'string' ? issueKey : issueKey.toString();
+	return `${cleanBaseUrl}/browse/${keyString}`;
 }

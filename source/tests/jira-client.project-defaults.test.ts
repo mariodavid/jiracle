@@ -4,12 +4,13 @@ import {
 	resolveDefaults,
 	type JiraConfig,
 } from '../jira-client.js';
+import {IssueKey} from '../domain/IssueKey.js';
 
 test('extractProjectKey extracts project key from issue key', t => {
-	t.is(extractProjectKey('DEF-2457'), 'DEF');
-	t.is(extractProjectKey('ABC-123'), 'ABC');
-	t.is(extractProjectKey('PROJ-9999'), 'PROJ');
-	t.is(extractProjectKey('ABC-1'), 'ABC');
+	t.is(extractProjectKey(IssueKey.fromString('DEF-2457')), 'DEF');
+	t.is(extractProjectKey(IssueKey.fromString('ABC-123')), 'ABC');
+	t.is(extractProjectKey(IssueKey.fromString('PROJ-9999')), 'PROJ');
+	t.is(extractProjectKey(IssueKey.fromString('ABC-1')), 'ABC');
 });
 
 test('extractProjectKey returns null for invalid issue keys', t => {
@@ -27,7 +28,7 @@ test('resolveDefaults returns fallback values when no config provided', t => {
 		apiToken: 'token',
 	};
 
-	const result = resolveDefaults(config, 'DEF-123');
+	const result = resolveDefaults(config, IssueKey.fromString('DEF-123'));
 
 	t.is(result.comment, '');
 	t.is(result.time, '1h');
@@ -44,7 +45,7 @@ test('resolveDefaults uses global defaults when available', t => {
 		defaultTime: '4h',
 	};
 
-	const result = resolveDefaults(config, 'DEF-123');
+	const result = resolveDefaults(config, IssueKey.fromString('DEF-123'));
 
 	t.is(result.comment, 'Global comment');
 	t.is(result.time, '4h');
@@ -75,14 +76,14 @@ test('resolveDefaults uses issue defaults when available (highest priority)', t 
 		],
 		favorites: [
 			{
-				key: 'DEF-123',
+				key: IssueKey.fromString('DEF-123'),
 				defaultComment: 'Specific issue work',
 				defaultTime: '8h',
 			},
 		],
 	};
 
-	const result = resolveDefaults(config, 'DEF-123');
+	const result = resolveDefaults(config, IssueKey.fromString('DEF-123'));
 
 	t.is(result.comment, 'Specific issue work');
 	t.is(result.time, '8h');
@@ -113,14 +114,14 @@ test('resolveDefaults mixes sources correctly', t => {
 		],
 		favorites: [
 			{
-				key: 'DEF-123',
+				key: IssueKey.fromString('DEF-123'),
 				// No defaultComment in favorite
 				defaultTime: '8h',
 			},
 		],
 	};
 
-	const result = resolveDefaults(config, 'DEF-123');
+	const result = resolveDefaults(config, IssueKey.fromString('DEF-123'));
 
 	// Comment should come from group level
 	t.is(result.comment, 'Group work');
@@ -140,13 +141,13 @@ test('resolveDefaults falls back through hierarchy correctly', t => {
 		// No global time
 		favorites: [
 			{
-				key: 'DEF-123',
+				key: IssueKey.fromString('DEF-123'),
 				// No issue defaults
 			},
 		],
 	};
 
-	const result = resolveDefaults(config, 'DEF-123');
+	const result = resolveDefaults(config, IssueKey.fromString('DEF-123'));
 
 	// Comment should come from global
 	t.is(result.comment, 'Global comment');
@@ -180,7 +181,7 @@ test('resolveDefaults handles project without group assignment', t => {
 		],
 	};
 
-	const result = resolveDefaults(config, 'DEF-123');
+	const result = resolveDefaults(config, IssueKey.fromString('DEF-123'));
 
 	// Should use global defaults since DEF project has no group
 	t.is(result.comment, 'Global comment');
@@ -206,13 +207,13 @@ test('resolveDefaults uses group defaults from issue group assignment', t => {
 		],
 		favorites: [
 			{
-				key: 'DEF-123',
+				key: IssueKey.fromString('DEF-123'),
 				groupId: 'dev',
 			},
 		],
 	};
 
-	const result = resolveDefaults(config, 'DEF-123');
+	const result = resolveDefaults(config, IssueKey.fromString('DEF-123'));
 
 	t.is(result.comment, 'Development work');
 	t.is(result.source.comment, 'group');
@@ -243,7 +244,7 @@ test('resolveDefaults uses group defaults from project group assignment', t => {
 		],
 	};
 
-	const result = resolveDefaults(config, 'MON-456');
+	const result = resolveDefaults(config, IssueKey.fromString('MON-456'));
 
 	t.is(result.comment, 'Monitoring tasks');
 	t.is(result.source.comment, 'group');
@@ -280,13 +281,13 @@ test('resolveDefaults prioritizes issue group over project group', t => {
 		],
 		favorites: [
 			{
-				key: 'DEF-123',
+				key: IssueKey.fromString('DEF-123'),
 				groupId: 'monitoring',
 			},
 		],
 	};
 
-	const result = resolveDefaults(config, 'DEF-123');
+	const result = resolveDefaults(config, IssueKey.fromString('DEF-123'));
 
 	// Should use issue group (monitoring), not project group (dev)
 	t.is(result.comment, 'Monitoring tasks');
@@ -319,13 +320,13 @@ test('resolveDefaults respects priority hierarchy with groups: issue > group > g
 		],
 		favorites: [
 			{
-				key: 'DEF-123',
+				key: IssueKey.fromString('DEF-123'),
 				defaultComment: 'Issue comment',
 			},
 		],
 	};
 
-	const result = resolveDefaults(config, 'DEF-123');
+	const result = resolveDefaults(config, IssueKey.fromString('DEF-123'));
 
 	// Comment: issue wins
 	t.is(result.comment, 'Issue comment');
@@ -360,13 +361,13 @@ test('resolveDefaults falls back through group hierarchy correctly', t => {
 		],
 		favorites: [
 			{
-				key: 'DEF-123',
+				key: IssueKey.fromString('DEF-123'),
 				// No issue defaults defined
 			},
 		],
 	};
 
-	const result = resolveDefaults(config, 'DEF-123');
+	const result = resolveDefaults(config, IssueKey.fromString('DEF-123'));
 
 	// Comment: should use group
 	t.is(result.comment, 'Group comment');
@@ -393,13 +394,13 @@ test('resolveDefaults handles invalid group references gracefully', t => {
 		],
 		favorites: [
 			{
-				key: 'DEF-123',
+				key: IssueKey.fromString('DEF-123'),
 				groupId: 'nonexistent',
 			},
 		],
 	};
 
-	const result = resolveDefaults(config, 'DEF-123');
+	const result = resolveDefaults(config, IssueKey.fromString('DEF-123'));
 
 	// Should fall back to global since group doesn't exist
 	t.is(result.comment, 'Global comment');
@@ -426,13 +427,13 @@ test('resolveDefaults works with groups containing only partial defaults', t => 
 		],
 		favorites: [
 			{
-				key: 'DEF-123',
+				key: IssueKey.fromString('DEF-123'),
 				groupId: 'partial',
 			},
 		],
 	};
 
-	const result = resolveDefaults(config, 'DEF-123');
+	const result = resolveDefaults(config, IssueKey.fromString('DEF-123'));
 
 	// Comment: should fall back to global (group doesn't have defaultComment)
 	t.is(result.comment, 'Global comment');
@@ -460,13 +461,13 @@ test('resolveDefaults includes group desiredAmount in result', t => {
 		],
 		favorites: [
 			{
-				key: 'DEF-123',
+				key: IssueKey.fromString('DEF-123'),
 				groupId: 'dev',
 			},
 		],
 	};
 
-	const result = resolveDefaults(config, 'DEF-123');
+	const result = resolveDefaults(config, IssueKey.fromString('DEF-123'));
 
 	t.is(result.group?.desiredAmount, 25);
 });

@@ -29,7 +29,7 @@ export default function WorklogSummary({
 					✓ Worklog successfully added!
 				</Alert>
 				<Text key="spacer-1"> </Text>
-				<Text key="issue">Issue: {selectedIssue.key}</Text>
+				<Text key="issue">Issue: {selectedIssue.key.toString()}</Text>
 				<Text key="time">Time: {selectedTime}</Text>
 				<Text key="comment">
 					Comment: {comment?.trim() ? comment : 'Worked on this issue'}
