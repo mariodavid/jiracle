@@ -112,7 +112,9 @@ export function useTitleResolver({
 	// Resolve title based on current state
 	if (worklogForm.isVisible) {
 		return {
-			title: `${worklogForm.issueKey} on ${formatDate(worklogForm.date)}`,
+			title: `${
+				worklogForm.issueKey?.toString() ?? 'New Issue'
+			} on ${formatDate(worklogForm.date)}`,
 		};
 	}
 

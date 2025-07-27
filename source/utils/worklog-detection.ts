@@ -1,4 +1,5 @@
 import type {IssueWorklogEntry} from '../domain/WeeklyWorklogSummary.js';
+import type {IssueKey} from '../domain/IssueKey.js';
 import {Duration} from '../domain/Duration.js';
 
 /**
@@ -68,8 +69,8 @@ function formatHoursAsTimeSpent(hours: number): string {
  * @returns The matching issue worklog entry or undefined
  */
 export function findWorklogEntryForIssue(
-	issueKey: string,
+	issueKey: IssueKey,
 	dailyIssues: IssueWorklogEntry[],
 ): IssueWorklogEntry | undefined {
-	return dailyIssues.find(entry => entry.issueKey === issueKey);
+	return dailyIssues.find(entry => entry.issueKey.equals(issueKey));
 }

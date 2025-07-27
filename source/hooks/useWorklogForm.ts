@@ -1,6 +1,7 @@
 import {useState, useCallback} from 'react';
 import {JiraClient, type JiraConfig, resolveDefaults} from '../jira-client.js';
 import {LocalDate} from '../domain/LocalDate.js';
+import type {IssueKey} from '../domain/IssueKey.js';
 import {uiLogger} from '../utils/logger.js';
 import {
 	detectWorklogForEdit,
@@ -15,7 +16,7 @@ import {WorklogEntry} from '../domain/WorklogEntry.js';
 import {Duration} from '../domain/Duration.js';
 
 export type WorklogFormData = {
-	issueKey: string;
+	issueKey: IssueKey | undefined;
 	date: LocalDate;
 	timeSpent: Duration;
 	comment: string;
@@ -41,10 +42,10 @@ export type UseWorklogFormReturn = {
 	worklogError: string | undefined;
 
 	// Actions
-	handleCellWorklog: (cellData: {issueKey: string; date: LocalDate}) => void;
+	handleCellWorklog: (cellData: {issueKey: IssueKey; date: LocalDate}) => void;
 	handleAddWorklog: () => void;
 	handleWorklogSubmit: (data: {
-		issueKey: string;
+		issueKey: IssueKey;
 		date: LocalDate;
 		timeSpent: Duration;
 		comment: string;
@@ -61,7 +62,7 @@ export function useWorklogForm(
 
 	// Helper function to calculate remaining time for a date
 	const calculateRemainingTime = useCallback(
-		async (date: LocalDate, currentIssueKey: string) => {
+		async (date: LocalDate, currentIssueKey: IssueKey) => {
 			try {
 				// Check if attendance is enabled and get attendance data
 				if (!config.attendance?.enabled) {
@@ -93,7 +94,7 @@ export function useWorklogForm(
 				let totalLoggedForOtherIssues = 0;
 				for (const issue of dailySummary.issues) {
 					// Don't count the current issue we're trying to log time for
-					if (issue.issueKey !== currentIssueKey) {
+					if (!issue.issueKey.equals(currentIssueKey)) {
 						totalLoggedForOtherIssues += issue.hours ?? 0;
 					}
 				}
@@ -112,7 +113,7 @@ export function useWorklogForm(
 	);
 
 	const [worklogForm, setWorklogForm] = useState<WorklogFormData>({
-		issueKey: '',
+		issueKey: undefined,
 		date: LocalDate.today(),
 		timeSpent: new Duration('1h'),
 		comment: '',
@@ -126,7 +127,7 @@ export function useWorklogForm(
 	);
 
 	const handleCellWorklog = useCallback(
-		(cellData: {issueKey: string; date: LocalDate}) => {
+		(cellData: {issueKey: IssueKey; date: LocalDate}) => {
 			// Find the specific daily summary for this date
 			const targetDate = cellData.date;
 			const dailySummary = data?.dailySummaries.find((summary: any) =>
@@ -173,7 +174,7 @@ export function useWorklogForm(
 							suggestedTime = Duration.fromHours(remainingTime);
 
 							uiLogger.debug('Using remaining time as suggestion', {
-								issueKey: cellData.issueKey,
+								issueKey: cellData.issueKey.toString(),
 								date: cellData.date.toISOString(),
 								remainingTime,
 								suggestion: suggestedTime.toString(),
@@ -186,7 +187,7 @@ export function useWorklogForm(
 							uiLogger.debug(
 								'Remaining time is 0, using config defaults for clock out',
 								{
-									issueKey: cellData.issueKey,
+									issueKey: cellData.issueKey.toString(),
 									date: cellData.date.toISOString(),
 									remainingTime,
 									suggestion: suggestedTime.toString(),

@@ -1,16 +1,17 @@
 import {useInput} from 'ink';
 import {LocalDate} from '../domain/LocalDate.js';
+import type {IssueKey} from '../domain/IssueKey.js';
 import type {FocusedCell} from './useFocusManagement.js';
 
 export type KeyboardInputHandlers = {
 	handleArrowNavigation: (direction: 'up' | 'down' | 'left' | 'right') => void;
 	handleReverseTabNavigation: () => void;
 	onWeekChange?: (direction: 'prev' | 'next') => void;
-	onCellWorklog?: (data: {issueKey: string; date: LocalDate}) => void;
-	onCellDelete?: (data: {issueKey: string; date: LocalDate}) => void;
+	onCellWorklog?: (data: {issueKey: IssueKey; date: LocalDate}) => void;
+	onCellDelete?: (data: {issueKey: IssueKey; date: LocalDate}) => void;
 	onAttendanceEdit?: (data: {date: LocalDate}) => void;
 	onAttendanceDelete?: (data: {date: LocalDate}) => void;
-	onOpenInBrowser?: (issueKey: string) => void;
+	onOpenInBrowser?: (issueKey: IssueKey) => void;
 };
 
 export type KeyboardInputOptions = {

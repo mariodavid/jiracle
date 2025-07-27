@@ -1,5 +1,6 @@
 import process from 'node:process';
 import {Duration} from '../domain/Duration.js';
+import type {IssueKey} from '../domain/IssueKey.js';
 import {WorklogGroupService} from '../services/WorklogGroupService.js';
 import type {
 	JiraConfig,
@@ -59,27 +60,35 @@ export function normalizeTimeFormat(timeString: string): string {
 }
 
 export function getFavoriteKeys(favorites: FavoriteIssue[]): string[] {
-	return favorites.map(fav => fav.key);
+	return favorites.map(fav => fav.key.toString());
 }
 
 export function getFavoriteDefaultComment(
 	favorites: FavoriteIssue[],
-	issueKey: string,
+	issueKey: string | IssueKey,
 ): string | undefined {
-	const favorite = favorites.find(fav => fav.key === issueKey);
+	const keyString =
+		typeof issueKey === 'string' ? issueKey : issueKey.toString();
+	const favorite = favorites.find(fav => fav.key.toString() === keyString);
 	return favorite?.defaultComment;
 }
 
 export function getFavoriteDefaultTime(
 	favorites: FavoriteIssue[],
-	issueKey: string,
+	issueKey: string | IssueKey,
 ): string | undefined {
-	const favorite = favorites.find(fav => fav.key === issueKey);
+	const keyString =
+		typeof issueKey === 'string' ? issueKey : issueKey.toString();
+	const favorite = favorites.find(fav => fav.key.toString() === keyString);
 	return favorite?.defaultTime;
 }
 
-export function extractProjectKey(issueKey: string): string | undefined {
-	const match = /^([A-Z]+)-\d+$/.exec(issueKey);
+export function extractProjectKey(
+	issueKey: string | IssueKey,
+): string | undefined {
+	const keyString =
+		typeof issueKey === 'string' ? issueKey : issueKey.toString();
+	const match = /^([A-Z]+)-\d+$/.exec(keyString);
 	return match ? match[1] : undefined;
 }
 
@@ -94,7 +103,7 @@ export function loadConfigWithEnvVars(config: JiraConfig): JiraConfig {
 
 export function resolveDefaults(
 	config: JiraConfig,
-	issueKey: string,
+	issueKey: string | IssueKey,
 ): ResolvedDefaults {
 	const worklogGroupService = new WorklogGroupService(config);
 	const worklogGroupResult = worklogGroupService.resolveDefaultsFor(issueKey);
@@ -157,14 +166,16 @@ export function getMostRecentCommentForIssue(
 
 export function resolveCommentPrefillDays(
 	config: JiraConfig,
-	issueKey: string,
+	issueKey: string | IssueKey,
 ): number {
 	const favorites = config.favorites ?? [];
 	const projects = config.projects ?? [];
 	const groups = config.groups ?? [];
 
 	const projectKey = extractProjectKey(issueKey);
-	const favorite = favorites.find(fav => fav.key === issueKey);
+	const keyString =
+		typeof issueKey === 'string' ? issueKey : issueKey.toString();
+	const favorite = favorites.find(fav => fav.key.toString() === keyString);
 	const projectDefaults = projectKey
 		? projects.find(proj => proj.key === projectKey)
 		: undefined;
@@ -194,7 +205,7 @@ export function resolveCommentPrefillDays(
 
 export function getCommentWithPrefill(
 	config: JiraConfig,
-	issueKey: string,
+	issueKey: string | IssueKey,
 	recentWorklogs: WorklogEntry[],
 	options: {
 		isEditMode: boolean;

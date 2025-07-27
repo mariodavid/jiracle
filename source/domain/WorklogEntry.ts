@@ -6,7 +6,7 @@ import {IssueKey} from './IssueKey.js';
 
 type WorklogEntryData = {
 	id: string;
-	issueKey: string;
+	issueKey: IssueKey;
 	duration: number;
 	comment: string;
 	date: Date;
@@ -14,7 +14,7 @@ type WorklogEntryData = {
 };
 
 type CreateWorklogOptions = {
-	issueKey: string;
+	issueKey: string | IssueKey;
 	duration: number;
 	comment: string;
 	date: Date;
@@ -24,7 +24,10 @@ type CreateWorklogOptions = {
 export class WorklogEntry {
 	static create(options: CreateWorklogOptions): WorklogEntry {
 		// Validate and normalize issue key using domain object
-		const validatedIssueKey = IssueKey.fromString(options.issueKey);
+		const validatedIssueKey =
+			typeof options.issueKey === 'string'
+				? IssueKey.fromString(options.issueKey)
+				: options.issueKey;
 
 		if (options.duration <= 0) {
 			throw new Error('Duration must be greater than 0');
@@ -39,7 +42,7 @@ export class WorklogEntry {
 
 		return new WorklogEntry({
 			id,
-			issueKey: validatedIssueKey.toString(),
+			issueKey: validatedIssueKey,
 			duration: Math.round(options.duration),
 			comment: options.comment.trim(),
 			date: new Date(options.date),
@@ -49,14 +52,15 @@ export class WorklogEntry {
 
 	static fromApiResponse(
 		apiEntry: ApiWorklogEntry,
-		issueKey: string,
+		issueKey: string | IssueKey,
 	): WorklogEntry {
 		if (!apiEntry.id) {
 			throw new Error('API worklog entry must have an id');
 		}
 
 		// Validate and normalize issue key using domain object
-		const validatedIssueKey = IssueKey.fromString(issueKey);
+		const validatedIssueKey =
+			typeof issueKey === 'string' ? IssueKey.fromString(issueKey) : issueKey;
 
 		const startedDate = new Date(apiEntry.started);
 		if (Number.isNaN(startedDate.getTime())) {
@@ -65,7 +69,7 @@ export class WorklogEntry {
 
 		return new WorklogEntry({
 			id: apiEntry.id,
-			issueKey: validatedIssueKey.toString(),
+			issueKey: validatedIssueKey,
 			duration: apiEntry.timeSpentSeconds,
 			comment: apiEntry.comment ?? '',
 			date: startedDate,
@@ -74,7 +78,7 @@ export class WorklogEntry {
 	}
 
 	private readonly _id: string;
-	private readonly _issueKey: string;
+	private readonly _issueKey: IssueKey;
 	private readonly _duration: number; // TimeSpentSeconds
 	private readonly _comment: string;
 	private readonly _date: Date;
@@ -96,8 +100,15 @@ export class WorklogEntry {
 		return this._id;
 	}
 
-	get issueKey(): string {
+	get issueKey(): IssueKey {
 		return this._issueKey;
+	}
+
+	/**
+	 * Get issue key as string for backward compatibility
+	 */
+	get issueKeyString(): string {
+		return this._issueKey.toString();
 	}
 
 	get duration(): number {
@@ -198,7 +209,7 @@ export class WorklogEntry {
 	equals(other: WorklogEntry): boolean {
 		return (
 			this._id === other._id &&
-			this._issueKey === other._issueKey &&
+			this._issueKey.equals(other._issueKey) &&
 			this._duration === other._duration &&
 			this._comment === other._comment &&
 			this._date.getTime() === other._date.getTime() &&
@@ -211,7 +222,7 @@ export class WorklogEntry {
 		const timeSpent = String(this.formatDurationAsTimeSpent());
 		return [
 			'WorklogEntry(',
-			String(this._issueKey),
+			this._issueKey.toString(),
 			', ',
 			timeSpent,
 			', ',
