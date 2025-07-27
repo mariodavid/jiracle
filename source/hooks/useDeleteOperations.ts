@@ -6,11 +6,11 @@ import type {AttendanceManager} from '../attendance/AttendanceManager.js';
 
 export type DeleteCandidate = {
 	issueKey: string;
-	date: Date;
+	date: LocalDate;
 };
 
 export type DeleteAttendanceCandidate = {
-	date: Date;
+	date: LocalDate;
 };
 
 export type UseDeleteOperationsOptions = {
@@ -31,8 +31,8 @@ export type UseDeleteOperationsReturn = {
 	deleteError: string | undefined;
 
 	// Actions
-	handleCellDelete: (data: {issueKey: string; date: Date}) => void;
-	handleDeleteAttendance: (data: {date: Date}) => void;
+	handleCellDelete: (data: {issueKey: string; date: LocalDate}) => void;
+	handleDeleteAttendance: (data: {date: LocalDate}) => void;
 	handleDeleteConfirm: (confirmed: boolean) => Promise<void>;
 	handleDeleteAttendanceConfirm: (confirmed: boolean) => Promise<void>;
 	clearDeleteError: () => void;
@@ -61,7 +61,7 @@ export function useDeleteOperations(
 	const [deleteError, setDeleteError] = useState<string | undefined>(undefined);
 
 	const handleCellDelete = useCallback(
-		(data: {issueKey: string; date: Date}) => {
+		(data: {issueKey: string; date: LocalDate}) => {
 			setDeleteCandidate(data);
 			onActiveAreaChange('delete-confirmation');
 		},
@@ -69,7 +69,7 @@ export function useDeleteOperations(
 	);
 
 	const handleDeleteAttendance = useCallback(
-		(data: {date: Date}) => {
+		(data: {date: LocalDate}) => {
 			setDeleteAttendanceCandidate(data);
 			onActiveAreaChange('delete-attendance-confirmation');
 		},
@@ -94,9 +94,7 @@ export function useDeleteOperations(
 				);
 
 				// Filter worklogs for the selected date and current user only
-				const targetDateString = LocalDate.fromDate(
-					deleteCandidate.date,
-				).toISOString();
+				const targetDateString = deleteCandidate.date.toISOString();
 				const worklogsToDelete = worklogResponse.worklogs.filter(worklog => {
 					if (!worklog.started) return false;
 
@@ -160,9 +158,7 @@ export function useDeleteOperations(
 			setDeleteError(undefined);
 
 			try {
-				const targetDateString = LocalDate.fromDate(
-					deleteAttendanceCandidate.date,
-				).toISOString();
+				const targetDateString = deleteAttendanceCandidate.date.toISOString();
 				const deleted = await attendanceManager.deleteAttendance(
 					targetDateString,
 				);

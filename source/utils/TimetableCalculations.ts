@@ -8,7 +8,7 @@ export function calculateDailyTotals(
 	const totals: number[] = Array.from({length: 5}, () => 0);
 
 	for (const dailySummary of data.dailySummaries) {
-		const dateKey = LocalDate.fromDate(dailySummary.date).toISOString();
+		const dateKey = dailySummary.date.toISOString();
 		const dayIndex = weekDates.findIndex(
 			date => LocalDate.fromDate(date).toISOString() === dateKey,
 		);

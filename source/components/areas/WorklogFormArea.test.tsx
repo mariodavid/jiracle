@@ -3,6 +3,7 @@ import React from 'react';
 import {render} from 'ink-testing-library';
 import type {WorklogFormData} from '../../hooks/useWorklogForm.js';
 import {Duration} from '../../domain/Duration.js';
+import {LocalDate} from '../../domain/LocalDate.js';
 import {JiraClient, type JiraConfig} from '../../jira-client.js';
 import {WorklogFormArea} from './WorklogFormArea.js';
 
@@ -21,7 +22,7 @@ const mockConfig: JiraConfig = {
 const mockWorklogForm: WorklogFormData = {
 	isVisible: true,
 	issueKey: 'PROJECT-123',
-	date: new Date('2024-01-15'),
+	date: LocalDate.fromString('2024-01-15'),
 	timeSpent: new Duration('4h'),
 	comment: 'Test work',
 	isIssueKeyEditable: true,

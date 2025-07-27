@@ -4,14 +4,15 @@ import {render} from 'ink-testing-library';
 import figures from 'figures';
 import {TimetableGrid} from '../../components/TimetableGrid.js';
 import type {WeeklyWorklogSummary} from '../../domain/WeeklyWorklogSummary.js';
+import {LocalDate} from '../../domain/LocalDate.js';
 
 test('TimetableGrid shows favorite issues with asterisk marker', t => {
 	const sampleData: WeeklyWorklogSummary = {
-		weekStart: new Date('2024-10-14T00:00:00.000Z'),
-		weekEnd: new Date('2024-10-20T23:59:59.999Z'),
+		weekStart: LocalDate.fromString('2024-10-14'),
+		weekEnd: LocalDate.fromString('2024-10-20'),
 		dailySummaries: [
 			{
-				date: new Date('2024-10-18T00:00:00.000Z'),
+				date: LocalDate.fromString('2024-10-18'),
 				totalHours: 6,
 				issues: [
 					{
@@ -68,11 +69,11 @@ test('TimetableGrid handles favorite issues without worklogs', t => {
 	// This test simulates when favorites are included via WeeklyWorklogSummaryUseCase
 	// but have no worklog entries (0 hours for all days)
 	const sampleData: WeeklyWorklogSummary = {
-		weekStart: new Date('2024-10-14T00:00:00.000Z'),
-		weekEnd: new Date('2024-10-20T23:59:59.999Z'),
+		weekStart: LocalDate.fromString('2024-10-14'),
+		weekEnd: LocalDate.fromString('2024-10-20'),
 		dailySummaries: [
 			{
-				date: new Date('2024-10-18T00:00:00.000Z'),
+				date: LocalDate.fromString('2024-10-18'),
 				totalHours: 3,
 				issues: [
 					{
@@ -128,8 +129,8 @@ test('TimetableGrid handles favorite issues without worklogs', t => {
 test('TimetableGrid shows favorite issues even when no worklogs exist', t => {
 	// Empty worklog data - no worklogs for this week
 	const emptyData: WeeklyWorklogSummary = {
-		weekStart: new Date('2024-10-14T00:00:00.000Z'),
-		weekEnd: new Date('2024-10-20T23:59:59.999Z'),
+		weekStart: LocalDate.fromString('2024-10-14'),
+		weekEnd: LocalDate.fromString('2024-10-20'),
 		dailySummaries: [], // No worklogs at all
 		weekTotal: 0,
 	};
@@ -178,11 +179,11 @@ test('TimetableGrid shows favorite issues even when no worklogs exist', t => {
 
 test('TimetableGrid displays aliases for favorite issues', t => {
 	const sampleData: WeeklyWorklogSummary = {
-		weekStart: new Date('2024-10-14T00:00:00.000Z'),
-		weekEnd: new Date('2024-10-20T23:59:59.999Z'),
+		weekStart: LocalDate.fromString('2024-10-14'),
+		weekEnd: LocalDate.fromString('2024-10-20'),
 		dailySummaries: [
 			{
-				date: new Date('2024-10-18T00:00:00.000Z'),
+				date: LocalDate.fromString('2024-10-18'),
 				totalHours: 6,
 				issues: [
 					{
@@ -247,11 +248,11 @@ test('TimetableGrid displays aliases for favorite issues', t => {
 
 test('TimetableGrid shows original key when no alias is configured', t => {
 	const sampleData: WeeklyWorklogSummary = {
-		weekStart: new Date('2024-10-14T00:00:00.000Z'),
-		weekEnd: new Date('2024-10-20T23:59:59.999Z'),
+		weekStart: LocalDate.fromString('2024-10-14'),
+		weekEnd: LocalDate.fromString('2024-10-20'),
 		dailySummaries: [
 			{
-				date: new Date('2024-10-18T00:00:00.000Z'),
+				date: LocalDate.fromString('2024-10-18'),
 				totalHours: 4,
 				issues: [
 					{
@@ -292,11 +293,11 @@ test('TimetableGrid shows original key when no alias is configured', t => {
 
 test('TimetableGrid handles mixed alias and non-alias favorites', t => {
 	const sampleData: WeeklyWorklogSummary = {
-		weekStart: new Date('2024-10-14T00:00:00.000Z'),
-		weekEnd: new Date('2024-10-20T23:59:59.999Z'),
+		weekStart: LocalDate.fromString('2024-10-14'),
+		weekEnd: LocalDate.fromString('2024-10-20'),
 		dailySummaries: [
 			{
-				date: new Date('2024-10-18T00:00:00.000Z'),
+				date: LocalDate.fromString('2024-10-18'),
 				totalHours: 6,
 				issues: [
 					{
@@ -354,8 +355,8 @@ test('TimetableGrid handles mixed alias and non-alias favorites', t => {
 
 test('TimetableGrid displays aliases with proper padding', t => {
 	const emptyData: WeeklyWorklogSummary = {
-		weekStart: new Date('2024-10-14T00:00:00.000Z'),
-		weekEnd: new Date('2024-10-20T23:59:59.999Z'),
+		weekStart: LocalDate.fromString('2024-10-14'),
+		weekEnd: LocalDate.fromString('2024-10-20'),
 		dailySummaries: [],
 		weekTotal: 0,
 	};

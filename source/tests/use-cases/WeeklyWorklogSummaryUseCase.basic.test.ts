@@ -1,4 +1,5 @@
 import test from 'ava';
+import {LocalDate} from '../../domain/LocalDate.js';
 import {WeeklyWorklogSummaryUseCase} from '../../use-cases/WeeklyWorklogSummaryUseCase.js';
 import {createMockJiraClient} from './WeeklyWorklogSummaryUseCase.testutils.js';
 
@@ -307,8 +308,8 @@ test('WeeklyWorklogSummaryUseCase handles empty results', async t => {
 
 	t.is(result.dailySummaries.length, 0);
 	t.is(result.weekTotal, 0);
-	t.deepEqual(result.weekStart, weekStart);
-	t.deepEqual(result.weekEnd, weekEnd);
+	t.deepEqual(result.weekStart, LocalDate.fromDate(weekStart));
+	t.deepEqual(result.weekEnd, LocalDate.fromDate(weekEnd));
 });
 
 test('WeeklyWorklogSummaryUseCase converts time correctly', async t => {

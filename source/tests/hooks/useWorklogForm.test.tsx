@@ -8,6 +8,7 @@ import {
 } from '../../hooks/useWorklogForm.js';
 import type {JiraConfig} from '../../jira-client.js';
 import {Duration} from '../../domain/Duration.js';
+import {LocalDate} from '../../domain/LocalDate.js';
 
 // Mock the JiraClient module
 const mockConfig: JiraConfig = {
@@ -139,11 +140,11 @@ test('useWorklogForm handleCellWorklog opens form for cell editing', async t => 
 			activeAreaChanged = area;
 		},
 		data: {
-			weekStart: new Date('2024-01-15'),
-			weekEnd: new Date('2024-01-21'),
+			weekStart: LocalDate.fromString('2024-01-15'),
+			weekEnd: LocalDate.fromString('2024-01-21'),
 			dailySummaries: [
 				{
-					date: new Date('2024-01-15'),
+					date: LocalDate.fromString('2024-01-15'),
 					issues: [],
 					totalHours: 0,
 				},
@@ -162,7 +163,10 @@ test('useWorklogForm handleCellWorklog opens form for cell editing', async t => 
 	);
 
 	// Call handleCellWorklog and wait for async operation
-	const cellData = {issueKey: 'TEST-456', date: new Date('2024-01-15')};
+	const cellData = {
+		issueKey: 'TEST-456',
+		date: LocalDate.fromString('2024-01-15'),
+	};
 	await capturedState.handleCellWorklog(cellData);
 
 	// Wait a bit for state updates to propagate
@@ -194,11 +198,11 @@ test('useWorklogForm handleCellWorklog uses favorite defaults', async t => {
 		onRefresh() {},
 		onActiveAreaChange() {},
 		data: {
-			weekStart: new Date('2024-01-15'),
-			weekEnd: new Date('2024-01-21'),
+			weekStart: LocalDate.fromString('2024-01-15'),
+			weekEnd: LocalDate.fromString('2024-01-21'),
 			dailySummaries: [
 				{
-					date: new Date('2024-01-15'),
+					date: LocalDate.fromString('2024-01-15'),
 					issues: [],
 					totalHours: 0,
 				},
@@ -217,7 +221,10 @@ test('useWorklogForm handleCellWorklog uses favorite defaults', async t => {
 	);
 
 	// Call handleCellWorklog with favorite issue and wait for async operation
-	const cellData = {issueKey: 'TEST-123', date: new Date('2024-01-15')};
+	const cellData = {
+		issueKey: 'TEST-123',
+		date: LocalDate.fromString('2024-01-15'),
+	};
 	await capturedState.handleCellWorklog(cellData);
 
 	// Wait a bit for state updates to propagate
@@ -291,7 +298,7 @@ test('useWorklogForm clearError removes error after validation failure', async t
 	// 1. EXPLICIT TEST DATA
 	const invalidSubmissionData = {
 		issueKey: '', // Invalid: empty issue key
-		date: new Date('2024-01-15'),
+		date: LocalDate.fromString('2024-01-15'),
 		timeSpent: new Duration('2h'),
 		comment: 'Valid comment',
 	};
@@ -439,7 +446,7 @@ test('useWorklogForm validates required fields on submission', async t => {
 	// 1. EXPLICIT TEST DATA
 	const invalidSubmissionData = {
 		issueKey: '',
-		date: new Date('2024-01-15'),
+		date: LocalDate.fromString('2024-01-15'),
 		timeSpent: new Duration('2h'),
 		comment: 'Valid comment',
 	};

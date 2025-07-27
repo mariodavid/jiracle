@@ -1,4 +1,5 @@
 import test from 'ava';
+import {LocalDate} from '../../domain/LocalDate.js';
 import {
 	calculateDailyTotals,
 	formatHours,
@@ -18,11 +19,11 @@ function createMockSummary(dailySummaries: any[]) {
 
 test('calculateDailyTotals - calculates totals correctly', t => {
 	const summary = createMockSummary([
-		{date: new Date('2023-01-02'), totalHours: 8.5, issues: {}}, // Monday
-		{date: new Date('2023-01-03'), totalHours: 7, issues: {}}, // Tuesday
-		{date: new Date('2023-01-04'), totalHours: 6.5, issues: {}}, // Wednesday
-		{date: new Date('2023-01-05'), totalHours: 8, issues: {}}, // Thursday
-		{date: new Date('2023-01-06'), totalHours: 4, issues: {}}, // Friday
+		{date: LocalDate.fromString('2023-01-02'), totalHours: 8.5, issues: {}}, // Monday
+		{date: LocalDate.fromString('2023-01-03'), totalHours: 7, issues: {}}, // Tuesday
+		{date: LocalDate.fromString('2023-01-04'), totalHours: 6.5, issues: {}}, // Wednesday
+		{date: LocalDate.fromString('2023-01-05'), totalHours: 8, issues: {}}, // Thursday
+		{date: LocalDate.fromString('2023-01-06'), totalHours: 4, issues: {}}, // Friday
 	]);
 
 	const weekDates = [
@@ -40,9 +41,9 @@ test('calculateDailyTotals - calculates totals correctly', t => {
 
 test('calculateDailyTotals - handles missing days', t => {
 	const summary = createMockSummary([
-		{date: new Date('2023-01-02'), totalHours: 8.5, issues: {}}, // Monday
-		{date: new Date('2023-01-04'), totalHours: 6.5, issues: {}}, // Wednesday
-		{date: new Date('2023-01-06'), totalHours: 4, issues: {}}, // Friday
+		{date: LocalDate.fromString('2023-01-02'), totalHours: 8.5, issues: {}}, // Monday
+		{date: LocalDate.fromString('2023-01-04'), totalHours: 6.5, issues: {}}, // Wednesday
+		{date: LocalDate.fromString('2023-01-06'), totalHours: 4, issues: {}}, // Friday
 	]);
 
 	const weekDates = [
@@ -76,9 +77,9 @@ test('calculateDailyTotals - handles empty daily summaries', t => {
 
 test('calculateDailyTotals - handles out-of-range dates', t => {
 	const summary = createMockSummary([
-		{date: new Date('2023-01-01'), totalHours: 8.5, issues: {}}, // Sunday (not in week)
-		{date: new Date('2023-01-02'), totalHours: 7, issues: {}}, // Monday
-		{date: new Date('2023-01-07'), totalHours: 6.5, issues: {}}, // Next Saturday (not in week)
+		{date: LocalDate.fromString('2023-01-01'), totalHours: 8.5, issues: {}}, // Sunday (not in week)
+		{date: LocalDate.fromString('2023-01-02'), totalHours: 7, issues: {}}, // Monday
+		{date: LocalDate.fromString('2023-01-07'), totalHours: 6.5, issues: {}}, // Next Saturday (not in week)
 	]);
 
 	const weekDates = [
@@ -168,9 +169,9 @@ test('getDefaultFocusId - uses first issue in object order', t => {
 
 test('calculateDailyTotals - handles decimal hours correctly', t => {
 	const summary = createMockSummary([
-		{date: new Date('2023-01-02'), totalHours: 8.25, issues: {}}, // Monday
-		{date: new Date('2023-01-03'), totalHours: 7.75, issues: {}}, // Tuesday
-		{date: new Date('2023-01-04'), totalHours: 6.125, issues: {}}, // Wednesday
+		{date: LocalDate.fromString('2023-01-02'), totalHours: 8.25, issues: {}}, // Monday
+		{date: LocalDate.fromString('2023-01-03'), totalHours: 7.75, issues: {}}, // Tuesday
+		{date: LocalDate.fromString('2023-01-04'), totalHours: 6.125, issues: {}}, // Wednesday
 	]);
 
 	const weekDates = [

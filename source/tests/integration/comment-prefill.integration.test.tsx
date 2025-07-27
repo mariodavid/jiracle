@@ -2,6 +2,7 @@ import test from 'ava';
 import React from 'react';
 import {render} from 'ink-testing-library';
 import {InlineWorklogForm} from '../../components/InlineWorklogForm.js';
+import {LocalDate} from '../../domain/LocalDate.js';
 import type {JiraConfig, WorklogEntry} from '../../jira/types.js';
 
 // Mock worklog data for testing
@@ -37,7 +38,7 @@ test('comment prefill respects reference date - excludes old worklogs', t => {
 	};
 
 	// Reference date: August 22nd, 2025 (30 days after July 23rd worklog)
-	const selectedDate = new Date('2025-08-22T12:00:00.000Z');
+	const selectedDate = LocalDate.fromString('2025-08-22');
 
 	const {lastFrame} = render(
 		<InlineWorklogForm
@@ -65,7 +66,7 @@ test('comment prefill respects reference date - includes recent worklogs', t => 
 	};
 
 	// Reference date: August 22nd, 2025 (2 days after August 20th worklog)
-	const selectedDate = new Date('2025-08-22T12:00:00.000Z');
+	const selectedDate = LocalDate.fromString('2025-08-22');
 
 	const {lastFrame} = render(
 		<InlineWorklogForm
@@ -93,7 +94,7 @@ test('comment prefill with configurable lookback days based on reference date', 
 	};
 
 	// Reference date: August 22nd, 2025 (2 days after August 20th worklog)
-	const selectedDate = new Date('2025-08-22T12:00:00.000Z');
+	const selectedDate = LocalDate.fromString('2025-08-22');
 
 	const {lastFrame} = render(
 		<InlineWorklogForm
@@ -118,7 +119,7 @@ test('comment prefill in edit mode uses explicit default regardless of reference
 		commentPrefillDays: 7,
 	};
 
-	const selectedDate = new Date('2025-08-22T12:00:00.000Z');
+	const selectedDate = LocalDate.fromString('2025-08-22');
 
 	const {lastFrame} = render(
 		<InlineWorklogForm

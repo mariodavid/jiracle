@@ -8,6 +8,7 @@ import {
 } from '../../hooks/useDeleteOperations.js';
 import type {JiraConfig} from '../../jira-client.js';
 import type {AttendanceManager} from '../../attendance/AttendanceManager.js';
+import {LocalDate} from '../../domain/LocalDate.js';
 
 // Mock the JiraClient module
 const mockConfig: JiraConfig = {
@@ -114,7 +115,10 @@ test('useDeleteOperations handleCellDelete sets candidate and changes area', t =
 	);
 
 	// Call handleCellDelete
-	const testData = {issueKey: 'TEST-456', date: new Date('2024-01-15')};
+	const testData = {
+		issueKey: 'TEST-456',
+		date: LocalDate.fromString('2024-01-15'),
+	};
 	capturedState.handleCellDelete(testData);
 	rerender(
 		React.createElement(TestDeleteOperationsComponent, {
@@ -153,7 +157,7 @@ test('useDeleteOperations handleDeleteAttendance sets attendance candidate', t =
 	);
 
 	// Call handleDeleteAttendance
-	const testData = {date: new Date('2024-01-15')};
+	const testData = {date: LocalDate.fromString('2024-01-15')};
 	capturedState.handleDeleteAttendance(testData);
 	rerender(
 		React.createElement(TestDeleteOperationsComponent, {
@@ -191,7 +195,10 @@ test('useDeleteOperations handleDeleteConfirm cancels when not confirmed', async
 	);
 
 	// Set up a delete candidate first
-	capturedState.handleCellDelete({issueKey: 'TEST-123', date: new Date()});
+	capturedState.handleCellDelete({
+		issueKey: 'TEST-123',
+		date: LocalDate.today(),
+	});
 	rerender(
 		React.createElement(TestDeleteOperationsComponent, {
 			options: mockOptions,
@@ -240,7 +247,7 @@ test('useDeleteOperations handleDeleteAttendanceConfirm cancels when not confirm
 	);
 
 	// Set up a delete attendance candidate first
-	capturedState.handleDeleteAttendance({date: new Date()});
+	capturedState.handleDeleteAttendance({date: LocalDate.today()});
 	rerender(
 		React.createElement(TestDeleteOperationsComponent, {
 			options: mockOptions,
@@ -362,7 +369,10 @@ test('useDeleteOperations candidate structures are correct', t => {
 	);
 
 	// Test delete candidate structure
-	const deleteData = {issueKey: 'TEST-789', date: new Date('2024-02-01')};
+	const deleteData = {
+		issueKey: 'TEST-789',
+		date: LocalDate.fromString('2024-02-01'),
+	};
 	capturedState.handleCellDelete(deleteData);
 	rerender(
 		React.createElement(TestDeleteOperationsComponent, {
@@ -375,10 +385,10 @@ test('useDeleteOperations candidate structures are correct', t => {
 
 	t.truthy(capturedState.deleteCandidate);
 	t.is(capturedState.deleteCandidate.issueKey, 'TEST-789');
-	t.true(capturedState.deleteCandidate.date instanceof Date);
+	t.true(capturedState.deleteCandidate.date instanceof LocalDate);
 
 	// Test delete attendance candidate structure
-	const attendanceData = {date: new Date('2024-02-02')};
+	const attendanceData = {date: LocalDate.fromString('2024-02-02')};
 	capturedState.handleDeleteAttendance(attendanceData);
 	rerender(
 		React.createElement(TestDeleteOperationsComponent, {
@@ -390,7 +400,7 @@ test('useDeleteOperations candidate structures are correct', t => {
 	);
 
 	t.truthy(capturedState.deleteAttendanceCandidate);
-	t.true(capturedState.deleteAttendanceCandidate.date instanceof Date);
+	t.true(capturedState.deleteAttendanceCandidate.date instanceof LocalDate);
 });
 
 test('useDeleteOperations displays state correctly in component', t => {

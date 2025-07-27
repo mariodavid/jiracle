@@ -1,15 +1,17 @@
 // Domain models for the weekly worklog timetable feature
 // Translated from Java records in the timesheets reference implementation
 
+import type {LocalDate} from './LocalDate.js';
+
 export type WeeklyWorklogSummary = {
-	weekStart: Date;
-	weekEnd: Date;
+	weekStart: LocalDate;
+	weekEnd: LocalDate;
 	dailySummaries: DailyWorklogSummary[];
 	weekTotal: number;
 };
 
 export type DailyWorklogSummary = {
-	date: Date;
+	date: LocalDate;
 	totalHours: number;
 	issues: IssueWorklogEntry[];
 };

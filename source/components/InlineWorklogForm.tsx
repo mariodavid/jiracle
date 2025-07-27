@@ -11,14 +11,14 @@ import DurationInput from './WorklogForm/DurationInput.js';
 
 type InlineWorklogFormProps = {
 	issueKey: string;
-	date: Date;
+	date: LocalDate;
 	defaultTimeSpent?: Duration;
 	defaultComment?: string;
 	onSubmit: (data: {
 		issueKey: string;
 		timeSpent: Duration;
 		comment: string;
-		date: Date;
+		date: LocalDate;
 		worklogId?: string; // For edit mode
 	}) => void;
 	onCancel: () => void;
@@ -84,7 +84,7 @@ export function InlineWorklogForm({
 	const [currentIssueKey, setCurrentIssueKey] = useState(issueKey);
 	const [currentDate, setCurrentDate] = useState(date);
 	const [dateInputValue, setDateInputValue] = useState(
-		date.toISOString().split('T')[0], // YYYY-MM-DD format
+		date.toISOString(), // YYYY-MM-DD format
 	);
 	const [selectedTime, setSelectedTime] = useState(() => {
 		return getDefaultTime();
@@ -365,8 +365,7 @@ export function InlineWorklogForm({
 		// Only update the date state if it's a valid date format
 		try {
 			const localDate = LocalDate.fromString(value);
-			const newDate = new Date(localDate.toISOString() + 'T00:00:00.000Z');
-			setCurrentDate(newDate);
+			setCurrentDate(localDate);
 		} catch {
 			// Ignore invalid dates
 		}

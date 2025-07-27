@@ -1,5 +1,6 @@
 import process from 'node:process';
 import {Duration} from '../domain/Duration.js';
+import {LocalDate} from '../domain/LocalDate.js';
 import type {
 	JiraConfig,
 	FavoriteIssue,
@@ -185,10 +186,14 @@ export function extractIssueKeyFromInput(input: string): string | undefined {
 export function getMostRecentCommentForIssue(
 	worklogs: WorklogEntry[],
 	daysBack = 7,
-	referenceDate: Date = new Date(),
+	referenceDate: LocalDate = LocalDate.today(),
 ): string | undefined {
-	const cutoffDate = new Date(referenceDate);
-	cutoffDate.setDate(cutoffDate.getDate() - daysBack);
+	// Create cutoff date by subtracting days from reference date
+	const referenceDateAsDate = new Date(
+		referenceDate.toISOString() + 'T00:00:00.000Z',
+	);
+	referenceDateAsDate.setDate(referenceDateAsDate.getDate() - daysBack);
+	const cutoffDate = referenceDateAsDate;
 
 	const relevantWorklogs = worklogs
 		.filter(worklog => {
@@ -247,7 +252,7 @@ export function getCommentWithPrefill(
 	options: {
 		isEditMode: boolean;
 		explicitDefault?: string;
-		referenceDate: Date;
+		referenceDate: LocalDate;
 	},
 ): string {
 	// If explicit default comment is provided AND we're in edit mode, use it
@@ -257,7 +262,9 @@ export function getCommentWithPrefill(
 
 	// Try to find most recent comment for this issue using configured lookback days
 	const lookbackDays = resolveCommentPrefillDays(config, issueKey);
-	const cutoffDate = new Date(options.referenceDate);
+	const cutoffDate = new Date(
+		options.referenceDate.toISOString() + 'T00:00:00.000Z',
+	);
 	cutoffDate.setDate(cutoffDate.getDate() - lookbackDays);
 
 	const recentComment = getMostRecentCommentForIssue(

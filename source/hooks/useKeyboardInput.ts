@@ -1,14 +1,15 @@
 import {useInput} from 'ink';
+import {LocalDate} from '../domain/LocalDate.js';
 import type {FocusedCell} from './useFocusManagement.js';
 
 export type KeyboardInputHandlers = {
 	handleArrowNavigation: (direction: 'up' | 'down' | 'left' | 'right') => void;
 	handleReverseTabNavigation: () => void;
 	onWeekChange?: (direction: 'prev' | 'next') => void;
-	onCellWorklog?: (data: {issueKey: string; date: Date}) => void;
-	onCellDelete?: (data: {issueKey: string; date: Date}) => void;
-	onAttendanceEdit?: (data: {date: Date}) => void;
-	onAttendanceDelete?: (data: {date: Date}) => void;
+	onCellWorklog?: (data: {issueKey: string; date: LocalDate}) => void;
+	onCellDelete?: (data: {issueKey: string; date: LocalDate}) => void;
+	onAttendanceEdit?: (data: {date: LocalDate}) => void;
+	onAttendanceDelete?: (data: {date: LocalDate}) => void;
 	onOpenInBrowser?: (issueKey: string) => void;
 };
 
@@ -79,12 +80,15 @@ function handleEnterKey(
 	}
 
 	if (handlers.onCellWorklog && !focusedCell.isAttendance) {
-		handlers.onCellWorklog({issueKey: focusedCell.issueKey, date});
+		handlers.onCellWorklog({
+			issueKey: focusedCell.issueKey,
+			date: LocalDate.fromDate(date),
+		});
 		return true;
 	}
 
 	if (handlers.onAttendanceEdit && focusedCell.isAttendance) {
-		handlers.onAttendanceEdit({date});
+		handlers.onAttendanceEdit({date: LocalDate.fromDate(date)});
 		return true;
 	}
 
@@ -107,12 +111,15 @@ function handleDeleteKey(
 	}
 
 	if (focusedCell.isAttendance && handlers.onAttendanceDelete) {
-		handlers.onAttendanceDelete({date});
+		handlers.onAttendanceDelete({date: LocalDate.fromDate(date)});
 		return true;
 	}
 
 	if (!focusedCell.isAttendance && handlers.onCellDelete) {
-		handlers.onCellDelete({issueKey: focusedCell.issueKey, date});
+		handlers.onCellDelete({
+			issueKey: focusedCell.issueKey,
+			date: LocalDate.fromDate(date),
+		});
 		return true;
 	}
 
