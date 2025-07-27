@@ -29,10 +29,10 @@ export type TimetableGridProps = {
 	data: WeeklyWorklogSummary | undefined;
 	isLoading: boolean;
 	onWeekChange?: (direction: 'prev' | 'next') => void;
-	onCellWorklog?: (data: {issueKey: string; date: Date}) => void;
-	onCellDelete?: (data: {issueKey: string; date: Date}) => void;
-	onAttendanceEdit?: (data: {date: Date}) => void;
-	onAttendanceDelete?: (data: {date: Date}) => void;
+	onCellWorklog?: (data: {issueKey: string; date: LocalDate}) => void;
+	onCellDelete?: (data: {issueKey: string; date: LocalDate}) => void;
+	onAttendanceEdit?: (data: {date: LocalDate}) => void;
+	onAttendanceDelete?: (data: {date: LocalDate}) => void;
 	onOpenInBrowser?: (issueKey: string) => void;
 	isActive?: boolean;
 	favoriteIssues?: FavoriteIssue[];
@@ -72,8 +72,12 @@ export function TimetableGrid({
 
 		const loadAttendanceData = async () => {
 			try {
-				const weekStart = new Date(data.weekStart);
-				const weekly = await attendanceManager.getWeeklyAttendance(weekStart);
+				if (!data?.weekStart) return;
+				// Convert weekStart to Date for attendance manager
+				const weekStartDate = new Date(data.weekStart.toISOString());
+				const weekly = await attendanceManager.getWeeklyAttendance(
+					weekStartDate,
+				);
 				setWeeklyAttendance(weekly);
 			} catch (error: unknown) {
 				console.error('Failed to load attendance data:', error);
@@ -88,7 +92,7 @@ export function TimetableGrid({
 	const {findInitialFocus} = useGridNavigation();
 
 	// Calculate values that depend on data (with safe defaults)
-	const weekStart = data ? new Date(data.weekStart) : new Date();
+	const weekStart = data ? new Date(data.weekStart.toISOString()) : new Date();
 	const weekDates = generateWeekDates(weekStart);
 	const issueMap =
 		data && data.dailySummaries.length > 0

@@ -3,14 +3,15 @@ import React from 'react';
 import {render} from 'ink-testing-library';
 import {TimetableGrid} from '../../components/TimetableGrid.js';
 import type {WeeklyWorklogSummary} from '../../domain/WeeklyWorklogSummary.js';
+import {LocalDate} from '../../domain/LocalDate.js';
 
 test('TimetableGrid sorts issues by project prefix and number', t => {
 	const sampleData: WeeklyWorklogSummary = {
-		weekStart: new Date('2024-10-14T00:00:00.000Z'),
-		weekEnd: new Date('2024-10-20T23:59:59.999Z'),
+		weekStart: LocalDate.fromString('2024-10-14'),
+		weekEnd: LocalDate.fromString('2024-10-20'),
 		dailySummaries: [
 			{
-				date: new Date('2024-10-18T00:00:00.000Z'),
+				date: LocalDate.fromString('2024-10-18'),
 				totalHours: 12,
 				issues: [
 					{
@@ -80,11 +81,11 @@ test('TimetableGrid sorts issues by project prefix and number', t => {
 
 test('TimetableGrid sorts issues with different project prefixes correctly', t => {
 	const sampleData: WeeklyWorklogSummary = {
-		weekStart: new Date('2024-10-14T00:00:00.000Z'),
-		weekEnd: new Date('2024-10-20T23:59:59.999Z'),
+		weekStart: LocalDate.fromString('2024-10-14'),
+		weekEnd: LocalDate.fromString('2024-10-20'),
 		dailySummaries: [
 			{
-				date: new Date('2024-10-18T00:00:00.000Z'),
+				date: LocalDate.fromString('2024-10-18'),
 				totalHours: 9,
 				issues: [
 					{
@@ -133,11 +134,11 @@ test('TimetableGrid sorts issues with different project prefixes correctly', t =
 
 test('TimetableGrid sorts issues numerically within same project (124 before 1029)', t => {
 	const sampleData: WeeklyWorklogSummary = {
-		weekStart: new Date('2024-10-14T00:00:00.000Z'),
-		weekEnd: new Date('2024-10-20T23:59:59.999Z'),
+		weekStart: LocalDate.fromString('2024-10-14'),
+		weekEnd: LocalDate.fromString('2024-10-20'),
 		dailySummaries: [
 			{
-				date: new Date('2024-10-18T00:00:00.000Z'),
+				date: LocalDate.fromString('2024-10-18'),
 				totalHours: 6,
 				issues: [
 					{

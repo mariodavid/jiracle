@@ -69,4 +69,8 @@ export class LocalDate {
 		const weekStart = this.getWeekStart();
 		return weekStart.addDays(6);
 	}
+
+	toDate(): Date {
+		return new Date(this.dateKey + 'T00:00:00.000Z');
+	}
 }

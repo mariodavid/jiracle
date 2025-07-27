@@ -2,13 +2,14 @@ import type {
 	WorklogEntry as ApiWorklogEntry,
 	WorklogRequest,
 } from '../jira/types.js';
+import {LocalDate} from './LocalDate.js';
 
 type WorklogEntryData = {
 	id: string;
 	issueKey: string;
 	duration: number;
 	comment: string;
-	date: Date;
+	date: LocalDate;
 	author: {displayName: string; emailAddress: string};
 };
 
@@ -16,7 +17,7 @@ type CreateWorklogOptions = {
 	issueKey: string;
 	duration: number;
 	comment: string;
-	date: Date;
+	date: LocalDate;
 	author: {displayName: string; emailAddress: string};
 };
 
@@ -48,7 +49,7 @@ export class WorklogEntry {
 			issueKey: options.issueKey.trim().toUpperCase(),
 			duration: Math.round(options.duration),
 			comment: options.comment.trim(),
-			date: new Date(options.date),
+			date: options.date,
 			author: {...options.author},
 		});
 	}
@@ -75,7 +76,7 @@ export class WorklogEntry {
 			issueKey: issueKey.trim().toUpperCase(),
 			duration: apiEntry.timeSpentSeconds,
 			comment: apiEntry.comment ?? '',
-			date: startedDate,
+			date: LocalDate.fromDate(startedDate),
 			author: {...apiEntry.author},
 		});
 	}
@@ -84,7 +85,7 @@ export class WorklogEntry {
 	private readonly _issueKey: string;
 	private readonly _duration: number; // TimeSpentSeconds
 	private readonly _comment: string;
-	private readonly _date: Date;
+	private readonly _date: LocalDate;
 	private readonly _author: {
 		displayName: string;
 		emailAddress: string;
@@ -119,8 +120,8 @@ export class WorklogEntry {
 		return this._comment;
 	}
 
-	get date(): Date {
-		return new Date(this._date);
+	get date(): LocalDate {
+		return this._date;
 	}
 
 	get author(): {displayName: string; emailAddress: string} {
@@ -170,14 +171,13 @@ export class WorklogEntry {
 	}
 
 	isSameDay(other: WorklogEntry | Date): boolean {
-		const otherDate = other instanceof WorklogEntry ? other._date : other;
-		const thisDateString = this._date.toISOString().split('T')[0];
-		const otherDateString = otherDate.toISOString().split('T')[0];
-		return thisDateString === otherDateString;
+		const otherDate =
+			other instanceof WorklogEntry ? other._date : LocalDate.fromDate(other);
+		return this._date.equals(otherDate);
 	}
 
 	toApiRequest(): WorklogRequest {
-		const startedDateTime = new Date(this._date);
+		const startedDateTime = this._date.toDate();
 		startedDateTime.setUTCHours(9, 0, 0, 0);
 
 		return {
@@ -208,13 +208,13 @@ export class WorklogEntry {
 			this._issueKey === other._issueKey &&
 			this._duration === other._duration &&
 			this._comment === other._comment &&
-			this._date.getTime() === other._date.getTime() &&
+			this._date.equals(other._date) &&
 			this._author.emailAddress === other._author.emailAddress
 		);
 	}
 
 	toString(): string {
-		const dateString = this._date.toISOString().split('T')[0];
+		const dateString = this._date.toISOString();
 		const timeSpent = String(this.formatDurationAsTimeSpent());
 		return [
 			'WorklogEntry(',

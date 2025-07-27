@@ -3,6 +3,7 @@ import {
 	getMostRecentCommentForIssue,
 	getCommentWithPrefill,
 } from '../../jira/utils.js';
+import {LocalDate} from '../../domain/LocalDate.js';
 import type {WorklogEntry, JiraConfig} from '../../jira/types.js';
 
 test('getMostRecentCommentForIssue returns most recent non-empty comment within date range', t => {
@@ -191,7 +192,7 @@ test('getMostRecentCommentForIssue uses custom reference date', t => {
 	];
 
 	// Reference date: August 22nd (should look back 7 days to August 15th)
-	const referenceDate = new Date('2025-08-22T12:00:00.000Z');
+	const referenceDate = LocalDate.fromString('2025-08-22');
 	const result = getMostRecentCommentForIssue(worklogs, 7, referenceDate);
 
 	// Should find August 20th comment (within 7 days of August 22nd)
@@ -212,7 +213,7 @@ test('getMostRecentCommentForIssue with reference date excludes old worklogs', t
 	];
 
 	// Reference date: August 22nd (should look back 7 days to August 15th)
-	const referenceDate = new Date('2025-08-22T12:00:00.000Z');
+	const referenceDate = LocalDate.fromString('2025-08-22');
 	const result = getMostRecentCommentForIssue(worklogs, 7, referenceDate);
 
 	// July 23rd is more than 7 days before August 22nd, should return undefined
@@ -240,7 +241,7 @@ test('getCommentWithPrefill uses reference date for filtering', t => {
 	};
 
 	// Reference date: August 22nd
-	const referenceDate = new Date('2025-08-22T12:00:00.000Z');
+	const referenceDate = LocalDate.fromString('2025-08-22');
 
 	const result = getCommentWithPrefill(config, 'TEST-123', worklogs, {
 		isEditMode: false,
@@ -272,7 +273,7 @@ test('getCommentWithPrefill finds recent comment with reference date', t => {
 	};
 
 	// Reference date: August 22nd
-	const referenceDate = new Date('2025-08-22T12:00:00.000Z');
+	const referenceDate = LocalDate.fromString('2025-08-22');
 
 	const result = getCommentWithPrefill(config, 'TEST-123', worklogs, {
 		isEditMode: false,
@@ -310,7 +311,7 @@ test('getCommentWithPrefill respects configurable lookback days with reference d
 	};
 
 	// Reference date: August 22nd
-	const referenceDate = new Date('2025-08-22T12:00:00.000Z');
+	const referenceDate = LocalDate.fromString('2025-08-22');
 
 	const result = getCommentWithPrefill(config, 'TEST-123', worklogs, {
 		isEditMode: false,
@@ -340,7 +341,7 @@ test('getCommentWithPrefill uses explicit default in edit mode regardless of ref
 		commentPrefillDays: 7,
 	};
 
-	const referenceDate = new Date('2025-08-22T12:00:00.000Z');
+	const referenceDate = LocalDate.fromString('2025-08-22');
 
 	const result = getCommentWithPrefill(config, 'TEST-123', worklogs, {
 		isEditMode: true,

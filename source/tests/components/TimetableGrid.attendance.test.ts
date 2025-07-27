@@ -3,6 +3,7 @@ import React from 'react';
 import {render} from 'ink-testing-library';
 import {TimetableGrid} from '../../components/TimetableGrid.js';
 import type {WeeklyWorklogSummary} from '../../domain/WeeklyWorklogSummary.js';
+import {LocalDate} from '../../domain/LocalDate.js';
 import {InkTestHelpers} from '../utils/ink-test-helpers.js';
 
 // Tests for attendance integration and delta calculations
@@ -26,8 +27,8 @@ test('TimetableGrid shows attendance with working hours calculation', async t =>
 	};
 
 	const sampleData: WeeklyWorklogSummary = {
-		weekStart: new Date('2024-10-14T00:00:00.000Z'),
-		weekEnd: new Date('2024-10-20T23:59:59.999Z'),
+		weekStart: LocalDate.fromString('2024-10-14'),
+		weekEnd: LocalDate.fromString('2024-10-20'),
 		dailySummaries: [],
 		weekTotal: 0,
 	};
@@ -86,8 +87,8 @@ test('TimetableGrid calculates working hours with different break times', async 
 	};
 
 	const sampleData: WeeklyWorklogSummary = {
-		weekStart: new Date('2024-10-14T00:00:00.000Z'),
-		weekEnd: new Date('2024-10-20T23:59:59.999Z'),
+		weekStart: LocalDate.fromString('2024-10-14'),
+		weekEnd: LocalDate.fromString('2024-10-20'),
 		dailySummaries: [],
 		weekTotal: 0,
 	};
@@ -137,8 +138,8 @@ test('TimetableGrid uses config default break time when not specified', async t 
 	};
 
 	const sampleData: WeeklyWorklogSummary = {
-		weekStart: new Date('2024-10-14T00:00:00.000Z'),
-		weekEnd: new Date('2024-10-20T23:59:59.999Z'),
+		weekStart: LocalDate.fromString('2024-10-14'),
+		weekEnd: LocalDate.fromString('2024-10-20'),
 		dailySummaries: [],
 		weekTotal: 0,
 	};
@@ -206,11 +207,11 @@ test('TimetableGrid shows delta row with positive values in red', async t => {
 	};
 
 	const sampleData: WeeklyWorklogSummary = {
-		weekStart: new Date('2024-10-14T00:00:00.000Z'),
-		weekEnd: new Date('2024-10-20T23:59:59.999Z'),
+		weekStart: LocalDate.fromString('2024-10-14'),
+		weekEnd: LocalDate.fromString('2024-10-20'),
 		dailySummaries: [
 			{
-				date: new Date('2024-10-14T00:00:00.000Z'),
+				date: LocalDate.fromString('2024-10-14'),
 				totalHours: 8, // Logged more than attended
 				issues: [
 					{
@@ -269,11 +270,11 @@ test('TimetableGrid shows delta row with zero values in green', async t => {
 	};
 
 	const sampleData: WeeklyWorklogSummary = {
-		weekStart: new Date('2024-10-14T00:00:00.000Z'),
-		weekEnd: new Date('2024-10-20T23:59:59.999Z'),
+		weekStart: LocalDate.fromString('2024-10-14'),
+		weekEnd: LocalDate.fromString('2024-10-20'),
 		dailySummaries: [
 			{
-				date: new Date('2024-10-14T00:00:00.000Z'),
+				date: LocalDate.fromString('2024-10-14'),
 				totalHours: 8.5, // Logged exactly same as attended
 				issues: [
 					{
@@ -333,11 +334,11 @@ test('TimetableGrid shows delta row with negative values in red', async t => {
 	};
 
 	const sampleData: WeeklyWorklogSummary = {
-		weekStart: new Date('2024-10-14T00:00:00.000Z'),
-		weekEnd: new Date('2024-10-20T23:59:59.999Z'),
+		weekStart: LocalDate.fromString('2024-10-14'),
+		weekEnd: LocalDate.fromString('2024-10-20'),
 		dailySummaries: [
 			{
-				date: new Date('2024-10-14T00:00:00.000Z'),
+				date: LocalDate.fromString('2024-10-14'),
 				totalHours: 8, // Logged less than attended
 				issues: [
 					{
@@ -388,11 +389,11 @@ test('TimetableGrid shows dash in delta row when no attendance data', async t =>
 	};
 
 	const sampleData: WeeklyWorklogSummary = {
-		weekStart: new Date('2024-10-14T00:00:00.000Z'),
-		weekEnd: new Date('2024-10-20T23:59:59.999Z'),
+		weekStart: LocalDate.fromString('2024-10-14'),
+		weekEnd: LocalDate.fromString('2024-10-20'),
 		dailySummaries: [
 			{
-				date: new Date('2024-10-14T00:00:00.000Z'),
+				date: LocalDate.fromString('2024-10-14'),
 				totalHours: 8,
 				issues: [
 					{
@@ -459,11 +460,11 @@ test('TimetableGrid shows attendance and delta rows at bottom after daily total'
 	};
 
 	const sampleData: WeeklyWorklogSummary = {
-		weekStart: new Date('2024-10-14T00:00:00.000Z'),
-		weekEnd: new Date('2024-10-20T23:59:59.999Z'),
+		weekStart: LocalDate.fromString('2024-10-14'),
+		weekEnd: LocalDate.fromString('2024-10-20'),
 		dailySummaries: [
 			{
-				date: new Date('2024-10-14T00:00:00.000Z'),
+				date: LocalDate.fromString('2024-10-14'),
 				totalHours: 8,
 				issues: [
 					{
@@ -535,11 +536,11 @@ test('TimetableGrid shows attendance and delta rows at bottom after daily total'
 
 test('TimetableGrid does not show delta row when no attendance manager', t => {
 	const sampleData: WeeklyWorklogSummary = {
-		weekStart: new Date('2024-10-14T00:00:00.000Z'),
-		weekEnd: new Date('2024-10-20T23:59:59.999Z'),
+		weekStart: LocalDate.fromString('2024-10-14'),
+		weekEnd: LocalDate.fromString('2024-10-20'),
 		dailySummaries: [
 			{
-				date: new Date('2024-10-14T00:00:00.000Z'),
+				date: LocalDate.fromString('2024-10-14'),
 				totalHours: 8,
 				issues: [
 					{

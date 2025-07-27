@@ -8,6 +8,7 @@ import {
 } from '../../hooks/useWorklogForm.js';
 import type {JiraConfig} from '../../jira-client.js';
 import {Duration} from '../../domain/Duration.js';
+import {LocalDate} from '../../domain/LocalDate.js';
 
 // Mock the JiraClient module
 const mockConfig: JiraConfig = {
@@ -63,7 +64,7 @@ test('useWorklogForm validates invalid issue key format', async t => {
 		'Invalid issue key format. Expected format: PROJECT-123 (e.g., DEF-123, ABC-456).';
 	const submissionData = {
 		issueKey: invalidIssueKey,
-		date: new Date('2024-01-15'),
+		date: LocalDate.fromString('2024-01-15'),
 		timeSpent: new Duration('2h'),
 		comment: 'Valid comment',
 	};
@@ -114,7 +115,7 @@ test('useWorklogForm accepts valid issue key format', async t => {
 	const validIssueKey = 'TEST-123';
 	const submissionData = {
 		issueKey: validIssueKey,
-		date: new Date('2024-01-15'),
+		date: LocalDate.fromString('2024-01-15'),
 		timeSpent: new Duration('2h'),
 		comment: 'Valid comment',
 	};
@@ -160,7 +161,7 @@ test('useWorklogForm tracks submitting state correctly', async t => {
 	// 1. EXPLICIT TEST DATA
 	const validSubmissionData = {
 		issueKey: 'TEST-123',
-		date: new Date('2024-01-15'),
+		date: LocalDate.fromString('2024-01-15'),
 		timeSpent: new Duration('2h'),
 		comment: 'Valid comment',
 	};
@@ -235,7 +236,7 @@ test('useWorklogForm handles submission errors gracefully', async t => {
 	// 1. EXPLICIT TEST DATA
 	const invalidSubmissionData = {
 		issueKey: 'NONEXISTENT-999',
-		date: new Date('2024-01-15'),
+		date: LocalDate.fromString('2024-01-15'),
 		timeSpent: new Duration('2h'),
 		comment: 'Valid comment',
 	};
@@ -290,21 +291,21 @@ test('useWorklogForm distinguishes between edit and new worklog modes', async t 
 	// 1. EXPLICIT TEST DATA
 	const existingWorklogData = {
 		issueKey: 'TEST-123',
-		date: new Date('2024-01-15'),
+		date: LocalDate.fromString('2024-01-15'),
 		worklogId: 'existing-worklog-123',
 	};
 	const newWorklogData = {
 		issueKey: 'TEST-456',
-		date: new Date('2024-01-15'),
+		date: LocalDate.fromString('2024-01-15'),
 	};
 	let capturedState: any;
 
 	const mockWeeklyData = {
-		weekStart: new Date('2024-01-15'),
-		weekEnd: new Date('2024-01-21'),
+		weekStart: LocalDate.fromString('2024-01-15'),
+		weekEnd: LocalDate.fromString('2024-01-21'),
 		dailySummaries: [
 			{
-				date: new Date('2024-01-15'),
+				date: LocalDate.fromString('2024-01-15'),
 				totalHours: 3,
 				issues: [
 					{

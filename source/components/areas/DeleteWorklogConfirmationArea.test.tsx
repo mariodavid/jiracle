@@ -1,15 +1,17 @@
 import test from 'ava';
 import React from 'react';
 import {render} from 'ink-testing-library';
+import {LocalDate} from '../../domain/LocalDate.js';
 import type {DeleteCandidate} from '../../hooks/useDeleteOperations.js';
 import {DeleteWorklogConfirmationArea} from './DeleteWorklogConfirmationArea.js';
 
 const mockDeleteCandidate: DeleteCandidate = {
 	issueKey: 'PROJECT-123',
-	date: new Date('2024-01-15'),
+	date: LocalDate.fromString('2024-01-15'),
 };
 
-const mockFormatDate = (date: Date) => {
+const mockFormatDate = (date: LocalDate) => {
+	const dateObject = date.toDate();
 	const days = [
 		'Sunday',
 		'Monday',
@@ -33,9 +35,9 @@ const mockFormatDate = (date: Date) => {
 		'Nov',
 		'Dec',
 	];
-	return `${days[date.getDay()] ?? 'Unknown'}, ${
-		months[date.getMonth()] ?? 'Unknown'
-	} ${date.getDate()}`;
+	return `${days[dateObject.getDay()] ?? 'Unknown'}, ${
+		months[dateObject.getMonth()] ?? 'Unknown'
+	} ${dateObject.getDate()}`;
 };
 
 test('DeleteWorklogConfirmationArea renders with issue key and formatted date', t => {
@@ -119,7 +121,7 @@ test('DeleteWorklogConfirmationArea uses correct dialog styling', t => {
 test('DeleteWorklogConfirmationArea handles different issue keys', t => {
 	const differentCandidate: DeleteCandidate = {
 		issueKey: 'DIFFERENT-456',
-		date: new Date('2024-02-20'),
+		date: LocalDate.fromString('2024-02-20'),
 	};
 
 	const mockOnConfirm = () => {};

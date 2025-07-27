@@ -1,5 +1,6 @@
 import test from 'ava';
 import {Duration} from '../domain/Duration.js';
+import {LocalDate} from '../domain/LocalDate.js';
 import {useTitleResolver} from './useTitleResolver.js';
 import type {
 	DeleteCandidate,
@@ -14,7 +15,7 @@ const createWorklogForm = (
 ): WorklogFormData => ({
 	isVisible: false,
 	issueKey: '',
-	date: new Date(),
+	date: LocalDate.today(),
 	timeSpent: new Duration('0h'),
 	comment: '',
 	isIssueKeyEditable: false,
@@ -27,21 +28,21 @@ const createDeleteCandidate = (
 	overrides: Partial<DeleteCandidate> = {},
 ): DeleteCandidate => ({
 	issueKey: 'TEST-123',
-	date: new Date('2024-01-15'),
+	date: LocalDate.fromString('2024-01-15'),
 	...overrides,
 });
 
 const createDeleteAttendanceCandidate = (
 	overrides: Partial<DeleteAttendanceCandidate> = {},
 ): DeleteAttendanceCandidate => ({
-	date: new Date('2024-01-15'),
+	date: LocalDate.fromString('2024-01-15'),
 	...overrides,
 });
 
 const createAttendanceEdit = (
 	overrides: Partial<AttendanceEditState> = {},
 ): AttendanceEditState => ({
-	date: new Date('2024-01-15'),
+	date: LocalDate.fromString('2024-01-15'),
 	data: {
 		date: '2024-01-15',
 		checkIn: '09:00',
@@ -55,11 +56,11 @@ test('useTitleResolver returns worklog form title when form is visible', t => {
 	const worklogForm = createWorklogForm({
 		isVisible: true,
 		issueKey: 'PROJECT-456',
-		date: new Date('2024-01-15'),
+		date: LocalDate.fromString('2024-01-15'),
 	});
 
 	const result = useTitleResolver({
-		currentWeek: new Date('2024-01-15'),
+		currentWeek: LocalDate.fromString('2024-01-15'),
 		worklogForm,
 		deleteCandidate: undefined,
 		deleteAttendanceCandidate: undefined,
@@ -77,7 +78,7 @@ test('useTitleResolver returns delete confirmation title with red color', t => {
 	});
 
 	const result = useTitleResolver({
-		currentWeek: new Date('2024-01-15'),
+		currentWeek: LocalDate.fromString('2024-01-15'),
 		worklogForm: createWorklogForm(),
 		deleteCandidate,
 		deleteAttendanceCandidate: undefined,
@@ -91,11 +92,11 @@ test('useTitleResolver returns delete confirmation title with red color', t => {
 
 test('useTitleResolver returns delete attendance confirmation title with red color', t => {
 	const deleteAttendanceCandidate = createDeleteAttendanceCandidate({
-		date: new Date('2024-01-15'),
+		date: LocalDate.fromString('2024-01-15'),
 	});
 
 	const result = useTitleResolver({
-		currentWeek: new Date('2024-01-15'),
+		currentWeek: LocalDate.fromString('2024-01-15'),
 		worklogForm: createWorklogForm(),
 		deleteCandidate: undefined,
 		deleteAttendanceCandidate,
@@ -109,11 +110,11 @@ test('useTitleResolver returns delete attendance confirmation title with red col
 
 test('useTitleResolver returns attendance edit title', t => {
 	const attendanceEdit = createAttendanceEdit({
-		date: new Date('2024-01-15'),
+		date: LocalDate.fromString('2024-01-15'),
 	});
 
 	const result = useTitleResolver({
-		currentWeek: new Date('2024-01-15'),
+		currentWeek: LocalDate.fromString('2024-01-15'),
 		worklogForm: createWorklogForm(),
 		deleteCandidate: undefined,
 		deleteAttendanceCandidate: undefined,
@@ -127,7 +128,7 @@ test('useTitleResolver returns attendance edit title', t => {
 
 test('useTitleResolver returns week title as default', t => {
 	const result = useTitleResolver({
-		currentWeek: new Date('2024-01-15'), // Monday
+		currentWeek: LocalDate.fromString('2024-01-15'), // Monday
 		worklogForm: createWorklogForm(),
 		deleteCandidate: undefined,
 		deleteAttendanceCandidate: undefined,
@@ -143,14 +144,14 @@ test('useTitleResolver prioritizes worklog form over other states', t => {
 	const worklogForm = createWorklogForm({
 		isVisible: true,
 		issueKey: 'PRIORITY-TEST',
-		date: new Date('2024-01-15'),
+		date: LocalDate.fromString('2024-01-15'),
 	});
 
 	const deleteCandidate = createDeleteCandidate();
 	const attendanceEdit = createAttendanceEdit();
 
 	const result = useTitleResolver({
-		currentWeek: new Date('2024-01-15'),
+		currentWeek: LocalDate.fromString('2024-01-15'),
 		worklogForm,
 		deleteCandidate,
 		deleteAttendanceCandidate: undefined,
@@ -164,7 +165,7 @@ test('useTitleResolver prioritizes worklog form over other states', t => {
 
 test('useTitleResolver handles delete confirmation without candidate', t => {
 	const result = useTitleResolver({
-		currentWeek: new Date('2024-01-15'),
+		currentWeek: LocalDate.fromString('2024-01-15'),
 		worklogForm: createWorklogForm(),
 		deleteCandidate: undefined,
 		deleteAttendanceCandidate: undefined,
@@ -179,7 +180,7 @@ test('useTitleResolver handles delete confirmation without candidate', t => {
 
 test('useTitleResolver handles attendance edit without data', t => {
 	const result = useTitleResolver({
-		currentWeek: new Date('2024-01-15'),
+		currentWeek: LocalDate.fromString('2024-01-15'),
 		worklogForm: createWorklogForm(),
 		deleteCandidate: undefined,
 		deleteAttendanceCandidate: undefined,
@@ -195,11 +196,11 @@ test('useTitleResolver handles attendance edit without data', t => {
 test('useTitleResolver formats different weekdays correctly', t => {
 	// Test Tuesday
 	const tuesdayResult = useTitleResolver({
-		currentWeek: new Date('2024-01-16'), // Tuesday
+		currentWeek: LocalDate.fromString('2024-01-16'), // Tuesday
 		worklogForm: createWorklogForm({
 			isVisible: true,
 			issueKey: 'TEST-DAY',
-			date: new Date('2024-01-16'),
+			date: LocalDate.fromString('2024-01-16'),
 		}),
 		deleteCandidate: undefined,
 		deleteAttendanceCandidate: undefined,
@@ -211,11 +212,11 @@ test('useTitleResolver formats different weekdays correctly', t => {
 
 	// Test Sunday (week start)
 	const sundayResult = useTitleResolver({
-		currentWeek: new Date('2024-01-14'), // Sunday
+		currentWeek: LocalDate.fromString('2024-01-14'), // Sunday
 		worklogForm: createWorklogForm({
 			isVisible: true,
 			issueKey: 'TEST-SUNDAY',
-			date: new Date('2024-01-14'),
+			date: LocalDate.fromString('2024-01-14'),
 		}),
 		deleteCandidate: undefined,
 		deleteAttendanceCandidate: undefined,
@@ -229,7 +230,7 @@ test('useTitleResolver formats different weekdays correctly', t => {
 test('useTitleResolver handles different months in week title', t => {
 	// Week in January 2024 (German week: Monday to Friday)
 	const result = useTitleResolver({
-		currentWeek: new Date('2024-01-01'), // Monday Jan 1st
+		currentWeek: LocalDate.fromString('2024-01-01'), // Monday Jan 1st
 		worklogForm: createWorklogForm(),
 		deleteCandidate: undefined,
 		deleteAttendanceCandidate: undefined,
@@ -244,7 +245,7 @@ test('useTitleResolver handles different months in week title', t => {
 test('useTitleResolver handles year boundary correctly', t => {
 	// Test year boundary: week spanning December 2024 to January 2025
 	const result = useTitleResolver({
-		currentWeek: new Date('2024-12-30'), // Monday
+		currentWeek: LocalDate.fromString('2024-12-30'), // Monday
 		worklogForm: createWorklogForm(),
 		deleteCandidate: undefined,
 		deleteAttendanceCandidate: undefined,
@@ -260,22 +261,22 @@ test('useTitleResolver calculates German calendar weeks correctly', t => {
 	// Test various dates to ensure correct ISO 8601 week calculation
 	const testCases = [
 		{
-			date: new Date('2024-01-01'),
+			date: LocalDate.fromString('2024-01-01'),
 			expectedWeek: 'KW1',
 			description: 'New Year 2024',
 		},
 		{
-			date: new Date('2024-01-15'),
+			date: LocalDate.fromString('2024-01-15'),
 			expectedWeek: 'KW3',
 			description: 'Mid January 2024',
 		},
 		{
-			date: new Date('2024-07-15'),
+			date: LocalDate.fromString('2024-07-15'),
 			expectedWeek: 'KW29',
 			description: 'Mid July 2024',
 		},
 		{
-			date: new Date('2024-12-30'),
+			date: LocalDate.fromString('2024-12-30'),
 			expectedWeek: 'KW1',
 			description: 'End of 2024 (KW1 of 2025)',
 		},

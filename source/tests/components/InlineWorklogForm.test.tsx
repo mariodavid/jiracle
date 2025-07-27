@@ -3,10 +3,11 @@ import React from 'react';
 import {render} from 'ink-testing-library';
 import {InlineWorklogForm} from '../../components/InlineWorklogForm.js';
 import {Duration} from '../../domain/Duration.js';
+import {LocalDate} from '../../domain/LocalDate.js';
 
 const mockProps = {
 	issueKey: 'TEST-123',
-	date: new Date('2025-07-10T00:00:00.000Z'),
+	date: LocalDate.fromString('2025-07-10'),
 	defaultTimeSpent: new Duration('1h'),
 	defaultComment: '',
 	onSubmit() {},
@@ -170,7 +171,7 @@ test('InlineWorklogForm calls onSubmit with worklogId in edit mode', async t => 
 			submittedData.timeSpent instanceof Duration,
 			'Should include Duration timeSpent',
 		);
-		t.true(submittedData.date instanceof Date, 'Should include date');
+		t.true(submittedData.date instanceof LocalDate, 'Should include date');
 	} else {
 		// If form submission is async and hasn't completed yet, verify the form structure at least
 		t.false(submitCalled, 'Submit should be called but data may be pending');
@@ -226,7 +227,7 @@ test('InlineWorklogForm does not include worklogId in create mode', async t => {
 			submittedData.timeSpent instanceof Duration,
 			'Should include Duration timeSpent',
 		);
-		t.true(submittedData.date instanceof Date, 'Should include date');
+		t.true(submittedData.date instanceof LocalDate, 'Should include date');
 	} else {
 		// If form submission is async and hasn't completed yet, verify the form structure at least
 		t.false(submitCalled, 'Submit should be called but data may be pending');
@@ -498,7 +499,7 @@ test('InlineWorklogForm handles empty issue key in add worklog mode', t => {
 });
 
 test('InlineWorklogForm formats date correctly for input', t => {
-	const testDate = new Date('2025-07-14T12:00:00.000Z');
+	const testDate = LocalDate.fromString('2025-07-14');
 	const editableKeyProps = {
 		...mockProps,
 		date: testDate,

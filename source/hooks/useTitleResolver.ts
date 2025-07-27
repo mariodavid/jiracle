@@ -1,3 +1,4 @@
+import type {LocalDate} from '../domain/LocalDate.js';
 import type {
 	DeleteCandidate,
 	DeleteAttendanceCandidate,
@@ -6,7 +7,7 @@ import type {AttendanceEditState} from './useAttendanceManagement.js';
 import type {WorklogFormData} from './useWorklogForm.js';
 
 export type UseTitleResolverOptions = {
-	currentWeek: Date;
+	currentWeek: LocalDate;
 	worklogForm: WorklogFormData;
 	deleteCandidate: DeleteCandidate | undefined;
 	deleteAttendanceCandidate: DeleteAttendanceCandidate | undefined;
@@ -28,7 +29,11 @@ export function useTitleResolver({
 	activeArea,
 }: UseTitleResolverOptions): UseTitleResolverReturn {
 	// Format date for display
-	const formatDate = (date: Date) => {
+	const formatDate = (date: LocalDate) => {
+		// Convert LocalDate to Date object at runtime
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-call
+		const isoString = String((date as any).toISOString());
+		const dateObject = new Date(isoString + 'T00:00:00.000Z');
 		const days = [
 			'Sunday',
 			'Monday',
@@ -52,9 +57,9 @@ export function useTitleResolver({
 			'Nov',
 			'Dec',
 		];
-		return `${days[date.getDay()] ?? 'Unknown'}, ${
-			months[date.getMonth()] ?? 'Unknown'
-		} ${date.getDate()}`;
+		const dayName = days[dateObject.getDay()] ?? 'Unknown';
+		const monthName = months[dateObject.getMonth()] ?? 'Unknown';
+		return `${dayName}, ${monthName} ${dateObject.getDate()}`;
 	};
 
 	// Calculate German calendar week (ISO 8601)
@@ -78,13 +83,13 @@ export function useTitleResolver({
 	};
 
 	// Generate week title (German week: Monday to Friday with calendar week)
-	const getWeekTitle = (week: Date) => {
-		const startOfWeek = new Date(week);
+	const getWeekTitle = (week: LocalDate) => {
+		const startOfWeek = week.toDate();
 		// German week starts on Monday: getDay() returns 0=Sunday, 1=Monday, ..., 6=Saturday
 		// To get Monday as start: if Sunday (0), go back 6 days, otherwise go back (day-1) days
 		const day = startOfWeek.getDay();
 		const daysToSubtract = day === 0 ? 6 : day - 1;
-		startOfWeek.setDate(week.getDate() - daysToSubtract);
+		startOfWeek.setDate(startOfWeek.getDate() - daysToSubtract);
 
 		// End of German work week is Friday (4 days after Monday)
 		const endOfWeek = new Date(startOfWeek);

@@ -1,14 +1,16 @@
 import test from 'ava';
 import React from 'react';
 import {render} from 'ink-testing-library';
+import {LocalDate} from '../../domain/LocalDate.js';
 import type {DeleteAttendanceCandidate} from '../../hooks/useDeleteOperations.js';
 import {DeleteAttendanceConfirmationArea} from './DeleteAttendanceConfirmationArea.js';
 
 const mockDeleteAttendanceCandidate: DeleteAttendanceCandidate = {
-	date: new Date('2024-01-15'),
+	date: LocalDate.fromString('2024-01-15'),
 };
 
-const mockFormatDate = (date: Date) => {
+const mockFormatDate = (date: LocalDate) => {
+	const dateObject = date.toDate();
 	const days = [
 		'Sunday',
 		'Monday',
@@ -32,9 +34,9 @@ const mockFormatDate = (date: Date) => {
 		'Nov',
 		'Dec',
 	];
-	return `${days[date.getDay()] ?? 'Unknown'}, ${
-		months[date.getMonth()] ?? 'Unknown'
-	} ${date.getDate()}`;
+	return `${days[dateObject.getDay()] ?? 'Unknown'}, ${
+		months[dateObject.getMonth()] ?? 'Unknown'
+	} ${String(dateObject.getDate())}`;
 };
 
 test('DeleteAttendanceConfirmationArea renders with formatted date', t => {
@@ -123,7 +125,7 @@ test('DeleteAttendanceConfirmationArea handles cancellation callback', t => {
 
 test('DeleteAttendanceConfirmationArea handles different dates', t => {
 	const differentCandidate: DeleteAttendanceCandidate = {
-		date: new Date('2024-12-25'),
+		date: LocalDate.fromString('2024-12-25'),
 	};
 
 	const mockOnConfirm = () => {};

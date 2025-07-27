@@ -1,6 +1,7 @@
 import test from 'ava';
 import React from 'react';
 import {render} from 'ink-testing-library';
+import {LocalDate} from '../../domain/LocalDate.js';
 import type {AttendanceEditState} from '../../hooks/useAttendanceManagement.js';
 import type {JiraConfig} from '../../jira-client.js';
 import {AttendanceEditFormArea} from './AttendanceEditFormArea.js';
@@ -23,7 +24,7 @@ const mockConfig: JiraConfig = {
 };
 
 const mockAttendanceEdit: AttendanceEditState = {
-	date: new Date('2024-01-15'),
+	date: LocalDate.fromString('2024-01-15'),
 	data: {
 		date: '2024-01-15',
 		checkIn: '09:00',
@@ -159,7 +160,7 @@ test('AttendanceEditFormArea handles cancel callback', t => {
 test('AttendanceEditFormArea handles attendance without initial data', t => {
 	// Explicit test data
 	const attendanceEditNoData: AttendanceEditState = {
-		date: new Date('2024-01-15'),
+		date: LocalDate.fromString('2024-01-15'),
 		data: undefined,
 	};
 	const expectedElements = [
@@ -256,7 +257,7 @@ test('AttendanceEditFormArea uses correct styling and layout', t => {
 test('AttendanceEditFormArea handles different dates', t => {
 	// Explicit test data
 	const differentDateEdit: AttendanceEditState = {
-		date: new Date('2024-12-25'),
+		date: LocalDate.fromString('2024-12-25'),
 		data: {
 			date: '2024-12-25',
 			checkIn: '10:00',
@@ -307,7 +308,7 @@ test('AttendanceEditFormArea handles different dates', t => {
 test('AttendanceEditFormArea handles different break configurations', t => {
 	// Explicit test data
 	const longBreakEdit: AttendanceEditState = {
-		date: new Date('2024-01-15'),
+		date: LocalDate.fromString('2024-01-15'),
 		data: {
 			date: '2024-01-15',
 			checkIn: '08:00',
