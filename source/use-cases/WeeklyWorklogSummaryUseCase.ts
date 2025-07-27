@@ -210,8 +210,8 @@ export class WeeklyWorklogSummaryUseCase {
 		);
 
 		return {
-			weekStart,
-			weekEnd,
+			weekStart: LocalDate.fromDate(weekStart),
+			weekEnd: LocalDate.fromDate(weekEnd),
 			dailySummaries,
 			weekTotal,
 		};
@@ -313,7 +313,7 @@ export class WeeklyWorklogSummaryUseCase {
 					? new Date(worklogs[0].started)
 					: new Date();
 				dailyWorklogMap.set(localDateKey!, {
-					date: worklogDate,
+					date: LocalDate.fromDate(worklogDate),
 					totalHours,
 					issues: [issueEntry],
 				});
@@ -322,7 +322,7 @@ export class WeeklyWorklogSummaryUseCase {
 
 		// Convert map to sorted array
 		return [...dailyWorklogMap.values()].sort(
-			(a, b) => a.date.getTime() - b.date.getTime(),
+			(a, b) => a.date.toDate().getTime() - b.date.toDate().getTime(),
 		);
 	}
 
@@ -360,7 +360,7 @@ export class WeeklyWorklogSummaryUseCase {
 		if (dailySummaries.length === 0) {
 			// No worklogs at all, create a summary for the first day of the week
 			dailySummaries.push({
-				date: new Date(weekStart),
+				date: LocalDate.fromDate(new Date(weekStart)),
 				totalHours: 0,
 				issues: [],
 			});
@@ -436,7 +436,7 @@ export class WeeklyWorklogSummaryUseCase {
 		if (dailySummaries.length === 0) {
 			// No worklogs at all, create a summary for the first day of the week
 			dailySummaries.push({
-				date: new Date(weekStart),
+				date: LocalDate.fromDate(new Date(weekStart)),
 				totalHours: 0,
 				issues: [],
 			});

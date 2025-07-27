@@ -25,7 +25,7 @@ export function buildIssueMap(
 
 	// Process all worklog data (includes favorites with 0 hours from WeeklyWorklogSummaryUseCase)
 	for (const dailySummary of data.dailySummaries) {
-		const dateKey = LocalDate.fromDate(dailySummary.date).toISOString();
+		const dateKey = dailySummary.date.toISOString();
 
 		for (const issue of dailySummary.issues) {
 			const issueKeyString = issue.issueKey.toString();

@@ -74,7 +74,7 @@ export function TimetableGrid({
 		const loadAttendanceData = async () => {
 			try {
 				// Convert to Date only at API boundary
-				const weekStart = new Date(data.weekStart);
+				const weekStart = data.weekStart.toDate();
 				const weekly = await attendanceManager.getWeeklyAttendance(weekStart);
 				setWeeklyAttendance(weekly);
 			} catch (error: unknown) {
@@ -91,7 +91,7 @@ export function TimetableGrid({
 
 	// Calculate values that depend on data (with safe defaults)
 	const weekStartLocal = data
-		? LocalDate.fromDate(new Date(data.weekStart))
+		? data.weekStart
 		: LocalDate.today().getWeekStart();
 	const weekDates = generateWeekDates(
 		new Date(weekStartLocal.toISOString() + 'T00:00:00.000Z'),
