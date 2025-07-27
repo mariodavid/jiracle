@@ -28,7 +28,7 @@ export function AttendanceEditFormArea({
 				paddingY={1}
 			>
 				<AttendanceEditForm
-					date={attendanceEdit.date.toDate()}
+					date={attendanceEdit.date}
 					initialData={attendanceEdit.data}
 					config={config}
 					onSubmit={onSubmit}

@@ -82,7 +82,7 @@ export function useWorklogForm(
 				// Find daily summary for this date
 				const dailySummary = data?.dailySummaries.find(
 					(summary: DailyWorklogSummary) =>
-						LocalDate.fromDate(summary.date).toISOString() === dateKey,
+						summary.date.toISOString() === dateKey,
 				);
 
 				if (!dailySummary) {
@@ -131,7 +131,8 @@ export function useWorklogForm(
 			// Find the specific daily summary for this date
 			const targetDate = cellData.date;
 			const dailySummary = data?.dailySummaries.find((summary: any) =>
-				LocalDate.fromDate(summary.date).equals(targetDate),
+				// eslint-disable-next-line @typescript-eslint/no-unsafe-call
+				summary.date.equals(targetDate),
 			);
 
 			// Find the worklog entry for this issue on this date

@@ -11,7 +11,8 @@ const mockDeleteCandidate: DeleteCandidate = {
 	date: LocalDate.fromString('2024-01-15'),
 };
 
-const mockFormatDate = (date: Date) => {
+const mockFormatDate = (date: LocalDate) => {
+	const jsDate = date.toDate();
 	const days = [
 		'Sunday',
 		'Monday',
@@ -35,9 +36,9 @@ const mockFormatDate = (date: Date) => {
 		'Nov',
 		'Dec',
 	];
-	return `${days[date.getDay()] ?? 'Unknown'}, ${
-		months[date.getMonth()] ?? 'Unknown'
-	} ${date.getDate()}`;
+	return `${days[jsDate.getDay()] ?? 'Unknown'}, ${
+		months[jsDate.getMonth()] ?? 'Unknown'
+	} ${jsDate.getDate()}`;
 };
 
 test('DeleteWorklogConfirmationArea renders with issue key and formatted date', t => {

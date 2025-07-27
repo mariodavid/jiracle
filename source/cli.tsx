@@ -9,7 +9,6 @@ import App from './app.js';
 import {JiraClient, type JiraConfig} from './jira-client.js';
 import {WorklogEntry} from './domain/WorklogEntry.js';
 import {Duration} from './domain/Duration.js';
-import {LocalDate} from './domain/LocalDate.js';
 import {loadJiraConfig} from './utils/config-loader.js';
 import {
 	executeCheckIn,
@@ -190,7 +189,7 @@ export async function executeWorklogAdd(
 			issueKey: issue,
 			duration: durationSeconds,
 			comment,
-			date: LocalDate.fromString(date),
+			date: LocalDate.fromString(date).toDate(),
 			author: {
 				displayName: 'CLI User',
 				emailAddress: config.username,
