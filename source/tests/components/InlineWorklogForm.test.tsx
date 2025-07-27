@@ -4,10 +4,9 @@ import {render} from 'ink-testing-library';
 import {InlineWorklogForm} from '../../components/InlineWorklogForm.js';
 import {Duration} from '../../domain/Duration.js';
 import {LocalDate} from '../../domain/LocalDate.js';
-import {IssueKey} from '../../domain/IssueKey.js';
 
 const mockProps = {
-	issueKey: IssueKey.fromString('TEST-123'),
+	issueKey: 'TEST-123',
 	date: LocalDate.fromString('2025-07-10'),
 	defaultTimeSpent: new Duration('1h'),
 	defaultComment: '',
@@ -172,7 +171,7 @@ test('InlineWorklogForm calls onSubmit with worklogId in edit mode', async t => 
 			submittedData.timeSpent instanceof Duration,
 			'Should include Duration timeSpent',
 		);
-		t.true(submittedData.date instanceof Date, 'Should include date');
+		t.true(submittedData.date instanceof LocalDate, 'Should include date');
 	} else {
 		// If form submission is async and hasn't completed yet, verify the form structure at least
 		t.false(submitCalled, 'Submit should be called but data may be pending');
@@ -228,7 +227,7 @@ test('InlineWorklogForm does not include worklogId in create mode', async t => {
 			submittedData.timeSpent instanceof Duration,
 			'Should include Duration timeSpent',
 		);
-		t.true(submittedData.date instanceof Date, 'Should include date');
+		t.true(submittedData.date instanceof LocalDate, 'Should include date');
 	} else {
 		// If form submission is async and hasn't completed yet, verify the form structure at least
 		t.false(submitCalled, 'Submit should be called but data may be pending');
@@ -283,7 +282,7 @@ test('InlineWorklogForm uses global default time from config', t => {
 test('InlineWorklogForm uses favorite-specific default time', t => {
 	const configProps = {
 		...mockProps,
-		issueKey: IssueKey.fromString('SPECIAL-456'),
+		issueKey: 'SPECIAL-456',
 		defaultTimeSpent: undefined, // Don't override with prop
 		config: {
 			jiraUrl: 'https://jira.example.com/',
@@ -291,8 +290,8 @@ test('InlineWorklogForm uses favorite-specific default time', t => {
 			apiToken: 'test-token',
 			defaultTime: '4h', // Global default
 			favorites: [
-				{key: IssueKey.fromString('SPECIAL-456'), defaultTime: '8h'},
-				{key: IssueKey.fromString('OTHER-123'), defaultTime: '2h'},
+				{key: 'SPECIAL-456', defaultTime: '8h'},
+				{key: 'OTHER-123', defaultTime: '2h'},
 			],
 		},
 		isFavorite: true,
@@ -312,7 +311,7 @@ test('InlineWorklogForm uses favorite-specific default time', t => {
 test('InlineWorklogForm favorite time overrides global default', t => {
 	const configProps = {
 		...mockProps,
-		issueKey: IssueKey.fromString('FAV-789'),
+		issueKey: 'FAV-789',
 		defaultTimeSpent: undefined, // Don't override with prop
 		config: {
 			jiraUrl: 'https://jira.example.com/',
@@ -320,7 +319,7 @@ test('InlineWorklogForm favorite time overrides global default', t => {
 			apiToken: 'test-token',
 			defaultTime: '3h', // Global default
 			favorites: [
-				{key: IssueKey.fromString('FAV-789'), defaultTime: '12h'}, // Favorite override
+				{key: 'FAV-789', defaultTime: '12h'}, // Favorite override
 			],
 		},
 		isFavorite: true,
@@ -339,7 +338,7 @@ test('InlineWorklogForm favorite time overrides global default', t => {
 test('InlineWorklogForm falls back to global default when favorite has no time', t => {
 	const configProps = {
 		...mockProps,
-		issueKey: IssueKey.fromString('FAV-456'),
+		issueKey: 'FAV-NO-TIME',
 		defaultTimeSpent: undefined, // Don't override with prop
 		config: {
 			jiraUrl: 'https://jira.example.com/',
@@ -347,7 +346,7 @@ test('InlineWorklogForm falls back to global default when favorite has no time',
 			apiToken: 'test-token',
 			defaultTime: '5h', // Global default
 			favorites: [
-				{key: IssueKey.fromString('FAV-456')}, // Favorite without defaultTime
+				{key: 'FAV-NO-TIME'}, // Favorite without defaultTime
 			],
 		},
 		isFavorite: true,
@@ -406,7 +405,7 @@ test('InlineWorklogForm explicit defaultTimeSpent overrides config', t => {
 test('InlineWorklogForm shows issue key field when isIssueKeyEditable is true', t => {
 	const editableKeyProps = {
 		...mockProps,
-		issueKey: undefined,
+		issueKey: '',
 		isIssueKeyEditable: true,
 	};
 
@@ -422,7 +421,7 @@ test('InlineWorklogForm shows issue key field when isIssueKeyEditable is true', 
 test('InlineWorklogForm hides issue key field when isIssueKeyEditable is false', t => {
 	const nonEditableKeyProps = {
 		...mockProps,
-		issueKey: IssueKey.fromString('FIXED-123'),
+		issueKey: 'FIXED-123',
 		isIssueKeyEditable: false,
 	};
 
@@ -439,7 +438,7 @@ test('InlineWorklogForm hides issue key field when isIssueKeyEditable is false',
 test('InlineWorklogForm shows date field when isIssueKeyEditable is true', t => {
 	const editableKeyProps = {
 		...mockProps,
-		issueKey: undefined,
+		issueKey: '',
 		isIssueKeyEditable: true,
 	};
 	const {lastFrame} = render(
@@ -454,7 +453,7 @@ test('InlineWorklogForm shows date field when isIssueKeyEditable is true', t => 
 test('InlineWorklogForm hides date field when isIssueKeyEditable is false', t => {
 	const nonEditableKeyProps = {
 		...mockProps,
-		issueKey: IssueKey.fromString('FIXED-123'),
+		issueKey: 'FIXED-123',
 		isIssueKeyEditable: false,
 	};
 	const {lastFrame} = render(
@@ -468,7 +467,7 @@ test('InlineWorklogForm hides date field when isIssueKeyEditable is false', t =>
 test('InlineWorklogForm calls onSubmit with date when form is submitted', t => {
 	const editableKeyProps = {
 		...mockProps,
-		issueKey: IssueKey.fromString('TEST-123'),
+		issueKey: 'TEST-123',
 		isIssueKeyEditable: true,
 	};
 
@@ -487,7 +486,7 @@ test('InlineWorklogForm calls onSubmit with date when form is submitted', t => {
 test('InlineWorklogForm handles empty issue key in add worklog mode', t => {
 	const editableKeyProps = {
 		...mockProps,
-		issueKey: undefined, // Empty issue key for add worklog mode
+		issueKey: '', // Empty issue key for add worklog mode
 		isIssueKeyEditable: true,
 	};
 	const {lastFrame} = render(

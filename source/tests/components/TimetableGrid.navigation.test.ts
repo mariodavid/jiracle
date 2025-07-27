@@ -3,19 +3,20 @@ import React from 'react';
 import {render} from 'ink-testing-library';
 import {TimetableGrid} from '../../components/TimetableGrid.js';
 import {type WeeklyWorklogSummary} from '../../domain/WeeklyWorklogSummary.js';
+import {LocalDate} from '../../domain/LocalDate.js';
 import type {FavoriteIssue, JiraConfig} from '../../jira-client.js';
 import {IssueKey} from '../../domain/IssueKey.js';
 
 // Mock data for testing
-const mockWeekStart = new Date('2023-01-02'); // Monday
-const mockWeekEnd = new Date('2023-01-06'); // Friday
+const mockWeekStart = LocalDate.fromString('2023-01-02'); // Monday
+const mockWeekEnd = LocalDate.fromString('2023-01-06'); // Friday
 const mockData: WeeklyWorklogSummary = {
 	weekStart: mockWeekStart,
 	weekEnd: mockWeekEnd,
 	weekTotal: 40,
 	dailySummaries: [
 		{
-			date: new Date('2023-01-02'),
+			date: LocalDate.fromString('2023-01-02'),
 			totalHours: 8,
 			issues: [
 				{

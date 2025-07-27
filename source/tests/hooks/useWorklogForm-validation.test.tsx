@@ -2,14 +2,13 @@ import test from 'ava';
 import React from 'react';
 import {render} from 'ink-testing-library';
 import {Text, Box} from 'ink';
-import {Duration} from '../../domain/Duration.js';
-import {IssueKey} from '../../domain/IssueKey.js';
-import {LocalDate} from '../../domain/LocalDate.js';
 import {
 	useWorklogForm,
 	type UseWorklogFormOptions,
 } from '../../hooks/useWorklogForm.js';
 import type {JiraConfig} from '../../jira-client.js';
+import {Duration} from '../../domain/Duration.js';
+import {LocalDate} from '../../domain/LocalDate.js';
 
 // Mock the JiraClient module
 const mockConfig: JiraConfig = {
@@ -19,11 +18,7 @@ const mockConfig: JiraConfig = {
 	defaultTime: '4h',
 	defaultComment: 'Test work',
 	favorites: [
-		{
-			key: IssueKey.fromString('TEST-123'),
-			defaultTime: '2h',
-			defaultComment: 'Favorite work',
-		},
+		{key: 'TEST-123', defaultTime: '2h', defaultComment: 'Favorite work'},
 	],
 };
 
@@ -49,9 +44,7 @@ function TestWorklogFormComponent({
 			<Text>Visible: {worklogForm.worklogForm.isVisible.toString()}</Text>
 			<Text>Submitting: {worklogForm.worklogSubmitting.toString()}</Text>
 			<Text>Error: {worklogForm.worklogError ?? 'none'}</Text>
-			<Text>
-				IssueKey: {worklogForm.worklogForm.issueKey?.toString() ?? 'none'}
-			</Text>
+			<Text>IssueKey: {worklogForm.worklogForm.issueKey}</Text>
 			<Text>TimeSpent: {worklogForm.worklogForm.timeSpent.toString()}</Text>
 			<Text>Comment: {worklogForm.worklogForm.comment}</Text>
 			<Text>
@@ -68,10 +61,10 @@ test('useWorklogForm validates invalid issue key format', async t => {
 	// 1. EXPLICIT TEST DATA
 	const invalidIssueKey = 'invalid';
 	const expectedError =
-		'Invalid issue key format: "invalid". Expected format: PROJECT-123 (e.g., DEF-123, ABC-456)';
+		'Invalid issue key format. Expected format: PROJECT-123 (e.g., DEF-123, ABC-456).';
 	const submissionData = {
 		issueKey: invalidIssueKey,
-		date: new Date('2024-01-15'),
+		date: LocalDate.fromString('2024-01-15'),
 		timeSpent: new Duration('2h'),
 		comment: 'Valid comment',
 	};
@@ -122,7 +115,7 @@ test('useWorklogForm accepts valid issue key format', async t => {
 	const validIssueKey = 'TEST-123';
 	const submissionData = {
 		issueKey: validIssueKey,
-		date: new Date('2024-01-15'),
+		date: LocalDate.fromString('2024-01-15'),
 		timeSpent: new Duration('2h'),
 		comment: 'Valid comment',
 	};
@@ -159,7 +152,7 @@ test('useWorklogForm accepts valid issue key format', async t => {
 	// 3. SPECIFIC VALUE COMPARISONS
 	t.not(
 		capturedState.worklogError,
-		'Invalid issue key format: "TEST-123". Expected format: PROJECT-123 (e.g., DEF-123, ABC-456)',
+		'Invalid issue key format. Expected format: PROJECT-123 (e.g., DEF-123, ABC-456).',
 		'Should accept valid issue key format',
 	);
 });
@@ -167,8 +160,8 @@ test('useWorklogForm accepts valid issue key format', async t => {
 test('useWorklogForm tracks submitting state correctly', async t => {
 	// 1. EXPLICIT TEST DATA
 	const validSubmissionData = {
-		issueKey: IssueKey.fromString('TEST-123'),
-		date: new Date('2024-01-15'),
+		issueKey: 'TEST-123',
+		date: LocalDate.fromString('2024-01-15'),
 		timeSpent: new Duration('2h'),
 		comment: 'Valid comment',
 	};
@@ -242,8 +235,8 @@ test('useWorklogForm tracks submitting state correctly', async t => {
 test('useWorklogForm handles submission errors gracefully', async t => {
 	// 1. EXPLICIT TEST DATA
 	const invalidSubmissionData = {
-		issueKey: IssueKey.fromString('NONEXISTENT-999'),
-		date: new Date('2024-01-15'),
+		issueKey: 'NONEXISTENT-999',
+		date: LocalDate.fromString('2024-01-15'),
 		timeSpent: new Duration('2h'),
 		comment: 'Valid comment',
 	};
@@ -297,26 +290,26 @@ test('useWorklogForm handles submission errors gracefully', async t => {
 test('useWorklogForm distinguishes between edit and new worklog modes', async t => {
 	// 1. EXPLICIT TEST DATA
 	const existingWorklogData = {
-		issueKey: IssueKey.fromString('TEST-123'),
+		issueKey: 'TEST-123',
 		date: LocalDate.fromString('2024-01-15'),
 		worklogId: 'existing-worklog-123',
 	};
 	const newWorklogData = {
-		issueKey: IssueKey.fromString('TEST-456'),
+		issueKey: 'TEST-456',
 		date: LocalDate.fromString('2024-01-15'),
 	};
 	let capturedState: any;
 
 	const mockWeeklyData = {
-		weekStart: new Date('2024-01-15'),
-		weekEnd: new Date('2024-01-21'),
+		weekStart: LocalDate.fromString('2024-01-15'),
+		weekEnd: LocalDate.fromString('2024-01-21'),
 		dailySummaries: [
 			{
-				date: new Date('2024-01-15'),
+				date: LocalDate.fromString('2024-01-15'),
 				totalHours: 3,
 				issues: [
 					{
-						issueKey: IssueKey.fromString('TEST-123'),
+						issueKey: 'TEST-123',
 						issueSummary: 'Test issue for worklog editing',
 						hours: 3,
 						worklogId: 'existing-worklog-123',
@@ -365,14 +358,6 @@ test('useWorklogForm distinguishes between edit and new worklog modes', async t 
 
 	// Test new worklog mode
 	await capturedState.handleCellWorklog(newWorklogData);
-	rerender(
-		React.createElement(TestWorklogFormComponent, {
-			options: mockOptions,
-			onStateChange(state: any) {
-				capturedState = state;
-			},
-		}),
-	);
 	rerender(
 		React.createElement(TestWorklogFormComponent, {
 			options: mockOptions,

@@ -8,6 +8,8 @@ import {useWorklogForm} from '../hooks/useWorklogForm.js';
 import {useDeleteOperations} from '../hooks/useDeleteOperations.js';
 import {useAttendanceManagement} from '../hooks/useAttendanceManagement.js';
 import {useNavigationState} from '../hooks/useNavigationState.js';
+import type {LocalDate} from '../domain/LocalDate.js';
+import {LocalDate as LocalDateClass} from '../domain/LocalDate.js';
 import {useTitleResolver} from '../hooks/useTitleResolver.js';
 import {useActiveAreaResolver} from '../hooks/useActiveAreaResolver.js';
 import {useNotification} from '../hooks/useNotification.js';
@@ -56,7 +58,8 @@ export function WeeklyTimetableView({
 	} = useNavigationState();
 
 	// Format date for display (German)
-	const formatDate = (date: Date) => {
+	const formatDate = (date: LocalDate) => {
+		const dateObject: Date = date.toDate();
 		const days = [
 			'Sonntag',
 			'Montag',
@@ -80,9 +83,9 @@ export function WeeklyTimetableView({
 			'Nov',
 			'Dez',
 		];
-		return `${days[date.getDay()] ?? 'Unknown'}, ${date.getDate()}. ${
-			months[date.getMonth()] ?? 'Unknown'
-		}`;
+		const dayName = days[dateObject.getDay()] ?? 'Unknown';
+		const monthName = months[dateObject.getMonth()] ?? 'Unknown';
+		return `${dayName}, ${dateObject.getDate()}. ${monthName}`;
 	};
 
 	const weekStart = getStartOfWeek(currentWeek);
@@ -164,7 +167,7 @@ export function WeeklyTimetableView({
 
 	// Title resolution
 	const {title: resolvedTitle, titleColor} = useTitleResolver({
-		currentWeek,
+		currentWeek: LocalDateClass.fromDate(currentWeek),
 		worklogForm,
 		deleteCandidate,
 		deleteAttendanceCandidate,

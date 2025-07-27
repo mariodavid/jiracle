@@ -3,7 +3,7 @@ import React from 'react';
 import {render} from 'ink-testing-library';
 import {TimetableGrid} from '../../components/TimetableGrid.js';
 import type {WeeklyWorklogSummary} from '../../domain/WeeklyWorklogSummary.js';
-import {IssueKey} from '../../domain/IssueKey.js';
+import {LocalDate} from '../../domain/LocalDate.js';
 
 test('TimetableGrid shows loading state', t => {
 	const props = {
@@ -29,8 +29,8 @@ test('TimetableGrid shows no data state', t => {
 
 test('TimetableGrid shows empty worklogs state', t => {
 	const emptyData: WeeklyWorklogSummary = {
-		weekStart: new Date('2024-10-14T00:00:00.000Z'),
-		weekEnd: new Date('2024-10-20T23:59:59.999Z'),
+		weekStart: LocalDate.fromString('2024-10-14'),
+		weekEnd: LocalDate.fromString('2024-10-20'),
 		dailySummaries: [],
 		weekTotal: 0,
 	};
@@ -47,15 +47,15 @@ test('TimetableGrid shows empty worklogs state', t => {
 
 test('TimetableGrid renders table header', t => {
 	const sampleData: WeeklyWorklogSummary = {
-		weekStart: new Date('2024-10-14T00:00:00.000Z'),
-		weekEnd: new Date('2024-10-20T23:59:59.999Z'),
+		weekStart: LocalDate.fromString('2024-10-14'),
+		weekEnd: LocalDate.fromString('2024-10-20'),
 		dailySummaries: [
 			{
-				date: new Date('2024-10-19T00:00:00.000Z'),
+				date: LocalDate.fromString('2024-10-19'),
 				totalHours: 4,
 				issues: [
 					{
-						issueKey: IssueKey.fromString('TEST-117'),
+						issueKey: 'TEST-117',
 						issueSummary: 'Test Issue Summary',
 						hours: 4,
 					},
@@ -86,15 +86,15 @@ test('TimetableGrid renders table header', t => {
 
 test('TimetableGrid displays dates in weekday headers', t => {
 	const sampleData: WeeklyWorklogSummary = {
-		weekStart: new Date('2024-10-14T00:00:00.000Z'), // Monday, October 14, 2024
-		weekEnd: new Date('2024-10-20T23:59:59.999Z'),
+		weekStart: LocalDate.fromString('2024-10-14'), // Monday, October 14, 2024
+		weekEnd: LocalDate.fromString('2024-10-20'),
 		dailySummaries: [
 			{
-				date: new Date('2024-10-14T00:00:00.000Z'),
+				date: LocalDate.fromString('2024-10-14'),
 				totalHours: 8,
 				issues: [
 					{
-						issueKey: IssueKey.fromString('TEST-123'),
+						issueKey: 'TEST-123',
 						issueSummary: 'Test Issue',
 						hours: 8,
 					},
@@ -124,20 +124,20 @@ test('TimetableGrid displays dates in weekday headers', t => {
 
 test('TimetableGrid renders issue data correctly', t => {
 	const sampleData: WeeklyWorklogSummary = {
-		weekStart: new Date('2024-10-14T00:00:00.000Z'),
-		weekEnd: new Date('2024-10-20T23:59:59.999Z'),
+		weekStart: LocalDate.fromString('2024-10-14'),
+		weekEnd: LocalDate.fromString('2024-10-20'),
 		dailySummaries: [
 			{
-				date: new Date('2024-10-18T00:00:00.000Z'), // Friday
+				date: LocalDate.fromString('2024-10-18'), // Friday
 				totalHours: 5.5,
 				issues: [
 					{
-						issueKey: IssueKey.fromString('TEST-117'),
+						issueKey: 'TEST-117',
 						issueSummary: 'Test Issue Summary',
 						hours: 4,
 					},
 					{
-						issueKey: IssueKey.fromString('TEST-117'),
+						issueKey: 'TEST-117',
 						issueSummary: 'Test Issue Summary',
 						hours: 1.5,
 					},
@@ -162,15 +162,15 @@ test('TimetableGrid renders issue data correctly', t => {
 
 test('TimetableGrid formats hours correctly', t => {
 	const sampleData: WeeklyWorklogSummary = {
-		weekStart: new Date('2024-10-14T00:00:00.000Z'),
-		weekEnd: new Date('2024-10-20T23:59:59.999Z'),
+		weekStart: LocalDate.fromString('2024-10-14'),
+		weekEnd: LocalDate.fromString('2024-10-20'),
 		dailySummaries: [
 			{
-				date: new Date('2024-10-18T00:00:00.000Z'), // Friday
+				date: LocalDate.fromString('2024-10-18'), // Friday
 				totalHours: 2.5,
 				issues: [
 					{
-						issueKey: IssueKey.fromString('TEST-117'),
+						issueKey: 'TEST-117',
 						issueSummary: 'Test Issue Summary',
 						hours: 2.5,
 					},
@@ -193,20 +193,20 @@ test('TimetableGrid formats hours correctly', t => {
 
 test('TimetableGrid shows daily totals', t => {
 	const sampleData: WeeklyWorklogSummary = {
-		weekStart: new Date('2024-10-14T00:00:00.000Z'),
-		weekEnd: new Date('2024-10-20T23:59:59.999Z'),
+		weekStart: LocalDate.fromString('2024-10-14'),
+		weekEnd: LocalDate.fromString('2024-10-20'),
 		dailySummaries: [
 			{
-				date: new Date('2024-10-18T00:00:00.000Z'), // Friday
+				date: LocalDate.fromString('2024-10-18'), // Friday
 				totalHours: 8,
 				issues: [
 					{
-						issueKey: IssueKey.fromString('TEST-117'),
+						issueKey: 'TEST-117',
 						issueSummary: 'First Issue',
 						hours: 4,
 					},
 					{
-						issueKey: IssueKey.fromString('TEST-118'),
+						issueKey: 'TEST-118',
 						issueSummary: 'Second Issue',
 						hours: 4,
 					},
@@ -230,15 +230,15 @@ test('TimetableGrid shows daily totals', t => {
 
 test('TimetableGrid shows week total', t => {
 	const sampleData: WeeklyWorklogSummary = {
-		weekStart: new Date('2024-10-14T00:00:00.000Z'),
-		weekEnd: new Date('2024-10-20T23:59:59.999Z'),
+		weekStart: LocalDate.fromString('2024-10-14'),
+		weekEnd: LocalDate.fromString('2024-10-20'),
 		dailySummaries: [
 			{
-				date: new Date('2024-10-19T00:00:00.000Z'),
+				date: LocalDate.fromString('2024-10-19'),
 				totalHours: 7,
 				issues: [
 					{
-						issueKey: IssueKey.fromString('TEST-117'),
+						issueKey: 'TEST-117',
 						issueSummary: 'Test Issue',
 						hours: 7,
 					},
@@ -261,20 +261,20 @@ test('TimetableGrid shows week total', t => {
 
 test('TimetableGrid handles multiple issues correctly', t => {
 	const sampleData: WeeklyWorklogSummary = {
-		weekStart: new Date('2024-10-14T00:00:00.000Z'),
-		weekEnd: new Date('2024-10-20T23:59:59.999Z'),
+		weekStart: LocalDate.fromString('2024-10-14'),
+		weekEnd: LocalDate.fromString('2024-10-20'),
 		dailySummaries: [
 			{
-				date: new Date('2024-10-19T00:00:00.000Z'),
+				date: LocalDate.fromString('2024-10-19'),
 				totalHours: 8,
 				issues: [
 					{
-						issueKey: IssueKey.fromString('TEST-117'),
+						issueKey: 'TEST-117',
 						issueSummary: 'First Issue',
 						hours: 4,
 					},
 					{
-						issueKey: IssueKey.fromString('TEST-118'),
+						issueKey: 'TEST-118',
 						issueSummary: 'Second Issue',
 						hours: 4,
 					},
@@ -300,15 +300,15 @@ test('TimetableGrid handles multiple issues correctly', t => {
 
 test('TimetableGrid shows dash for zero hours', t => {
 	const sampleData: WeeklyWorklogSummary = {
-		weekStart: new Date('2024-10-14T00:00:00.000Z'),
-		weekEnd: new Date('2024-10-20T23:59:59.999Z'),
+		weekStart: LocalDate.fromString('2024-10-14'),
+		weekEnd: LocalDate.fromString('2024-10-20'),
 		dailySummaries: [
 			{
-				date: new Date('2024-10-18T00:00:00.000Z'), // Only Friday has work
+				date: LocalDate.fromString('2024-10-18'), // Only Friday has work
 				totalHours: 4,
 				issues: [
 					{
-						issueKey: IssueKey.fromString('TEST-117'),
+						issueKey: 'TEST-117',
 						issueSummary: 'Test Issue',
 						hours: 4,
 					},

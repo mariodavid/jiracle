@@ -1,5 +1,6 @@
 import test from 'ava';
 import {WorklogEntry} from '../../domain/WorklogEntry.js';
+import {LocalDate} from '../../domain/LocalDate.js';
 import type {WorklogEntry as ApiWorklogEntry} from '../../jira/types.js';
 import {IssueKey} from '../../domain/IssueKey.js';
 
@@ -13,7 +14,7 @@ const validCreateOptions = {
 	issueKey: IssueKey.fromString('ABC-123'),
 	duration: 3600, // 1 hour in seconds
 	comment: 'Test comment',
-	date: new Date('2024-01-15T10:00:00Z'),
+	date: LocalDate.fromString('2024-01-15'),
 	author: validAuthor,
 };
 
@@ -145,7 +146,7 @@ test('WorklogEntry.fromApiResponse - creates worklog from API data', t => {
 	t.is(worklog.comment, 'API comment');
 	t.deepEqual(worklog.author, validAuthor);
 	t.false(worklog.isTemporary);
-	t.deepEqual(worklog.date, new Date('2024-01-15T10:00:00.000Z'));
+	t.deepEqual(worklog.date, LocalDate.fromString('2024-01-15'));
 });
 
 test('WorklogEntry.fromApiResponse - handles missing comment', t => {
@@ -287,26 +288,26 @@ test('WorklogEntry - isSameDay compares dates correctly', t => {
 	// TEST DATA
 	const worklog = WorklogEntry.create({
 		...validCreateOptions,
-		date: new Date('2024-01-15T14:30:00Z'),
+		date: LocalDate.fromString('2024-01-15'),
 	});
-	const sameDay = new Date('2024-01-15T08:00:00Z');
-	const differentDay = new Date('2024-01-16T14:30:00Z');
+	const sameDay = LocalDate.fromString('2024-01-15');
+	const differentDay = LocalDate.fromString('2024-01-16');
 	const otherWorklog = WorklogEntry.create({
 		...validCreateOptions,
 		date: sameDay,
 	});
 
 	// OPERATIONS & SPECIFIC VALUE COMPARISONS
-	t.true(worklog.isSameDay(sameDay));
+	t.true(worklog.isSameDay(sameDay.toDate()));
 	t.true(worklog.isSameDay(otherWorklog));
-	t.false(worklog.isSameDay(differentDay));
+	t.false(worklog.isSameDay(differentDay.toDate()));
 });
 
 test('WorklogEntry - toApiRequest formats request correctly', t => {
 	// TEST DATA
 	const worklog = WorklogEntry.create({
 		...validCreateOptions,
-		date: new Date('2024-01-15T14:30:00Z'),
+		date: LocalDate.fromString('2024-01-15'),
 		duration: 5400, // 1.5 hours
 		comment: 'API request comment',
 	});
@@ -379,7 +380,7 @@ test('WorklogEntry - toString formats correctly', t => {
 		...validCreateOptions,
 		issueKey: IssueKey.fromString('ABC-123'),
 		duration: 5400, // 1.5 hours
-		date: new Date('2024-01-15T14:30:00Z'),
+		date: LocalDate.fromString('2024-01-15'),
 	});
 
 	// OPERATIONS
@@ -400,14 +401,14 @@ test('WorklogEntry - getters return defensive copies', t => {
 	const author2 = worklog.author;
 
 	// SPECIFIC VALUE COMPARISONS
-	t.not(date1, date2); // Different instances
+	t.is(date1, date2); // LocalDate is immutable, so same instance is returned
 	t.deepEqual(date1, date2); // Same values
 	t.not(author1, author2); // Different instances
 	t.deepEqual(author1, author2); // Same values
 
 	// Verify mutations don't affect original
-	date1.setFullYear(2025);
+	// Note: LocalDate is immutable, so we test that the returned instances are separate
 	author1.displayName = 'Modified';
-	t.not(worklog.date.getFullYear(), 2025);
+	t.is(worklog.date.toISOString(), '2024-01-15'); // LocalDate should be unchanged
 	t.not(worklog.author.displayName, 'Modified');
 });

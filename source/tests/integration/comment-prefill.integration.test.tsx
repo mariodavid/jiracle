@@ -3,7 +3,6 @@ import React from 'react';
 import {render} from 'ink-testing-library';
 import {InlineWorklogForm} from '../../components/InlineWorklogForm.js';
 import {LocalDate} from '../../domain/LocalDate.js';
-import {IssueKey} from '../../domain/IssueKey.js';
 import type {JiraConfig, WorklogEntry} from '../../jira/types.js';
 
 // Mock worklog data for testing
@@ -43,7 +42,7 @@ test('comment prefill respects reference date - excludes old worklogs', t => {
 
 	const {lastFrame} = render(
 		<InlineWorklogForm
-			issueKey={IssueKey.fromString('TEST-123')}
+			issueKey="TEST-123"
 			date={selectedDate}
 			config={config}
 			recentWorklogs={oldWorklogFromJuly}
@@ -71,7 +70,7 @@ test('comment prefill respects reference date - includes recent worklogs', t => 
 
 	const {lastFrame} = render(
 		<InlineWorklogForm
-			issueKey={IssueKey.fromString('TEST-456')}
+			issueKey="TEST-456"
 			date={selectedDate}
 			config={config}
 			recentWorklogs={recentWorklogFromAugust}
@@ -99,7 +98,7 @@ test('comment prefill with configurable lookback days based on reference date', 
 
 	const {lastFrame} = render(
 		<InlineWorklogForm
-			issueKey={IssueKey.fromString('TEST-456')}
+			issueKey="TEST-456"
 			date={selectedDate}
 			config={config}
 			recentWorklogs={recentWorklogFromAugust}
@@ -124,7 +123,7 @@ test('comment prefill in edit mode uses explicit default regardless of reference
 
 	const {lastFrame} = render(
 		<InlineWorklogForm
-			issueKey={IssueKey.fromString('TEST-456')}
+			issueKey="TEST-456"
 			date={selectedDate}
 			defaultComment="Edit mode comment"
 			isEditMode={true}

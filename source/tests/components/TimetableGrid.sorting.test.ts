@@ -3,39 +3,39 @@ import React from 'react';
 import {render} from 'ink-testing-library';
 import {TimetableGrid} from '../../components/TimetableGrid.js';
 import type {WeeklyWorklogSummary} from '../../domain/WeeklyWorklogSummary.js';
-import {IssueKey} from '../../domain/IssueKey.js';
+import {LocalDate} from '../../domain/LocalDate.js';
 
 test('TimetableGrid sorts issues by project prefix and number', t => {
 	const sampleData: WeeklyWorklogSummary = {
-		weekStart: new Date('2024-10-14T00:00:00.000Z'),
-		weekEnd: new Date('2024-10-20T23:59:59.999Z'),
+		weekStart: LocalDate.fromString('2024-10-14'),
+		weekEnd: LocalDate.fromString('2024-10-20'),
 		dailySummaries: [
 			{
-				date: new Date('2024-10-18T00:00:00.000Z'),
+				date: LocalDate.fromString('2024-10-18'),
 				totalHours: 12,
 				issues: [
 					{
-						issueKey: IssueKey.fromString('DEF-2457'),
+						issueKey: 'DEF-2457',
 						issueSummary: 'DEF issue 2457',
 						hours: 2,
 					},
 					{
-						issueKey: IssueKey.fromString('ABC-5417'),
+						issueKey: 'ABC-5417',
 						issueSummary: 'ABC issue 5417',
 						hours: 3,
 					},
 					{
-						issueKey: IssueKey.fromString('DEF-2456'),
+						issueKey: 'DEF-2456',
 						issueSummary: 'DEF issue 2456',
 						hours: 1,
 					},
 					{
-						issueKey: IssueKey.fromString('ABC-5420'),
+						issueKey: 'ABC-5420',
 						issueSummary: 'ABC issue 5420',
 						hours: 4,
 					},
 					{
-						issueKey: IssueKey.fromString('ABC-5419'),
+						issueKey: 'ABC-5419',
 						issueSummary: 'ABC issue 5419',
 						hours: 2,
 					},
@@ -81,25 +81,25 @@ test('TimetableGrid sorts issues by project prefix and number', t => {
 
 test('TimetableGrid sorts issues with different project prefixes correctly', t => {
 	const sampleData: WeeklyWorklogSummary = {
-		weekStart: new Date('2024-10-14T00:00:00.000Z'),
-		weekEnd: new Date('2024-10-20T23:59:59.999Z'),
+		weekStart: LocalDate.fromString('2024-10-14'),
+		weekEnd: LocalDate.fromString('2024-10-20'),
 		dailySummaries: [
 			{
-				date: new Date('2024-10-18T00:00:00.000Z'),
+				date: LocalDate.fromString('2024-10-18'),
 				totalHours: 9,
 				issues: [
 					{
-						issueKey: IssueKey.fromString('ZZZ-100'),
+						issueKey: 'ZZZ-100',
 						issueSummary: 'Last project issue',
 						hours: 3,
 					},
 					{
-						issueKey: IssueKey.fromString('AAA-200'),
+						issueKey: 'AAA-200',
 						issueSummary: 'First project issue',
 						hours: 3,
 					},
 					{
-						issueKey: IssueKey.fromString('BBB-50'),
+						issueKey: 'BBB-50',
 						issueSummary: 'Second project issue',
 						hours: 3,
 					},
@@ -134,20 +134,20 @@ test('TimetableGrid sorts issues with different project prefixes correctly', t =
 
 test('TimetableGrid sorts issues numerically within same project (124 before 1029)', t => {
 	const sampleData: WeeklyWorklogSummary = {
-		weekStart: new Date('2024-10-14T00:00:00.000Z'),
-		weekEnd: new Date('2024-10-20T23:59:59.999Z'),
+		weekStart: LocalDate.fromString('2024-10-14'),
+		weekEnd: LocalDate.fromString('2024-10-20'),
 		dailySummaries: [
 			{
-				date: new Date('2024-10-18T00:00:00.000Z'),
+				date: LocalDate.fromString('2024-10-18'),
 				totalHours: 6,
 				issues: [
 					{
-						issueKey: IssueKey.fromString('ABC-1029'),
+						issueKey: 'ABC-1029',
 						issueSummary: 'Higher number issue',
 						hours: 3,
 					},
 					{
-						issueKey: IssueKey.fromString('ABC-124'),
+						issueKey: 'ABC-124',
 						issueSummary: 'Lower number issue',
 						hours: 3,
 					},

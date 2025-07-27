@@ -3,20 +3,20 @@ import React from 'react';
 import {render} from 'ink-testing-library';
 import {TimetableGrid} from '../../components/TimetableGrid.js';
 import type {WeeklyWorklogSummary} from '../../domain/WeeklyWorklogSummary.js';
-import {IssueKey} from '../../domain/IssueKey.js';
+import {LocalDate} from '../../domain/LocalDate.js';
 
 test('TimetableGrid shows dash for empty group total', t => {
 	// Create data with the group issue but 0 hours
 	const sampleData: WeeklyWorklogSummary = {
-		weekStart: new Date('2024-10-14T00:00:00.000Z'),
-		weekEnd: new Date('2024-10-20T23:59:59.999Z'),
+		weekStart: LocalDate.fromString('2024-10-14'),
+		weekEnd: LocalDate.fromString('2024-10-20'),
 		dailySummaries: [
 			{
-				date: new Date('2024-10-18T00:00:00.000Z'),
+				date: LocalDate.fromString('2024-10-18'),
 				totalHours: 0,
 				issues: [
 					{
-						issueKey: IssueKey.fromString('TEST-123'),
+						issueKey: 'TEST-123',
 						issueSummary: 'Test work',
 						hours: 0, // No hours logged
 					},
@@ -40,7 +40,7 @@ test('TimetableGrid shows dash for empty group total', t => {
 
 	const favoriteIssues = [
 		{
-			key: IssueKey.fromString('TEST-123'),
+			key: 'TEST-123',
 			groupId: 'test-group',
 		},
 	];
@@ -68,15 +68,15 @@ test('TimetableGrid shows dash for empty group total', t => {
 
 test('TimetableGrid shows group total with hours suffix when not empty', t => {
 	const sampleData: WeeklyWorklogSummary = {
-		weekStart: new Date('2024-10-14T00:00:00.000Z'),
-		weekEnd: new Date('2024-10-20T23:59:59.999Z'),
+		weekStart: LocalDate.fromString('2024-10-14'),
+		weekEnd: LocalDate.fromString('2024-10-20'),
 		dailySummaries: [
 			{
-				date: new Date('2024-10-18T00:00:00.000Z'),
+				date: LocalDate.fromString('2024-10-18'),
 				totalHours: 8,
 				issues: [
 					{
-						issueKey: IssueKey.fromString('TEST-123'),
+						issueKey: 'TEST-123',
 						issueSummary: 'Test work',
 						hours: 8,
 					},
@@ -100,7 +100,7 @@ test('TimetableGrid shows group total with hours suffix when not empty', t => {
 
 	const favoriteIssues = [
 		{
-			key: IssueKey.fromString('TEST-123'),
+			key: 'TEST-123',
 			groupId: 'test-group',
 		},
 	];
@@ -128,15 +128,15 @@ test('TimetableGrid shows group total with hours suffix when not empty', t => {
 
 test('TimetableGrid shows group total with desired amount and status', t => {
 	const sampleData: WeeklyWorklogSummary = {
-		weekStart: new Date('2024-10-14T00:00:00.000Z'),
-		weekEnd: new Date('2024-10-20T23:59:59.999Z'),
+		weekStart: LocalDate.fromString('2024-10-14'),
+		weekEnd: LocalDate.fromString('2024-10-20'),
 		dailySummaries: [
 			{
-				date: new Date('2024-10-18T00:00:00.000Z'),
+				date: LocalDate.fromString('2024-10-18'),
 				totalHours: 8,
 				issues: [
 					{
-						issueKey: IssueKey.fromString('TEST-123'),
+						issueKey: 'TEST-123',
 						issueSummary: 'Test work',
 						hours: 8,
 					},
@@ -161,7 +161,7 @@ test('TimetableGrid shows group total with desired amount and status', t => {
 
 	const favoriteIssues = [
 		{
-			key: IssueKey.fromString('TEST-123'),
+			key: 'TEST-123',
 			groupId: 'test-group',
 		},
 	];

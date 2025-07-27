@@ -1,14 +1,14 @@
 import test from 'ava';
 import React from 'react';
-import {Text, Box} from 'ink';
 import {render} from 'ink-testing-library';
-import {Duration} from '../../domain/Duration.js';
-import {IssueKey} from '../../domain/IssueKey.js';
+import {Text, Box} from 'ink';
 import {
 	useWorklogForm,
 	type UseWorklogFormOptions,
 } from '../../hooks/useWorklogForm.js';
 import type {JiraConfig} from '../../jira-client.js';
+import {Duration} from '../../domain/Duration.js';
+import {LocalDate} from '../../domain/LocalDate.js';
 
 // Mock the JiraClient module
 const mockConfig: JiraConfig = {
@@ -18,11 +18,7 @@ const mockConfig: JiraConfig = {
 	defaultTime: '4h',
 	defaultComment: 'Test work',
 	favorites: [
-		{
-			key: IssueKey.fromString('TEST-123'),
-			defaultTime: '2h',
-			defaultComment: 'Favorite work',
-		},
+		{key: 'TEST-123', defaultTime: '2h', defaultComment: 'Favorite work'},
 	],
 };
 
@@ -48,9 +44,7 @@ function TestWorklogFormComponent({
 			<Text>Visible: {worklogForm.worklogForm.isVisible.toString()}</Text>
 			<Text>Submitting: {worklogForm.worklogSubmitting.toString()}</Text>
 			<Text>Error: {worklogForm.worklogError ?? 'none'}</Text>
-			<Text>
-				IssueKey: {worklogForm.worklogForm.issueKey?.toString() ?? 'none'}
-			</Text>
+			<Text>IssueKey: {worklogForm.worklogForm.issueKey}</Text>
 			<Text>TimeSpent: {worklogForm.worklogForm.timeSpent.toString()}</Text>
 			<Text>Comment: {worklogForm.worklogForm.comment}</Text>
 			<Text>
@@ -85,7 +79,7 @@ test('useWorklogForm returns initial state', t => {
 	t.false(capturedState.worklogForm.isVisible);
 	t.false(capturedState.worklogSubmitting);
 	t.is(capturedState.worklogError, undefined);
-	t.is(capturedState.worklogForm.issueKey, undefined);
+	t.is(capturedState.worklogForm.issueKey, '');
 	t.false(capturedState.worklogForm.isIssueKeyEditable);
 });
 
@@ -146,11 +140,11 @@ test('useWorklogForm handleCellWorklog opens form for cell editing', async t => 
 			activeAreaChanged = area;
 		},
 		data: {
-			weekStart: new Date('2024-01-15'),
-			weekEnd: new Date('2024-01-21'),
+			weekStart: LocalDate.fromString('2024-01-15'),
+			weekEnd: LocalDate.fromString('2024-01-21'),
 			dailySummaries: [
 				{
-					date: new Date('2024-01-15'),
+					date: LocalDate.fromString('2024-01-15'),
 					issues: [],
 					totalHours: 0,
 				},
@@ -170,8 +164,8 @@ test('useWorklogForm handleCellWorklog opens form for cell editing', async t => 
 
 	// Call handleCellWorklog and wait for async operation
 	const cellData = {
-		issueKey: IssueKey.fromString('TEST-456'),
-		date: new Date('2024-01-15'),
+		issueKey: 'TEST-456',
+		date: LocalDate.fromString('2024-01-15'),
 	};
 	await capturedState.handleCellWorklog(cellData);
 
@@ -191,10 +185,7 @@ test('useWorklogForm handleCellWorklog opens form for cell editing', async t => 
 
 	t.true(capturedState.worklogForm.isVisible);
 	t.false(capturedState.worklogForm.isIssueKeyEditable);
-	t.deepEqual(
-		capturedState.worklogForm.issueKey,
-		IssueKey.fromString('TEST-456'),
-	);
+	t.is(capturedState.worklogForm.issueKey, 'TEST-456');
 	t.is(activeAreaChanged, 'worklog-form');
 });
 
@@ -207,11 +198,11 @@ test('useWorklogForm handleCellWorklog uses favorite defaults', async t => {
 		onRefresh() {},
 		onActiveAreaChange() {},
 		data: {
-			weekStart: new Date('2024-01-15'),
-			weekEnd: new Date('2024-01-21'),
+			weekStart: LocalDate.fromString('2024-01-15'),
+			weekEnd: LocalDate.fromString('2024-01-21'),
 			dailySummaries: [
 				{
-					date: new Date('2024-01-15'),
+					date: LocalDate.fromString('2024-01-15'),
 					issues: [],
 					totalHours: 0,
 				},
@@ -231,8 +222,8 @@ test('useWorklogForm handleCellWorklog uses favorite defaults', async t => {
 
 	// Call handleCellWorklog with favorite issue and wait for async operation
 	const cellData = {
-		issueKey: IssueKey.fromString('TEST-123'),
-		date: new Date('2024-01-15'),
+		issueKey: 'TEST-123',
+		date: LocalDate.fromString('2024-01-15'),
 	};
 	await capturedState.handleCellWorklog(cellData);
 
@@ -307,7 +298,7 @@ test('useWorklogForm clearError removes error after validation failure', async t
 	// 1. EXPLICIT TEST DATA
 	const invalidSubmissionData = {
 		issueKey: '', // Invalid: empty issue key
-		date: new Date('2024-01-15'),
+		date: LocalDate.fromString('2024-01-15'),
 		timeSpent: new Duration('2h'),
 		comment: 'Valid comment',
 	};
@@ -372,7 +363,7 @@ test('useWorklogForm clearError removes error after validation failure', async t
 test('useWorklogForm handleAddWorklog sets correct initial state', t => {
 	// 1. EXPLICIT TEST DATA
 	const expectedInitialState = {
-		issueKey: undefined,
+		issueKey: '',
 		timeSpent: mockConfig.defaultTime,
 		comment: mockConfig.defaultComment,
 		isVisible: true,
@@ -455,7 +446,7 @@ test('useWorklogForm validates required fields on submission', async t => {
 	// 1. EXPLICIT TEST DATA
 	const invalidSubmissionData = {
 		issueKey: '',
-		date: new Date('2024-01-15'),
+		date: LocalDate.fromString('2024-01-15'),
 		timeSpent: new Duration('2h'),
 		comment: 'Valid comment',
 	};

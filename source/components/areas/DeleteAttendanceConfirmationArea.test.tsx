@@ -9,7 +9,8 @@ const mockDeleteAttendanceCandidate: DeleteAttendanceCandidate = {
 	date: LocalDate.fromString('2024-01-15'),
 };
 
-const mockFormatDate = (date: Date) => {
+const mockFormatDate = (date: LocalDate) => {
+	const dateObject = date.toDate();
 	const days = [
 		'Sunday',
 		'Monday',
@@ -33,9 +34,9 @@ const mockFormatDate = (date: Date) => {
 		'Nov',
 		'Dec',
 	];
-	return `${days[date.getDay()] ?? 'Unknown'}, ${
-		months[date.getMonth()] ?? 'Unknown'
-	} ${date.getDate()}`;
+	return `${days[dateObject.getDay()] ?? 'Unknown'}, ${
+		months[dateObject.getMonth()] ?? 'Unknown'
+	} ${String(dateObject.getDate())}`;
 };
 
 test('DeleteAttendanceConfirmationArea renders with formatted date', t => {
