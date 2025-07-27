@@ -144,7 +144,7 @@ test('useTitleResolver returns week title as default', t => {
 test('useTitleResolver prioritizes worklog form over other states', t => {
 	const worklogForm = createWorklogForm({
 		isVisible: true,
-		issueKey: IssueKey.fromString('PRIORITY-TEST'),
+		issueKey: IssueKey.fromString('PRIORITY-123'),
 		date: LocalDate.fromString('2024-01-15'),
 	});
 
@@ -160,7 +160,7 @@ test('useTitleResolver prioritizes worklog form over other states', t => {
 		activeArea: 'delete-confirmation',
 	});
 
-	t.is(result.title, 'PRIORITY-TEST on Monday, Jan 15');
+	t.is(result.title, 'PRIORITY-123 on Monday, Jan 15');
 	t.is(result.titleColor, undefined);
 });
 
@@ -200,7 +200,7 @@ test('useTitleResolver formats different weekdays correctly', t => {
 		currentWeek: new Date('2024-01-16'), // Tuesday
 		worklogForm: createWorklogForm({
 			isVisible: true,
-			issueKey: IssueKey.fromString('TEST-DAY'),
+			issueKey: IssueKey.fromString('TEST-456'),
 			date: LocalDate.fromString('2024-01-16'),
 		}),
 		deleteCandidate: undefined,
@@ -209,14 +209,14 @@ test('useTitleResolver formats different weekdays correctly', t => {
 		activeArea: 'timetable',
 	});
 
-	t.is(tuesdayResult.title, 'TEST-DAY on Tuesday, Jan 16');
+	t.is(tuesdayResult.title, 'TEST-456 on Tuesday, Jan 16');
 
 	// Test Sunday (week start)
 	const sundayResult = useTitleResolver({
 		currentWeek: new Date('2024-01-14'), // Sunday
 		worklogForm: createWorklogForm({
 			isVisible: true,
-			issueKey: IssueKey.fromString('TEST-SUNDAY'),
+			issueKey: IssueKey.fromString('TEST-789'),
 			date: LocalDate.fromString('2024-01-14'),
 		}),
 		deleteCandidate: undefined,
@@ -225,7 +225,7 @@ test('useTitleResolver formats different weekdays correctly', t => {
 		activeArea: 'timetable',
 	});
 
-	t.is(sundayResult.title, 'TEST-SUNDAY on Sunday, Jan 14');
+	t.is(sundayResult.title, 'TEST-789 on Sunday, Jan 14');
 });
 
 test('useTitleResolver handles different months in week title', t => {

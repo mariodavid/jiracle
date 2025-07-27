@@ -259,14 +259,14 @@ test('addFavoriteIssue - adds new favorite issue with group ID', t => {
 	});
 
 	const newFavorite: FavoriteIssue = {
-		key: IssueKey.fromString('PROJ-NEW'),
+		key: IssueKey.fromString('PROJ-123'),
 		alias: 'New feature',
 		defaultComment: 'New comment',
 		defaultTime: '2h',
 	};
 
 	const expectedFavoriteIssuesCount = 1;
-	const expectedFavoriteKey = 'PROJ-NEW';
+	const expectedFavoriteKey = 'PROJ-123';
 	const expectedFavoriteGroupId = 'test-group';
 
 	// OPERATIONS
@@ -286,7 +286,7 @@ test('addFavoriteIssue - adds new favorite issue with group ID', t => {
 test('addFavoriteIssue - replaces existing favorite with same key', t => {
 	// EXPLICIT TEST DATA
 	const existingFavorite: FavoriteIssue = {
-		key: IssueKey.fromString('PROJ-EXISTING'),
+		key: IssueKey.fromString('PROJ-555'),
 		alias: 'Old feature',
 		defaultComment: 'Old comment',
 	};
@@ -298,7 +298,7 @@ test('addFavoriteIssue - replaces existing favorite with same key', t => {
 	});
 
 	const updatedFavorite: FavoriteIssue = {
-		key: IssueKey.fromString('PROJ-EXISTING'),
+		key: IssueKey.fromString('PROJ-555'),
 		alias: 'Updated feature',
 		defaultComment: 'Updated comment',
 		defaultTime: '3h',
@@ -325,12 +325,12 @@ test('addFavoriteIssue - replaces existing favorite with same key', t => {
 test('removeFavoriteIssue - removes existing favorite issue', t => {
 	// EXPLICIT TEST DATA
 	const favoriteToKeep: FavoriteIssue = {
-		key: IssueKey.fromString('PROJ-KEEP'),
+		key: IssueKey.fromString('PROJ-111'),
 		alias: 'Keep this',
 	};
 
 	const favoriteToRemove: FavoriteIssue = {
-		key: IssueKey.fromString('PROJ-REMOVE'),
+		key: IssueKey.fromString('PROJ-222'),
 		alias: 'Remove this',
 	};
 
@@ -340,10 +340,10 @@ test('removeFavoriteIssue - removes existing favorite issue', t => {
 		favoriteIssues: [favoriteToKeep, favoriteToRemove],
 	});
 
-	const issueKeyToRemove: IssueKey = IssueKey.fromString('PROJ-REMOVE');
+	const issueKeyToRemove: IssueKey = IssueKey.fromString('PROJ-222');
 
 	const expectedFavoriteIssuesCount = 1;
-	const expectedRemainingKey = 'PROJ-KEEP';
+	const expectedRemainingKey = 'PROJ-111';
 
 	// OPERATIONS
 	const updatedGroup = originalGroup.removeFavoriteIssue(issueKeyToRemove);
@@ -361,7 +361,7 @@ test('removeFavoriteIssue - removes existing favorite issue', t => {
 test('removeFavoriteIssue - handles non-existent issue key', t => {
 	// EXPLICIT TEST DATA
 	const existingFavorite: FavoriteIssue = {
-		key: IssueKey.fromString('PROJ-EXISTS'),
+		key: IssueKey.fromString('PROJ-333'),
 		alias: 'Existing',
 	};
 
@@ -371,10 +371,10 @@ test('removeFavoriteIssue - handles non-existent issue key', t => {
 		favoriteIssues: [existingFavorite],
 	});
 
-	const nonExistentKey: IssueKey = IssueKey.fromString('PROJ-NONEXISTENT');
+	const nonExistentKey: IssueKey = IssueKey.fromString('PROJ-999');
 
 	const expectedFavoriteIssuesCount = 1;
-	const expectedRemainingKey = 'PROJ-EXISTS';
+	const expectedRemainingKey = 'PROJ-333';
 
 	// OPERATIONS
 	const updatedGroup = originalGroup.removeFavoriteIssue(nonExistentKey);
@@ -530,7 +530,7 @@ test('shouldPrefillComment - uses default 7 days when not configured', t => {
 test('containsIssue - returns true for existing favorite issue', t => {
 	// EXPLICIT TEST DATA
 	const favoriteIssue: FavoriteIssue = {
-		key: IssueKey.fromString('PROJ-FAVORITE'),
+		key: IssueKey.fromString('PROJ-123'),
 		alias: 'Favorite feature',
 	};
 
@@ -540,7 +540,7 @@ test('containsIssue - returns true for existing favorite issue', t => {
 		favoriteIssues: [favoriteIssue],
 	});
 
-	const existingIssueKey: IssueKey = IssueKey.fromString('PROJ-FAVORITE');
+	const existingIssueKey: IssueKey = IssueKey.fromString('PROJ-123');
 
 	const expectedResult = true;
 
@@ -554,7 +554,7 @@ test('containsIssue - returns true for existing favorite issue', t => {
 test('containsIssue - returns false for non-existent issue', t => {
 	// EXPLICIT TEST DATA
 	const favoriteIssue: FavoriteIssue = {
-		key: IssueKey.fromString('PROJ-FAVORITE'),
+		key: IssueKey.fromString('PROJ-123'),
 		alias: 'Favorite feature',
 	};
 
@@ -564,7 +564,7 @@ test('containsIssue - returns false for non-existent issue', t => {
 		favoriteIssues: [favoriteIssue],
 	});
 
-	const nonExistentIssueKey: IssueKey = IssueKey.fromString('PROJ-NONEXISTENT');
+	const nonExistentIssueKey: IssueKey = IssueKey.fromString('PROJ-999');
 
 	const expectedResult = false;
 

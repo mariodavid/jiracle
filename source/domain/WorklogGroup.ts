@@ -124,7 +124,7 @@ export class WorklogGroup {
 
 	addFavoriteIssue(favorite: FavoriteIssue): WorklogGroup {
 		const existingFavorites = this.data.favoriteIssues.filter(
-			fav => fav.key !== favorite.key,
+			fav => !fav.key.equals(favorite.key),
 		);
 		const updatedFavoriteWithGroupId: FavoriteIssue = {
 			...favorite,

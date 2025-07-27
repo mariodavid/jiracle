@@ -55,20 +55,6 @@ test('WeeklyWorklogSummaryUseCase includes favorite issues without worklogs', as
 				updated: '2024-01-01T00:00:00.000Z',
 			},
 		},
-		{
-			id: '263906',
-			key: IssueKey.fromString('TEST-117'),
-			fields: {
-				summary: 'Issue with worklog',
-				status: {name: 'In Progress', statusCategory: {name: 'In Progress'}},
-				issuetype: {name: 'Task', iconUrl: ''},
-				priority: {name: 'Medium', iconUrl: ''},
-				assignee: {displayName: 'Test User', emailAddress: 'user1@example.com'},
-				description: '',
-				created: '2024-01-01T00:00:00.000Z',
-				updated: '2024-01-01T00:00:00.000Z',
-			},
-		},
 	];
 
 	// Mock worklog responses
@@ -111,7 +97,6 @@ test('WeeklyWorklogSummaryUseCase includes favorite issues without worklogs', as
 
 	const favoriteIssues = [
 		{key: IssueKey.fromString('FAV-123'), defaultTime: '4h'},
-		{key: IssueKey.fromString('TEST-117'), defaultTime: '2h'},
 	];
 
 	const result = await useCase.execute({

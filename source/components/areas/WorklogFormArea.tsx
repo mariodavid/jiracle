@@ -75,26 +75,28 @@ export function WorklogFormArea({
 				paddingX={1}
 				paddingY={1}
 			>
-				{worklogForm.issueKey && (
-					<InlineWorklogForm
-						issueKey={worklogForm.issueKey}
-						date={worklogForm.date}
-						defaultTimeSpent={worklogForm.timeSpent}
-						defaultComment={worklogForm.comment}
-						isSubmitting={worklogSubmitting}
-						error={worklogError}
-						config={config}
-						isFavorite={config?.favorites?.some(fav =>
-							fav.key.equals(worklogForm.issueKey!),
-						)}
-						isIssueKeyEditable={worklogForm.isIssueKeyEditable}
-						isEditMode={worklogForm.isEditMode}
-						worklogId={worklogForm.worklogId}
-						recentWorklogs={recentWorklogs}
-						onSubmit={onSubmit}
-						onCancel={onCancel}
-					/>
-				)}
+				<InlineWorklogForm
+					issueKey={worklogForm.issueKey}
+					date={worklogForm.date}
+					defaultTimeSpent={worklogForm.timeSpent}
+					defaultComment={worklogForm.comment}
+					isSubmitting={worklogSubmitting}
+					error={worklogError}
+					config={config}
+					isFavorite={
+						worklogForm.issueKey
+							? config?.favorites?.some(fav =>
+									fav.key.equals(worklogForm.issueKey!),
+							  )
+							: false
+					}
+					isIssueKeyEditable={worklogForm.isIssueKeyEditable}
+					isEditMode={worklogForm.isEditMode}
+					worklogId={worklogForm.worklogId}
+					recentWorklogs={recentWorklogs}
+					onSubmit={onSubmit}
+					onCancel={onCancel}
+				/>
 			</Box>
 		</Box>
 	);
