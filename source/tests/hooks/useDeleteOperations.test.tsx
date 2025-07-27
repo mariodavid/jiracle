@@ -2,13 +2,14 @@ import test from 'ava';
 import React from 'react';
 import {render} from 'ink-testing-library';
 import {Text, Box} from 'ink';
+import {IssueKey} from '../../domain/IssueKey.js';
+import {type LocalDate} from '../../domain/LocalDate.js';
+import type {AttendanceManager} from '../../attendance/AttendanceManager.js';
 import {
 	useDeleteOperations,
 	type UseDeleteOperationsOptions,
 } from '../../hooks/useDeleteOperations.js';
 import type {JiraConfig} from '../../jira-client.js';
-import type {AttendanceManager} from '../../attendance/AttendanceManager.js';
-import {type LocalDate} from '../../domain/LocalDate.js';
 
 // Mock the JiraClient module
 const mockConfig: JiraConfig = {
@@ -54,7 +55,8 @@ function TestDeleteOperationsComponent({
 	return (
 		<Box flexDirection="column">
 			<Text>
-				DeleteCandidate: {deleteOps.deleteCandidate?.issueKey ?? 'none'}
+				DeleteCandidate:{' '}
+				{deleteOps.deleteCandidate?.issueKey.toString() ?? 'none'}
 			</Text>
 			<Text>
 				DeleteAttendanceCandidate:{' '}
@@ -388,7 +390,10 @@ test('useDeleteOperations candidate structures are correct', t => {
 	);
 
 	t.truthy(capturedState.deleteCandidate);
-	t.is(capturedState.deleteCandidate.issueKey, 'TEST-789');
+	t.deepEqual(
+		capturedState.deleteCandidate.issueKey,
+		IssueKey.fromString('TEST-789'),
+	);
 	t.true(capturedState.deleteCandidate.date instanceof Date);
 
 	// Test delete attendance candidate structure

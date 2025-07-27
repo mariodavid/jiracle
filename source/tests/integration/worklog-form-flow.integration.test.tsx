@@ -3,6 +3,7 @@ import React from 'react';
 import {render} from 'ink-testing-library';
 import {WeeklyTimetableView} from '../../components/WeeklyTimetableView.js';
 import {InkTestHelpers} from '../utils/ink-test-helpers.js';
+import {IssueKey} from '../../domain/IssueKey.js';
 
 // Simple waitFor utility for integration tests
 const waitFor = async (

@@ -157,7 +157,7 @@ test('resolveDefaultsFor - resolves from favorite issue (highest priority)', t =
 		favoriteIssues: [favoriteIssue],
 	});
 
-	const issueKey: IssueKey = 'PROJ-456';
+	const issueKey: IssueKey = IssueKey.fromString('PROJ-456');
 	const globalDefaults = {comment: 'Global comment', time: '1h'};
 
 	const expectedComment = 'Issue-specific comment';
@@ -184,7 +184,7 @@ test('resolveDefaultsFor - resolves from group defaults (second priority)', t =>
 		defaultDuration: new Duration('3h'),
 	});
 
-	const issueKey: IssueKey = 'PROJ-789';
+	const issueKey: IssueKey = IssueKey.fromString('PROJ-789');
 	const globalDefaults = {comment: 'Global comment', time: '1h'};
 
 	const expectedComment = 'Group comment';
@@ -209,7 +209,7 @@ test('resolveDefaultsFor - resolves from global defaults (third priority)', t =>
 		name: 'Test Group',
 	});
 
-	const issueKey: IssueKey = 'PROJ-999';
+	const issueKey: IssueKey = IssueKey.fromString('PROJ-999');
 	const globalDefaults = {comment: 'Global comment', time: '5h'};
 
 	const expectedComment = 'Global comment';
@@ -234,7 +234,7 @@ test('resolveDefaultsFor - falls back to defaults (lowest priority)', t => {
 		name: 'Test Group',
 	});
 
-	const issueKey: IssueKey = 'PROJ-000';
+	const issueKey: IssueKey = IssueKey.fromString('PROJ-000');
 
 	const expectedComment = '';
 	const expectedTime = '1h';
@@ -274,7 +274,10 @@ test('addFavoriteIssue - adds new favorite issue with group ID', t => {
 
 	// SPECIFIC VALUE COMPARISONS
 	t.is(updatedGroup.getFavoriteIssues().length, expectedFavoriteIssuesCount);
-	t.is(updatedGroup.getFavoriteIssues()[0]!.key, expectedFavoriteKey);
+	t.is(
+		updatedGroup.getFavoriteIssues()[0]!.key.toString(),
+		expectedFavoriteKey,
+	);
 	t.is(updatedGroup.getFavoriteIssues()[0]!.groupId, expectedFavoriteGroupId);
 	// Original group should be unchanged
 	t.is(originalGroup.getFavoriteIssues().length, 0);
@@ -337,7 +340,7 @@ test('removeFavoriteIssue - removes existing favorite issue', t => {
 		favoriteIssues: [favoriteToKeep, favoriteToRemove],
 	});
 
-	const issueKeyToRemove: IssueKey = 'PROJ-REMOVE';
+	const issueKeyToRemove: IssueKey = IssueKey.fromString('PROJ-REMOVE');
 
 	const expectedFavoriteIssuesCount = 1;
 	const expectedRemainingKey = 'PROJ-KEEP';
@@ -347,7 +350,10 @@ test('removeFavoriteIssue - removes existing favorite issue', t => {
 
 	// SPECIFIC VALUE COMPARISONS
 	t.is(updatedGroup.getFavoriteIssues().length, expectedFavoriteIssuesCount);
-	t.is(updatedGroup.getFavoriteIssues()[0]!.key, expectedRemainingKey);
+	t.is(
+		updatedGroup.getFavoriteIssues()[0]!.key.toString(),
+		expectedRemainingKey,
+	);
 	// Original group should be unchanged
 	t.is(originalGroup.getFavoriteIssues().length, 2);
 });
@@ -365,7 +371,7 @@ test('removeFavoriteIssue - handles non-existent issue key', t => {
 		favoriteIssues: [existingFavorite],
 	});
 
-	const nonExistentKey: IssueKey = 'PROJ-NONEXISTENT';
+	const nonExistentKey: IssueKey = IssueKey.fromString('PROJ-NONEXISTENT');
 
 	const expectedFavoriteIssuesCount = 1;
 	const expectedRemainingKey = 'PROJ-EXISTS';
@@ -375,7 +381,10 @@ test('removeFavoriteIssue - handles non-existent issue key', t => {
 
 	// SPECIFIC VALUE COMPARISONS
 	t.is(updatedGroup.getFavoriteIssues().length, expectedFavoriteIssuesCount);
-	t.is(updatedGroup.getFavoriteIssues()[0]!.key, expectedRemainingKey);
+	t.is(
+		updatedGroup.getFavoriteIssues()[0]!.key.toString(),
+		expectedRemainingKey,
+	);
 });
 
 test('meetsDesiredAmount - returns true when no desired amount is set', t => {
@@ -531,7 +540,7 @@ test('containsIssue - returns true for existing favorite issue', t => {
 		favoriteIssues: [favoriteIssue],
 	});
 
-	const existingIssueKey: IssueKey = 'PROJ-FAVORITE';
+	const existingIssueKey: IssueKey = IssueKey.fromString('PROJ-FAVORITE');
 
 	const expectedResult = true;
 
@@ -555,7 +564,7 @@ test('containsIssue - returns false for non-existent issue', t => {
 		favoriteIssues: [favoriteIssue],
 	});
 
-	const nonExistentIssueKey: IssueKey = 'PROJ-NONEXISTENT';
+	const nonExistentIssueKey: IssueKey = IssueKey.fromString('PROJ-NONEXISTENT');
 
 	const expectedResult = false;
 

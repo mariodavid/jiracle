@@ -3,6 +3,21 @@ import React from 'react';
 import {render} from 'ink-testing-library';
 import {WeeklyTimetableView} from '../../components/WeeklyTimetableView.js';
 import {createMockConfig} from '../utils/testUtils.js';
+import {IssueKey} from '../../domain/IssueKey.js';
+
+// Mock fetch to prevent network requests in tests
+global.fetch = async () => {
+	return new Response(
+		JSON.stringify({
+			issues: [],
+			total: 0,
+		}),
+		{
+			status: 200,
+			headers: {'Content-Type': 'application/json'},
+		},
+	);
+};
 
 const mockConfig = createMockConfig({
 	favorites: [
@@ -346,8 +361,8 @@ test('WeeklyTimetableView opens worklog form when Add Worklog key is pressed', a
 		);
 	}
 
-	// Press 'a' to open Add Worklog form
-	stdin.write('a');
+	// Press 'A' to open Add Worklog form
+	stdin.write('A');
 
 	// Wait for form to open
 	await new Promise(resolve => {
@@ -396,7 +411,7 @@ test('WeeklyTimetableView handles form cancellation correctly', async t => {
 	});
 
 	// Open form
-	stdin.write('a');
+	stdin.write('A');
 	await new Promise(resolve => {
 		setTimeout(resolve, 200);
 	});
@@ -462,7 +477,7 @@ test('WeeklyTimetableView form displays field validation and error states', asyn
 	});
 
 	// Open form
-	stdin.write('a');
+	stdin.write('A');
 	await new Promise(resolve => {
 		setTimeout(resolve, 150);
 	});

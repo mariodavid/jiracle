@@ -189,7 +189,7 @@ test('IssueKey - equals handles case normalization', t => {
 test('IssueKey - matches pattern correctly', t => {
 	// OPERATIONS & SPECIFIC VALUE COMPARISONS
 	for (const testCase of patternMatchTests) {
-		const issueKey = IssueKey.fromString(testCase.issueKey);
+		const issueKey = IssueKey.fromString(testCase.issueKey.toString());
 		const result = issueKey.matches(testCase.pattern);
 		t.is(
 			result,

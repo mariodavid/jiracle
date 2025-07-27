@@ -3,6 +3,7 @@ import React from 'react';
 import {render} from 'ink-testing-library';
 import {TimetableGrid} from '../../components/TimetableGrid.js';
 import type {WeeklyWorklogSummary} from '../../domain/WeeklyWorklogSummary.js';
+import {IssueKey} from '../../domain/IssueKey.js';
 
 test('TimetableGrid sorts issues by project prefix and number', t => {
 	const sampleData: WeeklyWorklogSummary = {

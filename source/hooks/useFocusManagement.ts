@@ -27,7 +27,10 @@ export function useFocusManagement(): UseFocusManagementResult {
 	const handleFocusChange = useCallback(
 		(issueKey: IssueKey, columnIndex: number, isFocused: boolean) => {
 			if (isFocused) {
-				const isAttendance = issueKey.toString().startsWith('attendance-');
+				const isAttendance = issueKey
+					.toString()
+					.toLowerCase()
+					.startsWith('attendance-');
 				setFocusedCell({issueKey, columnIndex, isAttendance});
 			}
 			// Don't clear on blur - only update when we get a new focus

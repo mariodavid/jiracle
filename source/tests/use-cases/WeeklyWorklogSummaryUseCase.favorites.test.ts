@@ -1,4 +1,5 @@
 import test from 'ava';
+import {IssueKey} from '../../domain/IssueKey.js';
 import {WeeklyWorklogSummaryUseCase} from '../../use-cases/WeeklyWorklogSummaryUseCase.js';
 import {createMockJiraClient} from './WeeklyWorklogSummaryUseCase.testutils.js';
 
@@ -72,7 +73,9 @@ test('WeeklyWorklogSummaryUseCase includes favorite issues without worklogs', as
 
 	// Mock worklog responses
 	client.getIssueWorklogs = async issueKey => {
-		if (issueKey === 'TEST-117') {
+		const issueKeyString =
+			typeof issueKey === 'string' ? issueKey : issueKey.toString();
+		if (issueKeyString === 'TEST-117') {
 			return {
 				startAt: 0,
 				maxResults: 20,
@@ -93,7 +96,7 @@ test('WeeklyWorklogSummaryUseCase includes favorite issues without worklogs', as
 			};
 		}
 
-		if (issueKey === 'FAV-123') {
+		if (issueKeyString === 'FAV-123') {
 			// No worklogs for this favorite issue
 			return {
 				startAt: 0,
@@ -125,8 +128,12 @@ test('WeeklyWorklogSummaryUseCase includes favorite issues without worklogs', as
 
 	// Find the issues in the results
 	const {issues} = result.dailySummaries[0]!;
-	const testIssue = issues.find(issue => issue.issueKey === 'TEST-117');
-	const favIssue = issues.find(issue => issue.issueKey === 'FAV-123');
+	const testIssue = issues.find(
+		issue => issue.issueKey.toString() === 'TEST-117',
+	);
+	const favIssue = issues.find(
+		issue => issue.issueKey.toString() === 'FAV-123',
+	);
 
 	t.truthy(testIssue, 'TEST-117 should be present');
 	t.truthy(favIssue, 'FAV-123 should be present');

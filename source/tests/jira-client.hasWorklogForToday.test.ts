@@ -1,4 +1,5 @@
 import test from 'ava';
+import {IssueKey} from '../domain/IssueKey.js';
 import {JiraClient} from '../jira-client.js';
 import type {JiraConfig} from '../jira-client.js';
 

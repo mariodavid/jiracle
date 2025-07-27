@@ -1,6 +1,7 @@
 import test from 'ava';
 import {WorklogEntry} from '../../domain/WorklogEntry.js';
 import type {WorklogEntry as ApiWorklogEntry} from '../../jira/types.js';
+import {IssueKey} from '../../domain/IssueKey.js';
 
 // TEST DATA: Expected inputs and outputs for all test scenarios
 const validAuthor = {
@@ -30,7 +31,7 @@ test('WorklogEntry.create - creates valid worklog entry', t => {
 	const worklog = WorklogEntry.create(validCreateOptions);
 
 	// SPECIFIC VALUE COMPARISONS
-	t.is(worklog.issueKey, 'ABC-123');
+	t.is(worklog.issueKey.toString(), 'ABC-123');
 	t.is(worklog.duration, 3600);
 	t.is(worklog.durationHours, 1);
 	t.is(worklog.comment, 'Test comment');
@@ -41,20 +42,23 @@ test('WorklogEntry.create - creates valid worklog entry', t => {
 
 test('WorklogEntry.create - normalizes issue key to uppercase', t => {
 	// TEST DATA
-	const options = {...validCreateOptions, issueKey: 'abc-123'};
+	const options = {
+		...validCreateOptions,
+		issueKey: IssueKey.fromString('abc-123'),
+	};
 
 	// OPERATIONS
 	const worklog = WorklogEntry.create(options);
 
 	// SPECIFIC VALUE COMPARISONS
-	t.is(worklog.issueKey, 'ABC-123');
+	t.is(worklog.issueKey.toString(), 'ABC-123');
 });
 
 test('WorklogEntry.create - trims whitespace from inputs', t => {
 	// TEST DATA
 	const options = {
 		...validCreateOptions,
-		issueKey: '  ABC-123  ',
+		issueKey: IssueKey.fromString('  ABC-123  '),
 		comment: '  Test comment  ',
 	};
 
@@ -62,7 +66,7 @@ test('WorklogEntry.create - trims whitespace from inputs', t => {
 	const worklog = WorklogEntry.create(options);
 
 	// SPECIFIC VALUE COMPARISONS
-	t.is(worklog.issueKey, 'ABC-123');
+	t.is(worklog.issueKey.toString(), 'ABC-123');
 	t.is(worklog.comment, 'Test comment');
 });
 
@@ -135,7 +139,7 @@ test('WorklogEntry.fromApiResponse - creates worklog from API data', t => {
 
 	// SPECIFIC VALUE COMPARISONS
 	t.is(worklog.id, 'worklog-123');
-	t.is(worklog.issueKey, 'DEF-456');
+	t.is(worklog.issueKey.toString(), 'DEF-456');
 	t.is(worklog.duration, 7200);
 	t.is(worklog.durationHours, 2);
 	t.is(worklog.comment, 'API comment');

@@ -34,7 +34,7 @@ test('WorklogGroupService - resolveDefaultsFor with group assignment via project
 	};
 
 	const service = new WorklogGroupService(config);
-	const issueKey = 'PROJ-123';
+	const issueKey = IssueKey.fromString('PROJ-123');
 
 	const expectedComment = 'Dev work';
 	const expectedTime = '2h';
@@ -71,7 +71,7 @@ test('WorklogGroupService - resolveDefaultsFor without group assignment', t => {
 	};
 
 	const service = new WorklogGroupService(config);
-	const issueKey = 'UNGROUPED-456';
+	const issueKey = IssueKey.fromString('UNGROUPED-456');
 
 	const expectedComment = 'Issue comment';
 	const expectedTime = '4h';
@@ -110,7 +110,7 @@ test('WorklogGroupService - getGroupForIssue returns group for favorite issue', 
 	};
 
 	const service = new WorklogGroupService(config);
-	const issueKey = 'QA-789';
+	const issueKey = IssueKey.fromString('QA-789');
 
 	const expectedGroupId = 'qa-team';
 	const expectedGroupName = 'QA Team';
@@ -139,7 +139,7 @@ test('WorklogGroupService - getGroupForIssue returns undefined for unassigned is
 	};
 
 	const service = new WorklogGroupService(config);
-	const issueKey = 'UNASSIGNED-999';
+	const issueKey = IssueKey.fromString('UNASSIGNED-999');
 
 	const expectedResult = undefined;
 
@@ -267,7 +267,11 @@ test('WorklogGroupService - addFavoriteToGroup adds favorite to existing group',
 	t.is(result, expectedResult);
 	t.truthy(updatedGroup);
 	t.is(updatedGroup!.getFavoriteIssues().length, expectedFavoriteCount);
-	t.is(updatedGroup!.getFavoriteIssues()[0]!.key, 'NEW-123');
+	t.true(
+		updatedGroup!
+			.getFavoriteIssues()[0]!
+			.key.equals(IssueKey.fromString('NEW-123')),
+	);
 });
 
 test('WorklogGroupService - addFavoriteToGroup returns false for non-existent group', t => {
@@ -318,7 +322,7 @@ test('WorklogGroupService - removeFavoriteFromGroup removes favorite from group'
 
 	const service = new WorklogGroupService(config);
 	const groupId = 'source-group';
-	const issueKeyToRemove = 'REMOVE-789';
+	const issueKeyToRemove = IssueKey.fromString('REMOVE-789');
 
 	const expectedResult = true;
 	const expectedFavoriteCountAfterRemoval = 0;
@@ -347,7 +351,7 @@ test('WorklogGroupService - removeFavoriteFromGroup returns false for non-existe
 
 	const service = new WorklogGroupService(config);
 	const nonExistentGroupId = 'non-existent';
-	const issueKey = 'TEST-999';
+	const issueKey = IssueKey.fromString('TEST-999');
 
 	const expectedResult = false;
 
@@ -381,7 +385,7 @@ test('WorklogGroupService - resolveCommentPrefillDaysFor uses group configuratio
 	};
 
 	const service = new WorklogGroupService(config);
-	const issueKey = 'PREFILL-111';
+	const issueKey = IssueKey.fromString('PREFILL-111');
 
 	const expectedPrefillDays = 14;
 
@@ -401,14 +405,14 @@ test('WorklogGroupService - resolveCommentPrefillDaysFor uses issue-level config
 		commentPrefillDays: 3,
 		favorites: [
 			{
-				key: 'ISSUE-PREFILL-222',
+				key: IssueKey.fromString('ISSUE-222'),
 				commentPrefillDays: 21,
 			},
 		],
 	};
 
 	const service = new WorklogGroupService(config);
-	const issueKey = 'ISSUE-PREFILL-222';
+	const issueKey = IssueKey.fromString('ISSUE-222');
 
 	const expectedPrefillDays = 21;
 
@@ -429,7 +433,7 @@ test('WorklogGroupService - resolveCommentPrefillDaysFor uses global default whe
 	};
 
 	const service = new WorklogGroupService(config);
-	const issueKey = 'GLOBAL-DEFAULT-333';
+	const issueKey = IssueKey.fromString('GLOBAL-333');
 
 	const expectedPrefillDays = 10;
 
@@ -449,7 +453,7 @@ test('WorklogGroupService - resolveCommentPrefillDaysFor uses fallback when no c
 	};
 
 	const service = new WorklogGroupService(config);
-	const issueKey = 'FALLBACK-444';
+	const issueKey = IssueKey.fromString('FALLBACK-444');
 
 	const expectedPrefillDays = 7;
 

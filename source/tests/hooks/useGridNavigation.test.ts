@@ -4,6 +4,7 @@ import {
 	navigateInDirection,
 	navigateToNextItem,
 } from '../../services/GridNavigationService.js';
+import {IssueKey} from '../../domain/IssueKey.js';
 
 test('GridNavigationService - functions work correctly via hook pattern', t => {
 	t.is(typeof findInitialFocusItem, 'function');
@@ -15,13 +16,13 @@ test('GridNavigationService - findInitialFocusItem works correctly', t => {
 	const focusableItems = [
 		{
 			focusId: 'item-1',
-			issueKey: IssueKey.fromString('TEST-1'),
+			issueKey: 'TEST-1',
 			columnIndex: 0,
 			isAttendance: false,
 		},
 		{
 			focusId: 'item-2',
-			issueKey: IssueKey.fromString('TEST-2'),
+			issueKey: 'TEST-2',
 			columnIndex: 1,
 			isAttendance: false,
 		},
@@ -36,13 +37,13 @@ test('GridNavigationService - findInitialFocusItem with preferred column', t => 
 	const focusableItems = [
 		{
 			focusId: 'item-1',
-			issueKey: IssueKey.fromString('TEST-1'),
+			issueKey: 'TEST-1',
 			columnIndex: 0,
 			isAttendance: false,
 		},
 		{
 			focusId: 'item-2',
-			issueKey: IssueKey.fromString('TEST-2'),
+			issueKey: 'TEST-2',
 			columnIndex: 1,
 			isAttendance: false,
 		},
@@ -59,13 +60,13 @@ test('GridNavigationService - navigateInDirection function works', t => {
 		focusableItems: [
 			{
 				focusId: 'item-1',
-				issueKey: IssueKey.fromString('TEST-1'),
+				issueKey: 'TEST-1',
 				columnIndex: 0,
 				isAttendance: false,
 			},
 			{
 				focusId: 'item-2',
-				issueKey: IssueKey.fromString('TEST-1'),
+				issueKey: 'TEST-1',
 				columnIndex: 1,
 				isAttendance: false,
 			},
@@ -83,13 +84,13 @@ test('GridNavigationService - navigateToNextItem function works', t => {
 		focusableItems: [
 			{
 				focusId: 'item-1',
-				issueKey: IssueKey.fromString('TEST-1'),
+				issueKey: 'TEST-1',
 				columnIndex: 0,
 				isAttendance: false,
 			},
 			{
 				focusId: 'item-2',
-				issueKey: IssueKey.fromString('TEST-2'),
+				issueKey: 'TEST-2',
 				columnIndex: 0,
 				isAttendance: false,
 			},

@@ -1,13 +1,14 @@
 import test from 'ava';
 import React from 'react';
-import {render} from 'ink-testing-library';
 import {Text, Box} from 'ink';
+import {render} from 'ink-testing-library';
+import {Duration} from '../../domain/Duration.js';
+import {IssueKey} from '../../domain/IssueKey.js';
 import {
 	useWorklogForm,
 	type UseWorklogFormOptions,
 } from '../../hooks/useWorklogForm.js';
 import type {JiraConfig} from '../../jira-client.js';
-import {Duration} from '../../domain/Duration.js';
 
 // Mock the JiraClient module
 const mockConfig: JiraConfig = {
@@ -47,7 +48,9 @@ function TestWorklogFormComponent({
 			<Text>Visible: {worklogForm.worklogForm.isVisible.toString()}</Text>
 			<Text>Submitting: {worklogForm.worklogSubmitting.toString()}</Text>
 			<Text>Error: {worklogForm.worklogError ?? 'none'}</Text>
-			<Text>IssueKey: {worklogForm.worklogForm.issueKey}</Text>
+			<Text>
+				IssueKey: {worklogForm.worklogForm.issueKey?.toString() ?? 'none'}
+			</Text>
 			<Text>TimeSpent: {worklogForm.worklogForm.timeSpent.toString()}</Text>
 			<Text>Comment: {worklogForm.worklogForm.comment}</Text>
 			<Text>
@@ -82,7 +85,7 @@ test('useWorklogForm returns initial state', t => {
 	t.false(capturedState.worklogForm.isVisible);
 	t.false(capturedState.worklogSubmitting);
 	t.is(capturedState.worklogError, undefined);
-	t.is(capturedState.worklogForm.issueKey, '');
+	t.is(capturedState.worklogForm.issueKey, undefined);
 	t.false(capturedState.worklogForm.isIssueKeyEditable);
 });
 
@@ -188,7 +191,10 @@ test('useWorklogForm handleCellWorklog opens form for cell editing', async t => 
 
 	t.true(capturedState.worklogForm.isVisible);
 	t.false(capturedState.worklogForm.isIssueKeyEditable);
-	t.is(capturedState.worklogForm.issueKey, 'TEST-456');
+	t.deepEqual(
+		capturedState.worklogForm.issueKey,
+		IssueKey.fromString('TEST-456'),
+	);
 	t.is(activeAreaChanged, 'worklog-form');
 });
 
@@ -366,7 +372,7 @@ test('useWorklogForm clearError removes error after validation failure', async t
 test('useWorklogForm handleAddWorklog sets correct initial state', t => {
 	// 1. EXPLICIT TEST DATA
 	const expectedInitialState = {
-		issueKey: '',
+		issueKey: undefined,
 		timeSpent: mockConfig.defaultTime,
 		comment: mockConfig.defaultComment,
 		isVisible: true,

@@ -4,6 +4,7 @@ import {
 	findWorklogEntryForIssue,
 } from '../../utils/worklog-detection.js';
 import type {IssueWorklogEntry} from '../../domain/WeeklyWorklogSummary.js';
+import {IssueKey} from '../../domain/IssueKey.js';
 
 test('detectWorklogForEdit - no worklog entry', t => {
 	const result = detectWorklogForEdit(undefined);

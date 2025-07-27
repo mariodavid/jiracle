@@ -2,13 +2,14 @@ import test from 'ava';
 import React from 'react';
 import {render} from 'ink-testing-library';
 import {Text, Box} from 'ink';
+import {Duration} from '../../domain/Duration.js';
+import {IssueKey} from '../../domain/IssueKey.js';
+import {LocalDate} from '../../domain/LocalDate.js';
 import {
 	useWorklogForm,
 	type UseWorklogFormOptions,
 } from '../../hooks/useWorklogForm.js';
 import type {JiraConfig} from '../../jira-client.js';
-import {Duration} from '../../domain/Duration.js';
-import {LocalDate} from '../../domain/LocalDate.js';
 
 // Mock the JiraClient module
 const mockConfig: JiraConfig = {
@@ -48,7 +49,9 @@ function TestWorklogFormComponent({
 			<Text>Visible: {worklogForm.worklogForm.isVisible.toString()}</Text>
 			<Text>Submitting: {worklogForm.worklogSubmitting.toString()}</Text>
 			<Text>Error: {worklogForm.worklogError ?? 'none'}</Text>
-			<Text>IssueKey: {worklogForm.worklogForm.issueKey}</Text>
+			<Text>
+				IssueKey: {worklogForm.worklogForm.issueKey?.toString() ?? 'none'}
+			</Text>
 			<Text>TimeSpent: {worklogForm.worklogForm.timeSpent.toString()}</Text>
 			<Text>Comment: {worklogForm.worklogForm.comment}</Text>
 			<Text>

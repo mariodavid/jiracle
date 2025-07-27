@@ -1,4 +1,5 @@
 import test from 'ava';
+import {IssueKey} from '../domain/IssueKey.js';
 import {JiraClient} from '../jira-client.js';
 import type {JiraConfig} from '../jira-client.js';
 import {createMockResponse} from './utils/mockResponse.js';
@@ -343,9 +344,9 @@ test('searchIssuesWithWorklogs parses response correctly', async t => {
 		const result = await client.searchIssuesWithWorklogs(jql);
 
 		t.is(result.issues.length, 2);
-		t.is(result.issues[0]!.key, 'TEST-117');
+		t.is(result.issues[0]!.key.toString(), 'TEST-117');
 		t.is(result.issues[0]!.fields.summary, 'First Issue Summary');
-		t.is(result.issues[1]!.key, 'TEST-118');
+		t.is(result.issues[1]!.key.toString(), 'TEST-118');
 		t.is(result.issues[1]!.fields.summary, 'Second Issue Summary');
 		t.is(result.total, 2);
 	} finally {

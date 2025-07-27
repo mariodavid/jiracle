@@ -71,7 +71,7 @@ export function createMockIssueList(count = 3): JiraIssue[] {
 	return Array.from({length: count}, (_, index) =>
 		createMockIssue({
 			id: String(index + 1),
-			key: `TEST-${123 + index}`,
+			key: IssueKey.fromString(`TEST-${123 + index}`),
 			fields: {
 				...createMockIssue().fields,
 				summary: `Test Issue ${index + 1}`,

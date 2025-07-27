@@ -3,6 +3,7 @@ import React from 'react';
 import {render} from 'ink-testing-library';
 import {WeeklyTimetableView} from '../../components/WeeklyTimetableView.js';
 import type {JiraConfig} from '../../jira-client.js';
+import {IssueKey} from '../../domain/IssueKey.js';
 
 const mockConfig: JiraConfig = {
 	jiraUrl: 'https://jira.example.com/',

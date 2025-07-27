@@ -6,6 +6,7 @@ import {
 	useFocusManagement,
 	type UseFocusManagementResult,
 } from '../../hooks/useFocusManagement.js';
+import {IssueKey} from '../../domain/IssueKey.js';
 
 // Test component that uses the focus management hook and reports state changes
 function TestFocusManagementComponent({
@@ -49,7 +50,7 @@ test('useFocusManagement: returns initial state with undefined focused cell', t 
 
 test('useFocusManagement: handles focus change to regular issue', t => {
 	// Explicit test data
-	const testIssueKey = 'PROJ-123';
+	const testIssueKey = IssueKey.fromString('PROJ-123');
 	const testColumnIndex = 2;
 	const isFocused = true;
 	const expectedFocusedCell = {
@@ -86,11 +87,11 @@ test('useFocusManagement: handles focus change to regular issue', t => {
 
 test('useFocusManagement: handles focus change to attendance issue', t => {
 	// Explicit test data
-	const testIssueKey = 'attendance-sick';
+	const testIssueKey = IssueKey.fromString('attendance-sick');
 	const testColumnIndex = 1;
 	const isFocused = true;
 	const expectedFocusedCell = {
-		issueKey: 'attendance-sick',
+		issueKey: IssueKey.fromString('attendance-sick'),
 		columnIndex: 1,
 		isAttendance: true,
 	};
@@ -123,7 +124,7 @@ test('useFocusManagement: handles focus change to attendance issue', t => {
 
 test('useFocusManagement: ignores blur events', t => {
 	// Explicit test data
-	const testIssueKey = 'PROJ-456';
+	const testIssueKey = IssueKey.fromString('PROJ-456');
 	const testColumnIndex = 0;
 	const initialFocusedCell = {
 		issueKey: IssueKey.fromString('PROJ-456'),
@@ -171,7 +172,7 @@ test('useFocusManagement: ignores blur events', t => {
 
 test('useFocusManagement: clears focus correctly', t => {
 	// Explicit test data
-	const testIssueKey = 'PROJ-789';
+	const testIssueKey = IssueKey.fromString('PROJ-789');
 	const testColumnIndex = 3;
 	const expectedClearedCell = undefined;
 
@@ -215,9 +216,9 @@ test('useFocusManagement: clears focus correctly', t => {
 
 test('useFocusManagement: checks if cell is focused correctly', t => {
 	// Explicit test data
-	const focusedIssueKey = 'PROJ-111';
+	const focusedIssueKey = IssueKey.fromString('PROJ-111');
 	const focusedColumnIndex = 1;
-	const differentIssueKey = 'PROJ-222';
+	const differentIssueKey = IssueKey.fromString('PROJ-222');
 	const differentColumnIndex = 2;
 	const expectedFocusedResult = true;
 	const expectedNotFocusedResult = false;
@@ -258,7 +259,7 @@ test('useFocusManagement: checks if cell is focused correctly', t => {
 test('useFocusManagement: setFocusedCell updates state directly', t => {
 	// Explicit test data
 	const testCell = {
-		issueKey: 'DIRECT-SET',
+		issueKey: IssueKey.fromString('DIRECT-123'),
 		columnIndex: 4,
 		isAttendance: true,
 	};

@@ -4,6 +4,7 @@ import type {
 	WorklogEntry,
 	WorklogResponse,
 } from '../../../../jira/types.js';
+import {IssueKey} from '../../../../domain/IssueKey.js';
 
 export const createMockIssue = (overrides: {
 	id?: string;
@@ -17,7 +18,7 @@ export const createMockIssue = (overrides: {
 	updated?: string;
 }): JiraIssue => ({
 	id: overrides.id ?? '111111',
-	key: overrides.key ?? 'TEST-123',
+	key: IssueKey.fromString(overrides.key ?? 'TEST-123'),
 	fields: {
 		summary: overrides.summary ?? 'Test issue',
 		status: {

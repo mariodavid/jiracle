@@ -52,7 +52,7 @@ test('WeeklyWorklogSummaryUseCase includes sliding window issues', async t => {
 			return createSearchResponseWithIssues([
 				createMockIssue({
 					id: '263906',
-					key: IssueKey.fromString('SLIDING-123'),
+					key: 'SLIDING-123',
 					summary: 'Recent issue from last week',
 				}),
 			]) as any;
@@ -64,7 +64,9 @@ test('WeeklyWorklogSummaryUseCase includes sliding window issues', async t => {
 
 	// Mock worklog response for the recent issue (but no worklogs in current week)
 	client.getIssueWorklogs = async issueKey => {
-		if (issueKey === 'SLIDING-123') {
+		const issueKeyString =
+			typeof issueKey === 'string' ? issueKey : issueKey.toString();
+		if (issueKeyString === 'SLIDING-123') {
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-return
 			return createWorklogResponseWithWorklogs([
 				createMockWorklog({

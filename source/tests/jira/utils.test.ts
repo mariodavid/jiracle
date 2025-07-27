@@ -1,4 +1,5 @@
 import test from 'ava';
+import {IssueKey} from '../../domain/IssueKey.js';
 import {
 	getMostRecentCommentForIssue,
 	getCommentWithPrefill,
@@ -242,10 +243,15 @@ test('getCommentWithPrefill uses reference date for filtering', t => {
 	// Reference date: August 22nd
 	const referenceDate = new Date('2025-08-22T12:00:00.000Z');
 
-	const result = getCommentWithPrefill(config, 'TEST-123', worklogs, {
-		isEditMode: false,
-		referenceDate,
-	});
+	const result = getCommentWithPrefill(
+		config,
+		IssueKey.fromString('TEST-123'),
+		worklogs,
+		{
+			isEditMode: false,
+			referenceDate,
+		},
+	);
 
 	// Should fall back to config default since July worklog is too old
 	t.is(result, 'Fallback comment');
@@ -274,10 +280,15 @@ test('getCommentWithPrefill finds recent comment with reference date', t => {
 	// Reference date: August 22nd
 	const referenceDate = new Date('2025-08-22T12:00:00.000Z');
 
-	const result = getCommentWithPrefill(config, 'TEST-123', worklogs, {
-		isEditMode: false,
-		referenceDate,
-	});
+	const result = getCommentWithPrefill(
+		config,
+		IssueKey.fromString('TEST-123'),
+		worklogs,
+		{
+			isEditMode: false,
+			referenceDate,
+		},
+	);
 
 	// Should use recent comment since it's within 7 days
 	t.is(result, 'Recent work on feature');
@@ -312,10 +323,15 @@ test('getCommentWithPrefill respects configurable lookback days with reference d
 	// Reference date: August 22nd
 	const referenceDate = new Date('2025-08-22T12:00:00.000Z');
 
-	const result = getCommentWithPrefill(config, 'TEST-123', worklogs, {
-		isEditMode: false,
-		referenceDate,
-	});
+	const result = getCommentWithPrefill(
+		config,
+		IssueKey.fromString('TEST-123'),
+		worklogs,
+		{
+			isEditMode: false,
+			referenceDate,
+		},
+	);
 
 	// Should fall back to config since issue-specific is only 5 days (excludes Aug 12th)
 	t.is(result, 'Fallback comment');
@@ -342,11 +358,16 @@ test('getCommentWithPrefill uses explicit default in edit mode regardless of ref
 
 	const referenceDate = new Date('2025-08-22T12:00:00.000Z');
 
-	const result = getCommentWithPrefill(config, 'TEST-123', worklogs, {
-		isEditMode: true,
-		explicitDefault: 'Edit mode comment',
-		referenceDate,
-	});
+	const result = getCommentWithPrefill(
+		config,
+		IssueKey.fromString('TEST-123'),
+		worklogs,
+		{
+			isEditMode: true,
+			explicitDefault: 'Edit mode comment',
+			referenceDate,
+		},
+	);
 
 	// Should use explicit default in edit mode, ignoring recent worklogs
 	t.is(result, 'Edit mode comment');

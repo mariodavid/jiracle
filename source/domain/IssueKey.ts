@@ -19,10 +19,21 @@ export class IssueKey {
 		}
 
 		const upperKey = trimmedKey.toUpperCase();
-		const [project, numberString] = upperKey.split('-');
-		const number = Number(numberString);
+		const [project, suffix] = upperKey.split('-');
 
-		return new IssueKey(project!, number);
+		if (!project || !suffix) {
+			throw new Error(
+				`Invalid issue key format: "${trimmedKey}". Expected format: PROJECT-123 (e.g., DEF-123, ABC-456)`,
+			);
+		}
+
+		// For attendance keys, use 0 as the number and store suffix separately
+		if (project === 'ATTENDANCE') {
+			return new IssueKey(project, 0, suffix);
+		}
+
+		const number = Number(suffix);
+		return new IssueKey(project, number);
 	}
 
 	/**
@@ -44,12 +55,15 @@ export class IssueKey {
 	}
 
 	private static get issueKeyRegex(): RegExp {
-		return /^[a-z]+-\d+$/i;
+		// Standard Jira format: PROJECT-123
+		// Special case for attendance: attendance-WORD
+		return /^([a-z]+-\d+|attendance-[a-z]+)$/i;
 	}
 
 	private constructor(
 		private readonly project: string,
 		private readonly number: number,
+		private readonly suffix?: string,
 	) {}
 
 	/**
@@ -67,9 +81,13 @@ export class IssueKey {
 	}
 
 	/**
-	 * Format as standard issue key string (e.g., "PROJ-123")
+	 * Format as standard issue key string (e.g., "PROJ-123" or "ATTENDANCE-WORD")
 	 */
 	toString(): string {
+		if (this.project === 'ATTENDANCE' && this.suffix) {
+			return `${this.project}-${this.suffix}`;
+		}
+
 		return `${this.project}-${this.number}`;
 	}
 
@@ -77,6 +95,10 @@ export class IssueKey {
 	 * Check if this issue key equals another issue key
 	 */
 	equals(other: IssueKey): boolean {
+		if (this.project === 'ATTENDANCE' && other.project === 'ATTENDANCE') {
+			return this.suffix === other.suffix;
+		}
+
 		return this.project === other.project && this.number === other.number;
 	}
 

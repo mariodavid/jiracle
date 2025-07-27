@@ -19,7 +19,7 @@ export const assertIssueInResult = (
 	expectedHours: number,
 ) => {
 	const issue = result.dailySummaries[0]!.issues.find(
-		issue => issue.issueKey === issueKey,
+		issue => issue.issueKey.toString() === issueKey,
 	);
 	t.truthy(issue, `${issueKey} should be present`);
 	t.is(
@@ -87,7 +87,7 @@ export const assertIssueKeysPresent = (
 	expectedKeys: string[],
 ) => {
 	const issueKeys = new Set(
-		result.dailySummaries[0]!.issues.map(issue => issue.issueKey),
+		result.dailySummaries[0]!.issues.map(issue => issue.issueKey.toString()),
 	);
 	for (const key of expectedKeys) {
 		t.true(issueKeys.has(key), `Issue ${key} should be present`);

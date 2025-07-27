@@ -441,12 +441,13 @@ test('useTableNavigation: processes complex issue groups correctly', t => {
 	// Test focus management works for each issue
 	for (const testIssueKey of testIssueKeys) {
 		if (testIssueKey) {
+			const issueKeyObject = IssueKey.fromString(testIssueKey);
 			// Initially unfocused
-			const initiallyFocused = result.isCellFocused(testIssueKey, 0);
+			const initiallyFocused = result.isCellFocused(issueKeyObject, 0);
 			t.false(initiallyFocused, `Issue ${testIssueKey} should start unfocused`);
 
 			// Focus the issue
-			result.setFocusedCell({issueKey: testIssueKey, columnIndex: 0});
+			result.setFocusedCell({issueKey: issueKeyObject, columnIndex: 0});
 			rerender(
 				React.createElement(TestTableNavigationComponent, {
 					options: mockOptions,
@@ -455,7 +456,7 @@ test('useTableNavigation: processes complex issue groups correctly', t => {
 			const resultAfterFocus =
 				// @ts-expect-error: Test-only global variable to access hook state
 				globalThis.__testTableNavigationResult as TableNavigationResult;
-			const nowFocused = resultAfterFocus.isCellFocused(testIssueKey, 0);
+			const nowFocused = resultAfterFocus.isCellFocused(issueKeyObject, 0);
 			t.true(nowFocused, `Should be able to focus issue ${testIssueKey}`);
 
 			// Clear focus
@@ -468,7 +469,7 @@ test('useTableNavigation: processes complex issue groups correctly', t => {
 			const resultAfterClear =
 				// @ts-expect-error: Test-only global variable to access hook state
 				globalThis.__testTableNavigationResult as TableNavigationResult;
-			const afterClear = resultAfterClear.isCellFocused(testIssueKey, 0);
+			const afterClear = resultAfterClear.isCellFocused(issueKeyObject, 0);
 			t.false(
 				afterClear,
 				`Issue ${testIssueKey} should be unfocused after clear`,
@@ -505,10 +506,17 @@ test('useTableNavigation: method integrity with error handling', t => {
 		globalThis.__testTableNavigationResult as TableNavigationResult;
 
 	// Test normal operations
+	const testIssueKeyObject = IssueKey.fromString(testIssueKey);
 	const initialState = result.focusedCell;
-	const initialFocusCheck = result.isCellFocused(testIssueKey, testColumnIndex);
+	const initialFocusCheck = result.isCellFocused(
+		testIssueKeyObject,
+		testColumnIndex,
+	);
 
-	result.setFocusedCell({issueKey: testIssueKey, columnIndex: testColumnIndex});
+	result.setFocusedCell({
+		issueKey: testIssueKeyObject,
+		columnIndex: testColumnIndex,
+	});
 	rerender(
 		React.createElement(TestTableNavigationComponent, {options: mockOptions}),
 	);
@@ -516,7 +524,7 @@ test('useTableNavigation: method integrity with error handling', t => {
 		// @ts-expect-error: Test-only global variable to access hook state
 		globalThis.__testTableNavigationResult as TableNavigationResult;
 	const focusedState = resultAfterFocus.isCellFocused(
-		testIssueKey,
+		testIssueKeyObject,
 		testColumnIndex,
 	);
 	const focusedCellState = resultAfterFocus.focusedCell;
@@ -529,7 +537,7 @@ test('useTableNavigation: method integrity with error handling', t => {
 		// @ts-expect-error: Test-only global variable to access hook state
 		globalThis.__testTableNavigationResult as TableNavigationResult;
 	const clearedState = resultAfterClear.isCellFocused(
-		testIssueKey,
+		testIssueKeyObject,
 		testColumnIndex,
 	);
 	const clearedCellState = resultAfterClear.focusedCell;
@@ -560,7 +568,11 @@ test('useTableNavigation: method integrity with error handling', t => {
 
 	// Verify methods handle edge cases without throwing
 	t.notThrows(() => {
-		result.handleFocusChange('NONEXISTENT-999', 999, false);
+		result.handleFocusChange(
+			IssueKey.fromString('NONEXISTENT-999'),
+			999,
+			false,
+		);
 	}, 'handleFocusChange should handle arbitrary parameters');
 	t.notThrows(() => {
 		result.setFocusedCell(undefined);
@@ -569,7 +581,7 @@ test('useTableNavigation: method integrity with error handling', t => {
 		result.clearFocus();
 	}, 'clearFocus should not throw');
 	t.notThrows(
-		() => result.isCellFocused('NONEXISTENT-999', 999),
+		() => result.isCellFocused(IssueKey.fromString('NONEXISTENT-999'), 999),
 		'isCellFocused should handle arbitrary parameters',
 	);
 });

@@ -11,7 +11,7 @@ import {IssueKey} from '../domain/IssueKey.js';
 import DurationInput from './WorklogForm/DurationInput.js';
 
 type InlineWorklogFormProps = {
-	issueKey: IssueKey;
+	issueKey?: IssueKey;
 	date: LocalDate;
 	defaultTimeSpent?: Duration;
 	defaultComment?: string;
@@ -58,7 +58,7 @@ export function InlineWorklogForm({
 		if (defaultTimeSpent) return defaultTimeSpent;
 
 		// Use the new hierarchical default resolution
-		if (config) {
+		if (config && issueKey) {
 			const defaults = resolveDefaults(config, issueKey);
 			return new Duration(defaults.time);
 		}
@@ -69,8 +69,8 @@ export function InlineWorklogForm({
 
 	// Determine default comment with recent worklog prefill
 	const getDefaultComment = () => {
-		if (!config) {
-			return '';
+		if (!config || !issueKey) {
+			return defaultComment || '';
 		}
 
 		const result = getCommentWithPrefill(config, issueKey, recentWorklogs, {
@@ -100,7 +100,7 @@ export function InlineWorklogForm({
 	// Update comment when recent worklogs arrive (for comment prefilling)
 	useEffect(() => {
 		// Only update if we're not in edit mode and have config
-		if (!isEditMode && recentWorklogs.length > 0 && config) {
+		if (!isEditMode && recentWorklogs.length > 0 && config && issueKey) {
 			const newComment = getCommentWithPrefill(
 				config,
 				issueKey,
@@ -387,6 +387,13 @@ export function InlineWorklogForm({
 			return; // Don't submit if already submitting
 		}
 
+		// Don't submit if issue key is not set
+		if (!currentIssueKey) {
+			uiLogger.debug('InlineWorklogForm: Cannot submit without issue key');
+			submittingRef.current = false;
+			return;
+		}
+
 		// Set ref immediately (synchronous)
 		submittingRef.current = true;
 		const timeSpent = selectedTime;
@@ -456,7 +463,7 @@ export function InlineWorklogForm({
 					<Text color="yellow">Issue Key:</Text>
 					<Box marginTop={1}>
 						<TextInput
-							defaultValue={currentIssueKey.toString()}
+							defaultValue={currentIssueKey?.toString() ?? ''}
 							placeholder="e.g. DEF-123, AD-456..."
 							isDisabled={focusArea !== 'issueKey'}
 							onChange={value => {
@@ -526,7 +533,7 @@ export function InlineWorklogForm({
 				<Text color="yellow">Comment:</Text>
 				<Box marginTop={1}>
 					<TextInput
-						key={`comment-${comment}-${issueKey.toString()}`}
+						key={`comment-${comment}-${issueKey?.toString() ?? 'unknown'}`}
 						defaultValue={comment}
 						placeholder="Enter work description..."
 						isDisabled={focusArea !== 'comment'}

@@ -1,6 +1,7 @@
 import test from 'ava';
 import {hookTestUtils, createMockFetch} from '../utils/testUtils.js';
 import type {UseWeeklyWorklogSummaryOptions} from '../../hooks/useWeeklyWorklogSummary.js';
+import {IssueKey} from '../../domain/IssueKey.js';
 
 // Mock global fetch for JiraClient
 const originalFetch = global.fetch;
