@@ -5,7 +5,7 @@ import {InkTestHelpers} from '../utils/ink-test-helpers.js';
 test('AttendanceEditForm renders with default values', t => {
 	const output = InkTestHelpers.testComponentStructure(
 		AttendanceEditForm,
-		['Anwesenheit bearbeiten', 'Fr, 11. Jul', '08:00', '17:00', '30m'],
+		['Anwesenheit bearbeiten', 'Fr, 11. Jul', '08:00', '16:30', '30m'],
 		t,
 	);
 	// Additional German date format check
@@ -27,7 +27,7 @@ test('AttendanceEditForm uses config defaults when no initial data', t => {
 	InkTestHelpers.testComponentWithConfig(
 		AttendanceEditForm,
 		testConfigs.withCustomDefaults,
-		['07:30', '16:30'],
+		['07:30', '16:00'],
 		t,
 	);
 });
@@ -135,7 +135,7 @@ test('AttendanceEditForm handles empty initial data', t => {
 	InkTestHelpers.testComponentWithData(
 		AttendanceEditForm,
 		testData.withEmptyFields,
-		['08:00', '17:00', '30m'], // Should use defaults
+		['08:00', '16:30', '30m'], // Should use defaults
 		t,
 	);
 });
@@ -166,7 +166,7 @@ test('AttendanceEditForm submits correct data format', t => {
 	const onSubmit = () => {};
 	InkTestHelpers.testComponentStructure(
 		AttendanceEditForm,
-		['Jul', '08:00', '17:00', '30m'],
+		['Jul', '08:00', '16:30', '30m'],
 		t,
 	);
 	InkTestHelpers.assertCallbackSetup(onSubmit, t);

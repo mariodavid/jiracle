@@ -44,7 +44,7 @@ test('AttendanceEditFormArea renders with attendance form', t => {
 		'[Speichern]',
 		'[Abbrechen]',
 	];
-	const expectedTimes: string[] = ['09:00', '17:00'];
+	const expectedTimes: string[] = ['09:00', '17:30'];
 	const expectedBreakTime = '30m';
 
 	const mockOnSubmit = () => {};
@@ -169,7 +169,7 @@ test('AttendanceEditFormArea handles attendance without initial data', t => {
 		'Ende:',
 		'Pause:',
 	];
-	const expectedDefaultTimes: string[] = ['09:00', '17:00']; // Should use config defaults
+	const expectedDefaultTimes: string[] = ['09:00', '17:30']; // Should use calculated check-out (09:00 + 8h + 30min break)
 	const expectedDefaultBreak = '30m';
 
 	const mockOnSubmit = () => {};
@@ -198,7 +198,7 @@ test('AttendanceEditFormArea handles attendance without initial data', t => {
 	);
 	t.true(
 		output!.includes(expectedDefaultTimes[1]!),
-		`Should display default check-out time ${expectedDefaultTimes[1]!}`,
+		`Should display calculated check-out time ${expectedDefaultTimes[1]!} (check-in + working hours + break)`,
 	);
 	t.true(
 		output!.includes(expectedDefaultBreak),
