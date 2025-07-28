@@ -1,5 +1,6 @@
 import process from 'node:process';
 import {LocalDate} from '../domain/LocalDate.js';
+import {uiLogger} from '../utils/logger.js';
 import {AttendanceCSVStorage} from './AttendanceCSVStorage.js';
 import {AttendanceCalculations} from './AttendanceCalculations.js';
 import type {
@@ -123,6 +124,11 @@ export class AttendanceManager {
 		const baseDate = startDate ?? new Date();
 		const weekDates = AttendanceCalculations.getWeekDates(baseDate);
 
+		uiLogger.debug('AttendanceManager: Getting weekly attendance', {
+			baseDate: baseDate.toISOString(),
+			weekDates: weekDates.map(d => d.toISOString()),
+		});
+
 		const weeklyAttendance: WeeklyAttendance = {};
 
 		const attendances = await Promise.all(
@@ -132,11 +138,24 @@ export class AttendanceManager {
 			})),
 		);
 
+		uiLogger.debug('AttendanceManager: Fetched attendances', {
+			attendances: attendances.map(a => ({
+				date: a.date,
+				hasAttendance: Boolean(a.attendance),
+				attendance: a.attendance,
+			})),
+		});
+
 		for (const {date, attendance} of attendances) {
 			if (attendance) {
 				weeklyAttendance[date] = attendance;
 			}
 		}
+
+		uiLogger.debug('AttendanceManager: Final weekly attendance', {
+			weeklyAttendance,
+			keys: Object.keys(weeklyAttendance),
+		});
 
 		return weeklyAttendance;
 	}

@@ -1,5 +1,6 @@
 import type {FocusableItem} from '../utils/FocusableItemCalculator.js';
 import type {IssueKey} from '../domain/IssueKey.js';
+import {uiLogger} from '../utils/logger.js';
 
 export type NavigationDirection = 'up' | 'down' | 'left' | 'right';
 
@@ -56,6 +57,20 @@ export function navigateInDirection(
 
 	const currentIndex = findCurrentItemIndex(focusedCell, focusableItems);
 	if (currentIndex === -1) {
+		uiLogger.debug('GridNavigation: Could not find current item', {
+			direction,
+			focusedCell: {
+				issueKey: focusedCell.issueKey.toString(),
+				columnIndex: focusedCell.columnIndex,
+				isAttendance: focusedCell.isAttendance,
+			},
+			focusableItemsCount: focusableItems.length,
+			focusableItemsSample: focusableItems.slice(0, 5).map(item => ({
+				issueKey: item.issueKey,
+				columnIndex: item.columnIndex,
+				isAttendance: item.isAttendance,
+			})),
+		});
 		return {success: false};
 	}
 

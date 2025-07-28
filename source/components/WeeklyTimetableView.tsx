@@ -1,4 +1,4 @@
-import React, {useEffect, useMemo, useCallback} from 'react';
+import React, {useMemo, useCallback} from 'react';
 import {Box, Text, useInput} from 'ink';
 import {Alert} from '@inkjs/ui';
 import Gradient from 'ink-gradient';
@@ -92,7 +92,10 @@ export function WeeklyTimetableView({
 	const weekEnd = getEndOfWeek(currentWeek);
 
 	// Memoize favoriteIssues to prevent unnecessary re-renders
-	const favoriteIssues = useMemo(() => config.favorites, [config.favorites]);
+	const favoriteIssues = useMemo(
+		() => config.favorites ?? [],
+		[config.favorites],
+	);
 
 	// Memoize the activeArea change callback to prevent infinite re-renders
 	const handleActiveAreaChange = useCallback(
@@ -108,7 +111,7 @@ export function WeeklyTimetableView({
 		config,
 		skipAutoLoad: false, // Always load fresh data when component mounts
 		userEmail: userEmail ?? undefined,
-		favoriteIssues, // Use memoized favorite issues
+		favoriteIssues,
 	});
 
 	// Worklog form state management
@@ -191,17 +194,17 @@ export function WeeklyTimetableView({
 	const displayData = data;
 	const displayLoading = isLoading;
 
-	// Refresh data when component mounts
-	useEffect(() => {
-		// Small delay to ensure component is fully mounted
-		const timer = setTimeout(() => {
-			refresh();
-		}, 100);
+	// Refresh data when component mounts - DISABLED to prevent render loop
+	// useEffect(() => {
+	// 	// Small delay to ensure component is fully mounted
+	// 	const timer = setTimeout(() => {
+	// 		refresh();
+	// 	}, 100);
 
-		return () => {
-			clearTimeout(timer);
-		};
-	}, []); // Empty dependency array means this runs only on mount
+	// 	return () => {
+	// 		clearTimeout(timer);
+	// 	};
+	// }, []); // Empty dependency array means this runs only on mount
 
 	const handleOpenInBrowser = async (issueKey: IssueKey) => {
 		if (!config.jiraUrl) return;
@@ -361,6 +364,7 @@ export function WeeklyTimetableView({
 								<AttendanceEditFormArea
 									attendanceEdit={attendanceEdit!}
 									config={config}
+									worklogData={data}
 									onSubmit={handleAttendanceSubmit}
 									onCancel={handleAttendanceCancel}
 								/>

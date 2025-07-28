@@ -74,7 +74,7 @@ test('calculateFocusableItems: grid with attendance manager but no issues', t =>
 	for (let i = 0; i < 5; i++) {
 		assertFocusableItem(t, items[i]!, {
 			focusId: `attendance-attendance-${i}`,
-			issueKey: 'attendance-attendance',
+			issueKey: 'ATTENDANCE-ATTENDANCE',
 			columnIndex: i,
 			isAttendance: true,
 		});
@@ -123,7 +123,7 @@ test('calculateFocusableItems: grid with both attendance and issues', t => {
 	for (let i = 0; i < 5; i++) {
 		assertFocusableItem(t, items[i]!, {
 			focusId: `attendance-attendance-${i}`,
-			issueKey: 'attendance-attendance',
+			issueKey: 'ATTENDANCE-ATTENDANCE',
 			columnIndex: i,
 			isAttendance: true,
 		});

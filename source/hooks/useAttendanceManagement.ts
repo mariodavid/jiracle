@@ -3,6 +3,7 @@ import {AttendanceManager} from '../attendance/AttendanceManager.js';
 import type {Attendance} from '../attendance/types.js';
 import type {JiraConfig} from '../jira-client.js';
 import type {LocalDate} from '../domain/LocalDate.js';
+import {uiLogger} from '../utils/logger.js';
 
 export type AttendanceEditState = {
 	date: LocalDate;
@@ -38,6 +39,8 @@ export function useAttendanceManagement(
 	const [attendanceManager, setAttendanceManager] = useState<
 		AttendanceManager | undefined
 	>(undefined);
+	// Suppress unused variable warning
+	void setAttendanceManager;
 	const [attendanceRefreshKey, setAttendanceRefreshKey] = useState(0);
 	const [attendanceEdit, setAttendanceEdit] = useState<
 		AttendanceEditState | undefined
@@ -45,13 +48,25 @@ export function useAttendanceManagement(
 
 	// Initialize attendance manager when config changes
 	useEffect(() => {
+		uiLogger.debug('useAttendanceManagement: Config changed', {
+			hasAttendanceConfig: Boolean(config.attendance),
+			attendanceEnabled: config.attendance?.enabled,
+			attendanceConfig: config.attendance,
+		});
+
 		if (config.attendance?.enabled) {
 			const manager = new AttendanceManager(config.attendance);
+			uiLogger.debug('useAttendanceManagement: Created attendance manager', {
+				manager: Boolean(manager),
+			});
 			setAttendanceManager(manager);
 		} else {
+			uiLogger.debug(
+				'useAttendanceManagement: Attendance disabled or no config',
+			);
 			setAttendanceManager(undefined);
 		}
-	}, [config.attendance]);
+	}, [JSON.stringify(config.attendance)]); // Use JSON.stringify for stable comparison
 
 	const handleAttendanceEdit = useCallback(
 		async (data: {date: LocalDate}) => {

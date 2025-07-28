@@ -177,6 +177,9 @@ export function useKeyboardInput({
 			return;
 		}
 
+		// Use the provided focusedCell (we'll fix the focus management later)
+		const currentFocusedCell = focusedCell;
+
 		// Handle Shift+Tab
 		if (key.shift && key.tab) {
 			handleReverseTabNavigation();
@@ -185,7 +188,7 @@ export function useKeyboardInput({
 
 		// Handle Enter key
 		if (
-			handleEnterKey(key, focusedCell, weekDates, {
+			handleEnterKey(key, currentFocusedCell, weekDates, {
 				onCellWorklog,
 				onAttendanceEdit,
 			})
@@ -195,7 +198,7 @@ export function useKeyboardInput({
 
 		// Handle delete key
 		if (
-			handleDeleteKey(input, focusedCell, weekDates, {
+			handleDeleteKey(input, currentFocusedCell, weekDates, {
 				onCellDelete,
 				onAttendanceDelete,
 			})
@@ -204,6 +207,6 @@ export function useKeyboardInput({
 		}
 
 		// Handle open in browser
-		handleOpenInBrowser(input, focusedCell, onOpenInBrowser);
+		handleOpenInBrowser(input, currentFocusedCell, onOpenInBrowser);
 	});
 }
