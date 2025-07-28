@@ -21,6 +21,12 @@
 		"deps:check": "depcruise --validate .dependency-cruiser.cjs source",
 		"deps:graph": "depcruise --include-only '^source' --output-type html source > dependency-graph.html",
 		"deps:report": "depcruise --output-type err-html --validate .dependency-cruiser.cjs source > dependency-violations.html",
+		"code:unused": "ts-prune",
+		"code:unused-report": "ts-prune > reports/unused-exports.txt",
+		"code:coverage": "type-coverage --detail",
+		"code:coverage-report": "type-coverage --detail > reports/type-coverage.txt",
+		"code:analyze": "mkdir -p reports && npm run code:unused-report && npm run code:coverage-report",
+		"code:baseline": "mkdir -p reports && npm run code:analyze > reports/baseline-$(date +%Y%m%d).txt",
 		"release": "release-it"
 	},
 	"files": [
@@ -60,6 +66,8 @@
 		"release-it": "^19.0.4",
 		"sinon": "^21.0.0",
 		"ts-node": "^10.9.1",
+		"ts-prune": "^0.10.3",
+		"type-coverage": "^2.29.7",
 		"typescript": "^5.0.3",
 		"xo": "^0.53.1"
 	},
