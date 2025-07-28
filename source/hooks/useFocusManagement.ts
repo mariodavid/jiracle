@@ -1,7 +1,8 @@
 import {useState, useCallback} from 'react';
+import type {IssueKey} from '../domain/IssueKey.js';
 
 export type FocusedCell = {
-	issueKey: string;
+	issueKey: IssueKey;
 	columnIndex: number;
 	isAttendance?: boolean;
 };
@@ -9,13 +10,13 @@ export type FocusedCell = {
 export type UseFocusManagementResult = {
 	focusedCell: FocusedCell | undefined;
 	handleFocusChange: (
-		issueKey: string,
+		issueKey: IssueKey,
 		columnIndex: number,
 		isFocused: boolean,
 	) => void;
 	setFocusedCell: (cell: FocusedCell | undefined) => void;
 	clearFocus: () => void;
-	isCellFocused: (issueKey: string, columnIndex: number) => boolean;
+	isCellFocused: (issueKey: IssueKey, columnIndex: number) => boolean;
 };
 
 export function useFocusManagement(): UseFocusManagementResult {
@@ -24,9 +25,12 @@ export function useFocusManagement(): UseFocusManagementResult {
 	);
 
 	const handleFocusChange = useCallback(
-		(issueKey: string, columnIndex: number, isFocused: boolean) => {
+		(issueKey: IssueKey, columnIndex: number, isFocused: boolean) => {
 			if (isFocused) {
-				const isAttendance = issueKey.startsWith('attendance-');
+				const isAttendance = issueKey
+					.toString()
+					.toLowerCase()
+					.startsWith('attendance-');
 				setFocusedCell({issueKey, columnIndex, isAttendance});
 			}
 			// Don't clear on blur - only update when we get a new focus
@@ -39,11 +43,11 @@ export function useFocusManagement(): UseFocusManagementResult {
 	}, []);
 
 	const isCellFocused = useCallback(
-		(issueKey: string, columnIndex: number): boolean => {
+		(issueKey: IssueKey, columnIndex: number): boolean => {
 			return (
-				focusedCell !== undefined &&
-				focusedCell.issueKey === issueKey &&
-				focusedCell.columnIndex === columnIndex
+				(focusedCell?.issueKey.equals(issueKey) &&
+					focusedCell.columnIndex === columnIndex) ??
+				false
 			);
 		},
 		[focusedCell],

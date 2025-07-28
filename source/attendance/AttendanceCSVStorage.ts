@@ -2,6 +2,7 @@ import {homedir} from 'node:os';
 import {join, dirname} from 'node:path';
 import {readFile, writeFile, mkdir} from 'node:fs/promises';
 import {existsSync} from 'node:fs';
+import {LocalDate} from '../domain/LocalDate.js';
 import type {Attendance} from './types.js';
 
 export class AttendanceCSVStorage {
@@ -57,17 +58,26 @@ export class AttendanceCSVStorage {
 		await writeFile(this.csvPath, lines.join('\n') + '\n');
 	}
 
-	async getByDate(date: string): Promise<Attendance | undefined> {
+	async getByDate(date: LocalDate): Promise<Attendance | undefined> {
 		const attendances = await this.readAll();
-		return attendances.find(a => a.date === date) ?? undefined;
+		return (
+			attendances.find(a => LocalDate.fromString(a.date).equals(date)) ??
+			undefined
+		);
 	}
 
 	async getByDateRange(
-		startDate: string,
-		endDate: string,
+		startDate: LocalDate,
+		endDate: LocalDate,
 	): Promise<Attendance[]> {
 		const attendances = await this.readAll();
-		return attendances.filter(a => a.date >= startDate && a.date <= endDate);
+		return attendances.filter(a => {
+			const attendanceDate = LocalDate.fromString(a.date);
+			return (
+				attendanceDate.toISOString() >= startDate.toISOString() &&
+				attendanceDate.toISOString() <= endDate.toISOString()
+			);
+		});
 	}
 
 	async upsert(attendance: Attendance): Promise<void> {
@@ -86,10 +96,10 @@ export class AttendanceCSVStorage {
 		await this.write(attendances);
 	}
 
-	async deleteByDate(date: string): Promise<void> {
+	async deleteByDate(date: LocalDate): Promise<void> {
 		const attendances = await this.readAll();
 		const filteredAttendances = attendances.filter(
-			attendance => attendance.date !== date,
+			attendance => !LocalDate.fromString(attendance.date).equals(date),
 		);
 		await this.write(filteredAttendances);
 	}

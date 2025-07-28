@@ -7,15 +7,16 @@ import {getCommentWithPrefill} from '../jira/utils.js';
 import {uiLogger} from '../utils/logger.js';
 import {LocalDate} from '../domain/LocalDate.js';
 import {Duration} from '../domain/Duration.js';
+import {IssueKey} from '../domain/IssueKey.js';
 import DurationInput from './WorklogForm/DurationInput.js';
 
 type InlineWorklogFormProps = {
-	issueKey: string;
+	issueKey?: IssueKey;
 	date: LocalDate;
 	defaultTimeSpent?: Duration;
 	defaultComment?: string;
 	onSubmit: (data: {
-		issueKey: string;
+		issueKey: IssueKey;
 		timeSpent: Duration;
 		comment: string;
 		date: LocalDate;
@@ -57,7 +58,7 @@ export function InlineWorklogForm({
 		if (defaultTimeSpent) return defaultTimeSpent;
 
 		// Use the new hierarchical default resolution
-		if (config) {
+		if (config && issueKey) {
 			const defaults = resolveDefaults(config, issueKey);
 			return new Duration(defaults.time);
 		}
@@ -68,14 +69,14 @@ export function InlineWorklogForm({
 
 	// Determine default comment with recent worklog prefill
 	const getDefaultComment = () => {
-		if (!config) {
-			return '';
+		if (!config || !issueKey) {
+			return defaultComment || '';
 		}
 
 		const result = getCommentWithPrefill(config, issueKey, recentWorklogs, {
 			isEditMode,
 			explicitDefault: defaultComment,
-			referenceDate: currentDate,
+			referenceDate: new Date(currentDate.toISOString()),
 		});
 
 		return result;
@@ -84,7 +85,7 @@ export function InlineWorklogForm({
 	const [currentIssueKey, setCurrentIssueKey] = useState(issueKey);
 	const [currentDate, setCurrentDate] = useState(date);
 	const [dateInputValue, setDateInputValue] = useState(
-		date.toISOString(), // YYYY-MM-DD format
+		date.toISOString().split('T')[0], // YYYY-MM-DD format
 	);
 	const [selectedTime, setSelectedTime] = useState(() => {
 		return getDefaultTime();
@@ -99,7 +100,7 @@ export function InlineWorklogForm({
 	// Update comment when recent worklogs arrive (for comment prefilling)
 	useEffect(() => {
 		// Only update if we're not in edit mode and have config
-		if (!isEditMode && recentWorklogs.length > 0 && config) {
+		if (!isEditMode && recentWorklogs.length > 0 && config && issueKey) {
 			const newComment = getCommentWithPrefill(
 				config,
 				issueKey,
@@ -107,7 +108,7 @@ export function InlineWorklogForm({
 				{
 					isEditMode,
 					explicitDefault: defaultComment,
-					referenceDate: currentDate,
+					referenceDate: new Date(currentDate.toISOString()),
 				},
 			);
 
@@ -386,6 +387,13 @@ export function InlineWorklogForm({
 			return; // Don't submit if already submitting
 		}
 
+		// Don't submit if issue key is not set
+		if (!currentIssueKey) {
+			uiLogger.debug('InlineWorklogForm: Cannot submit without issue key');
+			submittingRef.current = false;
+			return;
+		}
+
 		// Set ref immediately (synchronous)
 		submittingRef.current = true;
 		const timeSpent = selectedTime;
@@ -455,13 +463,23 @@ export function InlineWorklogForm({
 					<Text color="yellow">Issue Key:</Text>
 					<Box marginTop={1}>
 						<TextInput
-							defaultValue={currentIssueKey}
+							defaultValue={currentIssueKey?.toString() ?? ''}
 							placeholder="e.g. DEF-123, AD-456..."
 							isDisabled={focusArea !== 'issueKey'}
-							onChange={setCurrentIssueKey}
+							onChange={value => {
+								try {
+									setCurrentIssueKey(IssueKey.fromString(value));
+								} catch {
+									// Invalid issue key, ignore for now
+								}
+							}}
 							onSubmit={value => {
-								setCurrentIssueKey(value);
-								setFocusArea('date');
+								try {
+									setCurrentIssueKey(IssueKey.fromString(value));
+									setFocusArea('date');
+								} catch {
+									// Invalid issue key, stay in this field
+								}
 							}}
 						/>
 					</Box>
@@ -515,7 +533,7 @@ export function InlineWorklogForm({
 				<Text color="yellow">Comment:</Text>
 				<Box marginTop={1}>
 					<TextInput
-						key={`comment-${comment}-${issueKey}`}
+						key={`comment-${comment}-${issueKey?.toString() ?? 'unknown'}`}
 						defaultValue={comment}
 						placeholder="Enter work description..."
 						isDisabled={focusArea !== 'comment'}

@@ -1,4 +1,5 @@
 import test from 'ava';
+import {IssueKey} from '../../domain/IssueKey.js';
 import {IssueGroupManager} from '../../services/IssueGroupManager.js';
 import type {JiraConfig} from '../../jira-client.js';
 
@@ -27,7 +28,7 @@ test('IssueGroupManager - groups issues by resolved groups', t => {
 		],
 		favorites: [
 			{
-				key: 'PROJ-123',
+				key: IssueKey.fromString('PROJ-123'),
 				groupId: 'backend',
 			},
 		],

@@ -1,4 +1,5 @@
 import test from 'ava';
+import {IssueKey} from '../../domain/IssueKey.js';
 import {WeeklyWorklogSummaryUseCase} from '../../use-cases/WeeklyWorklogSummaryUseCase.js';
 import {createMockJiraClient} from './WeeklyWorklogSummaryUseCase.testutils.js';
 
@@ -20,7 +21,7 @@ test('WeeklyWorklogSummaryUseCase includes favorite issues without worklogs', as
 		issues: [
 			{
 				id: '263906',
-				key: 'TEST-117',
+				key: IssueKey.fromString('TEST-117'),
 				fields: {
 					summary: 'Issue with worklog',
 					status: {name: 'In Progress', statusCategory: {name: 'In Progress'}},
@@ -42,24 +43,10 @@ test('WeeklyWorklogSummaryUseCase includes favorite issues without worklogs', as
 	client.fetchFavoriteIssues = async _favorites => [
 		{
 			id: '999999',
-			key: 'FAV-123',
+			key: IssueKey.fromString('FAV-123'),
 			fields: {
 				summary: 'Favorite issue without worklog',
 				status: {name: 'Open', statusCategory: {name: 'To Do'}},
-				issuetype: {name: 'Task', iconUrl: ''},
-				priority: {name: 'Medium', iconUrl: ''},
-				assignee: {displayName: 'Test User', emailAddress: 'user1@example.com'},
-				description: '',
-				created: '2024-01-01T00:00:00.000Z',
-				updated: '2024-01-01T00:00:00.000Z',
-			},
-		},
-		{
-			id: '263906',
-			key: 'TEST-117',
-			fields: {
-				summary: 'Issue with worklog',
-				status: {name: 'In Progress', statusCategory: {name: 'In Progress'}},
 				issuetype: {name: 'Task', iconUrl: ''},
 				priority: {name: 'Medium', iconUrl: ''},
 				assignee: {displayName: 'Test User', emailAddress: 'user1@example.com'},
@@ -72,7 +59,9 @@ test('WeeklyWorklogSummaryUseCase includes favorite issues without worklogs', as
 
 	// Mock worklog responses
 	client.getIssueWorklogs = async issueKey => {
-		if (issueKey === 'TEST-117') {
+		const issueKeyString =
+			typeof issueKey === 'string' ? issueKey : issueKey.toString();
+		if (issueKeyString === 'TEST-117') {
 			return {
 				startAt: 0,
 				maxResults: 20,
@@ -93,7 +82,7 @@ test('WeeklyWorklogSummaryUseCase includes favorite issues without worklogs', as
 			};
 		}
 
-		if (issueKey === 'FAV-123') {
+		if (issueKeyString === 'FAV-123') {
 			// No worklogs for this favorite issue
 			return {
 				startAt: 0,
@@ -107,8 +96,7 @@ test('WeeklyWorklogSummaryUseCase includes favorite issues without worklogs', as
 	};
 
 	const favoriteIssues = [
-		{key: 'FAV-123', defaultTime: '4h'},
-		{key: 'TEST-117', defaultTime: '2h'},
+		{key: IssueKey.fromString('FAV-123'), defaultTime: '4h'},
 	];
 
 	const result = await useCase.execute({
@@ -125,8 +113,12 @@ test('WeeklyWorklogSummaryUseCase includes favorite issues without worklogs', as
 
 	// Find the issues in the results
 	const {issues} = result.dailySummaries[0]!;
-	const testIssue = issues.find(issue => issue.issueKey === 'TEST-117');
-	const favIssue = issues.find(issue => issue.issueKey === 'FAV-123');
+	const testIssue = issues.find(
+		issue => issue.issueKey.toString() === 'TEST-117',
+	);
+	const favIssue = issues.find(
+		issue => issue.issueKey.toString() === 'FAV-123',
+	);
 
 	t.truthy(testIssue, 'TEST-117 should be present');
 	t.truthy(favIssue, 'FAV-123 should be present');

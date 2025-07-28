@@ -1,4 +1,5 @@
 import test from 'ava';
+import {IssueKey} from '../domain/IssueKey.js';
 import {JiraClient} from '../jira-client.js';
 import type {JiraConfig} from '../jira-client.js';
 
@@ -45,7 +46,7 @@ test('hasWorklogForToday returns true when worklogs exist', async t => {
 			issues: [
 				{
 					id: '1',
-					key: 'TEST-123',
+					key: IssueKey.fromString('TEST-123'),
 					fields: {} as any,
 				},
 			],

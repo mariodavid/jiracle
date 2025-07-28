@@ -1,4 +1,5 @@
 import type {JiraIssue, JiraConfig, FavoriteIssue} from '../../jira-client.js';
+import {IssueKey} from '../../domain/IssueKey.js';
 
 /**
  * Factory function to create mock JiraIssue objects
@@ -6,7 +7,7 @@ import type {JiraIssue, JiraConfig, FavoriteIssue} from '../../jira-client.js';
 export function createMockIssue(overrides: Partial<JiraIssue> = {}): JiraIssue {
 	return {
 		id: '1',
-		key: 'TEST-123',
+		key: IssueKey.fromString('TEST-123'),
 		fields: {
 			summary: 'Test Issue Summary',
 			status: {
@@ -42,7 +43,10 @@ export function createMockConfig(
 		jiraUrl: 'https://jira.example.com/',
 		username: 'test@example.com',
 		apiToken: 'test-token',
-		favorites: [{key: 'TEST-123'}, {key: 'TEST-456'}],
+		favorites: [
+			{key: IssueKey.fromString('TEST-123')},
+			{key: IssueKey.fromString('TEST-456')},
+		],
 		...overrides,
 	};
 }
@@ -54,7 +58,7 @@ export function createMockFavorite(
 	overrides: Partial<FavoriteIssue> = {},
 ): FavoriteIssue {
 	return {
-		key: 'FAV-123',
+		key: IssueKey.fromString('FAV-123'),
 		defaultComment: 'Working on favorite issue',
 		...overrides,
 	};
@@ -67,7 +71,7 @@ export function createMockIssueList(count = 3): JiraIssue[] {
 	return Array.from({length: count}, (_, index) =>
 		createMockIssue({
 			id: String(index + 1),
-			key: `TEST-${123 + index}`,
+			key: IssueKey.fromString(`TEST-${123 + index}`),
 			fields: {
 				...createMockIssue().fields,
 				summary: `Test Issue ${index + 1}`,
@@ -240,8 +244,14 @@ export const hookTestUtils = {
 	 */
 	createTestFavorites(): FavoriteIssue[] {
 		return [
-			createMockFavorite({key: 'TEST-1', defaultTime: '2h'}),
-			createMockFavorite({key: 'TEST-2', defaultTime: '4h'}),
+			createMockFavorite({
+				key: IssueKey.fromString('TEST-1'),
+				defaultTime: '2h',
+			}),
+			createMockFavorite({
+				key: IssueKey.fromString('TEST-2'),
+				defaultTime: '4h',
+			}),
 		];
 	},
 

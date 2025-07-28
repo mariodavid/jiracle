@@ -2,36 +2,32 @@ import type {
 	WorklogEntry as ApiWorklogEntry,
 	WorklogRequest,
 } from '../jira/types.js';
-import {LocalDate} from './LocalDate.js';
+import {IssueKey} from './IssueKey.js';
 
 type WorklogEntryData = {
 	id: string;
-	issueKey: string;
+	issueKey: IssueKey;
 	duration: number;
 	comment: string;
-	date: LocalDate;
+	date: Date;
 	author: {displayName: string; emailAddress: string};
 };
 
 type CreateWorklogOptions = {
-	issueKey: string;
+	issueKey: string | IssueKey;
 	duration: number;
 	comment: string;
-	date: LocalDate;
+	date: Date;
 	author: {displayName: string; emailAddress: string};
 };
 
 export class WorklogEntry {
 	static create(options: CreateWorklogOptions): WorklogEntry {
-		if (!options.issueKey || options.issueKey.trim() === '') {
-			throw new Error('Issue key is required and cannot be empty');
-		}
-
-		if (!/^[a-z]+-\d+$/i.test(options.issueKey.trim())) {
-			throw new Error(
-				'Invalid issue key format. Expected format: PROJECT-123 (e.g., DEF-123, ABC-456).',
-			);
-		}
+		// Validate and normalize issue key using domain object
+		const validatedIssueKey =
+			typeof options.issueKey === 'string'
+				? IssueKey.fromString(options.issueKey)
+				: options.issueKey;
 
 		if (options.duration <= 0) {
 			throw new Error('Duration must be greater than 0');
@@ -46,25 +42,25 @@ export class WorklogEntry {
 
 		return new WorklogEntry({
 			id,
-			issueKey: options.issueKey.trim().toUpperCase(),
+			issueKey: validatedIssueKey,
 			duration: Math.round(options.duration),
 			comment: options.comment.trim(),
-			date: options.date,
+			date: new Date(options.date),
 			author: {...options.author},
 		});
 	}
 
 	static fromApiResponse(
 		apiEntry: ApiWorklogEntry,
-		issueKey: string,
+		issueKey: string | IssueKey,
 	): WorklogEntry {
 		if (!apiEntry.id) {
 			throw new Error('API worklog entry must have an id');
 		}
 
-		if (!issueKey || issueKey.trim() === '') {
-			throw new Error('Issue key is required when creating from API response');
-		}
+		// Validate and normalize issue key using domain object
+		const validatedIssueKey =
+			typeof issueKey === 'string' ? IssueKey.fromString(issueKey) : issueKey;
 
 		const startedDate = new Date(apiEntry.started);
 		if (Number.isNaN(startedDate.getTime())) {
@@ -73,19 +69,19 @@ export class WorklogEntry {
 
 		return new WorklogEntry({
 			id: apiEntry.id,
-			issueKey: issueKey.trim().toUpperCase(),
+			issueKey: validatedIssueKey,
 			duration: apiEntry.timeSpentSeconds,
 			comment: apiEntry.comment ?? '',
-			date: LocalDate.fromDate(startedDate),
+			date: startedDate,
 			author: {...apiEntry.author},
 		});
 	}
 
 	private readonly _id: string;
-	private readonly _issueKey: string;
+	private readonly _issueKey: IssueKey;
 	private readonly _duration: number; // TimeSpentSeconds
 	private readonly _comment: string;
-	private readonly _date: LocalDate;
+	private readonly _date: Date;
 	private readonly _author: {
 		displayName: string;
 		emailAddress: string;
@@ -104,8 +100,15 @@ export class WorklogEntry {
 		return this._id;
 	}
 
-	get issueKey(): string {
+	get issueKey(): IssueKey {
 		return this._issueKey;
+	}
+
+	/**
+	 * Get issue key as string for backward compatibility
+	 */
+	get issueKeyString(): string {
+		return this._issueKey.toString();
 	}
 
 	get duration(): number {
@@ -120,8 +123,8 @@ export class WorklogEntry {
 		return this._comment;
 	}
 
-	get date(): LocalDate {
-		return this._date;
+	get date(): Date {
+		return new Date(this._date);
 	}
 
 	get author(): {displayName: string; emailAddress: string} {
@@ -171,13 +174,14 @@ export class WorklogEntry {
 	}
 
 	isSameDay(other: WorklogEntry | Date): boolean {
-		const otherDate =
-			other instanceof WorklogEntry ? other._date : LocalDate.fromDate(other);
-		return this._date.equals(otherDate);
+		const otherDate = other instanceof WorklogEntry ? other._date : other;
+		const thisDateString = this._date.toISOString().split('T')[0];
+		const otherDateString = otherDate.toISOString().split('T')[0];
+		return thisDateString === otherDateString;
 	}
 
 	toApiRequest(): WorklogRequest {
-		const startedDateTime = this._date.toDate();
+		const startedDateTime = new Date(this._date);
 		startedDateTime.setUTCHours(9, 0, 0, 0);
 
 		return {
@@ -205,20 +209,20 @@ export class WorklogEntry {
 	equals(other: WorklogEntry): boolean {
 		return (
 			this._id === other._id &&
-			this._issueKey === other._issueKey &&
+			this._issueKey.equals(other._issueKey) &&
 			this._duration === other._duration &&
 			this._comment === other._comment &&
-			this._date.equals(other._date) &&
+			this._date.getTime() === other._date.getTime() &&
 			this._author.emailAddress === other._author.emailAddress
 		);
 	}
 
 	toString(): string {
-		const dateString = this._date.toISOString();
+		const dateString = this._date.toISOString().split('T')[0];
 		const timeSpent = String(this.formatDurationAsTimeSpent());
 		return [
 			'WorklogEntry(',
-			String(this._issueKey),
+			this._issueKey.toString(),
 			', ',
 			timeSpent,
 			', ',

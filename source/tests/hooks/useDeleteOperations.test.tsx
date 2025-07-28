@@ -9,6 +9,7 @@ import {
 import type {JiraConfig} from '../../jira-client.js';
 import type {AttendanceManager} from '../../attendance/AttendanceManager.js';
 import {LocalDate} from '../../domain/LocalDate.js';
+import {IssueKey} from '../../domain/IssueKey.js';
 
 // Mock the JiraClient module
 const mockConfig: JiraConfig = {
@@ -18,13 +19,17 @@ const mockConfig: JiraConfig = {
 	defaultTime: '4h',
 	defaultComment: 'Test work',
 	favorites: [
-		{key: 'TEST-123', defaultTime: '2h', defaultComment: 'Favorite work'},
+		{
+			key: IssueKey.fromString('TEST-123'),
+			defaultTime: '2h',
+			defaultComment: 'Favorite work',
+		},
 	],
 };
 
 // Mock AttendanceManager
 const mockAttendanceManager: Partial<AttendanceManager> = {
-	async deleteAttendance(_dateString: string) {
+	async deleteAttendance(_date: LocalDate) {
 		// Simulate successful deletion
 		return true;
 	},
@@ -50,7 +55,8 @@ function TestDeleteOperationsComponent({
 	return (
 		<Box flexDirection="column">
 			<Text>
-				DeleteCandidate: {deleteOps.deleteCandidate?.issueKey ?? 'none'}
+				DeleteCandidate:{' '}
+				{deleteOps.deleteCandidate?.issueKey.toString() ?? 'none'}
 			</Text>
 			<Text>
 				DeleteAttendanceCandidate:{' '}
@@ -116,7 +122,7 @@ test('useDeleteOperations handleCellDelete sets candidate and changes area', t =
 
 	// Call handleCellDelete
 	const testData = {
-		issueKey: 'TEST-456',
+		issueKey: IssueKey.fromString('TEST-456'),
 		date: LocalDate.fromString('2024-01-15'),
 	};
 	capturedState.handleCellDelete(testData);
@@ -196,7 +202,7 @@ test('useDeleteOperations handleDeleteConfirm cancels when not confirmed', async
 
 	// Set up a delete candidate first
 	capturedState.handleCellDelete({
-		issueKey: 'TEST-123',
+		issueKey: IssueKey.fromString('TEST-123'),
 		date: LocalDate.today(),
 	});
 	rerender(
@@ -370,7 +376,7 @@ test('useDeleteOperations candidate structures are correct', t => {
 
 	// Test delete candidate structure
 	const deleteData = {
-		issueKey: 'TEST-789',
+		issueKey: IssueKey.fromString('TEST-789'),
 		date: LocalDate.fromString('2024-02-01'),
 	};
 	capturedState.handleCellDelete(deleteData);
@@ -384,7 +390,7 @@ test('useDeleteOperations candidate structures are correct', t => {
 	);
 
 	t.truthy(capturedState.deleteCandidate);
-	t.is(capturedState.deleteCandidate.issueKey, 'TEST-789');
+	t.is(capturedState.deleteCandidate.issueKey.toString(), 'TEST-789');
 	t.true(capturedState.deleteCandidate.date instanceof LocalDate);
 
 	// Test delete attendance candidate structure

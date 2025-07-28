@@ -11,8 +11,8 @@ type IssueListProps = {
 
 export default function IssueList({issues, title, onSelect}: IssueListProps) {
 	const issueItems = issues.map(issue => ({
-		label: `${issue.key} - ${issue.fields.summary}`,
-		value: issue.key,
+		label: `${issue.key.toString()} - ${issue.fields.summary}`,
+		value: issue.key.toString(),
 	}));
 
 	return (

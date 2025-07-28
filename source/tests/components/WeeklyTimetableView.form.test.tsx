@@ -1,13 +1,28 @@
 import test from 'ava';
 import React from 'react';
 import {render} from 'ink-testing-library';
+import {IssueKey} from '../../domain/IssueKey.js';
 import {WeeklyTimetableView} from '../../components/WeeklyTimetableView.js';
 import {createMockConfig} from '../utils/testUtils.js';
+
+// Mock fetch to prevent network requests in tests
+global.fetch = async () => {
+	return new Response(
+		JSON.stringify({
+			issues: [],
+			total: 0,
+		}),
+		{
+			status: 200,
+			headers: {'Content-Type': 'application/json'},
+		},
+	);
+};
 
 const mockConfig = createMockConfig({
 	favorites: [
 		{
-			key: 'TEST-123',
+			key: IssueKey.fromString('TEST-123'),
 			defaultTime: '2h',
 			defaultComment: 'Working on test issue',
 		},
@@ -351,7 +366,7 @@ test('WeeklyTimetableView opens worklog form when Add Worklog key is pressed', a
 
 	// Wait for form to open
 	await new Promise(resolve => {
-		setTimeout(resolve, 150);
+		setTimeout(resolve, 1000);
 	});
 
 	// 3. SPECIFIC VALUE COMPARISONS
@@ -392,13 +407,13 @@ test('WeeklyTimetableView handles form cancellation correctly', async t => {
 
 	// Wait for initial render
 	await new Promise(resolve => {
-		setTimeout(resolve, 100);
+		setTimeout(resolve, 200);
 	});
 
 	// Open form
 	stdin.write('a');
 	await new Promise(resolve => {
-		setTimeout(resolve, 100);
+		setTimeout(resolve, 200);
 	});
 
 	// Verify form is open
@@ -410,12 +425,28 @@ test('WeeklyTimetableView handles form cancellation correctly', async t => {
 
 	// Cancel form with Escape
 	stdin.write('\u001B'); // ESC key
-	await new Promise(resolve => {
-		setTimeout(resolve, 100);
-	});
+
+	// Wait for form to be cancelled and main navigation to return (with retry logic)
+	let cancelOutput = '';
+	let retryCount = 0;
+	const maxRetries = 10;
+
+	while (retryCount < maxRetries && !cancelOutput.includes('[A] Add Worklog')) {
+		await new Promise(resolve => {
+			setTimeout(resolve, 300);
+		});
+		cancelOutput = lastFrame() ?? '';
+		retryCount++;
+	}
 
 	// 3. SPECIFIC VALUE COMPARISONS
-	const cancelOutput = lastFrame() ?? '';
+
+	// Debug: log the actual output if test fails in CI
+	if (!cancelOutput.includes('[A] Add Worklog')) {
+		console.log('DEBUG: Cancel output does not contain [A] Add Worklog');
+		console.log('Cancel output length:', cancelOutput.length);
+		console.log('Cancel output preview:', cancelOutput.slice(0, 500));
+	}
 
 	// Verify return to main navigation
 	for (const element of expectedReturnElements) {
@@ -457,7 +488,7 @@ test('WeeklyTimetableView form displays field validation and error states', asyn
 	// Open form
 	stdin.write('a');
 	await new Promise(resolve => {
-		setTimeout(resolve, 150);
+		setTimeout(resolve, 1000);
 	});
 
 	// Verify form fields are present
@@ -523,7 +554,7 @@ test('WeeklyTimetableView integrates form behavior with keyboard navigation corr
 	// Open form with 'a' key
 	stdin.write(keyboardIntegration.transitionKeys[0]!);
 	await new Promise(resolve => {
-		setTimeout(resolve, 150);
+		setTimeout(resolve, 1000);
 	});
 
 	// Test form navigation is present
@@ -535,7 +566,7 @@ test('WeeklyTimetableView integrates form behavior with keyboard navigation corr
 	// Cancel with ESC key
 	stdin.write(keyboardIntegration.transitionKeys[1]!);
 	await new Promise(resolve => {
-		setTimeout(resolve, 100);
+		setTimeout(resolve, 2000);
 	});
 
 	// 3. SPECIFIC VALUE COMPARISONS

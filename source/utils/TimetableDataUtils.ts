@@ -28,17 +28,18 @@ export function buildIssueMap(
 		const dateKey = dailySummary.date.toISOString();
 
 		for (const issue of dailySummary.issues) {
-			if (!issueMap[issue.issueKey]) {
-				issueMap[issue.issueKey] = {
+			const issueKeyString = issue.issueKey.toString();
+			if (!issueMap[issueKeyString]) {
+				issueMap[issueKeyString] = {
 					summary: issue.issueSummary,
 					dailyHours: {},
 					weekTotal: 0,
 				};
 			}
 
-			issueMap[issue.issueKey]!.dailyHours[dateKey] =
-				(issueMap[issue.issueKey]!.dailyHours[dateKey] ?? 0) + issue.hours;
-			issueMap[issue.issueKey]!.weekTotal += issue.hours;
+			issueMap[issueKeyString]!.dailyHours[dateKey] =
+				(issueMap[issueKeyString]!.dailyHours[dateKey] ?? 0) + issue.hours;
+			issueMap[issueKeyString]!.weekTotal += issue.hours;
 		}
 	}
 
@@ -51,8 +52,8 @@ export function buildIssueMapFromFavorites(
 	const issueMap: Record<string, IssueData> = {};
 
 	for (const favorite of favoriteIssues) {
-		issueMap[favorite.key] = {
-			summary: `Favorite: ${favorite.key}`,
+		issueMap[favorite.key.toString()] = {
+			summary: `Favorite: ${favorite.key.toString()}`,
 			dailyHours: {},
 			weekTotal: 0,
 		};

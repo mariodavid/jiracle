@@ -1,4 +1,5 @@
 import type {AttendanceConfig} from '../attendance/types.js';
+import type {IssueKey} from '../domain/IssueKey.js';
 
 export type Group = {
 	id: string;
@@ -10,7 +11,7 @@ export type Group = {
 };
 
 export type FavoriteIssue = {
-	key: string;
+	key: IssueKey;
 	alias?: string;
 	defaultComment?: string;
 	defaultTime?: string;
@@ -76,7 +77,7 @@ export type JiraIssueField = {
 
 export type JiraIssue = {
 	id: string;
-	key: string;
+	key: IssueKey;
 	fields: JiraIssueField;
 };
 

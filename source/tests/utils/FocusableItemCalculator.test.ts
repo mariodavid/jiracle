@@ -1,4 +1,6 @@
 import test from 'ava';
+import type {AttendanceManager} from '../../attendance/AttendanceManager.js';
+import type {IssueGroup} from '../../services/IssueGroupManager.js';
 import {
 	calculateFocusableItems,
 	findFocusableItem,
@@ -9,8 +11,6 @@ import {
 	type FocusableItem,
 	type FocusableItemCalculatorOptions,
 } from '../../utils/FocusableItemCalculator.js';
-import type {AttendanceManager} from '../../attendance/AttendanceManager.js';
-import type {IssueGroup} from '../../services/IssueGroupManager.js';
 
 // Test data factories
 const createMockAttendanceManager = (): AttendanceManager => {

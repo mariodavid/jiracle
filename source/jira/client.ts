@@ -1,5 +1,6 @@
 import process from 'node:process';
 import type winston from 'winston';
+import {IssueKey} from '../domain/IssueKey.js';
 import type {
 	JiraConfig,
 	JiraIssue,
@@ -11,7 +12,7 @@ import type {
 import {getFavoriteKeys} from './utils.js';
 import {JiraHttpClient} from './http-client.js';
 import {createJiraLogger} from './logger.js';
-import {validateConfiguration, validateIssueKey} from './validation.js';
+import {validateConfiguration} from './validation.js';
 
 export class JiraClient {
 	readonly jiraUrl: string;
@@ -127,18 +128,19 @@ export class JiraClient {
 		);
 
 		const sortedIssues = favoriteKeys
-			.map(key => data.issues.find(issue => issue.key === key))
+			.map(key => data.issues.find(issue => issue.key.toString() === key))
 			.filter((issue): issue is JiraIssue => issue !== undefined);
 
 		return sortedIssues;
 	}
 
-	async fetchIssue(issueKey: string): Promise<JiraIssue> {
-		return this.httpClient.get<JiraIssue>(`/issue/${issueKey}`);
+	async fetchIssue(issueKey: string | IssueKey): Promise<JiraIssue> {
+		const key = typeof issueKey === 'string' ? issueKey : issueKey.toString();
+		return this.httpClient.get<JiraIssue>(`/issue/${key}`);
 	}
 
 	async addWorklog(
-		issueKey: string,
+		issueKey: string | IssueKey,
 		worklogData: WorklogRequest,
 	): Promise<void> {
 		const validation = validateConfiguration({
@@ -150,22 +152,26 @@ export class JiraClient {
 			throw new Error(`Configuration errors: ${validation.errors.join(', ')}`);
 		}
 
-		validateIssueKey(issueKey);
-		const trimmedIssueKey = issueKey.trim();
+		// Validate and normalize issue key using domain object
+		const validatedIssueKey =
+			typeof issueKey === 'string' ? IssueKey.fromString(issueKey) : issueKey;
 
 		await this.httpClient.post(
-			`/issue/${trimmedIssueKey}/worklog`,
+			`/issue/${validatedIssueKey.toString()}/worklog`,
 			worklogData,
 		);
 	}
 
-	async getIssueWorklogs(issueKey: string): Promise<WorklogResponse> {
-		const worklogUrl = `${this.baseUrl}/issue/${issueKey}/worklog`;
+	async getIssueWorklogs(
+		issueKey: string | IssueKey,
+	): Promise<WorklogResponse> {
+		const key = typeof issueKey === 'string' ? issueKey : issueKey.toString();
+		const worklogUrl = `${this.baseUrl}/issue/${key}/worklog`;
 
 		this.logger.info('Fetching issue worklogs', {
 			method: 'GET',
 			url: worklogUrl,
-			issueKey,
+			issueKey: key,
 		});
 
 		try {
@@ -202,20 +208,24 @@ export class JiraClient {
 			this.logger.error('Error fetching issue worklogs', {
 				method: 'GET',
 				url: worklogUrl,
-				issueKey,
+				issueKey: key,
 				error: error instanceof Error ? error.message : 'Unknown error',
 			});
 			throw error;
 		}
 	}
 
-	async deleteWorklog(issueKey: string, worklogId: string): Promise<void> {
-		const deleteUrl = `${this.baseUrl}/issue/${issueKey}/worklog/${worklogId}`;
+	async deleteWorklog(
+		issueKey: string | IssueKey,
+		worklogId: string,
+	): Promise<void> {
+		const key = typeof issueKey === 'string' ? issueKey : issueKey.toString();
+		const deleteUrl = `${this.baseUrl}/issue/${key}/worklog/${worklogId}`;
 
 		this.logger.info('Deleting worklog', {
 			method: 'DELETE',
 			url: deleteUrl,
-			issueKey,
+			issueKey: key,
 			worklogId,
 		});
 
@@ -233,7 +243,7 @@ export class JiraClient {
 				this.logger.error('Failed to delete worklog', {
 					method: 'DELETE',
 					url: deleteUrl,
-					issueKey,
+					issueKey: key,
 					worklogId,
 					status: response.status,
 					error: errorText,
@@ -244,7 +254,7 @@ export class JiraClient {
 			this.logger.info('Successfully deleted worklog', {
 				method: 'DELETE',
 				url: deleteUrl,
-				issueKey,
+				issueKey: key,
 				worklogId,
 				status: response.status,
 			});
@@ -252,7 +262,7 @@ export class JiraClient {
 			this.logger.error('Error deleting worklog', {
 				method: 'DELETE',
 				url: deleteUrl,
-				issueKey,
+				issueKey: key,
 				worklogId,
 				error: error instanceof Error ? error.message : 'Unknown error',
 			});
@@ -261,7 +271,7 @@ export class JiraClient {
 	}
 
 	async updateWorklog(
-		issueKey: string,
+		issueKey: string | IssueKey,
 		worklogId: string,
 		worklogData: WorklogRequest,
 	): Promise<void> {
@@ -274,8 +284,9 @@ export class JiraClient {
 			throw new Error(`Configuration errors: ${validation.errors.join(', ')}`);
 		}
 
-		validateIssueKey(issueKey);
-		const trimmedIssueKey = issueKey.trim();
+		// Validate and normalize issue key using domain object
+		const validatedIssueKey =
+			typeof issueKey === 'string' ? IssueKey.fromString(issueKey) : issueKey;
 
 		if (
 			!worklogId ||
@@ -286,7 +297,7 @@ export class JiraClient {
 		}
 
 		await this.httpClient.put(
-			`/issue/${trimmedIssueKey}/worklog/${worklogId}`,
+			`/issue/${validatedIssueKey.toString()}/worklog/${worklogId}`,
 			worklogData,
 		);
 	}
@@ -328,7 +339,21 @@ export class JiraClient {
 				throw new Error(`Jira API error: ${response.status} - ${errorText}`);
 			}
 
-			const data = (await response.json()) as JiraSearchResponse;
+			const rawData = (await response.json()) as {
+				issues: Array<{key: string; id: string; fields: any}>;
+				startAt: number;
+				maxResults: number;
+				total: number;
+			};
+
+			// Transform the raw API response to use IssueKey objects
+			const data: JiraSearchResponse = {
+				...rawData,
+				issues: rawData.issues.map(issue => ({
+					...issue,
+					key: IssueKey.fromString(issue.key),
+				})),
+			};
 			this.logger.info('Successfully searched issues with worklogs', {
 				method: 'POST',
 				url: searchUrl,

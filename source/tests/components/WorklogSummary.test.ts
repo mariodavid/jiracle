@@ -1,6 +1,7 @@
 import test from 'ava';
 import React from 'react';
 import {render} from 'ink-testing-library';
+import {IssueKey} from '../../domain/IssueKey.js';
 import WorklogSummary from '../../components/WorklogSummary.js';
 import {createMockIssue} from '../utils/testUtils.js';
 import {InkTestHelpers} from '../utils/ink-test-helpers.js';
@@ -23,7 +24,7 @@ test('should render submitting variant correctly', async t => {
 
 test('should render success variant with all worklog details', async t => {
 	const mockIssue = createMockIssue({
-		key: 'TEST-456',
+		key: IssueKey.fromString('TEST-456'),
 		fields: {
 			...createMockIssue().fields,
 			summary: 'Test issue for worklog',

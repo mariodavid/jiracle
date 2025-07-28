@@ -1,6 +1,7 @@
 // Domain models for the weekly worklog timetable feature
 // Translated from Java records in the timesheets reference implementation
 
+import type {IssueKey} from './IssueKey.js';
 import type {LocalDate} from './LocalDate.js';
 
 export type WeeklyWorklogSummary = {
@@ -17,7 +18,7 @@ export type DailyWorklogSummary = {
 };
 
 export type IssueWorklogEntry = {
-	issueKey: string;
+	issueKey: IssueKey;
 	issueSummary: string;
 	hours: number;
 	// Optional worklog ID - only set when there's exactly one worklog for this issue/date
@@ -50,7 +51,7 @@ export type WorklogEntry = {
 export type IssueWithWorklogs = {
 	issue: {
 		id: string;
-		key: string;
+		key: IssueKey;
 		fields: {
 			summary: string;
 		};

@@ -1,6 +1,7 @@
 import test from 'ava';
 import React from 'react';
 import {render} from 'ink-testing-library';
+import {IssueKey} from '../../domain/IssueKey.js';
 import {TimetableGrid} from '../../components/TimetableGrid.js';
 import type {WeeklyWorklogSummary} from '../../domain/WeeklyWorklogSummary.js';
 import {LocalDate} from '../../domain/LocalDate.js';
@@ -35,7 +36,7 @@ test('TimetableGrid shows attendance with working hours calculation', async t =>
 
 	const favoriteIssues = [
 		{
-			key: 'TEST-123',
+			key: IssueKey.fromString('TEST-123'),
 			defaultTime: '4h',
 		},
 	];
@@ -95,7 +96,7 @@ test('TimetableGrid calculates working hours with different break times', async 
 
 	const favoriteIssues = [
 		{
-			key: 'TEST-123',
+			key: IssueKey.fromString('TEST-123'),
 			defaultTime: '4h',
 		},
 	];
@@ -160,7 +161,7 @@ test('TimetableGrid uses config default break time when not specified', async t 
 
 	const favoriteIssues = [
 		{
-			key: 'TEST-123',
+			key: IssueKey.fromString('TEST-123'),
 			defaultTime: '4h',
 		},
 	];
@@ -215,7 +216,7 @@ test('TimetableGrid shows delta row with positive values in red', async t => {
 				totalHours: 8, // Logged more than attended
 				issues: [
 					{
-						issueKey: 'TEST-123',
+						issueKey: IssueKey.fromString('TEST-123'),
 						issueSummary: 'Test work',
 						hours: 8,
 					},
@@ -227,7 +228,7 @@ test('TimetableGrid shows delta row with positive values in red', async t => {
 
 	const favoriteIssues = [
 		{
-			key: 'TEST-123',
+			key: IssueKey.fromString('TEST-123'),
 			defaultTime: '4h',
 		},
 	];
@@ -278,7 +279,7 @@ test('TimetableGrid shows delta row with zero values in green', async t => {
 				totalHours: 8.5, // Logged exactly same as attended
 				issues: [
 					{
-						issueKey: 'TEST-123',
+						issueKey: IssueKey.fromString('TEST-123'),
 						issueSummary: 'Test work',
 						hours: 8.5,
 					},
@@ -290,7 +291,7 @@ test('TimetableGrid shows delta row with zero values in green', async t => {
 
 	const favoriteIssues = [
 		{
-			key: 'TEST-123',
+			key: IssueKey.fromString('TEST-123'),
 			defaultTime: '4h',
 		},
 	];
@@ -342,7 +343,7 @@ test('TimetableGrid shows delta row with negative values in red', async t => {
 				totalHours: 8, // Logged less than attended
 				issues: [
 					{
-						issueKey: 'TEST-123',
+						issueKey: IssueKey.fromString('TEST-123'),
 						issueSummary: 'Test work',
 						hours: 8,
 					},
@@ -354,7 +355,7 @@ test('TimetableGrid shows delta row with negative values in red', async t => {
 
 	const favoriteIssues = [
 		{
-			key: 'TEST-123',
+			key: IssueKey.fromString('TEST-123'),
 			defaultTime: '4h',
 		},
 	];
@@ -397,7 +398,7 @@ test('TimetableGrid shows dash in delta row when no attendance data', async t =>
 				totalHours: 8,
 				issues: [
 					{
-						issueKey: 'TEST-123',
+						issueKey: IssueKey.fromString('TEST-123'),
 						issueSummary: 'Test work',
 						hours: 8,
 					},
@@ -409,7 +410,7 @@ test('TimetableGrid shows dash in delta row when no attendance data', async t =>
 
 	const favoriteIssues = [
 		{
-			key: 'TEST-123',
+			key: IssueKey.fromString('TEST-123'),
 			defaultTime: '4h',
 		},
 	];
@@ -468,7 +469,7 @@ test('TimetableGrid shows attendance and delta rows at bottom after daily total'
 				totalHours: 8,
 				issues: [
 					{
-						issueKey: 'TEST-123',
+						issueKey: IssueKey.fromString('TEST-123'),
 						issueSummary: 'Test work',
 						hours: 8,
 					},
@@ -480,7 +481,7 @@ test('TimetableGrid shows attendance and delta rows at bottom after daily total'
 
 	const favoriteIssues = [
 		{
-			key: 'TEST-123',
+			key: IssueKey.fromString('TEST-123'),
 			defaultTime: '4h',
 		},
 	];
@@ -544,7 +545,7 @@ test('TimetableGrid does not show delta row when no attendance manager', t => {
 				totalHours: 8,
 				issues: [
 					{
-						issueKey: 'TEST-123',
+						issueKey: IssueKey.fromString('TEST-123'),
 						issueSummary: 'Test work',
 						hours: 8,
 					},
@@ -556,7 +557,7 @@ test('TimetableGrid does not show delta row when no attendance manager', t => {
 
 	const favoriteIssues = [
 		{
-			key: 'TEST-123',
+			key: IssueKey.fromString('TEST-123'),
 			defaultTime: '4h',
 		},
 	];

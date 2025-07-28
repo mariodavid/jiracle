@@ -1,3 +1,4 @@
+import {IssueKey} from '../domain/IssueKey.js';
 import type {JiraConfig} from './types.js';
 
 export function validateConfiguration(config: JiraConfig): {
@@ -38,14 +39,7 @@ export function validateConfiguration(config: JiraConfig): {
 }
 
 export function validateIssueKey(issueKey: string): void {
-	if (!issueKey || typeof issueKey !== 'string' || issueKey.trim() === '') {
-		throw new Error('Issue key is required and cannot be empty');
-	}
-
-	const trimmedIssueKey = issueKey.trim();
-	if (!/^[a-z]+-\d+$/i.test(trimmedIssueKey)) {
-		throw new Error(
-			`Invalid issue key format: "${trimmedIssueKey}". Expected format: PROJECT-123 (e.g., DEF-123, ABC-456)`,
-		);
-	}
+	// Use IssueKey domain object for validation
+	// This will throw the same errors as before but uses centralized logic
+	IssueKey.fromString(issueKey);
 }

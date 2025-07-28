@@ -1,11 +1,12 @@
 import React from 'react';
 import {render} from 'ink-testing-library';
 import DurationInput from '../../components/WorklogForm/DurationInput.js';
+import {IssueKey} from '../../domain/IssueKey.js';
 
 // Shared mock data
 export const mockIssue = {
 	id: '12345',
-	key: 'TEST-123',
+	key: IssueKey.fromString('TEST-123'),
 	fields: {
 		summary: 'Test Issue',
 		status: {

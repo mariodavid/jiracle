@@ -4,6 +4,7 @@ import {
 	findWorklogEntryForIssue,
 } from '../../utils/worklog-detection.js';
 import type {IssueWorklogEntry} from '../../domain/WeeklyWorklogSummary.js';
+import {IssueKey} from '../../domain/IssueKey.js';
 
 test('detectWorklogForEdit - no worklog entry', t => {
 	const result = detectWorklogForEdit(undefined);
@@ -17,7 +18,7 @@ test('detectWorklogForEdit - no worklog entry', t => {
 
 test('detectWorklogForEdit - zero hours worklog', t => {
 	const entry: IssueWorklogEntry = {
-		issueKey: 'TEST-123',
+		issueKey: IssueKey.fromString('TEST-123'),
 		issueSummary: 'Test issue',
 		hours: 0,
 	};
@@ -33,7 +34,7 @@ test('detectWorklogForEdit - zero hours worklog', t => {
 
 test('detectWorklogForEdit - single editable worklog with ID', t => {
 	const entry: IssueWorklogEntry = {
-		issueKey: 'TEST-123',
+		issueKey: IssueKey.fromString('TEST-123'),
 		issueSummary: 'Test issue',
 		hours: 2.5,
 		worklogId: 'worklog-456',
@@ -51,7 +52,7 @@ test('detectWorklogForEdit - single editable worklog with ID', t => {
 
 test('detectWorklogForEdit - single editable worklog with empty comment', t => {
 	const entry: IssueWorklogEntry = {
-		issueKey: 'TEST-123',
+		issueKey: IssueKey.fromString('TEST-123'),
 		issueSummary: 'Test issue',
 		hours: 1,
 		worklogId: 'worklog-456',
@@ -68,7 +69,7 @@ test('detectWorklogForEdit - single editable worklog with empty comment', t => {
 
 test('detectWorklogForEdit - aggregated worklog (not editable)', t => {
 	const entry: IssueWorklogEntry = {
-		issueKey: 'TEST-123',
+		issueKey: IssueKey.fromString('TEST-123'),
 		issueSummary: 'Test issue',
 		hours: 4,
 		// No worklogId means multiple worklogs aggregated
@@ -96,7 +97,7 @@ test('detectWorklogForEdit - time spent formatting', t => {
 
 	for (const {hours, expected} of testCases) {
 		const entry: IssueWorklogEntry = {
-			issueKey: 'TEST-123',
+			issueKey: IssueKey.fromString('TEST-123'),
 			issueSummary: 'Test issue',
 			hours,
 			worklogId: 'worklog-456',
@@ -114,27 +115,28 @@ test('detectWorklogForEdit - time spent formatting', t => {
 test('findWorklogEntryForIssue - finds matching issue', t => {
 	const dailyIssues: IssueWorklogEntry[] = [
 		{
-			issueKey: 'TEST-123',
+			issueKey: IssueKey.fromString('TEST-123'),
 			issueSummary: 'First issue',
 			hours: 2,
 		},
 		{
-			issueKey: 'TEST-456',
+			issueKey: IssueKey.fromString('TEST-456'),
 			issueSummary: 'Second issue',
 			hours: 3,
 			worklogId: 'worklog-789',
 		},
 		{
-			issueKey: 'TEST-789',
+			issueKey: IssueKey.fromString('TEST-789'),
 			issueSummary: 'Third issue',
 			hours: 1,
 		},
 	];
 
-	const result = findWorklogEntryForIssue('TEST-456', dailyIssues);
+	const testIssueKey = IssueKey.fromString('TEST-456');
+	const result = findWorklogEntryForIssue(testIssueKey, dailyIssues);
 
 	t.truthy(result);
-	t.is(result!.issueKey, 'TEST-456');
+	t.true(result!.issueKey.equals(testIssueKey));
 	t.is(result!.issueSummary, 'Second issue');
 	t.is(result!.hours, 3);
 	t.is(result!.worklogId, 'worklog-789');
@@ -143,26 +145,29 @@ test('findWorklogEntryForIssue - finds matching issue', t => {
 test('findWorklogEntryForIssue - returns undefined for non-existent issue', t => {
 	const dailyIssues: IssueWorklogEntry[] = [
 		{
-			issueKey: 'TEST-123',
+			issueKey: IssueKey.fromString('TEST-123'),
 			issueSummary: 'First issue',
 			hours: 2,
 		},
 	];
 
-	const result = findWorklogEntryForIssue('NONEXISTENT-999', dailyIssues);
+	const result = findWorklogEntryForIssue(
+		IssueKey.fromString('NONEXISTENT-999'),
+		dailyIssues,
+	);
 
 	t.is(result, undefined);
 });
 
 test('findWorklogEntryForIssue - empty array', t => {
-	const result = findWorklogEntryForIssue('TEST-123', []);
+	const result = findWorklogEntryForIssue(IssueKey.fromString('TEST-123'), []);
 
 	t.is(result, undefined);
 });
 
 test('detectWorklogForEdit - edge case with very small hours', t => {
 	const entry: IssueWorklogEntry = {
-		issueKey: 'TEST-123',
+		issueKey: IssueKey.fromString('TEST-123'),
 		issueSummary: 'Test issue',
 		hours: 0.01,
 		worklogId: 'worklog-456',

@@ -2,6 +2,7 @@ import {readFileSync, writeFileSync, mkdirSync, rmSync} from 'node:fs';
 import {homedir} from 'node:os';
 import {join} from 'node:path';
 import test from 'ava';
+import {IssueKey} from '../../domain/IssueKey.js';
 import {loadJiraConfig} from '../../utils/config-loader.js';
 
 const temporaryConfigDirectory = join(homedir(), '.config-test-temp');
@@ -136,7 +137,7 @@ test('loadJiraConfig - handles complex config with nested objects', t => {
 		],
 		favorites: [
 			{
-				key: 'TEST-123',
+				key: IssueKey.fromString('TEST-123'),
 				defaultTime: '2h',
 			},
 		],

@@ -183,7 +183,9 @@ export default function DurationInput({
 			{selectedIssue && (
 				<>
 					<Text key="selected-issue" color="green">
-						Selected: {selectedIssue.key} - {selectedIssue.fields.summary}
+						Selected: {selectedIssue.key.toString()}
+						{' - '}
+						{selectedIssue.fields.summary}
 					</Text>
 					<Text key="spacer-issue"> </Text>
 				</>

@@ -1,9 +1,10 @@
 import type {AttendanceManager} from '../attendance/AttendanceManager.js';
 import type {IssueGroup} from '../services/IssueGroupManager.js';
+import type {IssueKey} from '../domain/IssueKey.js';
 
 export type FocusableItem = {
 	focusId: string;
-	issueKey: string;
+	issueKey: string; // Still keep as string for attendance compatibility
 	columnIndex: number;
 	isAttendance: boolean;
 };
@@ -79,9 +80,11 @@ export function getFocusableItemsByColumn(
 
 export function getFocusableItemsByIssue(
 	items: FocusableItem[],
-	issueKey: string,
+	issueKey: string | IssueKey,
 ): FocusableItem[] {
-	return items.filter(item => item.issueKey === issueKey);
+	const issueKeyString =
+		typeof issueKey === 'string' ? issueKey : issueKey.toString();
+	return items.filter(item => item.issueKey === issueKeyString);
 }
 
 export function getFocusableItemIndex(

@@ -5,6 +5,7 @@ import {
 	type WorklogEntry,
 } from '../jira-client.js';
 import {LocalDate} from '../domain/LocalDate.js';
+import {IssueKey} from '../domain/IssueKey.js';
 import {uiLogger} from '../utils/logger.js';
 import {
 	type WeeklyWorklogSummary,
@@ -99,7 +100,7 @@ export class WeeklyWorklogSummaryUseCase {
 				foundFutureIssues: futureSearchResults.issues.length,
 				totalSlidingWindowIssues: slidingWindowSearchResult.issues.length,
 				issueKeys: slidingWindowSearchResult.issues.map(
-					(issue: JiraIssue): string => issue.key,
+					(issue: JiraIssue): string => issue.key.toString(),
 				),
 			});
 		}
@@ -112,11 +113,15 @@ export class WeeklyWorklogSummaryUseCase {
 
 		// Merge worklogged issues, sliding window issues, and favorite issues (avoid duplicates)
 		const allIssueKeys = new Set([
-			...searchResult.issues.map((issue: JiraIssue): string => issue.key),
-			...slidingWindowSearchResult.issues.map(
-				(issue: JiraIssue): string => issue.key,
+			...searchResult.issues.map((issue: JiraIssue): string =>
+				issue.key.toString(),
 			),
-			...favoriteIssuesData.map((issue: JiraIssue): string => issue.key),
+			...slidingWindowSearchResult.issues.map((issue: JiraIssue): string =>
+				issue.key.toString(),
+			),
+			...favoriteIssuesData.map((issue: JiraIssue): string =>
+				issue.key.toString(),
+			),
 		]);
 
 		uiLogger.debug('Issue collection summary', {
@@ -130,15 +135,16 @@ export class WeeklyWorklogSummaryUseCase {
 		const issuesWithWorklogs: IssueWithWorklogs[] = await Promise.all(
 			[...allIssueKeys].map(async issueKey => {
 				// Find issue data from either worklogs search, sliding window search, or favorites
+				const issueKeyObject = IssueKey.fromString(issueKey);
 				const worklogIssue: JiraIssue | undefined = searchResult.issues.find(
-					issue => issue.key === issueKey,
+					issue => issue.key.equals(issueKeyObject),
 				);
 				const slidingWindowIssue: JiraIssue | undefined =
-					slidingWindowSearchResult.issues.find(
-						issue => issue.key === issueKey,
+					slidingWindowSearchResult.issues.find(issue =>
+						issue.key.equals(issueKeyObject),
 					);
-				const favoriteIssue = favoriteIssuesData.find(
-					issue => issue.key === issueKey,
+				const favoriteIssue = favoriteIssuesData.find(issue =>
+					issue.key.equals(issueKeyObject),
 				);
 
 				const issueData = worklogIssue ?? slidingWindowIssue ?? favoriteIssue;
@@ -258,7 +264,7 @@ export class WeeklyWorklogSummaryUseCase {
 			for (const worklog of filteredWorklogs) {
 				const worklogDate = new Date(worklog.started);
 				const localDateKey = LocalDate.fromDate(worklogDate).toISOString();
-				const issueWorklogKey = `${issue.key}|${localDateKey}`;
+				const issueWorklogKey = `${issue.key.toString()}|${localDateKey}`;
 
 				// Track worklogs for this issue/date combination
 				if (!worklogsByIssueDate.has(issueWorklogKey)) {
@@ -274,7 +280,7 @@ export class WeeklyWorklogSummaryUseCase {
 			// Split by pipe character to separate issue key from date
 			const [issueKey, localDateKey] = issueWorklogKey.split('|');
 			const {issue} = issuesWithWorklogs.find(
-				iwl => iwl.issue.key === issueKey,
+				iwl => iwl.issue.key.toString() === issueKey,
 			)!;
 			const totalHours = worklogs.reduce(
 				(sum: number, wl): number => sum + wl.timeSpentSeconds / 3600,
@@ -304,10 +310,10 @@ export class WeeklyWorklogSummaryUseCase {
 			} else {
 				// Get date from the first worklog or fallback to current date
 				const worklogDate = worklogs[0]
-					? LocalDate.fromDate(new Date(worklogs[0].started))
-					: LocalDate.today();
+					? new Date(worklogs[0].started)
+					: new Date();
 				dailyWorklogMap.set(localDateKey!, {
-					date: worklogDate,
+					date: LocalDate.fromDate(worklogDate),
 					totalHours,
 					issues: [issueEntry],
 				});
@@ -315,8 +321,8 @@ export class WeeklyWorklogSummaryUseCase {
 		}
 
 		// Convert map to sorted array
-		return [...dailyWorklogMap.values()].sort((a, b) =>
-			a.date.toISOString().localeCompare(b.date.toISOString()),
+		return [...dailyWorklogMap.values()].sort(
+			(a, b) => a.date.toDate().getTime() - b.date.toDate().getTime(),
 		);
 	}
 
@@ -373,7 +379,7 @@ export class WeeklyWorklogSummaryUseCase {
 			} else if ('alias' in favorite && typeof favorite.alias === 'string') {
 				summary = favorite.alias;
 			} else {
-				summary = favorite.key;
+				summary = favorite.key.toString();
 			}
 
 			firstDay.issues.push({
@@ -400,16 +406,15 @@ export class WeeklyWorklogSummaryUseCase {
 			),
 		);
 		const favoriteIssueKeys = new Set(
-			favoriteIssuesData.map(
-				(fav: JiraIssue | FavoriteIssue): string => fav.key,
-			),
+			favoriteIssuesData.map((fav: JiraIssue | FavoriteIssue) => fav.key),
 		);
 
 		const slidingWindowIssuesWithoutCurrentWeekWorklogs =
 			slidingWindowIssues.filter(
 				issue =>
-					!issueKeysWithCurrentWeekWorklogs.has(issue.key) &&
-					!favoriteIssueKeys.has(issue.key),
+					![...issueKeysWithCurrentWeekWorklogs].some(key =>
+						key.equals(issue.key),
+					) && ![...favoriteIssueKeys].some(key => key.equals(issue.key)),
 			);
 
 		uiLogger.debug('Adding sliding window issues to timetable', {
@@ -419,7 +424,7 @@ export class WeeklyWorklogSummaryUseCase {
 			slidingWindowIssuesToAdd:
 				slidingWindowIssuesWithoutCurrentWeekWorklogs.length,
 			issueKeysToAdd: slidingWindowIssuesWithoutCurrentWeekWorklogs.map(
-				(issue: JiraIssue): string => issue.key,
+				(issue: JiraIssue): string => issue.key.toString(),
 			),
 		});
 

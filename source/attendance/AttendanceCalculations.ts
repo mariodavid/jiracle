@@ -1,3 +1,4 @@
+import {LocalDate} from '../domain/LocalDate.js';
 import type {Attendance, AttendanceStatus, WeeklyAttendance} from './types.js';
 
 function calculateTotalHours(attendance: Attendance): number | undefined {
@@ -126,8 +127,8 @@ function calculateStatus(
 	};
 }
 
-function getWeekDates(startDate: Date): string[] {
-	const dates: string[] = [];
+function getWeekDates(startDate: Date): LocalDate[] {
+	const dates: LocalDate[] = [];
 	const current = new Date(startDate);
 
 	// Get Monday of the week
@@ -137,7 +138,7 @@ function getWeekDates(startDate: Date): string[] {
 
 	// Generate 5 weekdays (Mon-Fri)
 	for (let i = 0; i < 5; i++) {
-		dates.push(current.toISOString().split('T')[0]!);
+		dates.push(LocalDate.fromDate(current));
 		current.setDate(current.getDate() + 1);
 	}
 

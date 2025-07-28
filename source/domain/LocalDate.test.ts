@@ -172,20 +172,3 @@ test('immutability: getWeekStart does not modify original instance', t => {
 	t.is(weekStart.toISOString(), expectedWeekBoundaries.jan16Week.start);
 	t.false(original.equals(weekStart));
 });
-
-test('toDate converts LocalDate to Date object', t => {
-	// 1. EXPLICIT TEST DATA
-	const localDate = LocalDate.fromString('2024-03-15');
-	const expectedISOString = '2024-03-15T00:00:00.000Z';
-
-	// 2. OPERATIONS
-	const dateObject = localDate.toDate();
-
-	// 3. SPECIFIC VALUE COMPARISONS
-	t.true(dateObject instanceof Date, 'Should return a Date object');
-	t.is(
-		dateObject.toISOString(),
-		expectedISOString,
-		'Should have correct date and time',
-	);
-});

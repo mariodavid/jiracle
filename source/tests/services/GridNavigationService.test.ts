@@ -7,6 +7,7 @@ import {
 	type NavigationContext,
 } from '../../services/GridNavigationService.js';
 import type {FocusableItem} from '../../utils/FocusableItemCalculator.js';
+import {IssueKey} from '../../domain/IssueKey.js';
 
 // Test data factories
 const createFocusableItem = (
@@ -24,11 +25,11 @@ const createFocusableItem = (
 
 const createGridItems = (): FocusableItem[] => [
 	// Attendance row (if present)
-	createFocusableItem('attendance-attendance', 0, true),
-	createFocusableItem('attendance-attendance', 1, true),
-	createFocusableItem('attendance-attendance', 2, true),
-	createFocusableItem('attendance-attendance', 3, true),
-	createFocusableItem('attendance-attendance', 4, true),
+	createFocusableItem('ATTEND-0', 0, true),
+	createFocusableItem('ATTEND-1', 1, true),
+	createFocusableItem('ATTEND-2', 2, true),
+	createFocusableItem('ATTEND-3', 3, true),
+	createFocusableItem('ATTEND-4', 4, true),
 	// Issue rows
 	createFocusableItem('PROJECT-123', 0),
 	createFocusableItem('PROJECT-123', 1),
@@ -58,7 +59,7 @@ const createNavigationContext = (
 	isAttendance = false,
 ): NavigationContext => ({
 	focusedCell: {
-		issueKey: focusedIssueKey,
+		issueKey: IssueKey.fromString(focusedIssueKey),
 		columnIndex: focusedColumnIndex,
 		isAttendance,
 	},
@@ -73,18 +74,13 @@ test('navigateInDirection: up navigation with wraparound', t => {
 	const result = navigateInDirection('up', context);
 
 	t.true(result.success);
-	t.is(result.targetItem!.issueKey, 'attendance-attendance');
+	t.is(result.targetItem!.issueKey, 'ATTEND-2');
 	t.is(result.targetItem!.columnIndex, 2);
 });
 
 test('navigateInDirection: up navigation from top wraps to bottom', t => {
 	const items = createGridItems();
-	const context = createNavigationContext(
-		'attendance-attendance',
-		2,
-		items,
-		true,
-	);
+	const context = createNavigationContext('ATTEND-2', 2, items, true);
 
 	const result = navigateInDirection('up', context);
 
@@ -111,7 +107,7 @@ test('navigateInDirection: down navigation from bottom wraps to top', t => {
 	const result = navigateInDirection('down', context);
 
 	t.true(result.success);
-	t.is(result.targetItem!.issueKey, 'attendance-attendance');
+	t.is(result.targetItem!.issueKey, 'ATTEND-2');
 	t.is(result.targetItem!.columnIndex, 2);
 });
 
@@ -171,7 +167,7 @@ test('navigateInDirection: invalid direction returns failure', t => {
 
 test('navigateInDirection: focused cell not found returns failure', t => {
 	const items = createGridItems();
-	const context = createNavigationContext('NONEXISTENT', 0, items);
+	const context = createNavigationContext('NOTFOUND-123', 0, items);
 
 	const result = navigateInDirection('up', context);
 
@@ -278,7 +274,7 @@ test('findInitialFocusItem: finds item in preferred column', t => {
 
 	t.truthy(result);
 	t.is(result!.columnIndex, 2);
-	t.is(result!.issueKey, 'attendance-attendance'); // First item in column 2
+	t.is(result!.issueKey, 'ATTEND-2'); // First item in column 2
 });
 
 test('findInitialFocusItem: falls back to first item when preferred column not found', t => {

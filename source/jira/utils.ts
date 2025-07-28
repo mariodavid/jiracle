@@ -1,6 +1,7 @@
 import process from 'node:process';
 import {Duration} from '../domain/Duration.js';
-import {LocalDate} from '../domain/LocalDate.js';
+import type {IssueKey} from '../domain/IssueKey.js';
+import {WorklogGroupService} from '../services/WorklogGroupService.js';
 import type {
 	JiraConfig,
 	FavoriteIssue,
@@ -10,8 +11,7 @@ import type {
 	WorklogEntry,
 } from './types.js';
 
-// Default duration fallbacks
-const DEFAULT_TIME_FALLBACK = new Duration('1h');
+// Default duration fallbacks (handled by WorklogGroupService)
 
 export function normalizeSlidingWindowConfig(
 	config: JiraConfig,
@@ -60,27 +60,35 @@ export function normalizeTimeFormat(timeString: string): string {
 }
 
 export function getFavoriteKeys(favorites: FavoriteIssue[]): string[] {
-	return favorites.map(fav => fav.key);
+	return favorites.map(fav => fav.key.toString());
 }
 
 export function getFavoriteDefaultComment(
 	favorites: FavoriteIssue[],
-	issueKey: string,
+	issueKey: string | IssueKey,
 ): string | undefined {
-	const favorite = favorites.find(fav => fav.key === issueKey);
+	const keyString =
+		typeof issueKey === 'string' ? issueKey : issueKey.toString();
+	const favorite = favorites.find(fav => fav.key.toString() === keyString);
 	return favorite?.defaultComment;
 }
 
 export function getFavoriteDefaultTime(
 	favorites: FavoriteIssue[],
-	issueKey: string,
+	issueKey: string | IssueKey,
 ): string | undefined {
-	const favorite = favorites.find(fav => fav.key === issueKey);
+	const keyString =
+		typeof issueKey === 'string' ? issueKey : issueKey.toString();
+	const favorite = favorites.find(fav => fav.key.toString() === keyString);
 	return favorite?.defaultTime;
 }
 
-export function extractProjectKey(issueKey: string): string | undefined {
-	const match = /^([A-Z]+)-\d+$/.exec(issueKey);
+export function extractProjectKey(
+	issueKey: string | IssueKey,
+): string | undefined {
+	const keyString =
+		typeof issueKey === 'string' ? issueKey : issueKey.toString();
+	const match = /^([A-Z]+)-\d+$/.exec(keyString);
 	return match ? match[1] : undefined;
 }
 
@@ -95,67 +103,19 @@ export function loadConfigWithEnvVars(config: JiraConfig): JiraConfig {
 
 export function resolveDefaults(
 	config: JiraConfig,
-	issueKey: string,
+	issueKey: IssueKey,
 ): ResolvedDefaults {
-	const favorites = config.favorites ?? [];
-	const projects = config.projects ?? [];
-	const groups = config.groups ?? [];
+	const worklogGroupService = new WorklogGroupService(config);
+	const worklogGroupResult = worklogGroupService.resolveDefaultsFor(issueKey);
 
-	const projectKey = extractProjectKey(issueKey);
-	const favorite = favorites.find(fav => fav.key === issueKey);
-	const projectDefaults = projectKey
-		? projects.find(proj => proj.key === projectKey)
-		: undefined;
-
-	let group: Group | undefined;
-	if (favorite?.groupId) {
-		group = groups.find(g => g.id === favorite.groupId);
-	} else if (projectDefaults?.groupId) {
-		group = groups.find(g => g.id === projectDefaults.groupId);
-	}
-
-	let comment = '';
-	let commentSource: 'issue' | 'group' | 'global' | 'fallback' = 'fallback';
-
-	if (favorite?.defaultComment) {
-		comment = favorite.defaultComment;
-		commentSource = 'issue';
-	} else if (group?.defaultComment) {
-		comment = group.defaultComment;
-		commentSource = 'group';
-	} else if (config.defaultComment) {
-		comment = config.defaultComment;
-		commentSource = 'global';
-	} else {
-		comment = '';
-		commentSource = 'fallback';
-	}
-
-	let time = DEFAULT_TIME_FALLBACK.toString();
-	let timeSource: 'issue' | 'group' | 'global' | 'fallback' = 'fallback';
-
-	if (favorite?.defaultTime) {
-		time = favorite.defaultTime;
-		timeSource = 'issue';
-	} else if (group?.defaultTime) {
-		time = group.defaultTime;
-		timeSource = 'group';
-	} else if (config.defaultTime) {
-		time = config.defaultTime;
-		timeSource = 'global';
-	} else {
-		time = DEFAULT_TIME_FALLBACK.toString();
-		timeSource = 'fallback';
-	}
+	// Convert WorklogGroup to Group for backward compatibility
+	const group: Group | undefined = worklogGroupResult.group?.toConfig();
 
 	return {
-		comment,
-		time,
+		comment: worklogGroupResult.comment,
+		time: worklogGroupResult.time,
 		group,
-		source: {
-			comment: commentSource,
-			time: timeSource,
-		},
+		source: worklogGroupResult.source,
 	};
 }
 
@@ -186,14 +146,10 @@ export function extractIssueKeyFromInput(input: string): string | undefined {
 export function getMostRecentCommentForIssue(
 	worklogs: WorklogEntry[],
 	daysBack = 7,
-	referenceDate: LocalDate = LocalDate.today(),
+	referenceDate: Date = new Date(),
 ): string | undefined {
-	// Create cutoff date by subtracting days from reference date
-	const referenceDateAsDate = new Date(
-		referenceDate.toISOString() + 'T00:00:00.000Z',
-	);
-	referenceDateAsDate.setDate(referenceDateAsDate.getDate() - daysBack);
-	const cutoffDate = referenceDateAsDate;
+	const cutoffDate = new Date(referenceDate);
+	cutoffDate.setDate(cutoffDate.getDate() - daysBack);
 
 	const relevantWorklogs = worklogs
 		.filter(worklog => {
@@ -210,14 +166,16 @@ export function getMostRecentCommentForIssue(
 
 export function resolveCommentPrefillDays(
 	config: JiraConfig,
-	issueKey: string,
+	issueKey: string | IssueKey,
 ): number {
 	const favorites = config.favorites ?? [];
 	const projects = config.projects ?? [];
 	const groups = config.groups ?? [];
 
 	const projectKey = extractProjectKey(issueKey);
-	const favorite = favorites.find(fav => fav.key === issueKey);
+	const keyString =
+		typeof issueKey === 'string' ? issueKey : issueKey.toString();
+	const favorite = favorites.find(fav => fav.key.toString() === keyString);
 	const projectDefaults = projectKey
 		? projects.find(proj => proj.key === projectKey)
 		: undefined;
@@ -247,12 +205,12 @@ export function resolveCommentPrefillDays(
 
 export function getCommentWithPrefill(
 	config: JiraConfig,
-	issueKey: string,
+	issueKey: IssueKey,
 	recentWorklogs: WorklogEntry[],
 	options: {
 		isEditMode: boolean;
 		explicitDefault?: string;
-		referenceDate: LocalDate;
+		referenceDate: Date;
 	},
 ): string {
 	// If explicit default comment is provided AND we're in edit mode, use it
@@ -262,9 +220,7 @@ export function getCommentWithPrefill(
 
 	// Try to find most recent comment for this issue using configured lookback days
 	const lookbackDays = resolveCommentPrefillDays(config, issueKey);
-	const cutoffDate = new Date(
-		options.referenceDate.toISOString() + 'T00:00:00.000Z',
-	);
+	const cutoffDate = new Date(options.referenceDate);
 	cutoffDate.setDate(cutoffDate.getDate() - lookbackDays);
 
 	const recentComment = getMostRecentCommentForIssue(

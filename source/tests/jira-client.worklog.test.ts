@@ -142,7 +142,12 @@ test('searchIssuesWithWorklogs builds correct request', async t => {
 		t.is(body.maxResults, 100);
 		t.deepEqual(body.fields, ['id', 'key', 'summary']);
 
-		t.deepEqual(result, mockSearchResponse);
+		// Check the transformed result structure
+		t.is(result.startAt, mockSearchResponse.startAt);
+		t.is(result.maxResults, mockSearchResponse.maxResults);
+		t.is(result.total, mockSearchResponse.total);
+		t.is(result.issues.length, 1);
+		t.is(result.issues[0]!.key.toString(), 'TEST-117');
 	} finally {
 		global.fetch = originalFetch;
 	}
@@ -343,9 +348,9 @@ test('searchIssuesWithWorklogs parses response correctly', async t => {
 		const result = await client.searchIssuesWithWorklogs(jql);
 
 		t.is(result.issues.length, 2);
-		t.is(result.issues[0]!.key, 'TEST-117');
+		t.is(result.issues[0]!.key.toString(), 'TEST-117');
 		t.is(result.issues[0]!.fields.summary, 'First Issue Summary');
-		t.is(result.issues[1]!.key, 'TEST-118');
+		t.is(result.issues[1]!.key.toString(), 'TEST-118');
 		t.is(result.issues[1]!.fields.summary, 'Second Issue Summary');
 		t.is(result.total, 2);
 	} finally {

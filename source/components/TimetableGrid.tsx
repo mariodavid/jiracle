@@ -3,6 +3,7 @@ import {Box, Text, useFocusManager} from 'ink';
 import figures from 'figures';
 import {type WeeklyWorklogSummary} from '../domain/WeeklyWorklogSummary.js';
 import {LocalDate} from '../domain/LocalDate.js';
+import {IssueKey} from '../domain/IssueKey.js';
 import type {FavoriteIssue, JiraConfig} from '../jira-client.js';
 import {type AttendanceManager} from '../attendance/AttendanceManager.js';
 import type {WeeklyAttendance} from '../attendance/types.js';
@@ -29,11 +30,11 @@ export type TimetableGridProps = {
 	data: WeeklyWorklogSummary | undefined;
 	isLoading: boolean;
 	onWeekChange?: (direction: 'prev' | 'next') => void;
-	onCellWorklog?: (data: {issueKey: string; date: LocalDate}) => void;
-	onCellDelete?: (data: {issueKey: string; date: LocalDate}) => void;
+	onCellWorklog?: (data: {issueKey: IssueKey; date: LocalDate}) => void;
+	onCellDelete?: (data: {issueKey: IssueKey; date: LocalDate}) => void;
 	onAttendanceEdit?: (data: {date: LocalDate}) => void;
 	onAttendanceDelete?: (data: {date: LocalDate}) => void;
-	onOpenInBrowser?: (issueKey: string) => void;
+	onOpenInBrowser?: (issueKey: IssueKey) => void;
 	isActive?: boolean;
 	favoriteIssues?: FavoriteIssue[];
 	config?: JiraConfig;
@@ -72,12 +73,9 @@ export function TimetableGrid({
 
 		const loadAttendanceData = async () => {
 			try {
-				if (!data?.weekStart) return;
-				// Convert weekStart to Date for attendance manager
-				const weekStartDate = new Date(data.weekStart.toISOString());
-				const weekly = await attendanceManager.getWeeklyAttendance(
-					weekStartDate,
-				);
+				// Convert to Date only at API boundary
+				const weekStart = data.weekStart.toDate();
+				const weekly = await attendanceManager.getWeeklyAttendance(weekStart);
 				setWeeklyAttendance(weekly);
 			} catch (error: unknown) {
 				console.error('Failed to load attendance data:', error);
@@ -92,8 +90,12 @@ export function TimetableGrid({
 	const {findInitialFocus} = useGridNavigation();
 
 	// Calculate values that depend on data (with safe defaults)
-	const weekStart = data ? new Date(data.weekStart.toISOString()) : new Date();
-	const weekDates = generateWeekDates(weekStart);
+	const weekStartLocal = data
+		? data.weekStart
+		: LocalDate.today().getWeekStart();
+	const weekDates = generateWeekDates(
+		new Date(weekStartLocal.toISOString() + 'T00:00:00.000Z'),
+	);
 	const issueMap =
 		data && data.dailySummaries.length > 0
 			? buildIssueMap(data)
@@ -128,15 +130,15 @@ export function TimetableGrid({
 	});
 
 	// Helper function to check if an issue is a favorite
-	const isFavoriteIssue = (issueKey: string): boolean => {
-		return favoriteIssues.some(fav => fav.key === issueKey);
+	const isFavoriteIssue = (issueKey: IssueKey): boolean => {
+		return favoriteIssues.some(fav => fav.key.equals(issueKey));
 	};
 
 	// Helper function to format issue key with alias support, favorite marker and fixed width
-	const formatIssueKey = (issueKey: string): string => {
+	const formatIssueKey = (issueKey: IssueKey): string => {
 		// Check if this issue has an alias configured
-		const favoriteIssue = favoriteIssues.find(fav => fav.key === issueKey);
-		const displayText = favoriteIssue?.alias ?? issueKey;
+		const favoriteIssue = favoriteIssues.find(fav => fav.key.equals(issueKey));
+		const displayText = favoriteIssue?.alias ?? issueKey.toString();
 
 		// Pad the display text to a fixed width (e.g. 12 characters for consistency)
 		const paddedDisplayText = displayText.padEnd(12, ' ');
@@ -172,14 +174,13 @@ export function TimetableGrid({
 			});
 
 			// Calculate preferred column index (today's weekday)
-			const today = new Date();
-			const todayDayOfWeek = today.getDay(); // 0=Sunday, 1=Monday, ..., 6=Saturday
-			const todayColumnIndex =
-				todayDayOfWeek >= 1 && todayDayOfWeek <= 5
-					? todayDayOfWeek - 1 // Monday=0, Tuesday=1, ..., Friday=4
-					: 0; // Default to Monday for weekends
+			const today = LocalDate.today();
+			const todayColumnIndex = weekDates.findIndex(date =>
+				LocalDate.fromDate(date).equals(today),
+			);
+			const preferredColumn = todayColumnIndex >= 0 ? todayColumnIndex : 0; // Default to Monday
 
-			const initialItem = findInitialFocus(focusableItems, todayColumnIndex);
+			const initialItem = findInitialFocus(focusableItems, preferredColumn);
 
 			if (initialItem) {
 				focus(initialItem.focusId);
@@ -332,7 +333,8 @@ export function TimetableGrid({
 						</Box>
 					)}
 					{group.issues.map(([issueKey, issueData]) => {
-						const isRowHighlighted = focusedCell?.issueKey === issueKey;
+						const isRowHighlighted =
+							focusedCell?.issueKey.toString() === issueKey;
 						return (
 							<Box key={issueKey} flexDirection="column">
 								<Box flexDirection="row">
@@ -345,7 +347,7 @@ export function TimetableGrid({
 									{/* Issue key column */}
 									<Box width={20}>
 										<Text bold color="cyan">
-											{formatIssueKey(issueKey)}
+											{formatIssueKey(IssueKey.fromString(issueKey))}
 										</Text>
 									</Box>
 									{/* Day columns */}
@@ -360,7 +362,7 @@ export function TimetableGrid({
 												)}
 												focusId={`issue-${issueKey}-${index}`}
 												isActive={true}
-												issueKey={issueKey}
+												issueKey={IssueKey.fromString(issueKey)}
 												columnIndex={index}
 												width={12}
 												onFocusChange={handleFocusChange}

@@ -1,4 +1,5 @@
 import test from 'ava';
+import {IssueKey} from '../domain/IssueKey.js';
 import {Duration} from '../domain/Duration.js';
 import {LocalDate} from '../domain/LocalDate.js';
 import {
@@ -18,7 +19,7 @@ const createWorklogForm = (
 	overrides: Partial<WorklogFormData> = {},
 ): WorklogFormData => ({
 	isVisible: false,
-	issueKey: '',
+	issueKey: undefined,
 	date: LocalDate.today(),
 	timeSpent: new Duration('0h'),
 	comment: '',
@@ -31,7 +32,7 @@ const createWorklogForm = (
 const createDeleteCandidate = (
 	overrides: Partial<DeleteCandidate> = {},
 ): DeleteCandidate => ({
-	issueKey: 'TEST-123',
+	issueKey: IssueKey.fromString('TEST-123'),
 	date: LocalDate.fromString('2024-01-15'),
 	...overrides,
 });

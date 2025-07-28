@@ -1,10 +1,11 @@
 import type {FocusableItem} from '../utils/FocusableItemCalculator.js';
+import type {IssueKey} from '../domain/IssueKey.js';
 
 export type NavigationDirection = 'up' | 'down' | 'left' | 'right';
 
 export type NavigationContext = {
 	focusedCell: {
-		issueKey: string;
+		issueKey: IssueKey;
 		columnIndex: number;
 		isAttendance?: boolean;
 	};
@@ -134,9 +135,10 @@ function findCurrentItemIndex(
 	focusedCell: NavigationContext['focusedCell'],
 	focusableItems: FocusableItem[],
 ): number {
+	const focusedIssueKeyString = focusedCell.issueKey.toString();
 	return focusableItems.findIndex(
 		item =>
-			item.issueKey === focusedCell.issueKey &&
+			item.issueKey === focusedIssueKeyString &&
 			item.columnIndex === focusedCell.columnIndex,
 	);
 }
@@ -147,11 +149,12 @@ function navigateUp(
 ): number {
 	// Move to previous row (same column) with wraparound
 	const currentColumnIndex = focusedCell.columnIndex;
+	const focusedIssueKeyString = focusedCell.issueKey.toString();
 	const sameDayItems = focusableItems.filter(
 		item => item.columnIndex === currentColumnIndex,
 	);
 	const currentRowIndex = sameDayItems.findIndex(
-		item => item.issueKey === focusedCell.issueKey,
+		item => item.issueKey === focusedIssueKeyString,
 	);
 
 	// Wrap to bottom if at top, otherwise go up
@@ -176,11 +179,12 @@ function navigateDown(
 ): number {
 	// Move to next row (same column) with wraparound
 	const currentColumnIndex = focusedCell.columnIndex;
+	const focusedIssueKeyString = focusedCell.issueKey.toString();
 	const sameDayItems = focusableItems.filter(
 		item => item.columnIndex === currentColumnIndex,
 	);
 	const currentRowIndex = sameDayItems.findIndex(
-		item => item.issueKey === focusedCell.issueKey,
+		item => item.issueKey === focusedIssueKeyString,
 	);
 
 	// Wrap to top if at bottom, otherwise go down
@@ -207,10 +211,11 @@ function navigateLeft(
 	// Move to previous column (same row) with wraparound
 	const targetColumnIndex =
 		focusedCell.columnIndex > 0 ? focusedCell.columnIndex - 1 : columnCount - 1;
+	const focusedIssueKeyString = focusedCell.issueKey.toString();
 
 	return focusableItems.findIndex(
 		item =>
-			item.issueKey === focusedCell.issueKey &&
+			item.issueKey === focusedIssueKeyString &&
 			item.columnIndex === targetColumnIndex,
 	);
 }
@@ -223,10 +228,11 @@ function navigateRight(
 	// Move to next column (same row) with wraparound
 	const targetColumnIndex =
 		focusedCell.columnIndex < columnCount - 1 ? focusedCell.columnIndex + 1 : 0;
+	const focusedIssueKeyString = focusedCell.issueKey.toString();
 
 	return focusableItems.findIndex(
 		item =>
-			item.issueKey === focusedCell.issueKey &&
+			item.issueKey === focusedIssueKeyString &&
 			item.columnIndex === targetColumnIndex,
 	);
 }

@@ -1,6 +1,7 @@
 import test from 'ava';
 import {hookTestUtils, createMockFetch} from '../utils/testUtils.js';
 import type {UseWeeklyWorklogSummaryOptions} from '../../hooks/useWeeklyWorklogSummary.js';
+import {IssueKey} from '../../domain/IssueKey.js';
 
 // Mock global fetch for JiraClient
 const originalFetch = global.fetch;
@@ -308,8 +309,12 @@ test('useWeeklyWorklogSummary - parameter combinations and edge cases', t => {
 		slidingWindowDays: {past: 14, future: 7},
 	});
 	const {weekStart, weekEnd} = hookTestUtils.createTestWeekRange();
-	const favoriteIssues1 = [{key: 'TEST-1', defaultTime: '2h'}];
-	const favoriteIssues2 = [{key: 'TEST-2', defaultTime: '4h'}];
+	const favoriteIssues1 = [
+		{key: IssueKey.fromString('TEST-1'), defaultTime: '2h'},
+	];
+	const favoriteIssues2 = [
+		{key: IssueKey.fromString('TEST-2'), defaultTime: '4h'},
+	];
 
 	// Test that different configurations generate different parameter sets
 	const expectedDifferentParameters = [

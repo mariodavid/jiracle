@@ -1,6 +1,7 @@
 import test from 'ava';
 import React from 'react';
 import {render} from 'ink-testing-library';
+import {IssueKey} from '../../domain/IssueKey.js';
 import type {WorklogFormData} from '../../hooks/useWorklogForm.js';
 import {Duration} from '../../domain/Duration.js';
 import {LocalDate} from '../../domain/LocalDate.js';
@@ -14,14 +15,18 @@ const mockConfig: JiraConfig = {
 	defaultTime: '4h',
 	defaultComment: 'Default work',
 	favorites: [
-		{key: 'FAV-123', defaultTime: '2h', defaultComment: 'Favorite work'},
+		{
+			key: IssueKey.fromString('FAV-123'),
+			defaultTime: '2h',
+			defaultComment: 'Favorite work',
+		},
 	],
 	slidingWindowDays: {past: 14, future: 7},
 };
 
 const mockWorklogForm: WorklogFormData = {
 	isVisible: true,
-	issueKey: 'PROJECT-123',
+	issueKey: IssueKey.fromString('PROJECT-123'),
 	date: LocalDate.fromString('2024-01-15'),
 	timeSpent: new Duration('4h'),
 	comment: 'Test work',
@@ -216,7 +221,7 @@ test('WorklogFormArea passes cancel callback to InlineWorklogForm', t => {
 test('WorklogFormArea shows favorite indicator for favorite issues', t => {
 	const favoriteWorklogForm: WorklogFormData = {
 		...mockWorklogForm,
-		issueKey: 'FAV-123', // This is in favorites
+		issueKey: IssueKey.fromString('FAV-123'), // This is in favorites
 	};
 
 	const mockOnSubmit = async () => {};

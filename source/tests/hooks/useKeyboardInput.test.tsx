@@ -2,12 +2,13 @@ import test from 'ava';
 import React from 'react';
 import {Box, Text} from 'ink';
 import {render} from 'ink-testing-library';
+import {IssueKey} from '../../domain/IssueKey.js';
+import type {FocusedCell} from '../../hooks/useFocusManagement.js';
 import {
 	useKeyboardInput,
 	type KeyboardInputHandlers,
 	type KeyboardInputOptions,
 } from '../../hooks/useKeyboardInput.js';
-import type {FocusedCell} from '../../hooks/useFocusManagement.js';
 
 // Test component that uses the hook
 function TestKeyboardInputComponent({
@@ -105,7 +106,7 @@ test('useKeyboardInput: works with focused cell for issue cells', t => {
 	// Explicit test data
 	const expectedText = 'Test Component';
 	const focusedCell: FocusedCell = {
-		issueKey: 'PROJECT-123',
+		issueKey: IssueKey.fromString('PROJECT-123'),
 		columnIndex: 0,
 		isAttendance: false,
 	};
@@ -138,7 +139,7 @@ test('useKeyboardInput: works with focused cell for attendance cells', t => {
 	// Explicit test data
 	const expectedText = 'Test Component';
 	const focusedCell: FocusedCell = {
-		issueKey: 'attendance-attendance',
+		issueKey: IssueKey.fromString('attendance-attendance'),
 		columnIndex: 1,
 		isAttendance: true,
 	};

@@ -1,4 +1,5 @@
 import test from 'ava';
+import {IssueKey} from '../../domain/IssueKey.js';
 import {
 	getMostRecentCommentForIssue,
 	getCommentWithPrefill,
@@ -193,7 +194,11 @@ test('getMostRecentCommentForIssue uses custom reference date', t => {
 
 	// Reference date: August 22nd (should look back 7 days to August 15th)
 	const referenceDate = LocalDate.fromString('2025-08-22');
-	const result = getMostRecentCommentForIssue(worklogs, 7, referenceDate);
+	const result = getMostRecentCommentForIssue(
+		worklogs,
+		7,
+		referenceDate.toDate(),
+	);
 
 	// Should find August 20th comment (within 7 days of August 22nd)
 	// Should NOT find July 23rd comment (30 days old)
@@ -214,7 +219,11 @@ test('getMostRecentCommentForIssue with reference date excludes old worklogs', t
 
 	// Reference date: August 22nd (should look back 7 days to August 15th)
 	const referenceDate = LocalDate.fromString('2025-08-22');
-	const result = getMostRecentCommentForIssue(worklogs, 7, referenceDate);
+	const result = getMostRecentCommentForIssue(
+		worklogs,
+		7,
+		referenceDate.toDate(),
+	);
 
 	// July 23rd is more than 7 days before August 22nd, should return undefined
 	t.is(result, undefined);
@@ -243,10 +252,15 @@ test('getCommentWithPrefill uses reference date for filtering', t => {
 	// Reference date: August 22nd
 	const referenceDate = LocalDate.fromString('2025-08-22');
 
-	const result = getCommentWithPrefill(config, 'TEST-123', worklogs, {
-		isEditMode: false,
-		referenceDate,
-	});
+	const result = getCommentWithPrefill(
+		config,
+		IssueKey.fromString('TEST-123'),
+		worklogs,
+		{
+			isEditMode: false,
+			referenceDate: referenceDate.toDate(),
+		},
+	);
 
 	// Should fall back to config default since July worklog is too old
 	t.is(result, 'Fallback comment');
@@ -275,10 +289,15 @@ test('getCommentWithPrefill finds recent comment with reference date', t => {
 	// Reference date: August 22nd
 	const referenceDate = LocalDate.fromString('2025-08-22');
 
-	const result = getCommentWithPrefill(config, 'TEST-123', worklogs, {
-		isEditMode: false,
-		referenceDate,
-	});
+	const result = getCommentWithPrefill(
+		config,
+		IssueKey.fromString('TEST-123'),
+		worklogs,
+		{
+			isEditMode: false,
+			referenceDate: referenceDate.toDate(),
+		},
+	);
 
 	// Should use recent comment since it's within 7 days
 	t.is(result, 'Recent work on feature');
@@ -304,7 +323,7 @@ test('getCommentWithPrefill respects configurable lookback days with reference d
 		defaultComment: 'Fallback comment',
 		favorites: [
 			{
-				key: 'TEST-123',
+				key: IssueKey.fromString('TEST-123'),
 				commentPrefillDays: 5, // But issue-specific is only 5 days
 			},
 		],
@@ -313,10 +332,15 @@ test('getCommentWithPrefill respects configurable lookback days with reference d
 	// Reference date: August 22nd
 	const referenceDate = LocalDate.fromString('2025-08-22');
 
-	const result = getCommentWithPrefill(config, 'TEST-123', worklogs, {
-		isEditMode: false,
-		referenceDate,
-	});
+	const result = getCommentWithPrefill(
+		config,
+		IssueKey.fromString('TEST-123'),
+		worklogs,
+		{
+			isEditMode: false,
+			referenceDate: referenceDate.toDate(),
+		},
+	);
 
 	// Should fall back to config since issue-specific is only 5 days (excludes Aug 12th)
 	t.is(result, 'Fallback comment');
@@ -343,11 +367,16 @@ test('getCommentWithPrefill uses explicit default in edit mode regardless of ref
 
 	const referenceDate = LocalDate.fromString('2025-08-22');
 
-	const result = getCommentWithPrefill(config, 'TEST-123', worklogs, {
-		isEditMode: true,
-		explicitDefault: 'Edit mode comment',
-		referenceDate,
-	});
+	const result = getCommentWithPrefill(
+		config,
+		IssueKey.fromString('TEST-123'),
+		worklogs,
+		{
+			isEditMode: true,
+			explicitDefault: 'Edit mode comment',
+			referenceDate: referenceDate.toDate(),
+		},
+	);
 
 	// Should use explicit default in edit mode, ignoring recent worklogs
 	t.is(result, 'Edit mode comment');

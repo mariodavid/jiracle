@@ -1,10 +1,11 @@
 import React, {useState, useEffect} from 'react';
 import {Box} from 'ink';
 import {InlineWorklogForm} from '../InlineWorklogForm.js';
+import type {LocalDate} from '../../domain/LocalDate.js';
+import type {IssueKey} from '../../domain/IssueKey.js';
 import type {WorklogFormData} from '../../hooks/useWorklogForm.js';
 import type {JiraConfig, WorklogEntry, JiraClient} from '../../jira-client.js';
 import type {Duration} from '../../domain/Duration.js';
-import type {LocalDate} from '../../domain/LocalDate.js';
 
 export type WorklogFormAreaProps = {
 	worklogForm: WorklogFormData;
@@ -13,7 +14,7 @@ export type WorklogFormAreaProps = {
 	config: JiraConfig;
 	jiraClient: JiraClient;
 	onSubmit: (data: {
-		issueKey: string;
+		issueKey: IssueKey;
 		date: LocalDate;
 		timeSpent: Duration;
 		comment: string;
@@ -38,7 +39,7 @@ export function WorklogFormArea({
 		let isCancelled = false;
 
 		async function fetchRecentWorklogs() {
-			if (!worklogForm.issueKey.trim() || worklogForm.isEditMode) {
+			if (!worklogForm.issueKey || worklogForm.isEditMode) {
 				return; // Skip for empty issue key or edit mode
 			}
 
@@ -82,9 +83,13 @@ export function WorklogFormArea({
 					isSubmitting={worklogSubmitting}
 					error={worklogError}
 					config={config}
-					isFavorite={config?.favorites?.some(
-						fav => fav.key === worklogForm.issueKey,
-					)}
+					isFavorite={
+						worklogForm.issueKey
+							? config?.favorites?.some(fav =>
+									fav.key.equals(worklogForm.issueKey!),
+							  )
+							: false
+					}
 					isIssueKeyEditable={worklogForm.isIssueKeyEditable}
 					isEditMode={worklogForm.isEditMode}
 					worklogId={worklogForm.worklogId}

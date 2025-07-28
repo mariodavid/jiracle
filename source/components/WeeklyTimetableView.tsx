@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useMemo, useCallback} from 'react';
 import {Box, Text, useInput} from 'ink';
 import {Alert} from '@inkjs/ui';
 import Gradient from 'ink-gradient';
@@ -15,6 +15,7 @@ import {useActiveAreaResolver} from '../hooks/useActiveAreaResolver.js';
 import {useNotification} from '../hooks/useNotification.js';
 import {JiraClient, type JiraConfig} from '../jira-client.js';
 import {getStartOfWeek, getEndOfWeek} from '../utils/date.js';
+import type {IssueKey} from '../domain/IssueKey.js';
 import {
 	isBrowserOpenSupported,
 	openInBrowser,
@@ -43,8 +44,8 @@ export function WeeklyTimetableView({
 	config,
 	userEmail,
 }: WeeklyTimetableViewProps) {
-	// Create JiraClient instance
-	const jiraClient = new JiraClient(config);
+	// Create JiraClient instance (memoized to prevent infinite loops)
+	const jiraClient = useMemo(() => new JiraClient(config), [config]);
 
 	// Navigation state management
 	const {
@@ -90,13 +91,24 @@ export function WeeklyTimetableView({
 	const weekStart = getStartOfWeek(currentWeek);
 	const weekEnd = getEndOfWeek(currentWeek);
 
+	// Memoize favoriteIssues to prevent unnecessary re-renders
+	const favoriteIssues = useMemo(() => config.favorites, [config.favorites]);
+
+	// Memoize the activeArea change callback to prevent infinite re-renders
+	const handleActiveAreaChange = useCallback(
+		(area: string) => {
+			setActiveArea(area as any);
+		},
+		[setActiveArea],
+	);
+
 	const {data, isLoading, error, refresh} = useWeeklyWorklogSummary({
 		weekStart,
 		weekEnd,
 		config,
 		skipAutoLoad: false, // Always load fresh data when component mounts
 		userEmail: userEmail ?? undefined,
-		favoriteIssues: config.favorites, // Pass favorite issues to include them in the table
+		favoriteIssues, // Use memoized favorite issues
 	});
 
 	// Worklog form state management
@@ -112,9 +124,7 @@ export function WeeklyTimetableView({
 		config,
 		userEmail,
 		onRefresh: refresh,
-		onActiveAreaChange(area: string) {
-			setActiveArea(area as any);
-		},
+		onActiveAreaChange: handleActiveAreaChange,
 		data: data ?? undefined,
 	});
 
@@ -132,9 +142,7 @@ export function WeeklyTimetableView({
 	} = useAttendanceManagement({
 		config,
 		onRefresh: refresh,
-		onActiveAreaChange(area: string) {
-			setActiveArea(area as any);
-		},
+		onActiveAreaChange: handleActiveAreaChange,
 	});
 
 	// Delete operations state management
@@ -152,9 +160,7 @@ export function WeeklyTimetableView({
 		config,
 		userEmail,
 		onRefresh: refresh,
-		onActiveAreaChange(area: string) {
-			setActiveArea(area as any);
-		},
+		onActiveAreaChange: handleActiveAreaChange,
 		attendanceManager,
 		onAttendanceRefresh: refreshAttendance,
 	});
@@ -197,7 +203,7 @@ export function WeeklyTimetableView({
 		};
 	}, []); // Empty dependency array means this runs only on mount
 
-	const handleOpenInBrowser = async (issueKey: string) => {
+	const handleOpenInBrowser = async (issueKey: IssueKey) => {
 		if (!config.jiraUrl) return;
 		try {
 			const url = generateJiraIssueUrl(config.jiraUrl, issueKey);

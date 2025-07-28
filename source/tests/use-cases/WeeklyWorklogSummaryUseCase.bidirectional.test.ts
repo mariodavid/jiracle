@@ -1,7 +1,8 @@
 import test from 'ava';
-import {WeeklyWorklogSummaryUseCase} from '../../use-cases/WeeklyWorklogSummaryUseCase.js';
+import {IssueKey} from '../../domain/IssueKey.js';
 import {JiraClient} from '../../jira-client.js';
 import type {JiraConfig} from '../../jira-client.js';
+import {WeeklyWorklogSummaryUseCase} from '../../use-cases/WeeklyWorklogSummaryUseCase.js';
 
 const mockConfig: JiraConfig = {
 	jiraUrl: 'https://jira.example.com/',
@@ -41,7 +42,7 @@ test('WeeklyWorklogSummaryUseCase supports bidirectional sliding window', async 
 				issues: [
 					{
 						id: '111111',
-						key: 'PAST-100',
+						key: IssueKey.fromString('PAST-100'),
 						fields: {
 							summary: 'Past sliding window issue',
 							status: {
@@ -71,7 +72,7 @@ test('WeeklyWorklogSummaryUseCase supports bidirectional sliding window', async 
 				issues: [
 					{
 						id: '222222',
-						key: 'FUTURE-100',
+						key: IssueKey.fromString('FUTURE-100'),
 						fields: {
 							summary: 'Future sliding window issue',
 							status: {name: 'Open', statusCategory: {name: 'To Do'}},
@@ -97,7 +98,9 @@ test('WeeklyWorklogSummaryUseCase supports bidirectional sliding window', async 
 
 	// Mock worklog responses
 	client.getIssueWorklogs = async issueKey => {
-		if (issueKey === 'PAST-100') {
+		const issueKeyString =
+			typeof issueKey === 'string' ? issueKey : issueKey.toString();
+		if (issueKeyString === 'PAST-100') {
 			return {
 				startAt: 0,
 				maxResults: 1,
@@ -118,7 +121,7 @@ test('WeeklyWorklogSummaryUseCase supports bidirectional sliding window', async 
 			};
 		}
 
-		if (issueKey === 'FUTURE-100') {
+		if (issueKeyString === 'FUTURE-100') {
 			return {
 				startAt: 0,
 				maxResults: 1,
@@ -169,7 +172,7 @@ test('WeeklyWorklogSummaryUseCase supports bidirectional sliding window', async 
 
 	// Both issues should appear with 0 hours since they have no worklogs in current week
 	const issueKeys = new Set(
-		result.dailySummaries[0]!.issues.map(issue => issue.issueKey),
+		result.dailySummaries[0]!.issues.map(issue => issue.issueKey.toString()),
 	);
 	t.true(issueKeys.has('PAST-100'));
 	t.true(issueKeys.has('FUTURE-100'));
@@ -203,7 +206,7 @@ test('WeeklyWorklogSummaryUseCase bidirectional deduplication works correctly', 
 				issues: [
 					{
 						id: '111111',
-						key: 'SHARED-100',
+						key: IssueKey.fromString('SHARED-100'),
 						fields: {
 							summary: 'Issue in both windows',
 							status: {
@@ -248,7 +251,7 @@ test('WeeklyWorklogSummaryUseCase bidirectional deduplication works correctly', 
 	// Should only have the issue once, not duplicated
 	t.is(result.dailySummaries.length, 1);
 	t.is(result.dailySummaries[0]!.issues.length, 1);
-	t.is(result.dailySummaries[0]!.issues[0]!.issueKey, 'SHARED-100');
+	t.is(result.dailySummaries[0]!.issues[0]!.issueKey.toString(), 'SHARED-100');
 });
 
 test('WeeklyWorklogSummaryUseCase skips future window when future is 0', async t => {

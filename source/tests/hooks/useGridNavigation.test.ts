@@ -4,6 +4,7 @@ import {
 	navigateInDirection,
 	navigateToNextItem,
 } from '../../services/GridNavigationService.js';
+import {IssueKey} from '../../domain/IssueKey.js';
 
 test('GridNavigationService - functions work correctly via hook pattern', t => {
 	t.is(typeof findInitialFocusItem, 'function');
@@ -55,7 +56,7 @@ test('GridNavigationService - findInitialFocusItem with preferred column', t => 
 
 test('GridNavigationService - navigateInDirection function works', t => {
 	const context = {
-		focusedCell: {issueKey: 'TEST-1', columnIndex: 0},
+		focusedCell: {issueKey: IssueKey.fromString('TEST-1'), columnIndex: 0},
 		focusableItems: [
 			{
 				focusId: 'item-1',
@@ -79,7 +80,7 @@ test('GridNavigationService - navigateInDirection function works', t => {
 
 test('GridNavigationService - navigateToNextItem function works', t => {
 	const context = {
-		focusedCell: {issueKey: 'TEST-1', columnIndex: 0},
+		focusedCell: {issueKey: IssueKey.fromString('TEST-1'), columnIndex: 0},
 		focusableItems: [
 			{
 				focusId: 'item-1',

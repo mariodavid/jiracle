@@ -1,12 +1,13 @@
 import React, {useState} from 'react';
 import {Box, Text, useInput, useFocus} from 'ink';
 import {Duration} from '../domain/Duration.js';
+import type {LocalDate} from '../domain/LocalDate.js';
 import type {Attendance} from '../attendance/types.js';
 import TimeInputField from './TimeInputField.js';
 import DurationInput from './WorklogForm/DurationInput.js';
 
 type AttendanceEditFormProps = {
-	date: Date;
+	date: LocalDate;
 	initialData?: Attendance;
 	onSubmit: (data: Attendance) => void;
 	onCancel: () => void;
@@ -42,7 +43,9 @@ export function AttendanceEditForm({
 
 	const {isFocused} = useFocus({autoFocus: true});
 
-	const formatDate = (date: Date) => {
+	const formatDate = (date: LocalDate) => {
+		// Convert LocalDate to Date for display formatting
+		const jsDate = new Date(date.toISOString());
 		const days = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'];
 		const months = [
 			'Jan',
@@ -58,17 +61,14 @@ export function AttendanceEditForm({
 			'Nov',
 			'Dez',
 		];
-		return `${String(days[date.getDay()])}, ${date.getDate()}. ${String(
-			months[date.getMonth()],
+		return `${String(days[jsDate.getDay()])}, ${jsDate.getDate()}. ${String(
+			months[jsDate.getMonth()],
 		)}`;
 	};
 
 	const handleSubmit = () => {
-		// Use local date format to avoid timezone issues
-		const year = date.getFullYear();
-		const month = String(date.getMonth() + 1).padStart(2, '0');
-		const day = String(date.getDate()).padStart(2, '0');
-		const localDateString = `${year}-${month}-${day}`;
+		// Use LocalDate for consistent date handling
+		const localDateString = date.toISOString();
 
 		// Parse break minutes using Duration class
 		const parseBreakMinutes = (timeString: string): number => {

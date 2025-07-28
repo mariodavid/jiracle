@@ -1,6 +1,7 @@
 import test from 'ava';
 import {useIssueGroups} from '../../hooks/useIssueGroups.js';
 import type {JiraConfig} from '../../jira-client.js';
+import {IssueKey} from '../../domain/IssueKey.js';
 
 // Simple test to verify the hook exists and can be called
 test('useIssueGroups - hook exists and returns expected structure', t => {
@@ -114,7 +115,7 @@ test('useIssueGroups - accepts complex config correctly', t => {
 		],
 		favorites: [
 			{
-				key: 'PROJ-123',
+				key: IssueKey.fromString('PROJ-123'),
 				groupId: 'backend', // Override project default
 			},
 		],
