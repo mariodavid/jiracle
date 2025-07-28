@@ -1,0 +1,53 @@
+{
+	"temporaryExemptions": {
+		"source/components/Header.tsx": {
+			"reason": "Default export component - may be used in CLI entry points",
+			"reviewDate": "2024-03-01",
+			"items": ["default"]
+		},
+		"source/components/MenuCard.tsx": {
+			"reason": "Default export component - may be used in navigation",
+			"reviewDate": "2024-03-01",
+			"items": ["default"]
+		},
+		"source/components/Navigation.tsx": {
+			"reason": "Default export component - may be used in main app",
+			"reviewDate": "2024-03-01",
+			"items": ["default"]
+		},
+		"source/utils/date.ts": {
+			"reason": "Utility functions may be used by external scripts",
+			"reviewDate": "2024-03-01",
+			"items": ["formatLocalDateKey"]
+		},
+		"source/jira/validation.ts": {
+			"reason": "Validation functions may be used by CLI or external integrations",
+			"reviewDate": "2024-03-01",
+			"items": ["validateIssueKey"]
+		}
+	},
+	"keepAlways": [
+		"source/cli.tsx",
+		"source/types/index.ts",
+		"source/components/areas/index.ts"
+	],
+	"testUtilities": {
+		"reason": "Test helper functions are intentionally kept for reusability",
+		"patterns": [
+			"source/tests/**/*test-helpers.ts",
+			"source/tests/**/*testutils.ts",
+			"source/tests/**/*testUtils.ts"
+		]
+	},
+	"typeOnlyExports": {
+		"reason": "Type-only exports may appear unused but are imported for types",
+		"patterns": [
+			"*Props",
+			"*Config",
+			"*Options",
+			"*Return",
+			"*Response",
+			"*Request"
+		]
+	}
+}

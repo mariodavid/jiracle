@@ -1,0 +1,65 @@
+source/cli.tsx:87 - WorklogAddResult (used in module)
+source/jira-client.ts:22 - ProjectDefaults
+source/jira-client.ts:33 - SlidingWindowConfig
+source/jira-client.ts:54 - JiraIssueField
+source/jira-client.ts:84 - JiraSearchResponse
+source/jira-client.ts:91 - WorklogRequest
+source/jira-client.ts:97 - WorklogResponse
+source/jira-client.ts:116 - ResolvedDefaults
+source/jira-client.ts:62 - getFavoriteKeys
+source/jira-client.ts:66 - getFavoriteDefaultComment
+source/jira-client.ts:76 - getFavoriteDefaultTime
+source/jira-client.ts:146 - getMostRecentCommentForIssue
+source/jira-client.ts:167 - resolveCommentPrefillDays
+source/jira-client.ts:206 - getCommentWithPrefill
+source/cli/attendance-commands.ts:6 - AttendanceCommandResult (used in module)
+source/components/FocusableCell.tsx:5 - FocusableCellProps (used in module)
+source/components/Header.tsx:31 - default
+source/components/MenuCard.tsx:44 - default
+source/components/Navigation.tsx:12 - default
+source/components/NotificationBar.tsx:5 - NotificationBarProps (used in module)
+source/components/RainbowText.tsx:9 - RainbowText
+source/components/RainbowText.tsx:4 - RainbowTextProps (used in module)
+source/components/TimetableGrid.tsx:30 - TimetableGridProps (used in module)
+source/components/WeeklyTimetableView.tsx:36 - WeeklyTimetableViewProps (used in module)
+source/components/WeekNavigator.tsx:6 - WeekNavigatorProps (used in module)
+source/domain/WeeklyWorklogSummary.ts:31 - WorklogResponse
+source/domain/WeeklyWorklogSummary.ts:38 - WorklogEntry (used in module)
+source/domain/WorklogGroup.ts:27 - GroupConfig (used in module)
+source/hooks/useActiveAreaResolver.ts:9 - UseActiveAreaResolverOptions (used in module)
+source/hooks/useAttendanceManagement.ts:19 - UseAttendanceManagementReturn (used in module)
+source/hooks/useConfig.ts:8 - UseConfigResult (used in module)
+source/hooks/useConfirmation.ts:11 - ConfirmationState (used in module)
+source/hooks/useConfirmation.ts:18 - ConfirmationActions (used in module)
+source/hooks/useDeleteOperations.ts:26 - UseDeleteOperationsReturn (used in module)
+source/hooks/useGridNavigation.ts:15 - useGridNavigation
+source/hooks/useNavigationState.ts:13 - UseNavigationStateOptions (used in module)
+source/hooks/useTitleResolver.ts:9 - UseTitleResolverOptions (used in module)
+source/hooks/useTitleResolver.ts:18 - UseTitleResolverReturn (used in module)
+source/hooks/useWorklogForm.ts:38 - UseWorklogFormReturn (used in module)
+source/jira/validation.ts:41 - validateIssueKey
+source/types/index.ts:14 - SelectOption
+source/use-cases/WeeklyWorklogSummaryUseCase.ts:17 - ExecuteWeeklyWorklogSummaryOptions (used in module)
+source/utils/date.ts:1 - formatLocalDateKey
+source/utils/logger.ts:7 - createUILogger (used in module)
+source/utils/worklog-detection.ts:9 - WorklogDetectionResult (used in module)
+source/components/areas/index.ts:8 - DeleteWorklogConfirmationAreaProps
+source/components/areas/index.ts:9 - DeleteAttendanceConfirmationAreaProps
+source/components/areas/index.ts:10 - CheckinConfirmationAreaProps
+source/components/areas/index.ts:11 - CheckoutConfirmationAreaProps
+source/components/areas/index.ts:12 - WorklogFormAreaProps
+source/components/areas/index.ts:13 - AttendanceEditFormAreaProps
+source/tests/components/duration-input-test-helpers.ts:49 - createDurationInput (used in module)
+source/tests/components/duration-input-test-helpers.ts:35 - defaultProps (used in module)
+source/tests/use-cases/WeeklyWorklogSummaryUseCase.testutils.ts:4 - mockConfig (used in module)
+source/tests/utils/test-helpers.ts:83 - TemporaryFileManager (used in module)
+source/tests/utils/testUtils.ts:57 - createMockFavorite (used in module)
+source/tests/utils/testUtils.ts:86 - createMockConfigWithFavorites
+source/tests/utils/testUtils.ts:95 - assertions
+source/tests/utils/testUtils.ts:133 - delays
+source/tests/utils/testUtils.ts:207 - testConstants (used in module)
+source/tests/use-cases/WeeklyWorklogSummaryUseCase/helpers/assertion-helpers.ts:64 - assertDateDifference
+source/tests/use-cases/WeeklyWorklogSummaryUseCase/helpers/assertion-helpers.ts:84 - assertIssueKeysPresent
+source/tests/use-cases/WeeklyWorklogSummaryUseCase/helpers/assertion-helpers.ts:97 - assertAllIssuesHaveZeroHours
+source/tests/use-cases/WeeklyWorklogSummaryUseCase/helpers/setup-utilities.ts:31 - setupDateCapture
+source/tests/use-cases/WeeklyWorklogSummaryUseCase/helpers/test-data-builders.ts:94 - getStandardSlidingWindowConfig

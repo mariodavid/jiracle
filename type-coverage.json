@@ -1,0 +1,15 @@
+{
+	"atLeast": 95,
+	"detail": true,
+	"strict": false,
+	"ignoreCatch": true,
+	"ignoreFiles": [
+		"**/*.test.ts",
+		"**/*.test.tsx",
+		"**/tests/**/*.ts",
+		"**/tests/**/*.tsx",
+		"dist/**/*"
+	],
+	"ignoreUnread": true,
+	"cache": true
+}
