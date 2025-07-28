@@ -14,7 +14,7 @@ import {useTitleResolver} from '../hooks/useTitleResolver.js';
 import {useActiveAreaResolver} from '../hooks/useActiveAreaResolver.js';
 import {useNotification} from '../hooks/useNotification.js';
 import {JiraClient, type JiraConfig} from '../jira-client.js';
-import {getStartOfWeek, getEndOfWeek} from '../utils/date.js';
+import {WeekRange} from '../domain/WeekRange.js';
 import type {IssueKey} from '../domain/IssueKey.js';
 import {
 	isBrowserOpenSupported,
@@ -88,8 +88,9 @@ export function WeeklyTimetableView({
 		return `${dayName}, ${dateObject.getDate()}. ${monthName}`;
 	};
 
-	const weekStart = getStartOfWeek(currentWeek);
-	const weekEnd = getEndOfWeek(currentWeek);
+	const weekRange = WeekRange.fromDate(LocalDateClass.fromDate(currentWeek));
+	const weekStart = weekRange.getStartOfWeekAsDate();
+	const weekEnd = weekRange.getEndOfWeekAsDate();
 
 	// Memoize favoriteIssues to prevent unnecessary re-renders
 	const favoriteIssues = useMemo(
