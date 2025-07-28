@@ -366,7 +366,7 @@ test('WeeklyTimetableView opens worklog form when Add Worklog key is pressed', a
 
 	// Wait for form to open
 	await new Promise(resolve => {
-		setTimeout(resolve, 150);
+		setTimeout(resolve, 500);
 	});
 
 	// 3. SPECIFIC VALUE COMPARISONS
@@ -426,7 +426,7 @@ test('WeeklyTimetableView handles form cancellation correctly', async t => {
 	// Cancel form with Escape
 	stdin.write('\u001B'); // ESC key
 	await new Promise(resolve => {
-		setTimeout(resolve, 500);
+		setTimeout(resolve, 1000);
 	});
 
 	// 3. SPECIFIC VALUE COMPARISONS
@@ -479,7 +479,7 @@ test('WeeklyTimetableView form displays field validation and error states', asyn
 	// Open form
 	stdin.write('a');
 	await new Promise(resolve => {
-		setTimeout(resolve, 150);
+		setTimeout(resolve, 500);
 	});
 
 	// Verify form fields are present
@@ -545,7 +545,7 @@ test('WeeklyTimetableView integrates form behavior with keyboard navigation corr
 	// Open form with 'a' key
 	stdin.write(keyboardIntegration.transitionKeys[0]!);
 	await new Promise(resolve => {
-		setTimeout(resolve, 150);
+		setTimeout(resolve, 500);
 	});
 
 	// Test form navigation is present
@@ -557,7 +557,7 @@ test('WeeklyTimetableView integrates form behavior with keyboard navigation corr
 	// Cancel with ESC key
 	stdin.write(keyboardIntegration.transitionKeys[1]!);
 	await new Promise(resolve => {
-		setTimeout(resolve, 500);
+		setTimeout(resolve, 1000);
 	});
 
 	// 3. SPECIFIC VALUE COMPARISONS

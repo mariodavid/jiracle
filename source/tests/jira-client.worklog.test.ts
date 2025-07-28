@@ -1,7 +1,6 @@
 import test from 'ava';
 import {JiraClient} from '../jira-client.js';
 import type {JiraConfig} from '../jira-client.js';
-import {IssueKey} from '../domain/IssueKey.js';
 import {createMockResponse} from './utils/mockResponse.js';
 
 const mockConfig: JiraConfig = {
@@ -102,7 +101,7 @@ test('searchIssuesWithWorklogs builds correct request', async t => {
 		issues: [
 			{
 				id: '263906',
-				key: IssueKey.fromString('TEST-117'),
+				key: 'TEST-117',
 				fields: {
 					summary: 'Test Issue Summary',
 					status: {name: 'In Progress', statusCategory: {name: 'In Progress'}},
@@ -304,7 +303,7 @@ test('searchIssuesWithWorklogs parses response correctly', async t => {
 		issues: [
 			{
 				id: '263906',
-				key: IssueKey.fromString('TEST-117'),
+				key: 'TEST-117',
 				fields: {
 					summary: 'First Issue Summary',
 					status: {name: 'In Progress', statusCategory: {name: 'In Progress'}},
@@ -320,7 +319,7 @@ test('searchIssuesWithWorklogs parses response correctly', async t => {
 			},
 			{
 				id: '263907',
-				key: IssueKey.fromString('TEST-118'),
+				key: 'TEST-118',
 				fields: {
 					summary: 'Second Issue Summary',
 					status: {name: 'Done', statusCategory: {name: 'Done'}},

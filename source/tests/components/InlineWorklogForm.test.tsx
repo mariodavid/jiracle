@@ -339,7 +339,7 @@ test('InlineWorklogForm favorite time overrides global default', t => {
 test('InlineWorklogForm falls back to global default when favorite has no time', t => {
 	const configProps = {
 		...mockProps,
-		issueKey: IssueKey.fromString('FAV-NO-TIME'),
+		issueKey: IssueKey.fromString('FAV-123'),
 		defaultTimeSpent: undefined, // Don't override with prop
 		config: {
 			jiraUrl: 'https://jira.example.com/',
@@ -347,7 +347,7 @@ test('InlineWorklogForm falls back to global default when favorite has no time',
 			apiToken: 'test-token',
 			defaultTime: '5h', // Global default
 			favorites: [
-				{key: IssueKey.fromString('FAV-NO-TIME')}, // Favorite without defaultTime
+				{key: IssueKey.fromString('FAV-123')}, // Favorite without defaultTime
 			],
 		},
 		isFavorite: true,

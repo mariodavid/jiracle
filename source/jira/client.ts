@@ -339,7 +339,21 @@ export class JiraClient {
 				throw new Error(`Jira API error: ${response.status} - ${errorText}`);
 			}
 
-			const data = (await response.json()) as JiraSearchResponse;
+			const rawData = (await response.json()) as {
+				issues: Array<{key: string; id: string; fields: any}>;
+				startAt: number;
+				maxResults: number;
+				total: number;
+			};
+
+			// Transform the raw API response to use IssueKey objects
+			const data: JiraSearchResponse = {
+				...rawData,
+				issues: rawData.issues.map(issue => ({
+					...issue,
+					key: IssueKey.fromString(issue.key),
+				})),
+			};
 			this.logger.info('Successfully searched issues with worklogs', {
 				method: 'POST',
 				url: searchUrl,
