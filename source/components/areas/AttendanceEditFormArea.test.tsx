@@ -44,7 +44,7 @@ test('AttendanceEditFormArea renders with attendance form', t => {
 		'[Speichern]',
 		'[Abbrechen]',
 	];
-	const expectedTimes: string[] = ['09:00', '17:30'];
+	const expectedTimes: string[] = ['09:00', '17:00'];
 	const expectedBreakTime = '30m';
 
 	const mockOnSubmit = () => {};
