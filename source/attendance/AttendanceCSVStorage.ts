@@ -3,6 +3,7 @@ import {join, dirname} from 'node:path';
 import {readFile, writeFile, mkdir} from 'node:fs/promises';
 import {existsSync} from 'node:fs';
 import {LocalDate} from '../domain/LocalDate.js';
+import {uiLogger} from '../utils/logger.js';
 import type {Attendance} from './types.js';
 
 export class AttendanceCSVStorage {
@@ -22,12 +23,24 @@ export class AttendanceCSVStorage {
 
 	async readAll(): Promise<Attendance[]> {
 		try {
+			uiLogger.debug('AttendanceCSVStorage: Reading CSV file', {
+				csvPath: this.csvPath,
+				exists: existsSync(this.csvPath),
+			});
+
 			if (!existsSync(this.csvPath)) {
+				uiLogger.debug('AttendanceCSVStorage: CSV file does not exist');
 				return [];
 			}
 
 			const content = await readFile(this.csvPath, 'utf8');
 			const lines = content.trim().split('\n');
+
+			uiLogger.debug('AttendanceCSVStorage: Read CSV content', {
+				totalLines: lines.length,
+				firstLine: lines[0],
+				contentPreview: content.slice(0, 200),
+			});
 
 			if (lines.length === 0 || (lines.length === 1 && lines[0] === '')) {
 				return [];
@@ -36,10 +49,22 @@ export class AttendanceCSVStorage {
 			// Skip header if present
 			const dataLines = lines[0]?.startsWith('Date,') ? lines.slice(1) : lines;
 
-			return dataLines
+			const attendances = dataLines
 				.filter(line => line.trim() && line.split(',').length >= 4) // Must have at least date and breakMinutes
 				.map(line => this.parseCSVLine(line));
+
+			uiLogger.debug('AttendanceCSVStorage: Parsed attendances', {
+				attendanceCount: attendances.length,
+				attendances: attendances.map(a => ({
+					date: a.date,
+					checkIn: a.checkIn,
+					checkOut: a.checkOut,
+				})),
+			});
+
+			return attendances;
 		} catch (error: unknown) {
+			uiLogger.error('AttendanceCSVStorage: Error reading CSV', {error});
 			console.error('Error reading CSV:', error);
 			return [];
 		}
@@ -60,10 +85,38 @@ export class AttendanceCSVStorage {
 
 	async getByDate(date: LocalDate): Promise<Attendance | undefined> {
 		const attendances = await this.readAll();
-		return (
-			attendances.find(a => LocalDate.fromString(a.date).equals(date)) ??
-			undefined
-		);
+
+		uiLogger.debug('AttendanceCSVStorage: getByDate called', {
+			searchDate: date.toISOString(),
+			availableDates: attendances.map(a => a.date),
+		});
+
+		const found = attendances.find(a => {
+			const attendanceDate = LocalDate.fromString(a.date);
+			const matches = attendanceDate.equals(date);
+
+			uiLogger.debug('AttendanceCSVStorage: Comparing dates', {
+				searchDate: date.toISOString(),
+				attendanceDate: a.date,
+				attendanceDateParsed: attendanceDate.toISOString(),
+				matches,
+			});
+
+			return matches;
+		});
+
+		uiLogger.debug('AttendanceCSVStorage: getByDate result', {
+			searchDate: date.toISOString(),
+			found: found
+				? {
+						date: found.date,
+						checkIn: found.checkIn,
+						checkOut: found.checkOut,
+				  }
+				: null,
+		});
+
+		return found ?? undefined;
 	}
 
 	async getByDateRange(

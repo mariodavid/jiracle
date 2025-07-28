@@ -33,7 +33,7 @@ export function calculateFocusableItems(
 		for (let columnIndex = 0; columnIndex < columnCount; columnIndex++) {
 			items.push({
 				focusId: `attendance-attendance-${columnIndex}`,
-				issueKey: 'attendance-attendance',
+				issueKey: 'ATTENDANCE-ATTENDANCE', // Use uppercase to match IssueKey format
 				columnIndex,
 				isAttendance: true,
 			});

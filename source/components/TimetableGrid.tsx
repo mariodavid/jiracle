@@ -1,5 +1,5 @@
-import React, {useEffect, useState} from 'react';
-import {Box, Text, useFocusManager} from 'ink';
+import React, {useState, useEffect} from 'react';
+import {Box, Text} from 'ink';
 import figures from 'figures';
 import {type WeeklyWorklogSummary} from '../domain/WeeklyWorklogSummary.js';
 import {LocalDate} from '../domain/LocalDate.js';
@@ -13,14 +13,15 @@ import {
 	formatHours,
 	truncateText,
 } from '../utils/TimetableCalculations.js';
-import {calculateFocusableItems} from '../utils/FocusableItemCalculator.js';
+// Import {calculateFocusableItems} from '../utils/FocusableItemCalculator.js';
 import {useTableNavigation} from '../hooks/useTableNavigation.js';
-import {useGridNavigation} from '../hooks/useGridNavigation.js';
+// Import {useGridNavigation} from '../hooks/useGridNavigation.js';
 import {
 	generateWeekDates,
 	buildIssueMap,
 	buildIssueMapFromFavorites,
 } from '../utils/TimetableDataUtils.js';
+import {uiLogger} from '../utils/logger.js';
 import {AttendanceFooterRows} from './AttendanceFooterRows.js';
 import {AttendanceRows} from './AttendanceRows.js';
 import {FocusableCell} from './FocusableCell.js';
@@ -66,28 +67,56 @@ export function TimetableGrid({
 	const [weeklyAttendance, setWeeklyAttendance] = useState<WeeklyAttendance>(
 		{},
 	);
+	// Remove unused variable warning suppression since we use it now
 
 	// Load attendance data when attendanceManager, week, or refresh key changes
 	useEffect(() => {
-		if (!attendanceManager || !data) return;
+		uiLogger.debug('TimetableGrid: useEffect triggered', {
+			hasAttendanceManager: Boolean(attendanceManager),
+			hasData: Boolean(data),
+			attendanceRefreshKey,
+		});
+
+		if (!attendanceManager) {
+			uiLogger.debug('TimetableGrid: No attendance manager available');
+			return;
+		}
+
+		if (!data) {
+			uiLogger.debug('TimetableGrid: No data available yet');
+			return;
+		}
 
 		const loadAttendanceData = async () => {
 			try {
 				// Convert to Date only at API boundary
 				const weekStart = data.weekStart.toDate();
+				uiLogger.debug('TimetableGrid: Loading attendance data for week', {
+					weekStart: weekStart.toISOString(),
+					weekStartLocal: data.weekStart.toISOString(),
+				});
+
 				const weekly = await attendanceManager.getWeeklyAttendance(weekStart);
+				uiLogger.debug('TimetableGrid: Loaded weekly attendance', {
+					attendanceKeys: Object.keys(weekly),
+					attendanceData: weekly,
+				});
+
 				setWeeklyAttendance(weekly);
 			} catch (error: unknown) {
+				uiLogger.error('TimetableGrid: Failed to load attendance data', {
+					error,
+				});
 				console.error('Failed to load attendance data:', error);
 			}
 		};
 
 		void loadAttendanceData();
-	}, [attendanceManager, data, attendanceRefreshKey]);
+	}, [attendanceManager, data?.weekStart.toISOString(), attendanceRefreshKey]); // Use full ISO string to ensure week changes trigger reload
 
 	// CALL ALL HOOKS FIRST (before any conditional returns)
-	const {focus} = useFocusManager();
-	const {findInitialFocus} = useGridNavigation();
+	// Const {focus} = useFocusManager();
+	// Const {findInitialFocus} = useGridNavigation();
 
 	// Calculate values that depend on data (with safe defaults)
 	const weekStartLocal = data
@@ -165,28 +194,28 @@ export function TimetableGrid({
 
 	const tableWidth = 2 + 20 + 5 * 12 + 8; // Group + Issue + 5 weekdays (wider) + Total = 90
 
-	// Set initial focus to first row and current day when component loads
-	useEffect(() => {
-		if (focusedCell === undefined && isActive) {
-			const focusableItems = calculateFocusableItems({
-				attendanceManager,
-				issueGroups,
-			});
+	// Set initial focus to first row and current day when component loads - DISABLED
+	// useEffect(() => {
+	// 	if (focusedCell === undefined && isActive) {
+	// 		const focusableItems = calculateFocusableItems({
+	// 			attendanceManager,
+	// 			issueGroups,
+	// 		});
 
-			// Calculate preferred column index (today's weekday)
-			const today = LocalDate.today();
-			const todayColumnIndex = weekDates.findIndex(date =>
-				LocalDate.fromDate(date).equals(today),
-			);
-			const preferredColumn = todayColumnIndex >= 0 ? todayColumnIndex : 0; // Default to Monday
+	// 		// Calculate preferred column index (today's weekday)
+	// 		const today = LocalDate.today();
+	// 		const todayColumnIndex = weekDates.findIndex(date =>
+	// 			LocalDate.fromDate(date).equals(today),
+	// 		);
+	// 		const preferredColumn = todayColumnIndex >= 0 ? todayColumnIndex : 0; // Default to Monday
 
-			const initialItem = findInitialFocus(focusableItems, preferredColumn);
+	// 		const initialItem = findInitialFocus(focusableItems, preferredColumn);
 
-			if (initialItem) {
-				focus(initialItem.focusId);
-			}
-		}
-	}, [focusedCell, isActive, attendanceManager, issueGroups, focus]);
+	// 		if (initialItem) {
+	// 			focus(initialItem.focusId);
+	// 		}
+	// 	}
+	// }, [focusedCell, isActive, attendanceManager, issueGroups, focus]);
 
 	// CONDITIONAL RENDERING AFTER ALL HOOKS
 	if (isLoading) {

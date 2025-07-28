@@ -3,6 +3,7 @@ import {Box, Text, useInput, useFocus} from 'ink';
 import {Duration} from '../domain/Duration.js';
 import type {LocalDate} from '../domain/LocalDate.js';
 import type {Attendance} from '../attendance/types.js';
+import type {WeeklyWorklogSummary} from '../domain/WeeklyWorklogSummary.js';
 import TimeInputField from './TimeInputField.js';
 import DurationInput from './WorklogForm/DurationInput.js';
 
@@ -12,6 +13,7 @@ type AttendanceEditFormProps = {
 	onSubmit: (data: Attendance) => void;
 	onCancel: () => void;
 	config?: any;
+	worklogData?: WeeklyWorklogSummary;
 };
 
 export function AttendanceEditForm({
@@ -20,7 +22,21 @@ export function AttendanceEditForm({
 	onSubmit,
 	onCancel,
 	config,
+	worklogData,
 }: AttendanceEditFormProps) {
+	// Calculate already logged hours for this date
+	const getLoggedHoursForDate = (): number => {
+		if (!worklogData) return 0;
+
+		// Find the daily summary for this specific date
+		const dailySummary = worklogData.dailySummaries.find(summary =>
+			summary.date.equals(date),
+		);
+
+		// Return the total hours for this date, or 0 if no data found
+		return dailySummary?.totalHours ?? 0;
+	};
+
 	// Use defaults from config only if no initial data exists
 	const getDefaultCheckIn = () => {
 		if (initialData?.checkIn) return initialData.checkIn;
@@ -29,7 +45,32 @@ export function AttendanceEditForm({
 
 	const getDefaultCheckOut = () => {
 		if (initialData?.checkOut) return initialData.checkOut;
-		return (config?.attendance?.defaultCheckOut as string) ?? '17:00';
+
+		// Calculate intelligent default based on already logged hours
+		const loggedHours = getLoggedHoursForDate();
+		const targetDailyHours =
+			(config?.attendance?.targetDailyHours as number) ?? 8;
+		const remainingHours = Math.max(0, targetDailyHours - loggedHours);
+
+		// Parse check-in time to calculate check-out time
+		const checkInTime = getDefaultCheckIn();
+		const [checkInHour, checkInMinute] = checkInTime.split(':').map(Number);
+
+		// Calculate check-out time: check-in + remaining hours + break time
+		const breakMinutes = 30; // Default break time
+		const checkInMinutes = (checkInHour ?? 0) * 60 + (checkInMinute ?? 0);
+		const checkOutMinutes = checkInMinutes + remainingHours * 60 + breakMinutes;
+
+		const checkOutHour = Math.floor(checkOutMinutes / 60);
+		const checkOutMinute = checkOutMinutes % 60;
+
+		// Format as HH:MM
+		const formattedCheckOut = `${String(checkOutHour).padStart(
+			2,
+			'0',
+		)}:${String(checkOutMinute).padStart(2, '0')}`;
+
+		return formattedCheckOut;
 	};
 
 	const [checkIn, setCheckIn] = useState(getDefaultCheckIn());

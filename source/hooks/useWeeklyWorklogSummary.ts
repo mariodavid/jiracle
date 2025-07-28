@@ -1,4 +1,4 @@
-import {useState, useEffect} from 'react';
+import {useState, useEffect, useCallback} from 'react';
 import {type WeeklyWorklogSummary} from '../domain/WeeklyWorklogSummary.js';
 import {WeeklyWorklogSummaryUseCase} from '../use-cases/WeeklyWorklogSummaryUseCase.js';
 import {JiraClient, normalizeSlidingWindowConfig} from '../jira-client.js';
@@ -39,7 +39,7 @@ export function useWeeklyWorklogSummary(
 	const [isLoading, setIsLoading] = useState(false);
 	const [error, setError] = useState<string | undefined>(undefined);
 
-	const fetchData = async () => {
+	const fetchData = useCallback(async () => {
 		// Create cache key based on week, user, favorite issues, and sliding window
 		const favoriteKeys =
 			favoriteIssues
@@ -89,13 +89,13 @@ export function useWeeklyWorklogSummary(
 			setIsLoading(false);
 			loadingCache.delete(cacheKey);
 		}
-	};
+	}, [weekStart, weekEnd, config, userEmail, favoriteIssues]);
 
 	useEffect(() => {
 		if (!skipAutoLoad) {
 			void fetchData();
 		}
-	}, [weekStart, weekEnd, config, skipAutoLoad, userEmail, favoriteIssues]);
+	}, [weekStart, weekEnd, skipAutoLoad, userEmail, favoriteIssues, fetchData]);
 
 	const refresh = () => {
 		// Clear cache for current week and reload

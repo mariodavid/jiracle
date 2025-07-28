@@ -32,7 +32,7 @@ export function FocusableCell({
 }: FocusableCellProps) {
 	const {isFocused} = useFocus({id: focusId, isActive});
 
-	// Call focus change callback when this cell gets focused
+	// Call focus change callback when this cell gets focused - only when focused to reduce render loops
 	React.useEffect(() => {
 		if (
 			isFocused &&
@@ -40,9 +40,10 @@ export function FocusableCell({
 			columnIndex !== undefined &&
 			onFocusChange
 		) {
+			// Only call when focused, not when unfocused, to reduce render loops
 			onFocusChange(issueKey, columnIndex, true);
 		}
-	}, [isFocused, issueKey, columnIndex, onFocusChange]);
+	}, [isFocused, issueKey?.toString(), columnIndex, onFocusChange]); // Use issueKey.toString() for stable comparison
 
 	// Handle display value differently for right-aligned cells
 	const displayValue = rightAlign

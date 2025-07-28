@@ -6,6 +6,7 @@ import type {IssueKey} from '../../domain/IssueKey.js';
 import type {WorklogFormData} from '../../hooks/useWorklogForm.js';
 import type {JiraConfig, WorklogEntry, JiraClient} from '../../jira-client.js';
 import type {Duration} from '../../domain/Duration.js';
+import type {WeeklyWorklogSummary} from '../../domain/WeeklyWorklogSummary.js';
 
 export type WorklogFormAreaProps = {
 	worklogForm: WorklogFormData;
@@ -13,6 +14,7 @@ export type WorklogFormAreaProps = {
 	worklogError: string | undefined;
 	config: JiraConfig;
 	jiraClient: JiraClient;
+	worklogData?: WeeklyWorklogSummary;
 	onSubmit: (data: {
 		issueKey: IssueKey;
 		date: LocalDate;

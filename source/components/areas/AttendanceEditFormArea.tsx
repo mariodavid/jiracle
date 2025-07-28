@@ -4,10 +4,12 @@ import {AttendanceEditForm} from '../AttendanceEditForm.js';
 import type {AttendanceEditState} from '../../hooks/useAttendanceManagement.js';
 import type {Attendance} from '../../attendance/types.js';
 import type {JiraConfig} from '../../jira-client.js';
+import type {WeeklyWorklogSummary} from '../../domain/WeeklyWorklogSummary.js';
 
 export type AttendanceEditFormAreaProps = {
 	attendanceEdit: AttendanceEditState;
 	config: JiraConfig;
+	worklogData?: WeeklyWorklogSummary;
 	onSubmit: (data: Attendance) => void;
 	onCancel: () => void;
 };
@@ -15,6 +17,7 @@ export type AttendanceEditFormAreaProps = {
 export function AttendanceEditFormArea({
 	attendanceEdit,
 	config,
+	worklogData,
 	onSubmit,
 	onCancel,
 }: AttendanceEditFormAreaProps) {
@@ -31,6 +34,7 @@ export function AttendanceEditFormArea({
 					date={attendanceEdit.date}
 					initialData={attendanceEdit.data}
 					config={config}
+					worklogData={worklogData}
 					onSubmit={onSubmit}
 					onCancel={onCancel}
 				/>

@@ -92,11 +92,17 @@ export class JiraClient {
 			],
 		};
 
-		const data = await this.httpClient.post<JiraSearchResponse>(
-			'/search',
-			requestData,
-		);
-		return data.issues;
+		const rawData = await this.httpClient.post<{
+			issues: Array<{key: string; id: string; fields: any}>;
+		}>('/search', requestData);
+
+		// Transform the raw API response to use IssueKey objects
+		const transformedIssues: JiraIssue[] = rawData.issues.map(issue => ({
+			...issue,
+			key: IssueKey.fromString(issue.key),
+		}));
+
+		return transformedIssues;
 	}
 
 	async fetchFavoriteIssues(favorites: FavoriteIssue[]): Promise<JiraIssue[]> {
@@ -122,13 +128,18 @@ export class JiraClient {
 			],
 		};
 
-		const data = await this.httpClient.post<JiraSearchResponse>(
-			'/search',
-			requestData,
-		);
+		const rawData = await this.httpClient.post<{
+			issues: Array<{key: string; id: string; fields: any}>;
+		}>('/search', requestData);
+
+		// Transform the raw API response to use IssueKey objects
+		const transformedIssues: JiraIssue[] = rawData.issues.map(issue => ({
+			...issue,
+			key: IssueKey.fromString(issue.key),
+		}));
 
 		const sortedIssues = favoriteKeys
-			.map(key => data.issues.find(issue => issue.key.toString() === key))
+			.map(key => transformedIssues.find(issue => issue.key.toString() === key))
 			.filter((issue): issue is JiraIssue => issue !== undefined);
 
 		return sortedIssues;
@@ -136,7 +147,17 @@ export class JiraClient {
 
 	async fetchIssue(issueKey: string | IssueKey): Promise<JiraIssue> {
 		const key = typeof issueKey === 'string' ? issueKey : issueKey.toString();
-		return this.httpClient.get<JiraIssue>(`/issue/${key}`);
+		const rawIssue = await this.httpClient.get<{
+			key: string;
+			id: string;
+			fields: any;
+		}>(`/issue/${key}`);
+
+		// Transform the raw API response to use IssueKey objects
+		return {
+			...rawIssue,
+			key: IssueKey.fromString(rawIssue.key),
+		};
 	}
 
 	async addWorklog(

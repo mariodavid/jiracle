@@ -109,7 +109,7 @@ export function useWorklogForm(
 				return undefined;
 			}
 		},
-		[config],
+		[config, data],
 	);
 
 	const [worklogForm, setWorklogForm] = useState<WorklogFormData>({
