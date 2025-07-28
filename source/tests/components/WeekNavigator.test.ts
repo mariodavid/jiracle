@@ -27,7 +27,7 @@ test('getWeekTitle renders week spanning different months', t => {
 	const timezoneOffset = currentWeek.getTimezoneOffset();
 	if (timezoneOffset === -120) {
 		// Local Mac environment (UTC+2)
-		t.is(title, 'Week 40 (Sep 30 - Oct 7, 2024)');
+		t.is(title, 'Week 40 (Sep 30 - Oct 6, 2024)');
 	} else if (timezoneOffset === 0) {
 		// GitHub Actions environment (UTC)
 		t.true(title.includes('Week'));
@@ -74,7 +74,7 @@ test('getWeekTitle handles Monday start of week correctly', t => {
 	const timezoneOffset = currentWeek.getTimezoneOffset();
 	if (timezoneOffset === -120) {
 		// Local Mac environment (UTC+2)
-		t.is(title, 'Week 42 (Oct 14-21, 2024)');
+		t.is(title, 'Week 42 (Oct 14-20, 2024)');
 	} else if (timezoneOffset === 0) {
 		// GitHub Actions environment (UTC)
 		t.true(title.includes('Week'));

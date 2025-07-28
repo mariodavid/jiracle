@@ -16,7 +16,7 @@ export function getWeekTitle(currentWeek: Date): string {
 	const localDate = LocalDate.fromDate(currentWeek);
 	const weekRange = WeekRange.fromDate(localDate);
 	const weekNumber = weekRange.getWeekNumber();
-	return `Week ${weekNumber} (${weekRange.toDisplayString()})`;
+	return `Week ${weekNumber} (${weekRange.toFormattedDisplayString()})`;
 }
 
 export function WeekNavigator({activeArea}: WeekNavigatorProps) {

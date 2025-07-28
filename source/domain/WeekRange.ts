@@ -82,6 +82,10 @@ export class WeekRange {
 	}
 
 	toDisplayString(): string {
+		return `${this.start.toDisplayString()} - ${this.end.toDisplayString()}`;
+	}
+
+	toFormattedDisplayString(): string {
 		const startDate = this.start.toDate();
 		const endDate = this.end.toDate();
 		return this.formatDateRange(startDate, endDate);
@@ -112,6 +116,14 @@ export class WeekRange {
 
 	getYear(): number {
 		return this.start.toDate().getFullYear();
+	}
+
+	getStartOfWeekAsDate(): Date {
+		return new Date(this.start.toISOString() + 'T00:00:00.000Z');
+	}
+
+	getEndOfWeekAsDate(): Date {
+		return new Date(this.end.toISOString() + 'T23:59:59.999Z');
 	}
 
 	private formatDateRange(start: Date, end: Date): string {
