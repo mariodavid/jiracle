@@ -3,9 +3,9 @@ import React from 'react';
 import {render} from 'ink-testing-library';
 import IssueList from '../../components/IssueList.js';
 import {createMockIssue, createMockIssueList} from '../utils/testUtils.js';
-import {IssueKey} from '../../domain/IssueKey.js';
 import type {JiraIssue} from '../../jira-client.js';
 import {InkTestHelpers} from '../utils/ink-test-helpers.js';
+import {IssueKey} from '../../domain/IssueKey.js';
 
 test('should render custom title', async t => {
 	const mockIssues = createMockIssueList(2);

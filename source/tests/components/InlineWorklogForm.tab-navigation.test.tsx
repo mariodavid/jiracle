@@ -94,7 +94,7 @@ test('InlineWorklogForm shows proper field layout in add worklog mode', t => {
 test('InlineWorklogForm shows proper field layout in cell worklog mode', t => {
 	const cellWorklogProps = {
 		...mockProps,
-		issueKey: 'PROJECT-123', // Specific issue key for cell worklog mode
+		issueKey: IssueKey.fromString('PROJECT-123'), // Specific issue key for cell worklog mode
 		isIssueKeyEditable: false,
 	};
 

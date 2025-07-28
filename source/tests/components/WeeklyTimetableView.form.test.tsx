@@ -1,9 +1,9 @@
 import test from 'ava';
 import React from 'react';
 import {render} from 'ink-testing-library';
+import {IssueKey} from '../../domain/IssueKey.js';
 import {WeeklyTimetableView} from '../../components/WeeklyTimetableView.js';
 import {createMockConfig} from '../utils/testUtils.js';
-import {IssueKey} from '../../domain/IssueKey.js';
 
 // Mock fetch to prevent network requests in tests
 global.fetch = async () => {

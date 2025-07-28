@@ -1,0 +1,1048 @@
+
+  ✔ hooks › useTitleResolver › useTitleResolver returns worklog form title when form is visible
+  ✔ hooks › useTitleResolver › useTitleResolver returns delete confirmation title with red color
+  ✔ hooks › useTitleResolver › useTitleResolver returns delete attendance confirmation title with red color
+  ✔ hooks › useTitleResolver › useTitleResolver returns attendance edit title
+  ✔ hooks › useTitleResolver › useTitleResolver returns week title as default
+  ✔ hooks › useTitleResolver › useTitleResolver prioritizes worklog form over other states
+  ✔ hooks › useTitleResolver › useTitleResolver handles delete confirmation without candidate
+  ✔ hooks › useTitleResolver › useTitleResolver handles attendance edit without data
+  ✔ hooks › useTitleResolver › useTitleResolver formats different weekdays correctly
+  ✔ hooks › useTitleResolver › useTitleResolver handles different months in week title
+  ✔ hooks › useTitleResolver › useTitleResolver handles year boundary correctly
+  ✔ hooks › useTitleResolver › useTitleResolver calculates German calendar weeks correctly
+  ✔ hooks › useActiveAreaResolver › useActiveAreaResolver returns worklog-form when worklog form is visible
+  ✔ hooks › useActiveAreaResolver › useActiveAreaResolver returns delete-confirmation when area is delete-confirmation and candidate exists
+  ✔ hooks › useActiveAreaResolver › useActiveAreaResolver returns timetable when delete-confirmation active but no candidate
+  ✔ hooks › useActiveAreaResolver › useActiveAreaResolver returns delete-attendance-confirmation when area and candidate exist
+  ✔ hooks › useActiveAreaResolver › useActiveAreaResolver returns timetable when delete-attendance-confirmation active but no candidate
+  ✔ hooks › useActiveAreaResolver › useActiveAreaResolver returns checkin-confirmation when area is checkin-confirmation
+  ✔ hooks › useActiveAreaResolver › useActiveAreaResolver returns checkout-confirmation when area is checkout-confirmation
+  ✔ hooks › useActiveAreaResolver › useActiveAreaResolver returns attendance-edit when area is attendance-edit and data exists
+  ✔ hooks › useActiveAreaResolver › useActiveAreaResolver returns timetable when attendance-edit active but no data
+  ✔ hooks › useActiveAreaResolver › useActiveAreaResolver returns timetable as default
+  ✔ hooks › useActiveAreaResolver › useActiveAreaResolver prioritizes worklog form over other states
+  ✔ hooks › useActiveAreaResolver › useActiveAreaResolver prioritizes delete confirmations over attendance operations
+  ✔ hooks › useActiveAreaResolver › useActiveAreaResolver handles multiple attendance operations correctly
+  ✔ hooks › useActiveAreaResolver › useActiveAreaResolver handles unknown active area
+  ✔ hooks › useActiveAreaResolver › useActiveAreaResolver handles all combinations correctly
+  ✔ services › TimeParsingService › parseTimeToHours - handles empty string
+  ✔ services › TimeParsingService › parseTimeToHours - handles combined format (hours + minutes)
+  ✔ services › TimeParsingService › parseTimeToHours - handles days (1d = 8h)
+  ✔ services › TimeParsingService › parseTimeToHours - handles hours
+  ✔ services › TimeParsingService › parseTimeToHours - handles minutes
+  ✔ services › TimeParsingService › parseTimeToHours - handles unparseable strings
+  ✔ services › TimeParsingService › normalizeTimeString - converts comma to dot
+  ✔ services › TimeParsingService › normalizeTimeString - adds smart units for plain numbers
+  ✔ services › TimeParsingService › normalizeTimeString - completes h+digits format
+  ✔ services › TimeParsingService › normalizeTimeString - handles already normalized strings
+  ✔ services › TimeParsingService › generateTimeMarks - generates correct marks for 15 minute increments
+  ✔ services › TimeParsingService › generateTimeMarks - generates correct marks for 30 minute increments
+  ✔ services › TimeParsingService › adjustTime - adjusts up correctly
+  ✔ services › TimeParsingService › adjustTime - adjusts down correctly
+  ✔ services › TimeParsingService › adjustTime - respects minimum value
+  ✔ services › TimeParsingService › adjustTime - handles different increments
+  ✔ services › TimeParsingService › adjustTime - handles complex time formats
+  ✔ services › TimeParsingService › adjustTime - handles edge cases
+  ✔ utils › inputValidation › InputValidation - allows valid numeric input
+  ✔ utils › inputValidation › InputValidation - allows valid decimal separators
+  ✔ utils › inputValidation › InputValidation - allows valid units
+  ✔ utils › inputValidation › InputValidation - rejects invalid starting characters
+  ✔ utils › inputValidation › InputValidation - rejects invalid characters
+  ✔ utils › inputValidation › InputValidation - rejects multiple decimal separators
+  ✔ utils › inputValidation › InputValidation - rejects invalid hour patterns
+  ✔ utils › inputValidation › InputValidation - rejects characters after complete units
+  ✔ utils › inputValidation › InputValidation - allows valid hour+minute patterns
+  ✔ utils › inputValidation › InputValidation - respects allowed units restriction
+  ✔ utils › inputValidation › InputValidation - handles edge cases
+  ✔ utils › inputValidation › createInputValidator - factory function works correctly
+  ✔ domain › LocalDate › fromString creates LocalDate from valid date string
+  ✔ domain › LocalDate › today creates LocalDate for current date
+  ✔ domain › LocalDate › fromDate creates LocalDate from Date object
+  ✔ domain › LocalDate › equals compares LocalDate instances correctly
+  ✔ domain › LocalDate › addDays performs date arithmetic correctly
+  ✔ domain › LocalDate › addDays handles month boundaries correctly
+  ✔ domain › LocalDate › getWeekStart returns Monday for any day in week
+  ✔ domain › LocalDate › getWeekEnd returns Sunday for any day in week
+  ✔ domain › LocalDate › getWeekStart handles year boundaries correctly
+  ✔ domain › LocalDate › toDisplayString formats date for UI display
+  ✔ domain › LocalDate › fromString throws error for invalid date format
+  ✔ domain › LocalDate › immutability: addDays does not modify original instance
+  ✔ domain › LocalDate › immutability: getWeekStart does not modify original instance
+  ✔ tests › jira-client.reminders › ReminderConfig interface validates correctly
+  ✔ tests › jira-client.reminders › ReminderConfig can be disabled
+  ✔ tests › jira-client.reminders › ReminderConfig supports multiple reminder times
+  ✔ tests › jira-client.reminders › ReminderConfig can work on all days
+  ✔ tests › jira-client.project-defaults › extractProjectKey extracts project key from issue key
+  ✔ tests › jira-client.project-defaults › extractProjectKey returns null for invalid issue keys
+  ✔ tests › jira-client.project-defaults › resolveDefaults returns fallback values when no config provided
+  ✔ tests › jira-client.project-defaults › resolveDefaults uses global defaults when available
+  ✔ tests › jira-client.project-defaults › resolveDefaults uses issue defaults when available (highest priority)
+  ✔ tests › jira-client.project-defaults › resolveDefaults mixes sources correctly
+  ✔ tests › jira-client.project-defaults › resolveDefaults falls back through hierarchy correctly
+  ✔ tests › jira-client.project-defaults › resolveDefaults handles project without group assignment
+  ✔ tests › jira-client.project-defaults › resolveDefaults uses group defaults from issue group assignment
+  ✔ tests › jira-client.project-defaults › resolveDefaults uses group defaults from project group assignment
+  ✔ tests › jira-client.project-defaults › resolveDefaults prioritizes issue group over project group
+  ✔ tests › jira-client.project-defaults › resolveDefaults respects priority hierarchy with groups: issue > group > global
+  ✔ tests › jira-client.project-defaults › resolveDefaults falls back through group hierarchy correctly
+  ✔ tests › jira-client.project-defaults › resolveDefaults handles invalid group references gracefully
+  ✔ tests › jira-client.project-defaults › resolveDefaults works with groups containing only partial defaults
+  ✔ tests › jira-client.project-defaults › resolveDefaults includes group desiredAmount in result
+  ✔ tests › jira-client.hasWorklogForToday › hasWorklogForToday method exists and builds correct JQL
+  ✔ tests › jira-client.hasWorklogForToday › hasWorklogForToday returns true when worklogs exist
+  ✔ tests › jira-client.hasWorklogForToday › hasWorklogForToday handles errors correctly
+  ✔ components › areas › DeleteWorklogConfirmationArea › DeleteWorklogConfirmationArea renders with issue key and formatted date
+  ✔ components › areas › DeleteWorklogConfirmationArea › DeleteWorklogConfirmationArea shows loading state
+  ✔ components › areas › DeleteWorklogConfirmationArea › DeleteWorklogConfirmationArea handles confirmation callback
+  ✔ components › areas › DeleteWorklogConfirmationArea › DeleteWorklogConfirmationArea uses correct dialog styling
+  ✔ components › areas › DeleteWorklogConfirmationArea › DeleteWorklogConfirmationArea handles different issue keys
+  ✔ components › areas › CheckoutConfirmationArea › CheckoutConfirmationArea renders checkout confirmation dialog
+  ✔ components › areas › CheckoutConfirmationArea › CheckoutConfirmationArea handles confirmation callback
+  ✔ components › areas › CheckoutConfirmationArea › CheckoutConfirmationArea handles cancellation callback
+  ✔ components › areas › CheckoutConfirmationArea › CheckoutConfirmationArea uses correct dialog styling
+  ✔ components › areas › CheckoutConfirmationArea › CheckoutConfirmationArea handles escape key for checkout cancellation
+  ✔ components › areas › CheckoutConfirmationArea › CheckoutConfirmationArea maintains consistent interface behavior
+  ✔ tests › jira-client › JiraClient constructor sets properties correctly
+  ✔ tests › jira-client › normalizeTimeFormat converts time formats correctly
+  ✔ tests › jira-client › extractIssueKeyFromInput extracts issue keys from URLs correctly
+  ✔ components › areas › AttendanceEditFormArea › AttendanceEditFormArea renders with attendance form
+  ✔ components › areas › AttendanceEditFormArea › AttendanceEditFormArea handles submit callback
+  ✔ components › areas › AttendanceEditFormArea › AttendanceEditFormArea handles cancel callback
+  ✔ components › areas › AttendanceEditFormArea › AttendanceEditFormArea handles attendance without initial data
+  ✔ components › areas › AttendanceEditFormArea › AttendanceEditFormArea uses correct styling and layout
+  ✔ components › areas › AttendanceEditFormArea › AttendanceEditFormArea handles different dates
+  ✔ components › areas › AttendanceEditFormArea › AttendanceEditFormArea handles different break configurations
+  ✔ tests › jira-client › fetchAssignedIssues builds correct request
+  ✔ tests › jira-client › fetchIssue builds correct request
+  ✔ tests › jira-client › addWorklog accepts custom time formats
+  ✔ tests › jira-client › fetchAssignedIssues handles API errors
+  ✔ tests › attendance › AttendanceCSVCorruption › should handle corrupted CSV file - missing columns
+  ✔ tests › attendance › AttendanceCSVCorruption › should handle CSV file with special characters
+  ✔ tests › attendance › AttendanceCSVCorruption › should handle empty CSV file
+  ✔ tests › attendance › AttendanceCSVCorruption › should handle CSV with only headers
+  ✔ tests › attendance › AttendanceCSVCorruption › should handle invalid date formats in CSV
+  ✔ tests › attendance › AttendanceCSVCorruption › should handle corrupted CSV file - extra columns
+  ✔ tests › attendance › AttendanceCSVCorruption › should handle corrupted CSV file - invalid headers
+  ✔ tests › attendance › AttendanceCSVCorruption › should handle concurrent access simulation
+  ✔ tests › attendance › AttendanceCSVCorruption › should handle CSV injection attempts
+  ✔ components › areas › DeleteAttendanceConfirmationArea › DeleteAttendanceConfirmationArea renders with formatted date
+  ✔ components › areas › DeleteAttendanceConfirmationArea › DeleteAttendanceConfirmationArea shows loading state
+  ✔ components › areas › DeleteAttendanceConfirmationArea › DeleteAttendanceConfirmationArea handles confirmation callback
+  ✔ components › areas › DeleteAttendanceConfirmationArea › DeleteAttendanceConfirmationArea handles cancellation callback
+  ✔ components › areas › DeleteAttendanceConfirmationArea › DeleteAttendanceConfirmationArea handles different dates
+  ✔ components › areas › DeleteAttendanceConfirmationArea › DeleteAttendanceConfirmationArea uses correct dialog styling
+  ✔ components › areas › CheckinConfirmationArea › CheckinConfirmationArea renders checkin confirmation dialog
+  ✔ components › areas › CheckinConfirmationArea › CheckinConfirmationArea handles confirmation callback
+  ✔ components › areas › CheckinConfirmationArea › CheckinConfirmationArea handles cancellation callback
+  ✔ components › areas › CheckinConfirmationArea › CheckinConfirmationArea uses correct dialog styling
+  ✔ components › areas › CheckinConfirmationArea › CheckinConfirmationArea handles escape key for checkin cancellation
+  ✔ tests › jira-client.worklog › getIssueWorklogs builds correct request
+  ✔ tests › jira-client.worklog › getCurrentUser builds correct request
+  ✔ tests › jira-client.worklog › getIssueWorklogs parses response correctly
+  ✔ tests › jira-client.worklog › updateWorklog validates worklog ID
+  ✔ tests › jira-client.worklog › updateWorklog builds correct request
+  ✔ tests › jira-client.worklog › getIssueWorklogs handles API errors
+  ✘ [fail]: tests › jira-client.worklog › searchIssuesWithWorklogs builds correct request
+  ✔ tests › jira-client.worklog › getCurrentUser handles API errors
+  ✘ [fail]: tests › jira-client.worklog › searchIssuesWithWorklogs parses response correctly
+  ✔ tests › jira-client.worklog › updateWorklog handles 405 error with helpful message
+  ✔ tests › jira-client.worklog › updateWorklog validates issue key
+  ✔ tests › jira-client.worklog › searchIssuesWithWorklogs handles API errors
+  ✔ tests › jira-client.worklog › updateWorklog handles API errors
+  ✔ tests › attendance › AttendanceCSVCorruption › should handle very large CSV file
+  ✔ tests › attendance › AttendanceCSVStorage › should create empty array when CSV does not exist
+  ✔ tests › attendance › AttendanceCSVStorage › should write and read attendance data
+  ✔ tests › attendance › AttendanceCSVStorage › should create directory if not exists
+  ✔ tests › attendance › AttendanceCSVStorage › should handle missing optional fields
+  ✔ tests › attendance › AttendanceCSVStorage › should get attendance by date
+  ✔ tests › attendance › AttendanceCSVStorage › should get attendances by date range
+  ✔ tests › attendance › AttendanceCSVStorage › should sort attendances by date
+  ✔ tests › attendance › AttendanceCSVStorage › should upsert attendance data
+  ✔ tests › attendance › AttendanceDelete › AttendanceManager deleteAttendance - deletes existing record
+  ✔ tests › attendance › AttendanceDelete › AttendanceManager deleteAttendance - returns false for non-existent record
+  ✔ tests › attendance › AttendanceCalculations › should parse valid time strings
+  ✔ tests › attendance › AttendanceCalculations › should return undefined for invalid time strings
+  ✔ tests › attendance › AttendanceCalculations › should calculate total hours correctly
+  ✔ tests › attendance › AttendanceCalculations › should calculate total hours with different break times
+  ✔ tests › attendance › AttendanceCalculations › should return undefined for incomplete attendance
+  ✔ tests › attendance › AttendanceCalculations › should return 0 for negative work time
+  ✔ tests › attendance › AttendanceCalculations › should format duration correctly
+  ✔ tests › attendance › AttendanceCalculations › should format time correctly
+  ✔ tests › attendance › AttendanceCalculations › should validate time strings
+  ✔ tests › attendance › AttendanceCalculations › should calculate attendance status
+  ✔ tests › attendance › AttendanceCalculations › should calculate status for null attendance
+  ✔ tests › attendance › AttendanceCalculations › should get week dates starting from Monday
+  ✔ tests › attendance › AttendanceCalculations › should get week dates when starting on Sunday
+  ✔ tests › attendance › AttendanceCalculations › should calculate weekly totals
+  ✔ tests › attendance › AttendanceCalculations › should add minutes to time
+  ✔ tests › attendance › AttendanceCalculations › should calculate time difference in minutes
+  ✔ tests › attendance › AttendanceCalculations › should handle extreme time edge cases
+  ✔ tests › attendance › AttendanceCalculations › should handle 23:59 check-out time
+  ✔ tests › attendance › AttendanceCalculations › should handle zero break time
+  ✔ tests › attendance › AttendanceCalculations › should handle very long break time
+  ✔ tests › attendance › AttendanceCalculations › should handle fractional hour calculations correctly
+  ✔ tests › attendance › AttendanceCalculations › should format very small durations
+  ✔ tests › attendance › AttendanceCalculations › should format very large durations
+  ✔ tests › attendance › AttendanceCalculations › should validate edge case time strings
+  ✔ tests › attendance › AttendanceCalculations › should handle same check-in and check-out time
+  ✔ tests › attendance › AttendanceCalculations › should calculate status with zero hours worked
+  ✔ tests › attendance › AttendanceCalculations › should handle negative difference correctly
+  ✔ tests › attendance › AttendanceCalculations › should handle invalid date strings in calculations
+  ✔ tests › attendance › AttendanceCalculations › should handle cross-day time spans correctly
+  ✔ tests › attendance › AttendanceCalculations › should calculate daily deltas correctly
+  ✔ tests › attendance › AttendanceCalculations › should calculate daily deltas with zero logged hours
+  ✔ tests › attendance › AttendanceCalculations › should handle incomplete attendance data in delta calculation
+  ✔ tests › attendance › AttendanceCalculations › should calculate deltas with missing logged hours
+  ✔ tests › attendance › AttendanceDelete › AttendanceManager deleteAttendance - preserves other records
+  ✔ tests › attendance › AttendanceDelete › AttendanceCSVStorage deleteByDate - removes correct record
+  ✔ tests › attendance › AttendanceDelete › AttendanceManager deleteAttendance - handles empty CSV file
+  ✔ tests › attendance › AttendanceManager › should handle config updates
+  ✔ tests › attendance › AttendanceManager › should get status for day with no attendance
+  ✔ tests › attendance › AttendanceManager › should throw error for invalid check-in time
+  ✔ tests › attendance › AttendanceManager › should throw error for invalid check-out time
+  ✔ tests › attendance › AttendanceManager › should throw error for invalid time in update
+  ✔ tests › attendance › AttendanceManager › should update attendance
+  ✔ tests › attendance › AttendanceManager › should check in with custom time
+  ✔ tests › attendance › AttendanceManager › should check in with current time
+  ✔ tests › attendance › AttendanceManager › should check out with custom time
+  ✔ tests › attendance › AttendanceManager › should check out with current time
+  ✔ tests › attendance › AttendanceManager › should get status for today
+  ✔ tests › attendance › AttendanceManager › should format status messages correctly
+  ✔ tests › attendance › AttendanceManager › should check attendance status methods
+  ✔ tests › attendance › AttendanceManager › should correct time entries
+  ✔ tests › attendance › AttendanceManager › should get weekly attendance
+  ✔ tests › attendance › AttendanceManager › should get weekly totals
+  ✔ tests › cli › attendance-commands-current-time › checkin uses current time when no time specified
+  ✔ tests › cli › attendance-commands-current-time › explicit time overrides current time
+  ✔ tests › cli › attendance-commands-current-time › checkout uses current time when no time specified
+  ✔ tests › cli › attendance-commands-current-time › status shows attendance with current times
+  ✔ tests › cli › attendance-config-validation › should handle missing attendance config
+  ✔ tests › cli › attendance-commands-current-time › multiple checkins/checkouts update same CSV entry
+  ✔ tests › cli › attendance-commands › should check in with current time
+  ✔ tests › cli › attendance-commands › should check in with custom time
+  ✔ tests › cli › attendance-commands › should fail check in with invalid time
+  ✔ tests › cli › attendance-commands › should fail check in with invalid date
+  ✔ tests › cli › attendance-config-validation › should handle malformed JSON config
+  ✔ tests › cli › attendance-config-validation › should handle invalid working hours - negative
+  ✔ tests › cli › attendance-config-validation › should handle invalid working hours - zero
+  ✔ tests › cli › attendance-config-validation › should handle invalid working hours - over 24
+  ✔ tests › cli › attendance-commands › should check out with current time
+  ✔ tests › cli › attendance-config-validation › should handle invalid break minutes - negative
+  ✔ tests › cli › attendance-config-validation › should handle invalid break minutes - greater than working hours
+  ✔ tests › cli › attendance-commands › should check out with custom time
+  ✔ tests › cli › attendance-commands › should show status for empty day
+  ✔ tests › cli › attendance-commands › should show status after check in
+  ✔ tests › cli › attendance-commands › should show status after full day
+  ✔ tests › cli › attendance-commands › should fail when attendance is disabled
+  ✔ tests › cli › attendance-commands › should handle missing config file
+  ✔ tests › cli › attendance-commands › should validate time format strictly
+  ✔ tests › cli › attendance-commands › should validate date format strictly
+  ✔ tests › cli › attendance-commands › should reject future dates for check-in
+  ✔ tests › cli › attendance-commands › should handle check-in at midnight
+  ✔ tests › cli › attendance-commands › should handle check-in at 23:59
+  ✔ tests › cli › attendance-commands › should fail check-out without prior check-in
+  ✔ tests › cli › attendance-commands › should fail check-out before check-in time
+  ✔ tests › cli › attendance-commands › should handle multiple check-ins on same day (update existing)
+  ✔ tests › cli › attendance-commands › should calculate overtime correctly
+  ✔ tests › cli › attendance-commands › should calculate undertime correctly
+  ✔ tests › cli › attendance-config-validation › should handle invalid default times - malformed check-in
+  ✔ components › areas › WorklogFormArea › WorklogFormArea renders with worklog form (243ms)
+  ✔ components › areas › WorklogFormArea › WorklogFormArea shows loading state when submitting
+  ✔ components › areas › WorklogFormArea › WorklogFormArea displays error message
+  ✔ components › areas › WorklogFormArea › WorklogFormArea passes submit callback to InlineWorklogForm
+  ✔ components › areas › WorklogFormArea › WorklogFormArea passes cancel callback to InlineWorklogForm
+  ✔ components › areas › WorklogFormArea › WorklogFormArea shows favorite indicator for favorite issues
+  ✔ components › areas › WorklogFormArea › WorklogFormArea handles edit mode correctly
+  ✔ components › areas › WorklogFormArea › WorklogFormArea renders complete form layout structure
+  ✔ tests › cli › attendance-config-validation › should handle invalid default times - malformed check-out
+  ✔ tests › cli › attendance-config-validation › should handle default values when config has partial attendance
+  ✔ tests › cli › attendance-config-validation › should validate config file permissions
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                 ██╗ ██╗ ██████╗   █████╗   ██████╗ ██╗      ███████╗
+                 ██║ ██║ ██╔══██╗ ██╔══██╗ ██╔════╝ ██║      ██╔════╝
+                 ██║ ██║ ██████╔╝ ███████║ ██║      ██║      █████╗
+            ██   ██║ ██║ ██╔══██╗ ██╔══██║ ██║      ██║      ██╔══╝
+            ╚█████╔╝ ██║ ██║  ██║ ██║  ██║ ╚██████╗ ███████╗ ███████╗
+             ╚════╝  ╚═╝ ╚═╝  ╚═╝ ╚═╝  ╚═╝  ╚═════╝ ╚══════╝ ╚══════╝
+
+
+
+
+                      ⠋ Loading configu ation and issues...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  ✔ tests › cli-logic › executeWorklogAdd - handles missing config file
+  ✔ tests › cli-logic › executeWorklogAdd - handles malformed config file
+  ✔ tests › cli-logic › executeWorklogAdd - handles success scenario
+  ✔ tests › cli-logic › executeWorklogAdd - handles network error
+  ✔ tests › cli-logic › executeWorklogAdd - handles 404 Issue Does Not Exist
+  ✔ tests › cli-logic › executeWorklogAdd - handles 401 Unauthorized
+  ✔ tests › cli-logic › executeWorklogAdd - handles 403 Forbidden
+  ✔ tests › cli-logic › executeWorklogAdd - validates required parameters
+  ✔ tests › cli-logic › executeWorklogAdd - validates time format
+[2K[1A[2K[1A[2K[1A[2K[1A[2K[1A[2K[1A[2K[1A[2K[1A[2K[1A[2K[1A[2K[1A[2K[1A[2K[1A[2K[1A[2K[1A[2K[1A[2K[1A[2K[1A[2K[1A[2K[1A[2K[1A[2K[1A[2K[1A[2K[1A[2K[1A[2K[1A[2K[1A[2K[1A[2K[1A[2K[1A[2K[1A[2K[1A[2K[1A[2K[1A[2K[1A[2K[1A[2K[1A[2K[1A[2K[1A[2K[1A[2K[1A[2K[1A[2K[1A[2K[1A[2K[1A[2K[1A[2K[1A[2K[1A[2K[1A[2K[1A[2K[1A[2K[1A[2K[1A[2K[1A[2K[1A[2K[G
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                 ██╗ ██╗ ██████╗   █████╗   ██████╗ ██╗      ███████╗
+                 ██║ ██║ ██╔══██╗ ██╔══██╗ ██╔════╝ ██║      ██╔════╝
+                 ██║ ██║ ██████╔╝ ███████║ ██║      ██║      █████╗
+            ██   ██║ ██║ ██╔══██╗ ██╔══██║ ██║      ██║      ██╔══╝
+            ╚█████╔╝ ██║ ██║  ██║ ██║  ██║ ╚██████╗ ███████╗ ███████╗
+             ╚════╝  ╚═╝ ╚═╝  ╚═╝ ╚═╝  ╚═╝  ╚═════╝ ╚══════╝ ╚══════╝
+
+
+
+
+                      ⠙ Loading configu ation and issues...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  ✔ tests › cli-logic › executeWorklogAdd - validates date format
+  ✔ tests › components › AttendanceEditForm.tab-navigation › AttendanceEditForm handles Tab navigation forward
+  ✔ tests › components › AttendanceEditForm.tab-navigation › AttendanceEditForm handles Shift+Tab navigation backward
+  ✔ tests › components › AttendanceEditForm.tab-navigation › AttendanceEditForm Tab and Shift+Tab navigation cycles correctly
+  ✔ tests › components › AttendanceEditForm.tab-navigation › AttendanceEditForm shows correct help text for navigation
+  ✔ tests › components › AttendanceEditForm › AttendanceEditForm renders with default values (134ms)
+  ✔ tests › components › AttendanceEditForm › AttendanceEditForm renders with initial data (108ms)
+  ✔ tests › components › AttendanceEditForm › AttendanceEditForm uses config defaults when no initial data (106ms)
+  ✔ tests › components › AttendanceEditForm › AttendanceEditForm can submit data (104ms)
+  ✔ tests › components › AttendanceEditForm › AttendanceEditForm renders break duration input (102ms)
+  ✔ tests › components › AttendanceEditForm › AttendanceEditForm has navigation buttons
+  ✔ tests › components › AttendanceEditForm › AttendanceEditForm accepts onCancel callback
+  ✔ tests › components › AttendanceEditForm › AttendanceEditForm shows navigation help
+  ✔ tests › components › AttendanceEditForm › AttendanceEditForm handles Tab navigation between fields
+  ✔ tests › components › AttendanceEditForm › AttendanceEditForm handles Enter key on submit button
+  ✔ tests › components › AttendanceEditForm › AttendanceEditForm handles Escape key for cancel
+  ✔ tests › components › AttendanceEditForm › AttendanceEditForm validates time input fields
+  ✔ tests › components › AttendanceEditForm › AttendanceEditForm handles empty initial data
+  ✔ tests › components › AttendanceEditForm › AttendanceEditForm formats German date correctly
+  ✔ tests › components › AttendanceEditForm › AttendanceEditForm handles different break durations
+  ✔ tests › components › AttendanceEditForm › AttendanceEditForm submits correct data format
+  ✔ tests › components › AttendanceEditForm › AttendanceEditForm maintains focus state correctly
+  ✔ tests › components › ConfirmationDialog › ConfirmationDialog renders children when not loading
+  ✔ tests › components › ConfirmationDialog › ConfirmationDialog shows loading state with default text
+  ✔ tests › components › ConfirmationDialog › ConfirmationDialog shows loading state with custom text
+  ✔ tests › components › ConfirmationDialog › ConfirmationDialog uses default width and border color
+  ✔ tests › components › ConfirmationDialog › ConfirmationDialog accepts custom width and border color
+  ✔ tests › components › ConfirmationDialog › ConfirmationDialog accepts custom padding
+  ✔ tests › components › ConfirmationDialog › ConfirmationDialog renders proper structure
+  ✔ tests › components › ConfirmationDialog › ConfirmationDialog loading state structure
+  ✔ tests › components › InlineWorklogForm.duplicate-submit › InlineWorklogForm prevents duplicate submissions on rapid onSubmit calls
+  ✔ tests › components › InlineWorklogForm.duplicate-submit › InlineWorklogForm allows submission after previous submission completes
+  ✔ tests › components › InlineWorklogForm.duplicate-submit › InlineWorklogForm blocks submission when parent isSubmitting is true
+  ✔ tests › components › InlineWorklogForm.duplicate-submit › InlineWorklogForm rapid fire submission simulation
+  ✔ tests › components › InlineWorklogForm.duplicate-submit › InlineWorklogForm state transitions work correctly
+  ✔ tests › components › Confirmation › Confirmation renders with message only
+  ✔ tests › components › Confirmation › Confirmation renders with title and message
+  ✔ tests › components › Confirmation › Confirmation calls onConfirm with true when confirmed
+  ✔ tests › components › Confirmation › Confirmation calls onConfirm with false when cancelled
+  ✔ tests › components › Confirmation › Confirmation displays proper structure without title
+  ✔ tests › components › Confirmation › Confirmation displays proper structure with title
+  ✔ tests › components › CheckoutConfirmation › CheckoutConfirmation renders with correct title
+  ✔ tests › components › CheckoutConfirmation › CheckoutConfirmation displays correct structure
+  ✔ tests › components › CheckoutConfirmation › CheckoutConfirmation calls onConfirm with true when confirmed
+  ✔ tests › components › CheckoutConfirmation › CheckoutConfirmation calls onConfirm with false when cancelled
+  ✔ tests › components › CheckoutConfirmation › CheckoutConfirmation has proper title styling
+  ✔ tests › components › DeleteAttendanceConfirmation › DeleteAttendanceConfirmation renders with correct message
+  ✔ tests › components › DeleteAttendanceConfirmation › DeleteAttendanceConfirmation calls onConfirm with true when confirmed
+  ✔ tests › components › DeleteAttendanceConfirmation › DeleteAttendanceConfirmation calls onConfirm with false when cancelled
+  ✔ tests › components › DeleteAttendanceConfirmation › DeleteAttendanceConfirmation displays proper structure
+  ✔ tests › components › CheckinConfirmation › CheckinConfirmation renders with correct title
+  ✔ tests › components › CheckinConfirmation › CheckinConfirmation displays correct structure
+  ✔ tests › components › CheckinConfirmation › CheckinConfirmation calls onConfirm with true when confirmed
+  ✔ tests › components › CheckinConfirmation › CheckinConfirmation calls onConfirm with false when cancelled
+  ✔ tests › components › CheckinConfirmation › CheckinConfirmation has proper title styling
+  ✔ tests › components › DurationInput.validation › DurationInput rejects invalid characters
+  ✔ tests › components › DurationInput.validation › DurationInput prevents multiple dots
+  ✔ tests › components › DurationInput.validation › DurationInput prevents multiple commas
+  ✔ tests › components › DurationInput.validation › DurationInput prevents mixed decimal separators
+  ✔ tests › components › DurationInput.validation › DurationInput prevents multiple units
+  ✔ tests › components › DurationInput.validation › DurationInput prevents invalid complex patterns like "2h.d.d."
+  ✔ tests › components › DurationInput.validation › DurationInput prevents "2...." pattern
+  ✔ tests › components › DurationInput.validation › DurationInput rejects complex invalid patterns
+  ✔ tests › components › DurationInput.validation › DurationInput rejects invalid patterns with dots after units
+  ✔ tests › components › DurationInput.validation › DurationInput converts comma to dot with smart unit detection for decimals
+  ✔ tests › components › DurationInput.validation › DurationInput converts comma to dot with smart unit detection for minutes
+  ✔ tests › components › DurationInput.validation › DurationInput converts comma to dot when unit is already present
+  ✔ tests › components › DurationInput.validation › DurationInput converts comma to dot with Tab key
+  ✔ tests › components › DurationInput.validation › DurationInput handles multiple commas correctly
+  ✔ tests › components › DurationInput.validation › DurationInput smart unit detection with comma - hours for decimals
+  ✔ tests › components › DurationInput.validation › DurationInput smart unit detection with comma - whole numbers for minutes
+  ✔ tests › components › DurationInput.basic › DurationInput renders with initial value (147ms)
+  ✔ tests › components › DurationInput.basic › DurationInput renders in compact mode (119ms)
+  ✔ tests › components › DurationInput.basic › DurationInput shows selection state initially (117ms)
+  ✔ tests › components › DurationInput.basic › DurationInput calls onChange when typing (115ms)
+  ✔ tests › components › DurationInput.basic › DurationInput handles arrow key navigation (111ms)
+  ✔ tests › components › DurationInput.basic › DurationInput handles down arrow navigation
+  ✔ tests › components › DurationInput.basic › DurationInput prevents going below minimum increment
+  ✔ tests › components › DurationInput.basic › DurationInput prevents going above 24h
+  ✔ tests › components › DurationInput.basic › DurationInput handles backspace on selected text
+  ✔ tests › components › DurationInput.basic › DurationInput calls onSubmit with auto-completion
+  ✔ tests › components › DurationInput.basic › DurationInput handles existing complete values
+  ✔ tests › components › DurationInput.basic › DurationInput parses different time formats
+  ✔ tests › components › DurationInput.basic › DurationInput handles day format
+  ✔ tests › components › DurationInput.basic › DurationInput allows typing decimal numbers
+  ✔ tests › components › DurationInput.basic › DurationInput allows typing time units
+  ✔ tests › components › DurationInput.basic › DurationInput converts comma to dot on submit with Enter
+  ✔ tests › components › DurationInput.basic › DurationInput converts comma to dot on submit with Tab
+  ✔ tests › components › DurationInput.basic › DurationInput calls onBlur with normalized value on Tab
+  ✔ tests › components › DurationInput.basic › DurationInput uses global default time from config
+  ✔ tests › components › DurationInput.basic › DurationInput uses favorite-specific default time
+  ✔ tests › components › DurationInput.basic › DurationInput favorite default time overrides global default
+  ✔ tests › components › DurationInput.basic › DurationInput accepts valid hour formats
+  ✔ tests › components › DurationInput.basic › DurationInput accepts valid decimal hour formats
+  ✔ tests › components › DurationInput.basic › DurationInput accepts valid minute formats
+  ✔ tests › components › DurationInput.basic › DurationInput accepts valid day formats
+  ✔ tests › components › DurationInput.basic › DurationInput accepts numbers only (for auto-completion)
+  ✔ tests › components › DurationInput.basic › DurationInput accepts valid combined hour-minute formats
+  ✔ tests › components › DurationInput.basic › DurationInput allows and auto-completes h+digits pattern
+  ✔ tests › components › AttendanceEditForm.tab-navigation › AttendanceEditForm Enter submits from submit button (366ms)
+  ✔ tests › components › NotificationBar › NotificationBar - renders nothing when no notifications
+  ✔ tests › components › NotificationBar › NotificationBar - renders latest notification
+  ✔ tests › components › NotificationBar › NotificationBar - renders success notification in green
+  ✔ tests › components › NotificationBar › NotificationBar - renders error notification in red
+  ✔ tests › components › NotificationBar › NotificationBar - renders info notification in blue
+  ✔ tests › components › NotificationBar › NotificationBar - handles single notification
+  ✔ tests › components › NotificationBar › NotificationBar - always shows latest when multiple notifications
+  ✔ tests › components › NotificationBar › NotificationBar - handles empty message
+  ✔ tests › components › NotificationBar › NotificationBar - handles long message
+  ✔ tests › components › AttendanceEditForm.tab-navigation › AttendanceEditForm Escape cancels from any focus area (467ms)
+  ✔ tests › components › InlineWorklogForm.tab-navigation › InlineWorklogForm tab navigation includes date field when issue key is editable
+  ✔ tests › components › InlineWorklogForm.tab-navigation › InlineWorklogForm tab navigation excludes date field when issue key is not editable
+  ✔ tests › components › InlineWorklogForm.tab-navigation › InlineWorklogForm shows proper field layout in add worklog mode
+  ✔ tests › components › InlineWorklogForm.tab-navigation › InlineWorklogForm shows proper field layout in cell worklog mode
+  ✔ tests › components › InlineWorklogForm.tab-navigation › InlineWorklogForm displays date value correctly
+  ✔ tests › components › InlineWorklogForm.tab-navigation › InlineWorklogForm handles form validation for add worklog mode
+  ✔ tests › components › InlineWorklogForm.tab-navigation › InlineWorklogForm shows submitting state correctly
+  ✔ tests › components › InlineWorklogForm.tab-navigation › InlineWorklogForm uses current date by default in add worklog mode
+  ✔ tests › components › InlineWorklogForm.tab-navigation › InlineWorklogForm SimpleDateInput allows editing
+  ✔ tests › components › InlineWorklogForm.tab-navigation › InlineWorklogForm date input shows proper visual feedback when focused
+  ✔ tests › components › TimeInputField › TimeInputField renders with initial value
+  ✔ tests › components › TimeInputField › TimeInputField renders in compact mode
+  ✔ tests › components › TimeInputField › TimeInputField calls onChange when typing
+  ✔ tests › components › TimeInputField › TimeInputField handles arrow key navigation with default increment
+  ✔ tests › components › TimeInputField › TimeInputField handles configurable increment
+  ✔ tests › components › TimeInputField › TimeInputField normalizes single digit hour input
+  ✔ tests › components › TimeInputField › TimeInputField validates time input
+  ✔ tests › components › TimeInputField › TimeInputField accepts valid time formats
+  ✔ tests › components › InlineWorklogForm › InlineWorklogForm renders basic structure (141ms)
+  ✔ tests › components › InlineWorklogForm › InlineWorklogForm shows time options (104ms)
+  ✔ tests › components › InlineWorklogForm › InlineWorklogForm shows submitting state (102ms)
+  ✔ tests › components › InlineWorklogForm › InlineWorklogForm shows error message
+  ✔ tests › components › InlineWorklogForm › InlineWorklogForm shows custom time input when selected
+  ✔ tests › components › InlineWorklogForm › InlineWorklogForm handles default values
+  ✔ tests › components › InlineWorklogForm › InlineWorklogForm prevents submit when submitting
+  ✔ tests › components › InlineWorklogForm › InlineWorklogForm supports edit mode
+  ✔ tests › components › InlineWorklogForm › InlineWorklogForm component structure is correct
+  ✔ tests › components › InlineWorklogForm › InlineWorklogForm uses global default time from config
+  ✔ tests › components › InlineWorklogForm › InlineWorklogForm uses favorite-specific default time
+  ✔ tests › components › InlineWorklogForm › InlineWorklogForm favorite time overrides global default
+  ✘ [fail]: tests › components › InlineWorklogForm › InlineWorklogForm falls back to global default when favorite has no time Error thrown in test
+  ✔ tests › components › InlineWorklogForm › InlineWorklogForm falls back to 1h when no config provided
+  ✔ tests › components › InlineWorklogForm › InlineWorklogForm explicit defaultTimeSpent overrides config
+  ✔ tests › components › InlineWorklogForm › InlineWorklogForm shows issue key field when isIssueKeyEditable is true
+  ✔ tests › components › InlineWorklogForm › InlineWorklogForm hides issue key field when isIssueKeyEditable is false
+  ✔ tests › components › InlineWorklogForm › InlineWorklogForm shows date field when isIssueKeyEditable is true
+  ✔ tests › components › InlineWorklogForm › InlineWorklogForm hides date field when isIssueKeyEditable is false
+  ✔ tests › components › InlineWorklogForm › InlineWorklogForm calls onSubmit with date when form is submitted
+  ✔ tests › components › InlineWorklogForm › InlineWorklogForm handles empty issue key in add worklog mode
+  ✔ tests › components › InlineWorklogForm › InlineWorklogForm formats date correctly for input
+  ✔ tests › components › LoadingScreen › should render LoadingScreen component (157ms)
+  ✔ tests › components › IssueList › should render custom title (145ms)
+  ✔ tests › components › IssueList › should render issue list with correct formatting (110ms)
+  ✔ tests › components › LoadingScreen › should render with default loading message (116ms)
+  ✔ tests › components › InlineWorklogForm › InlineWorklogForm calls onSubmit with worklogId in edit mode (111ms)
+  ✔ tests › components › IssueList › should display ESC hint for going back to issue selection mode (121ms)
+  ✔ tests › components › InlineWorklogForm › InlineWorklogForm does not include worklogId in create mode (112ms)
+  ✔ tests › components › LoadingScreen › should render with custom message (120ms)
+  ✔ tests › components › LoadingScreen › should render with very long custom message (115ms)
+  ✔ tests › components › IssueList › should handle empty issue list gracefully (108ms)
+  ✔ tests › components › LoadingScreen › should have correct layout structure (118ms)
+  ✔ tests › components › IssueList › should handle issues with long summaries (114ms)
+  ✔ tests › components › LoadingScreen › should render spinner component (110ms)
+  ✔ tests › components › LoadingScreen › should handle empty message gracefully (108ms)
+  ✔ tests › components › IssueList › should handle issues with special characters in summary (110ms)
+  ✔ tests › components › IssueList › should render with proper layout structure (110ms)
+  ✔ tests › components › TimetableGrid.favorites › TimetableGrid shows favorite issues with asterisk marker (129ms)
+  ✔ tests › components › TimetableGrid.favorites › TimetableGrid handles favorite issues without worklogs
+  ✔ tests › components › TimetableGrid.favorites › TimetableGrid shows favorite issues even when no worklogs exist
+  ✔ tests › components › TimetableGrid.favorites › TimetableGrid displays aliases for favorite issues
+  ✔ tests › components › TimetableGrid.favorites › TimetableGrid shows original key when no alias is configured
+  ✔ tests › components › TimetableGrid.favorites › TimetableGrid handles mixed alias and non-alias favorites
+  ✔ tests › components › TimetableGrid.favorites › TimetableGrid displays aliases with proper padding
+  ✔ tests › components › LoadingScreen › should handle undefined message gracefully (140ms)
+  ✔ tests › components › TimetableGrid.attendance › TimetableGrid does not show delta row when no attendance manager
+  ✔ tests › components › IssueList › should call onSelect with correct issue key when option is selected (214ms)
+  ✔ tests › components › TimetableGrid.groups › TimetableGrid shows dash for empty group total
+  ✔ tests › components › TimetableGrid.groups › TimetableGrid shows group total with hours suffix when not empty
+  ✔ tests › components › TimetableGrid.groups › TimetableGrid shows group total with desired amount and status
+  ✔ tests › components › IssueList › should not call onSelect multiple times (210ms)
+  ✔ tests › components › TimetableGrid.attendance › TimetableGrid shows attendance with working hours calculation (338ms)
+  ✔ tests › components › TimetableGrid.attendance › TimetableGrid calculates working hours with different break times (309ms)
+  ✔ tests › components › TimetableGrid.attendance › TimetableGrid uses config default break time when not specified (286ms)
+  ✔ tests › components › TimetableGrid.attendance › TimetableGrid shows delta row with positive values in red (270ms)
+  ✔ tests › components › TimetableGrid.attendance › TimetableGrid shows delta row with zero values in green (231ms)
+  ✔ tests › components › TimetableGrid.attendance › TimetableGrid shows delta row with negative values in red (221ms)
+  ✔ tests › components › TimetableGrid.attendance › TimetableGrid shows dash in delta row when no attendance data (207ms)
+  ✔ tests › components › TimetableGrid.attendance › TimetableGrid shows attendance and delta rows at bottom after daily total (186ms)
+  ✔ tests › components › WeekNavigator › WeekNavigator renders navigation buttons
+  ✔ tests › components › WeekNavigator › getWeekTitle renders week spanning different months
+  ✔ tests › components › WeekNavigator › getWeekTitle renders week spanning different years
+  ✔ tests › components › WeekNavigator › getWeekTitle calculates correct week number
+  ✔ tests › components › WeekNavigator › getWeekTitle handles Monday start of week correctly
+  ✔ tests › components › WeekNavigator › getWeekTitle handles first week of year
+  ✔ tests › components › TimetableGrid.sorting › TimetableGrid sorts issues by project prefix and number (111ms)
+  ✔ tests › components › TimetableGrid.sorting › TimetableGrid sorts issues with different project prefixes correctly
+  ✔ tests › components › TimetableGrid.sorting › TimetableGrid sorts issues numerically within same project (124 before 1029)
+  ✔ tests › components › TimetableGrid.navigation › TimetableGrid renders and handles horizontal wraparound navigation
+  ✔ tests › components › TimetableGrid.navigation › TimetableGrid renders and handles vertical wraparound navigation
+  ✔ tests › components › TimetableGrid.navigation › TimetableGrid navigation works with attendance rows
+  ✔ tests › components › TimetableGrid.navigation › TimetableGrid navigation respects isActive prop
+  ✔ tests › components › TimetableGrid.states › TimetableGrid shows loading state (114ms)
+  ✔ tests › components › TimetableGrid.states › TimetableGrid shows no data state
+  ✔ tests › components › TimetableGrid.states › TimetableGrid shows empty worklogs state
+  ✔ tests › components › TimetableGrid.states › TimetableGrid renders table header
+  ✔ tests › components › TimetableGrid.states › TimetableGrid displays dates in weekday headers
+  ✔ tests › components › TimetableGrid.states › TimetableGrid renders issue data correctly
+  ✔ tests › components › TimetableGrid.states › TimetableGrid formats hours correctly
+  ✔ tests › components › TimetableGrid.states › TimetableGrid shows daily totals
+  ✔ tests › components › TimetableGrid.states › TimetableGrid shows week total
+  ✔ tests › components › TimetableGrid.states › TimetableGrid handles multiple issues correctly
+  ✔ tests › components › TimetableGrid.states › TimetableGrid shows dash for zero hours
+  ✔ tests › domain › IssueKey › IssueKey.fromString - creates valid issue key
+  ✔ tests › domain › IssueKey › IssueKey.fromString - trims whitespace
+  ✔ tests › domain › IssueKey › IssueKey.fromString - normalizes to uppercase
+  ✔ tests › domain › IssueKey › IssueKey.fromString - validates issue key format
+  ✔ tests › domain › IssueKey › IssueKey.tryParse - returns IssueKey for valid input
+  ✔ tests › domain › IssueKey › IssueKey.tryParse - returns undefined for invalid input
+  ✔ tests › domain › IssueKey › IssueKey.isValid - returns true for valid keys
+  ✔ tests › domain › IssueKey › IssueKey.isValid - returns false for invalid keys
+  ✔ tests › domain › IssueKey › IssueKey - getProject returns project prefix
+  ✔ tests › domain › IssueKey › IssueKey - getNumber returns issue number
+  ✔ tests › domain › IssueKey › IssueKey - toString returns formatted key
+  ✔ tests › domain › IssueKey › IssueKey - equals compares issue keys correctly
+  ✔ tests › domain › IssueKey › IssueKey - equals handles case normalization
+  ✔ tests › domain › IssueKey › IssueKey - matches pattern correctly
+  ✔ tests › domain › IssueKey › IssueKey - matches handles invalid patterns
+  ✔ tests › domain › IssueKey › IssueKey - belongsToProject checks project membership
+  ✔ tests › domain › IssueKey › IssueKey - immutability (no mutation methods)
+  ✔ tests › domain › IssueKey › IssueKey - edge cases with large numbers
+  ✔ tests › domain › IssueKey › IssueKey - edge cases with single character project
+  ✔ tests › domain › WorklogEntry › WorklogEntry.create - creates valid worklog entry
+  ✔ tests › domain › WorklogEntry › WorklogEntry.create - normalizes issue key to uppercase
+  ✔ tests › domain › WorklogEntry › WorklogEntry.create - trims whitespace from inputs
+  ✔ tests › domain › WorklogEntry › WorklogEntry.create - rounds duration to nearest second
+  ✔ tests › domain › WorklogEntry › WorklogEntry.create - validates issue key format
+  ✔ tests › domain › WorklogEntry › WorklogEntry.create - validates duration is positive
+  ✔ tests › domain › WorklogEntry › WorklogEntry.create - validates author is provided
+  ✔ tests › domain › WorklogEntry › WorklogEntry.fromApiResponse - creates worklog from API data
+  ✔ tests › domain › WorklogEntry › WorklogEntry.fromApiResponse - handles missing comment
+  ✔ tests › domain › WorklogEntry › WorklogEntry.fromApiResponse - validates API entry has id
+  ✔ tests › domain › WorklogEntry › WorklogEntry.fromApiResponse - validates issue key is provided
+  ✔ tests › domain › WorklogEntry › WorklogEntry.fromApiResponse - validates started date format
+  ✔ tests › domain › WorklogEntry › WorklogEntry - isEditableBy returns true for matching email
+  ✔ tests › domain › WorklogEntry › WorklogEntry - isEditableBy returns false for different email
+  ✔ tests › domain › WorklogEntry › WorklogEntry - canBeDeletedBy delegates to isEditableBy
+  ✔ tests › domain › WorklogEntry › WorklogEntry - updateDuration creates new instance with updated duration
+  ✔ tests › domain › WorklogEntry › WorklogEntry - updateDuration validates positive duration
+  ✔ tests › domain › WorklogEntry › WorklogEntry - updateDuration rounds to nearest second
+  ✔ tests › domain › WorklogEntry › WorklogEntry - updateComment creates new instance with updated comment
+  ✔ tests › domain › WorklogEntry › WorklogEntry - updateComment trims whitespace
+  ✔ tests › domain › WorklogEntry › WorklogEntry - isSameDay compares dates correctly
+  ✔ tests › domain › WorklogEntry › WorklogEntry - toApiRequest formats request correctly
+  ✔ tests › domain › WorklogEntry › WorklogEntry - toApiRequest uses default comment when empty
+  ✔ tests › domain › WorklogEntry › WorklogEntry - formatDurationAsTimeSpent formats various durations
+  ✔ tests › domain › WorklogEntry › WorklogEntry - equals compares worklogs correctly
+  ✔ tests › domain › WorklogEntry › WorklogEntry - toString formats correctly
+  ✔ tests › domain › WorklogEntry › WorklogEntry - getters return defensive copies
+  ✔ tests › domain › WorklogGroup › WorklogGroup.create - creates group with all parameters
+  ✔ tests › domain › WorklogGroup › WorklogGroup.create - creates group with minimal parameters
+  ✔ tests › domain › WorklogGroup › WorklogGroup.fromConfig - creates group from config object
+  ✔ tests › domain › WorklogGroup › WorklogGroup.fromConfig - handles invalid time format gracefully
+  ✔ tests › domain › WorklogGroup › resolveDefaultsFor - resolves from favorite issue (highest priority)
+  ✔ tests › domain › WorklogGroup › resolveDefaultsFor - resolves from group defaults (second priority)
+  ✔ tests › domain › WorklogGroup › resolveDefaultsFor - resolves from global defaults (third priority)
+  ✔ tests › domain › WorklogGroup › resolveDefaultsFor - falls back to defaults (lowest priority)
+  ✔ tests › domain › WorklogGroup › addFavoriteIssue - adds new favorite issue with group ID
+  ✔ tests › domain › WorklogGroup › addFavoriteIssue - replaces existing favorite with same key
+  ✔ tests › domain › WorklogGroup › removeFavoriteIssue - removes existing favorite issue
+  ✔ tests › domain › WorklogGroup › removeFavoriteIssue - handles non-existent issue key
+  ✔ tests › domain › WorklogGroup › meetsDesiredAmount - returns true when no desired amount is set
+  ✔ tests › domain › WorklogGroup › meetsDesiredAmount - returns true when actual meets desired amount
+  ✔ tests › domain › WorklogGroup › meetsDesiredAmount - returns true when actual exceeds desired amount
+  ✔ tests › domain › WorklogGroup › meetsDesiredAmount - returns false when actual is less than desired amount
+  ✔ tests › domain › WorklogGroup › shouldPrefillComment - returns true when within prefill days
+  ✔ tests › domain › WorklogGroup › shouldPrefillComment - returns false when beyond prefill days
+  ✔ tests › domain › WorklogGroup › shouldPrefillComment - uses default 7 days when not configured
+  ✔ tests › domain › WorklogGroup › containsIssue - returns true for existing favorite issue
+  ✔ tests › domain › WorklogGroup › containsIssue - returns false for non-existent issue
+  ✔ tests › domain › WorklogGroup › toConfig - converts group back to configuration format
+  ✔ tests › domain › WorklogGroup › toConfig - handles undefined values correctly
+  ✔ tests › components › WeeklyTimetableView.add-worklog › WeeklyTimetableView shows [A] Add Worklog hint in footer (172ms)
+  ✔ tests › components › WeeklyTimetableView.add-worklog › WeeklyTimetableView includes Add Worklog in navigation hints
+  ✔ tests › components › WeeklyTimetableView.add-worklog › WeeklyTimetableView shows comprehensive keyboard shortcuts
+  ✔ tests › components › WeeklyTimetableView.add-worklog › WeeklyTimetableView renders with default configuration
+  ✔ tests › components › WeeklyTimetableView.add-worklog › WeeklyTimetableView handles configuration with favorites
+  ✔ tests › components › WeeklyTimetableView.add-worklog › WeeklyTimetableView handles configuration with projects
+  ✔ tests › components › WeeklyTimetableView.add-worklog › WeeklyTimetableView renders without errors with comprehensive config
+  ✔ tests › components › WeeklyTimetableView.focus › WeeklyTimetableView displays week navigation and keyboard shortcuts (183ms)
+  ✔ tests › components › WeeklyTimetableView.focus › WeeklyTimetableView renders complete keyboard shortcut help
+  ✔ tests › components › WeeklyTimetableView.focus › WeeklyTimetableView renders main interface structure
+  ✔ tests › components › WeeklyTimetableView › WeeklyTimetableView renders basic structure
+  ✔ tests › components › WeeklyTimetableView › WeeklyTimetableView shows loading state initially
+  ✔ tests › hooks › useConfirmation › useConfirmation returns correct initial state
+  ✔ tests › hooks › useConfirmation › useConfirmation setLoading updates loading state correctly
+  ✔ tests › hooks › useConfirmation › useConfirmation hide() resets all state to initial values
+  ✔ tests › hooks › useConfirmation › useConfirmation show() displays dialog with custom config
+  ✔ tests › hooks › useConfirmation › useConfirmation resolves promise when user confirms
+  ✔ tests › hooks › useConfirmation › useConfirmation resolves promise when user cancels
+  ✔ tests › hooks › useAttendanceManagement › useAttendanceManagement returns null manager when attendance disabled
+  ✔ tests › hooks › useAttendanceManagement › useAttendanceManagement handleAttendanceCancel clears edit state
+  ✔ tests › hooks › useAttendanceManagement › useAttendanceManagement refreshAttendance increments refresh key
+  ✔ tests › hooks › useAttendanceManagement › useAttendanceManagement hook structure is correct
+  ✔ tests › hooks › useAttendanceManagement › useAttendanceManagement handleAttendanceEdit without manager does nothing
+  ✔ tests › hooks › useAttendanceManagement › useAttendanceManagement handleCheckinConfirm cancels when not confirmed
+  ✔ tests › components › WorklogSummary › should render submitting variant correctly (110ms)
+  ✔ tests › hooks › useConfirmation › useConfirmation handles concurrent confirmation requests
+  ✔ tests › components › WorklogSummary › should render success variant with all worklog details (122ms)
+  ✔ tests › components › WorklogSummary › should display default comment when comment is empty (105ms)
+  ✔ tests › components › WorklogSummary › should display default comment when comment is undefined (103ms)
+  ✔ tests › components › WorklogSummary › should format date correctly (only date part) (113ms)
+  ✔ tests › components › WorklogSummary › should display returning to main menu message (108ms)
+  ✔ tests › components › WorklogSummary › should return null when success variant but no selectedIssue (105ms)
+  ✔ tests › components › WorklogSummary › should return null when success variant but selectedIssue is null (104ms)
+  ✔ tests › components › WorklogSummary › should handle missing selectedDate gracefully (106ms)
+  ✔ tests › components › WorklogSummary › should handle missing selectedTime gracefully (104ms)
+  ✔ tests › hooks › useDeleteOperations › useDeleteOperations returns initial state
+  ✔ tests › hooks › useDeleteOperations › useDeleteOperations handleCellDelete sets candidate and changes area
+  ✔ tests › hooks › useDeleteOperations › useDeleteOperations handleDeleteAttendance sets attendance candidate
+  ✔ tests › hooks › useDeleteOperations › useDeleteOperations clearDeleteError removes error message
+  ✔ tests › hooks › useDeleteOperations › useDeleteOperations hook structure is correct
+  ✔ tests › hooks › useDeleteOperations › useDeleteOperations candidate structures are correct
+  ✔ tests › hooks › useDeleteOperations › useDeleteOperations displays state correctly in component
+  ✔ tests › hooks › useDeleteOperations › useDeleteOperations auto-clears error after timeout
+  ✔ tests › hooks › useDeleteOperations › useDeleteOperations handleDeleteConfirm cancels when not confirmed
+  ✔ tests › hooks › useDeleteOperations › useDeleteOperations handleDeleteAttendanceConfirm cancels when not confirmed
+  ✔ tests › components › WeeklyTimetableView.form › WeeklyTimetableView displays main navigation elements in footer (165ms)
+  ✔ tests › components › WorklogSummary › should handle long comments correctly (115ms)
+  ✔ tests › components › WeeklyTimetableView.form › WeeklyTimetableView shows comprehensive keyboard shortcuts (117ms)
+  ✔ tests › hooks › useGridNavigation › GridNavigationService - functions work correctly via hook pattern
+  ✔ tests › hooks › useGridNavigation › GridNavigationService - findInitialFocusItem works correctly
+  ✔ tests › hooks › useGridNavigation › GridNavigationService - findInitialFocusItem with preferred column
+  ✔ tests › hooks › useGridNavigation › GridNavigationService - navigateInDirection function works
+  ✔ tests › hooks › useGridNavigation › GridNavigationService - navigateToNextItem function works
+  ✔ tests › hooks › useAttendanceManagement › useAttendanceManagement returns initial state with enabled attendance (110ms)
+  ✔ tests › components › WeeklyTimetableView.form › WeeklyTimetableView displays weekly grid structure correctly (118ms)
+Failed to load attendance data: TypeError: this.storage.readAll is not a function
+    at AttendanceManager.getAllAttendance (file:///Users/mdavid/dev/examples/jiracle-3/dist/attendance/AttendanceManager.js:120:29)
+    at Object.handleAttendanceEdit (file:///Users/mdavid/dev/examples/jiracle-3/dist/hooks/useAttendanceManagement.js:26:59)
+    at file:///Users/mdavid/dev/examples/jiracle-3/dist/tests/hooks/useAttendanceManagement.test.js:139:25
+  ✔ tests › hooks › useAttendanceManagement › useAttendanceManagement handleAttendanceEdit sets edit state (106ms)
+  ✔ tests › components › WorklogSummary › should handle special characters in comment (124ms)
+The current testing environment is not configured to support act(...)
+  ✔ tests › hooks › useAttendanceManagement › useAttendanceManagement handleAttendanceSubmit saves data and refreshes (105ms)
+  ✔ tests › components › WeeklyTimetableView.form › WeeklyTimetableView form behavior follows component interaction patterns (119ms)
+  ✔ tests › hooks › useAttendanceManagement › useAttendanceManagement handleCheckinConfirm performs check-in (105ms)
+  ✔ tests › hooks › useAttendanceManagement › useAttendanceManagement handleCheckoutConfirm performs check-out (104ms)
+  ✔ tests › hooks › useAttendanceManagement › useAttendanceManagement displays state correctly in component (102ms)
+The current testing environment is not configured to support act(...)
+The current testing environment is not configured to support act(...)
+The current testing environment is not configured to support act(...)
+The current testing environment is not configured to support act(...)
+The current testing environment is not configured to support act(...)
+The current testing environment is not configured to support act(...)
+  ✔ tests › hooks › useFocusManagement › useFocusManagement: returns initial state with undefined focused cell
+  ✔ tests › hooks › useFocusManagement › useFocusManagement: handles focus change to regular issue
+  ✔ tests › hooks › useFocusManagement › useFocusManagement: handles focus change to attendance issue
+  ✔ tests › hooks › useFocusManagement › useFocusManagement: ignores blur events
+  ✔ tests › hooks › useFocusManagement › useFocusManagement: clears focus correctly
+  ✔ tests › hooks › useFocusManagement › useFocusManagement: checks if cell is focused correctly
+  ✔ tests › hooks › useFocusManagement › useFocusManagement: setFocusedCell updates state directly
+  ✔ tests › components › WeeklyTimetableView.form › WeeklyTimetableView component structure meets accessibility requirements (125ms)
+  ✔ tests › components › WeeklyTimetableView.form › WeeklyTimetableView handles keyboard navigation keys properly (179ms)
+Invalid hook call. Hooks can only be called inside of the body of a function component. This could happen for one of the following reasons:
+1. You might have mismatching versions of React and the renderer (such as React DOM)
+2. You might be breaking the Rules of Hooks
+3. You might have more than one copy of React in the same app
+See https://react.dev/link/invalid-hook-call for tips about how to debug and fix this problem.
+Invalid hook call. Hooks can only be called inside of the body of a function component. This could happen for one of the following reasons:
+1. You might have mismatching versions of React and the renderer (such as React DOM)
+2. You might be breaking the Rules of Hooks
+3. You might have more than one copy of React in the same app
+See https://react.dev/link/invalid-hook-call for tips about how to debug and fix this problem.
+Invalid hook call. Hooks can only be called inside of the body of a function component. This could happen for one of the following reasons:
+1. You might have mismatching versions of React and the renderer (such as React DOM)
+2. You might be breaking the Rules of Hooks
+3. You might have more than one copy of React in the same app
+See https://react.dev/link/invalid-hook-call for tips about how to debug and fix this problem.
+Invalid hook call. Hooks can only be called inside of the body of a function component. This could happen for one of the following reasons:
+1. You might have mismatching versions of React and the renderer (such as React DOM)
+2. You might be breaking the Rules of Hooks
+3. You might have more than one copy of React in the same app
+See https://react.dev/link/invalid-hook-call for tips about how to debug and fix this problem.
+  ✔ tests › hooks › useIssueGroups › useIssueGroups - hook exists and returns expected structure
+  ✔ tests › hooks › useIssueGroups › useIssueGroups - handles null config
+  ✔ tests › hooks › useIssueGroups › useIssueGroups - handles empty issues array
+  ✔ tests › hooks › useIssueGroups › useIssueGroups - accepts complex config correctly
+  ✔ tests › components › WeeklyTimetableView.form › WeeklyTimetableView handles refresh functionality (252ms)
+  ✔ tests › hooks › useTimeParser › parseTimeToHours converts time strings to hours correctly
+  ✔ tests › hooks › useTimeParser › parseTimeToHours handles edge cases and invalid input gracefully
+  ✔ tests › hooks › useTimeParser › normalizeTimeString formats time inputs consistently
+  ✔ tests › hooks › useTimeParser › adjustTime modifies time values by specified increments
+  ✔ tests › hooks › useTimeParser › generateTimeMarks creates correct time intervals
+  ✔ tests › hooks › useWeeklyWorklogSummary › useWeeklyWorklogSummary - parameter validation requirements
+  ✔ tests › hooks › useWeeklyWorklogSummary › useWeeklyWorklogSummary - configuration normalization requirements
+  ✔ tests › hooks › useWeeklyWorklogSummary › useWeeklyWorklogSummary - date handling and week range validation
+  ✔ tests › hooks › useWeeklyWorklogSummary › useWeeklyWorklogSummary - parameter combinations and edge cases
+  ✔ tests › hooks › useWeeklyWorklogSummary › useWeeklyWorklogSummary - WeeklyWorklogSummary data structure requirements
+  ✔ tests › hooks › useWeeklyWorklogSummary › useWeeklyWorklogSummary - fetch mock and API integration setup
+  ✔ tests › components › WeeklyTimetableView.form › WeeklyTimetableView opens worklog form when Add Worklog key is pressed (324ms)
+  ✔ tests › components › IssueList › should handle navigation and select second issue (1.1s)
+  ✔ tests › hooks › useWeeklyWorklogSummary › useWeeklyWorklogSummary - module exports and interface
+  ✔ tests › hooks › useKeyboardInput › useKeyboardInput: hook can be instantiated
+  ✔ tests › hooks › useKeyboardInput › useKeyboardInput: handles inactive state correctly
+  ✔ tests › hooks › useKeyboardInput › useKeyboardInput: accepts all required handler functions
+  ✔ tests › hooks › useKeyboardInput › useKeyboardInput: works with focused cell for issue cells
+  ✔ tests › hooks › useKeyboardInput › useKeyboardInput: works with focused cell for attendance cells
+  ✔ tests › hooks › useKeyboardInput › useKeyboardInput: interface validates correctly
+  ✔ tests › hooks › useKeyboardInput › useKeyboardInput: handles empty weekDates array
+  ✔ tests › hooks › useKeyboardInput › useKeyboardInput: validates handler function types
+  ✔ tests › components › WeeklyTimetableView.form › WeeklyTimetableView form displays field validation and error states (433ms)
+  ✔ tests › hooks › useNavigationState › useNavigationState returns initial state with defaults
+  ✔ tests › hooks › useNavigationState › useNavigationState uses provided initial values
+  ✔ tests › hooks › useNavigationState › hook structure and interface validation
+  ✔ tests › hooks › useNotification › useNotification - initial state
+  ✔ tests › hooks › useNotification › useNotification - shows notification with default type
+  ✔ tests › hooks › useNotification › useNotification - shows notification with specific type
+  ✔ tests › hooks › useNotification › useNotification - shows multiple notifications
+  ✔ tests › hooks › useNotification › useNotification - dismisses specific notification
+  ✔ tests › hooks › useNotification › useNotification - clears all notifications
+  ✔ tests › hooks › useNotification › useNotification - notifications have unique IDs
+  ✔ tests › hooks › useNotification › useNotification - auto-dismissal timing differs by type
+  ✔ tests › hooks › useTableNavigation › useTableNavigation: initializes with correct default state
+  ✔ tests › hooks › useTableNavigation › useTableNavigation: manages focus state correctly
+  ✔ tests › hooks › useTableNavigation › useTableNavigation: handles callbacks without errors
+  ✔ tests › hooks › useTableNavigation › useTableNavigation: works with attendance manager
+  ✔ tests › hooks › useTableNavigation › useTableNavigation: handles inactive state correctly
+  ✔ tests › hooks › useTableNavigation › useTableNavigation: processes complex issue groups correctly
+  ✔ tests › hooks › useTableNavigation › useTableNavigation: method integrity with error handling
+  ✔ tests › hooks › useNavigationState › navigateToPreviousWeek moves week back by 7 days and returns to timetable (105ms)
+  ✔ tests › hooks › useNavigationState › navigateToNextWeek moves week forward by 7 days and returns to timetable (104ms)
+  ✔ tests › hooks › useNavigationState › navigateToCurrentWeek sets week to current date and returns to timetable (103ms)
+  ✔ tests › hooks › useNavigationState › setActiveArea changes active area (105ms)
+  ✔ tests › hooks › useNavigationState › returnToTimetable sets active area to timetable (106ms)
+  ✔ tests › hooks › useNavigationState › week navigation preserves week calculations correctly (164ms)
+  ✔ tests › jira › utils › getMostRecentCommentForIssue returns most recent non-empty comment within date range
+  ✔ tests › jira › utils › getMostRecentCommentForIssue ignores comments outside date range
+  ✔ tests › jira › utils › getMostRecentCommentForIssue ignores empty comments
+  ✔ tests › jira › utils › getMostRecentCommentForIssue returns undefined for empty worklogs
+  ✔ tests › jira › utils › getMostRecentCommentForIssue trims returned comment
+  ✔ tests › jira › utils › getMostRecentCommentForIssue uses custom reference date
+  ✔ tests › jira › utils › getMostRecentCommentForIssue with reference date excludes old worklogs
+  ✔ tests › jira › utils › getCommentWithPrefill uses reference date for filtering
+  ✔ tests › jira › utils › getCommentWithPrefill finds recent comment with reference date
+  ✔ tests › jira › utils › getCommentWithPrefill respects configurable lookback days with reference date
+  ✔ tests › jira › utils › getCommentWithPrefill uses explicit default in edit mode regardless of reference date
+  ✔ tests › hooks › useWorklogForm › useWorklogForm returns initial state
+  ✔ tests › hooks › useWorklogForm › useWorklogForm handleAddWorklog makes form visible with defaults
+  ✔ tests › hooks › useWorklogForm › useWorklogForm handleWorklogCancel hides form
+  ✔ tests › hooks › useWorklogForm › useWorklogForm handleAddWorklog sets correct initial state
+  ✔ tests › hooks › useWorklogForm › useWorklogForm formats date correctly for Jira API compatibility
+    ℹ This test ensures the date format remains compatible with Jira API
+    ℹ Changing .replace("Z", "+0000") to just .toISOString() causes 500 errors
+    ℹ The useWorklogForm hook MUST maintain this exact formatting
+    ℹ Example formatted date: 2024-01-15T08:00:00.000+0000
+  ✔ tests › hooks › useWorklogForm › useWorklogForm clearError removes error after validation failure
+  ✔ tests › hooks › useWorklogForm › useWorklogForm validates required fields on submission
+  ✔ tests › hooks › useWorklogForm › useWorklogForm handleCellWorklog opens form for cell editing
+  ✔ tests › hooks › useWorklogForm › useWorklogForm handleCellWorklog uses favorite defaults
+  ✔ tests › hooks › useWorklogForm-validation › useWorklogForm validates invalid issue key format
+  ✔ tests › hooks › useWorklogForm-validation › useWorklogForm distinguishes between edit and new worklog modes
+  ✔ tests › utils › Duration › Duration - calculateWorkingDuration basic calculation
+  ✔ tests › utils › Duration › Duration - calculateWorkingDuration with 30 minute break
+  ✔ tests › utils › Duration › Duration - calculateWorkingDuration with 15 minute increments
+  ✔ tests › utils › Duration › Duration - calculateWorkingDuration no break
+  ✔ tests › utils › Duration › Duration - toDecimalHours formatting
+  ✔ tests › utils › Duration › Duration - calculateWorkingDuration edge cases
+  ✔ tests › utils › Duration › Duration - calculateWorkingDuration time parsing
+  ✘ [fail]: tests › components › WeeklyTimetableView.form › WeeklyTimetableView integrates form behavior with keyboard navigation correctly Should return to main navigation after form cancel
+  ✔ tests › hooks › useNavigationState › all active area values work correctly (375ms)
+  ✔ tests › utils › FocusableItemCalculator › calculateFocusableItems: empty grid with no attendance and no issues
+  ✔ tests › utils › FocusableItemCalculator › calculateFocusableItems: grid with attendance manager but no issues
+  ✔ tests › utils › FocusableItemCalculator › calculateFocusableItems: grid with issues but no attendance
+  ✔ tests › utils › FocusableItemCalculator › calculateFocusableItems: grid with both attendance and issues
+  ✔ tests › utils › FocusableItemCalculator › calculateFocusableItems: multiple issue groups
+  ✔ tests › utils › FocusableItemCalculator › calculateFocusableItems: custom column count
+  ✔ tests › utils › FocusableItemCalculator › findFocusableItem: finds item by predicate
+  ✔ tests › utils › FocusableItemCalculator › findFocusableItem: returns undefined when not found
+  ✔ tests › utils › FocusableItemCalculator › filterFocusableItems: filters items by predicate
+  ✔ tests › utils › FocusableItemCalculator › getFocusableItemsByColumn: returns items for specific column
+  ✔ tests › utils › FocusableItemCalculator › getFocusableItemsByIssue: returns items for specific issue
+  ✔ tests › utils › FocusableItemCalculator › getFocusableItemIndex: finds correct index for target item
+  ✔ tests › utils › FocusableItemCalculator › getFocusableItemIndex: returns -1 when item not found
+  ✔ tests › utils › FocusableItemCalculator › calculateFocusableItems: handles undefined attendance manager
+  ✔ tests › utils › FocusableItemCalculator › calculateFocusableItems: handles single issue
+  ✔ tests › utils › TimetableCalculations › calculateDailyTotals - calculates totals correctly
+  ✔ tests › utils › TimetableCalculations › calculateDailyTotals - handles missing days
+  ✔ tests › utils › TimetableCalculations › calculateDailyTotals - handles empty daily summaries
+  ✔ tests › utils › TimetableCalculations › calculateDailyTotals - handles out-of-range dates
+  ✔ tests › utils › TimetableCalculations › formatHours - formats hours correctly
+  ✔ tests › utils › TimetableCalculations › formatHours - handles edge cases
+  ✔ tests › utils › TimetableCalculations › truncateText - truncates long text
+  ✔ tests › utils › TimetableCalculations › truncateText - handles edge cases
+  ✔ tests › utils › TimetableCalculations › getCurrentDayIndex - returns correct day index
+  ✔ tests › utils › TimetableCalculations › getDefaultFocusId - returns correct focus ID
+  ✔ tests › utils › TimetableCalculations › getDefaultFocusId - handles empty issue map
+  ✔ tests › utils › TimetableCalculations › getDefaultFocusId - uses first issue in object order
+  ✔ tests › utils › TimetableCalculations › calculateDailyTotals - handles decimal hours correctly
+  ✔ tests › utils › TimetableCalculations › formatHours - preserves precision for common decimal values
+  ✔ tests › integration › comment-prefill.integration › comment prefill respects reference date - excludes old worklogs
+  ✔ tests › integration › comment-prefill.integration › comment prefill respects reference date - includes recent worklogs
+  ✔ tests › integration › comment-prefill.integration › comment prefill with configurable lookback days based on reference date
+  ✔ tests › integration › comment-prefill.integration › comment prefill in edit mode uses explicit default regardless of reference date
+DEBUG: Cancel output does not contain [A] Add Worklog
+  ✘ [fail]: tests › components › WeeklyTimetableView.form › WeeklyTimetableView handles form cancellation correctly Should return to main navigation: [A] Add Worklog
+Cancel output length: 2256
+Cancel output preview: 
+
+
+                                        █ █ █▀█ ▄▀█ █▀▀ █   █▀▀
+                                      █▄█ █ █▀▄ █▀█ █▄▄ █▄▄ ██▄
+
+
+                                    New Issue on Monday, Jul 28
+                ╭──────────────────────────────────────────────────────────────────╮
+                │                                                                  │
+                │                                                                  │
+                │ Issue Key:                    
+  ✔ tests › utils › browser › isBrowserOpenSupported returns true for supported platforms
+  ✔ tests › utils › browser › isBrowserOpenSupported returns false for unsupported platforms
+  ✔ tests › utils › browser › generateJiraIssueUrl creates correct URL
+  ✔ tests › utils › browser › generateJiraIssueUrl handles trailing slash in baseUrl
+  ✔ tests › utils › browser › generateJiraIssueUrl handles different issue key formats
+  ✔ tests › integration › checkin-checkout.integration › WeeklyTimetableView shows help text with checkin/checkout options (125ms)
+  ✔ tests › integration › checkin-checkout.integration › WeeklyTimetableView renders without errors with attendance config
+  ✔ tests › integration › checkin-checkout.integration › WeeklyTimetableView renders help text correctly
+  ✔ tests › utils › config-loader › loadJiraConfig - loads valid config from custom path
+  ✔ tests › utils › config-loader › loadJiraConfig - loads config from default path when no path provided
+  ✔ tests › utils › config-loader › loadJiraConfig - throws error for non-existent config file
+  ✔ tests › utils › config-loader › loadJiraConfig - throws error for malformed JSON
+  ✔ tests › utils › config-loader › loadJiraConfig - handles empty config file
+  ✔ tests › utils › config-loader › loadJiraConfig - includeEnvVars parameter works correctly
+  ✔ tests › utils › config-loader › loadJiraConfig - handles complex config with nested objects
+  ✔ tests › utils › worklog-detection › detectWorklogForEdit - no worklog entry
+  ✔ tests › utils › worklog-detection › detectWorklogForEdit - zero hours worklog
+  ✔ tests › utils › worklog-detection › detectWorklogForEdit - single editable worklog with ID
+  ✔ tests › utils › worklog-detection › detectWorklogForEdit - single editable worklog with empty comment
+  ✔ tests › utils › worklog-detection › detectWorklogForEdit - aggregated worklog (not editable)
+  ✔ tests › utils › worklog-detection › detectWorklogForEdit - time spent formatting
+  ✔ tests › utils › worklog-detection › findWorklogEntryForIssue - finds matching issue
+  ✔ tests › utils › worklog-detection › findWorklogEntryForIssue - returns undefined for non-existent issue
+  ✔ tests › utils › worklog-detection › findWorklogEntryForIssue - empty array
+  ✔ tests › utils › worklog-detection › detectWorklogForEdit - edge case with very small hours
+  ✔ tests › services › GridNavigationService › navigateInDirection: up navigation with wraparound
+  ✔ tests › services › GridNavigationService › navigateInDirection: up navigation from top wraps to bottom
+  ✔ tests › services › GridNavigationService › navigateInDirection: down navigation
+  ✔ tests › services › GridNavigationService › navigateInDirection: down navigation from bottom wraps to top
+  ✔ tests › services › GridNavigationService › navigateInDirection: left navigation
+  ✔ tests › services › GridNavigationService › navigateInDirection: left navigation from leftmost wraps to rightmost
+  ✔ tests › services › GridNavigationService › navigateInDirection: right navigation
+  ✔ tests › services › GridNavigationService › navigateInDirection: right navigation from rightmost wraps to leftmost
+  ✔ tests › services › GridNavigationService › navigateInDirection: invalid direction returns failure
+  ✔ tests › services › GridNavigationService › navigateInDirection: focused cell not found returns failure
+  ✔ tests › services › GridNavigationService › navigateInDirection: empty grid returns failure
+  ✔ tests › services › GridNavigationService › navigateInDirection: custom column count affects wraparound
+  ✔ tests › services › GridNavigationService › navigateToNextItem: next item navigation
+  ✔ tests › services › GridNavigationService › navigateToNextItem: next from last item wraps to first
+  ✔ tests › services › GridNavigationService › navigateToNextItem: previous item navigation
+  ✔ tests › services › GridNavigationService › navigateToNextItem: previous from first item wraps to last
+  ✔ tests › services › GridNavigationService › navigateToNextItem: defaults to next direction
+  ✔ tests › services › GridNavigationService › findInitialFocusItem: finds item in preferred column
+  ✔ tests › services › GridNavigationService › findInitialFocusItem: falls back to first item when preferred column not found
+  ✔ tests › services › GridNavigationService › findInitialFocusItem: returns first item when no preferred column
+  ✔ tests › services › GridNavigationService › findInitialFocusItem: returns undefined for empty grid
+  ✔ tests › services › GridNavigationService › navigateInDirection: single row grid navigation
+  ✔ tests › services › GridNavigationService › navigateInDirection: single column grid navigation
+  ✔ tests › services › GridNavigationService › navigateInDirection: handles missing target items gracefully
+  ✔ tests › services › IssueGroupManager › IssueGroupManager - groups issues by resolved groups
+  ✔ tests › services › IssueGroupManager › IssueGroupManager - handles null config gracefully
+  ✔ tests › services › IssueGroupManager › IssueGroupManager - sorts groups by name
+  ✔ tests › services › IssueGroupManager › IssueGroupManager - sorts issues within groups by key
+  ✔ tests › services › IssueGroupManager › IssueGroupManager - handles different project prefixes in sorting
+  ✔ tests › services › IssueGroupManager › IssueGroupManager - calculates total hours correctly
+  ✔ tests › services › IssueGroupManager › IssueGroupManager - handles empty issues array
+  ✔ tests › services › IssueGroupManager › IssueGroupManager - handles issues with malformed keys
+  ✔ tests › services › IssueGroupManager › IssueGroupManager - preserves ungrouped issues at the end
+  ✔ tests › integration › WeeklyTimetableView.integration › Integration: WeeklyTimetableView renders complete UI structure (259ms)
+  ✔ tests › integration › WeeklyTimetableView.integration › Integration: WeeklyTimetableView handles week navigation (114ms)
+  ✔ tests › integration › WeeklyTimetableView.integration › Integration: WeeklyTimetableView handles today navigation (106ms)
+  ✔ tests › integration › WeeklyTimetableView.integration › Integration: WeeklyTimetableView handles refresh
+  ✔ tests › integration › WeeklyTimetableView.integration › Integration: WeeklyTimetableView handles back navigation
+  ✔ tests › integration › WeeklyTimetableView.integration › Integration: WeeklyTimetableView handles q key for back navigation
+  ✔ tests › integration › WeeklyTimetableView.integration › Integration: Week calculations work correctly
+  ✔ tests › integration › WeeklyTimetableView.integration › Integration: TimetableGrid displays correct structure when loading
+  ✔ tests › integration › WeeklyTimetableView.integration › Integration: Error handling for invalid config
+  ✔ tests › integration › worklog-form-flow.integration › Integration: Mock fetch setup works correctly
+  ✔ tests › hooks › useWorklogForm-validation › useWorklogForm accepts valid issue key format (393ms)
+  ✔ tests › hooks › useWorklogForm-validation › useWorklogForm tracks submitting state correctly (388ms)
+  ✔ tests › hooks › useWorklogForm-validation › useWorklogForm handles submission errors gracefully (375ms)
+  ✔ tests › services › ReminderService.basic › ReminderService constructor initializes correctly
+  ✔ tests › services › ReminderService.basic › ReminderService start() does nothing when disabled
+  ✔ tests › services › ReminderService.basic › ReminderService start() sets up interval when enabled
+  ✔ tests › services › ReminderService.basic › ReminderService start() prevents multiple intervals
+  ✔ tests › services › ReminderService.basic › ReminderService stop() clears interval
+  ✔ tests › services › ReminderService.basic › ReminderService handles empty reminder times array
+  ✔ tests › services › ReminderService.basic › ReminderService interval management and timer checks
+  ✔ tests › services › ReminderService.basic › ReminderService handles different configuration combinations
+  ✔ tests › services › ReminderService.basic › ReminderService resource cleanup with multiple services
+  ✔ tests › app.navigation › should show weekly timetable after loading (3s)
+  ✔ tests › integration › worklog-form-flow.integration › Integration: Component renders without errors (166ms)
+  ✔ tests › integration › worklog-form-flow.integration › Integration: Component handles API errors gracefully
+  ✔ tests › integration › worklog-form-flow.integration › Integration: Component lifecycle completes
+  ✔ tests › services › ReminderService.integration › ReminderService service lifecycle
+  ✔ tests › services › ReminderService.integration › ReminderService checkReminders handles different dates correctly
+  ✔ tests › services › ReminderService.integration › ReminderService handles worklog check results properly
+  ✔ tests › services › ReminderService.notifications › ReminderService getNotificationIcon returns appropriate icons for different platforms
+  ✔ tests › services › ReminderService.notifications › ReminderService createTemporaryIcon creates icon file
+  ✔ tests › services › ReminderService.notifications › ReminderService notification system availability
+  ✔ tests › services › ReminderService.notifications › ReminderService sendReminder handles notification errors gracefully
+  ✔ tests › services › ReminderService.notifications › ReminderService state management for notification times
+  ✔ tests › services › ReminderService.notifications › ReminderService platform-specific notification handling
+Notification error (non-critical): TypeError: Cannot read properties of undefined (reading 'getNotificationIcon')
+    at sendReminder (file:///Users/mdavid/dev/examples/jiracle-3/dist/services/ReminderService.js:133:32)
+    at file:///Users/mdavid/dev/examples/jiracle-3/dist/tests/services/ReminderService.notifications.test.js:104:19
+    at ExecutionContext.notThrowsAsync (file:///Users/mdavid/dev/examples/jiracle-3/node_modules/ava/lib/assert.js:686:14)
+    at file:///Users/mdavid/dev/examples/jiracle-3/dist/tests/services/ReminderService.notifications.test.js:103:17
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+Notification error (non-critical): TypeError: Cannot read properties of undefined (reading 'getNotificationIcon')
+    at sendReminder (file:///Users/mdavid/dev/examples/jiracle-3/dist/services/ReminderService.js:133:32)
+    at file:///Users/mdavid/dev/examples/jiracle-3/dist/tests/services/ReminderService.notifications.test.js:104:19
+    at ExecutionContext.notThrowsAsync (file:///Users/mdavid/dev/examples/jiracle-3/node_modules/ava/lib/assert.js:686:14)
+    at file:///Users/mdavid/dev/examples/jiracle-3/dist/tests/services/ReminderService.notifications.test.js:103:17
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+  ✔ tests › services › WorklogGroupService › WorklogGroupService - resolveDefaultsFor with group assignment via project mapping
+  ✔ tests › services › WorklogGroupService › WorklogGroupService - resolveDefaultsFor without group assignment
+  ✔ tests › services › WorklogGroupService › WorklogGroupService - getGroupForIssue returns group for favorite issue
+  ✔ tests › services › WorklogGroupService › WorklogGroupService - getGroupForIssue returns undefined for unassigned issue
+  ✔ tests › services › WorklogGroupService › WorklogGroupService - getAllGroups returns all groups
+  ✔ tests › services › WorklogGroupService › WorklogGroupService - getGroupById returns correct group
+  ✔ tests › services › WorklogGroupService › WorklogGroupService - getGroupById returns undefined for non-existent group
+  ✔ tests › services › WorklogGroupService › WorklogGroupService - addFavoriteToGroup adds favorite to existing group
+  ✔ tests › services › WorklogGroupService › WorklogGroupService - addFavoriteToGroup returns false for non-existent group
+  ✔ tests › services › WorklogGroupService › WorklogGroupService - removeFavoriteFromGroup removes favorite from group
+  ✔ tests › services › WorklogGroupService › WorklogGroupService - removeFavoriteFromGroup returns false for non-existent group
+  ✔ tests › services › WorklogGroupService › WorklogGroupService - resolveCommentPrefillDaysFor uses group configuration
+  ✔ tests › services › WorklogGroupService › WorklogGroupService - resolveCommentPrefillDaysFor uses issue-level configuration
+  ✔ tests › services › WorklogGroupService › WorklogGroupService - resolveCommentPrefillDaysFor uses global default when no specific config
+  ✔ tests › services › WorklogGroupService › WorklogGroupService - resolveCommentPrefillDaysFor uses fallback when no config
+  ✔ tests › services › ReminderService.scheduling › ReminderService formatTime correctly formats dates
+  ✔ tests › services › ReminderService.scheduling › ReminderService isWeekday correctly identifies weekdays
+  ✔ tests › services › ReminderService.scheduling › ReminderService isTimeMatch correctly matches times with tolerance
+  ✔ tests › services › ReminderService.scheduling › ReminderService timeToMinutes converts time strings correctly
+  ✔ tests › services › ReminderService.scheduling › ReminderService handles malformed time strings gracefully
+  ✔ tests › services › ReminderService.scheduling › ReminderService handles multiple reminder times
+  ✔ tests › services › ReminderService.scheduling › ReminderService handles weekdaysOnly configuration
+  ✔ tests › services › ReminderService.scheduling › ReminderService time parsing edge cases
+  ✔ tests › services › ReminderService.integration › ReminderService handles JiraClient errors gracefully
+  ✔ tests › integration › worklog-form-flow.integration › Integration: API calls are made (215ms)
+  ✔ tests › use-cases › WeeklyWorklogSummaryUseCase.basic › WeeklyWorklogSummaryUseCase builds correct JQL query
+  ✔ tests › use-cases › WeeklyWorklogSummaryUseCase.basic › WeeklyWorklogSummaryUseCase handles empty results
+  ✔ tests › use-cases › WeeklyWorklogSummaryUseCase.basic › WeeklyWorklogSummaryUseCase aggregates worklogs by day
+  ✔ tests › use-cases › WeeklyWorklogSummaryUseCase.basic › WeeklyWorklogSummaryUseCase filters by current user email
+  ✔ tests › use-cases › WeeklyWorklogSummaryUseCase.basic › WeeklyWorklogSummaryUseCase filters by date range
+  ✔ tests › use-cases › WeeklyWorklogSummaryUseCase.basic › WeeklyWorklogSummaryUseCase converts time correctly
+  ✔ tests › integration › worklog-form-flow.integration › Integration: Component accepts different configurations (261ms)
+  ✔ tests › use-cases › WeeklyWorklogSummaryUseCase.bidirectional › WeeklyWorklogSummaryUseCase skips future window when future is 0
+  ✔ tests › use-cases › WeeklyWorklogSummaryUseCase.bidirectional › WeeklyWorklogSummaryUseCase skips past window when past is 0
+  ✔ tests › use-cases › WeeklyWorklogSummaryUseCase.bidirectional › WeeklyWorklogSummaryUseCase supports bidirectional sliding window
+  ✔ tests › use-cases › WeeklyWorklogSummaryUseCase.bidirectional › WeeklyWorklogSummaryUseCase bidirectional deduplication works correctly
+  ✔ tests › use-cases › WeeklyWorklogSummaryUseCase.favorites › WeeklyWorklogSummaryUseCase includes favorite issues without worklogs
+  ✔ tests › use-cases › WeeklyWorklogSummaryUseCase › sliding-window › basic-scenarios › normalizeSlidingWindowConfig handles configuration formats
+  ✔ tests › use-cases › WeeklyWorklogSummaryUseCase › sliding-window › basic-scenarios › WeeklyWorklogSummaryUseCase skips sliding window search when window size is 0
+  ✔ tests › use-cases › WeeklyWorklogSummaryUseCase › sliding-window › basic-scenarios › WeeklyWorklogSummaryUseCase makes sliding window search even with small window periods
+  ✔ tests › use-cases › WeeklyWorklogSummaryUseCase › sliding-window › basic-scenarios › WeeklyWorklogSummaryUseCase includes sliding window issues
+  ✔ tests › integration › cli.workload.integration › worklog add - end to end successful flow structure (880ms)
+  ✔ tests › app.navigation › should open worklog form when log work key is pressed (3.5s)
+  ✔ tests › integration › cli.workload.integration › worklog add - invalid Jira URL shows connection error (659ms)
+  ✔ tests › integration › cli.workload.integration › worklog add - malformed JSON config shows error (428ms)
+  ✔ tests › integration › cli.workload.integration › worklog add - incomplete config shows error (213ms)

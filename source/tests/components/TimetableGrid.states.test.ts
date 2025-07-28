@@ -4,6 +4,7 @@ import {render} from 'ink-testing-library';
 import {TimetableGrid} from '../../components/TimetableGrid.js';
 import type {WeeklyWorklogSummary} from '../../domain/WeeklyWorklogSummary.js';
 import {LocalDate} from '../../domain/LocalDate.js';
+import {IssueKey} from '../../domain/IssueKey.js';
 
 test('TimetableGrid shows loading state', t => {
 	const props = {
@@ -55,7 +56,7 @@ test('TimetableGrid renders table header', t => {
 				totalHours: 4,
 				issues: [
 					{
-						issueKey: 'TEST-117',
+						issueKey: IssueKey.fromString('TEST-117'),
 						issueSummary: 'Test Issue Summary',
 						hours: 4,
 					},
@@ -94,7 +95,7 @@ test('TimetableGrid displays dates in weekday headers', t => {
 				totalHours: 8,
 				issues: [
 					{
-						issueKey: 'TEST-123',
+						issueKey: IssueKey.fromString('TEST-123'),
 						issueSummary: 'Test Issue',
 						hours: 8,
 					},
@@ -132,12 +133,12 @@ test('TimetableGrid renders issue data correctly', t => {
 				totalHours: 5.5,
 				issues: [
 					{
-						issueKey: 'TEST-117',
+						issueKey: IssueKey.fromString('TEST-117'),
 						issueSummary: 'Test Issue Summary',
 						hours: 4,
 					},
 					{
-						issueKey: 'TEST-117',
+						issueKey: IssueKey.fromString('TEST-117'),
 						issueSummary: 'Test Issue Summary',
 						hours: 1.5,
 					},
@@ -170,7 +171,7 @@ test('TimetableGrid formats hours correctly', t => {
 				totalHours: 2.5,
 				issues: [
 					{
-						issueKey: 'TEST-117',
+						issueKey: IssueKey.fromString('TEST-117'),
 						issueSummary: 'Test Issue Summary',
 						hours: 2.5,
 					},
@@ -201,12 +202,12 @@ test('TimetableGrid shows daily totals', t => {
 				totalHours: 8,
 				issues: [
 					{
-						issueKey: 'TEST-117',
+						issueKey: IssueKey.fromString('TEST-117'),
 						issueSummary: 'First Issue',
 						hours: 4,
 					},
 					{
-						issueKey: 'TEST-118',
+						issueKey: IssueKey.fromString('TEST-118'),
 						issueSummary: 'Second Issue',
 						hours: 4,
 					},
@@ -238,7 +239,7 @@ test('TimetableGrid shows week total', t => {
 				totalHours: 7,
 				issues: [
 					{
-						issueKey: 'TEST-117',
+						issueKey: IssueKey.fromString('TEST-117'),
 						issueSummary: 'Test Issue',
 						hours: 7,
 					},
@@ -269,12 +270,12 @@ test('TimetableGrid handles multiple issues correctly', t => {
 				totalHours: 8,
 				issues: [
 					{
-						issueKey: 'TEST-117',
+						issueKey: IssueKey.fromString('TEST-117'),
 						issueSummary: 'First Issue',
 						hours: 4,
 					},
 					{
-						issueKey: 'TEST-118',
+						issueKey: IssueKey.fromString('TEST-118'),
 						issueSummary: 'Second Issue',
 						hours: 4,
 					},
@@ -308,7 +309,7 @@ test('TimetableGrid shows dash for zero hours', t => {
 				totalHours: 4,
 				issues: [
 					{
-						issueKey: 'TEST-117',
+						issueKey: IssueKey.fromString('TEST-117'),
 						issueSummary: 'Test Issue',
 						hours: 4,
 					},

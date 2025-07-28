@@ -1,5 +1,6 @@
 import test from 'ava';
 import {LocalDate} from '../../domain/LocalDate.js';
+import {IssueKey} from '../../domain/IssueKey.js';
 import {WeeklyWorklogSummaryUseCase} from '../../use-cases/WeeklyWorklogSummaryUseCase.js';
 import {createMockJiraClient} from './WeeklyWorklogSummaryUseCase.testutils.js';
 
@@ -41,7 +42,7 @@ test('WeeklyWorklogSummaryUseCase aggregates worklogs by day', async t => {
 		issues: [
 			{
 				id: '263906',
-				key: 'TEST-117',
+				key: IssueKey.fromString('TEST-117'),
 				fields: {
 					summary: 'Test Issue Summary',
 					status: {name: 'In Progress', statusCategory: {name: 'In Progress'}},
@@ -112,14 +113,14 @@ test('WeeklyWorklogSummaryUseCase aggregates worklogs by day', async t => {
 	const firstDay = result.dailySummaries[0]!;
 	t.is(firstDay.totalHours, 5); // 4 + 1 hours
 	t.is(firstDay.issues.length, 1); // Aggregated into single entry
-	t.is(firstDay.issues[0]!.issueKey, 'TEST-117');
+	t.true(firstDay.issues[0]!.issueKey.equals(IssueKey.fromString('TEST-117')));
 	t.is(firstDay.issues[0]!.hours, 5); // Combined hours
 
 	// Check second day (Oct 22)
 	const secondDay = result.dailySummaries[1]!;
 	t.is(secondDay.totalHours, 2);
 	t.is(secondDay.issues.length, 1);
-	t.is(secondDay.issues[0]!.issueKey, 'TEST-117');
+	t.true(secondDay.issues[0]!.issueKey.equals(IssueKey.fromString('TEST-117')));
 	t.is(secondDay.issues[0]!.hours, 2);
 
 	// Check week total
@@ -141,7 +142,7 @@ test('WeeklyWorklogSummaryUseCase filters by current user email', async t => {
 		issues: [
 			{
 				id: '263906',
-				key: 'TEST-117',
+				key: IssueKey.fromString('TEST-117'),
 				fields: {
 					summary: 'Test Issue Summary',
 					status: {name: 'In Progress', statusCategory: {name: 'In Progress'}},
@@ -216,7 +217,7 @@ test('WeeklyWorklogSummaryUseCase filters by date range', async t => {
 		issues: [
 			{
 				id: '263906',
-				key: 'TEST-117',
+				key: IssueKey.fromString('TEST-117'),
 				fields: {
 					summary: 'Test Issue Summary',
 					status: {name: 'In Progress', statusCategory: {name: 'In Progress'}},
@@ -327,7 +328,7 @@ test('WeeklyWorklogSummaryUseCase converts time correctly', async t => {
 		issues: [
 			{
 				id: '263906',
-				key: 'TEST-117',
+				key: IssueKey.fromString('TEST-117'),
 				fields: {
 					summary: 'Test Issue Summary',
 					status: {name: 'In Progress', statusCategory: {name: 'In Progress'}},

@@ -194,7 +194,11 @@ test('getMostRecentCommentForIssue uses custom reference date', t => {
 
 	// Reference date: August 22nd (should look back 7 days to August 15th)
 	const referenceDate = LocalDate.fromString('2025-08-22');
-	const result = getMostRecentCommentForIssue(worklogs, 7, referenceDate);
+	const result = getMostRecentCommentForIssue(
+		worklogs,
+		7,
+		referenceDate.toDate(),
+	);
 
 	// Should find August 20th comment (within 7 days of August 22nd)
 	// Should NOT find July 23rd comment (30 days old)
@@ -215,7 +219,11 @@ test('getMostRecentCommentForIssue with reference date excludes old worklogs', t
 
 	// Reference date: August 22nd (should look back 7 days to August 15th)
 	const referenceDate = LocalDate.fromString('2025-08-22');
-	const result = getMostRecentCommentForIssue(worklogs, 7, referenceDate);
+	const result = getMostRecentCommentForIssue(
+		worklogs,
+		7,
+		referenceDate.toDate(),
+	);
 
 	// July 23rd is more than 7 days before August 22nd, should return undefined
 	t.is(result, undefined);
@@ -250,7 +258,7 @@ test('getCommentWithPrefill uses reference date for filtering', t => {
 		worklogs,
 		{
 			isEditMode: false,
-			referenceDate,
+			referenceDate: referenceDate.toDate(),
 		},
 	);
 
@@ -287,7 +295,7 @@ test('getCommentWithPrefill finds recent comment with reference date', t => {
 		worklogs,
 		{
 			isEditMode: false,
-			referenceDate,
+			referenceDate: referenceDate.toDate(),
 		},
 	);
 
@@ -330,7 +338,7 @@ test('getCommentWithPrefill respects configurable lookback days with reference d
 		worklogs,
 		{
 			isEditMode: false,
-			referenceDate,
+			referenceDate: referenceDate.toDate(),
 		},
 	);
 
@@ -366,7 +374,7 @@ test('getCommentWithPrefill uses explicit default in edit mode regardless of ref
 		{
 			isEditMode: true,
 			explicitDefault: 'Edit mode comment',
-			referenceDate,
+			referenceDate: referenceDate.toDate(),
 		},
 	);
 

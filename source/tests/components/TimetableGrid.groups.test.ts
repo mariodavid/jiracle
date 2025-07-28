@@ -41,7 +41,7 @@ test('TimetableGrid shows dash for empty group total', t => {
 
 	const favoriteIssues = [
 		{
-			key: 'TEST-123',
+			key: IssueKey.fromString('TEST-123'),
 			groupId: 'test-group',
 		},
 	];
@@ -101,7 +101,7 @@ test('TimetableGrid shows group total with hours suffix when not empty', t => {
 
 	const favoriteIssues = [
 		{
-			key: 'TEST-123',
+			key: IssueKey.fromString('TEST-123'),
 			groupId: 'test-group',
 		},
 	];
@@ -162,7 +162,7 @@ test('TimetableGrid shows group total with desired amount and status', t => {
 
 	const favoriteIssues = [
 		{
-			key: 'TEST-123',
+			key: IssueKey.fromString('TEST-123'),
 			groupId: 'test-group',
 		},
 	];

@@ -1,7 +1,7 @@
 import React from 'react';
 import {render} from 'ink-testing-library';
-import {IssueKey} from '../../domain/IssueKey.js';
 import DurationInput from '../../components/WorklogForm/DurationInput.js';
+import {IssueKey} from '../../domain/IssueKey.js';
 
 // Shared mock data
 export const mockIssue = {

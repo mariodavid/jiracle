@@ -283,7 +283,7 @@ test('InlineWorklogForm uses global default time from config', t => {
 test('InlineWorklogForm uses favorite-specific default time', t => {
 	const configProps = {
 		...mockProps,
-		issueKey: 'SPECIAL-456',
+		issueKey: IssueKey.fromString('SPECIAL-456'),
 		defaultTimeSpent: undefined, // Don't override with prop
 		config: {
 			jiraUrl: 'https://jira.example.com/',
@@ -291,8 +291,8 @@ test('InlineWorklogForm uses favorite-specific default time', t => {
 			apiToken: 'test-token',
 			defaultTime: '4h', // Global default
 			favorites: [
-				{key: 'SPECIAL-456', defaultTime: '8h'},
-				{key: 'OTHER-123', defaultTime: '2h'},
+				{key: IssueKey.fromString('SPECIAL-456'), defaultTime: '8h'},
+				{key: IssueKey.fromString('OTHER-123'), defaultTime: '2h'},
 			],
 		},
 		isFavorite: true,
@@ -312,7 +312,7 @@ test('InlineWorklogForm uses favorite-specific default time', t => {
 test('InlineWorklogForm favorite time overrides global default', t => {
 	const configProps = {
 		...mockProps,
-		issueKey: 'FAV-789',
+		issueKey: IssueKey.fromString('FAV-789'),
 		defaultTimeSpent: undefined, // Don't override with prop
 		config: {
 			jiraUrl: 'https://jira.example.com/',
@@ -320,7 +320,7 @@ test('InlineWorklogForm favorite time overrides global default', t => {
 			apiToken: 'test-token',
 			defaultTime: '3h', // Global default
 			favorites: [
-				{key: 'FAV-789', defaultTime: '12h'}, // Favorite override
+				{key: IssueKey.fromString('FAV-789'), defaultTime: '12h'}, // Favorite override
 			],
 		},
 		isFavorite: true,
@@ -339,7 +339,7 @@ test('InlineWorklogForm favorite time overrides global default', t => {
 test('InlineWorklogForm falls back to global default when favorite has no time', t => {
 	const configProps = {
 		...mockProps,
-		issueKey: 'FAV-NO-TIME',
+		issueKey: IssueKey.fromString('FAV-NO-TIME'),
 		defaultTimeSpent: undefined, // Don't override with prop
 		config: {
 			jiraUrl: 'https://jira.example.com/',
@@ -347,7 +347,7 @@ test('InlineWorklogForm falls back to global default when favorite has no time',
 			apiToken: 'test-token',
 			defaultTime: '5h', // Global default
 			favorites: [
-				{key: 'FAV-NO-TIME'}, // Favorite without defaultTime
+				{key: IssueKey.fromString('FAV-NO-TIME')}, // Favorite without defaultTime
 			],
 		},
 		isFavorite: true,
@@ -422,7 +422,7 @@ test('InlineWorklogForm shows issue key field when isIssueKeyEditable is true', 
 test('InlineWorklogForm hides issue key field when isIssueKeyEditable is false', t => {
 	const nonEditableKeyProps = {
 		...mockProps,
-		issueKey: 'FIXED-123',
+		issueKey: IssueKey.fromString('FIXED-123'),
 		isIssueKeyEditable: false,
 	};
 
@@ -454,7 +454,7 @@ test('InlineWorklogForm shows date field when isIssueKeyEditable is true', t => 
 test('InlineWorklogForm hides date field when isIssueKeyEditable is false', t => {
 	const nonEditableKeyProps = {
 		...mockProps,
-		issueKey: 'FIXED-123',
+		issueKey: IssueKey.fromString('FIXED-123'),
 		isIssueKeyEditable: false,
 	};
 	const {lastFrame} = render(

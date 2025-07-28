@@ -1,10 +1,10 @@
 import test from 'ava';
 import React from 'react';
 import {render} from 'ink-testing-library';
+import {IssueKey} from '../../domain/IssueKey.js';
 import WorklogSummary from '../../components/WorklogSummary.js';
 import {createMockIssue} from '../utils/testUtils.js';
 import {InkTestHelpers} from '../utils/ink-test-helpers.js';
-import {IssueKey} from '../../domain/IssueKey.js';
 
 test('should render submitting variant correctly', async t => {
 	const {lastFrame, unmount} = render(

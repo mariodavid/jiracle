@@ -1,7 +1,7 @@
 import test from 'ava';
-import {IssueKey} from '../../domain/IssueKey.js';
 import {useIssueGroups} from '../../hooks/useIssueGroups.js';
 import type {JiraConfig} from '../../jira-client.js';
+import {IssueKey} from '../../domain/IssueKey.js';
 
 // Simple test to verify the hook exists and can be called
 test('useIssueGroups - hook exists and returns expected structure', t => {
