@@ -1,13 +1,13 @@
 import test from 'ava';
-import {IssueKey} from '../../../domain/IssueKey.js';
-import {LocalDate} from '../../../domain/LocalDate.js';
-import type {WeeklyWorklogSummary} from '../../../domain/WeeklyWorklogSummary.js';
-import type {WeeklyAttendance} from '../../../attendance/types.js';
-import type {JiraConfig} from '../../../jira-client.js';
-import {TestPatterns} from '../../../tests/utils/test-helpers.js';
-import {calculateFocusableItems} from '../../../utils/FocusableItemCalculator.js';
-import {navigateInDirection} from '../../../services/GridNavigationService.js';
-import {AttendanceManager} from '../../../attendance/AttendanceManager.js';
+import {IssueKey} from '../../domain/IssueKey.js';
+import {LocalDate} from '../../domain/LocalDate.js';
+import type {WeeklyWorklogSummary} from '../../domain/WeeklyWorklogSummary.js';
+import type {WeeklyAttendance} from '../../attendance/types.js';
+import type {JiraConfig} from '../../jira-client.js';
+import {TestPatterns} from '../utils/test-helpers.js';
+import {calculateFocusableItems} from '../../utils/FocusableItemCalculator.js';
+import {navigateInDirection} from '../../services/GridNavigationService.js';
+import {AttendanceManager} from '../../attendance/AttendanceManager.js';
 
 // Test Data: Complete integration scenario with attendance and worklog data
 const mockConfig: JiraConfig = {
