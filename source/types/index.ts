@@ -10,8 +10,3 @@ export type Step =
 	| 'weekly-timetable'
 	| 'delete-confirmation'
 	| 'deleting';
-
-export type SelectOption = {
-	label: string;
-	value: string;
-};

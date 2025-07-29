@@ -201,6 +201,7 @@
 /Users/mdavid/dev/examples/jiracle-1/source/tests/utils/test-helpers.ts:320:4: parameters
 /Users/mdavid/dev/examples/jiracle-1/source/tests/utils/test-helpers.ts:325:3: t
 /Users/mdavid/dev/examples/jiracle-1/source/tests/utils/test-helpers.ts:339:6: t
+/Users/mdavid/dev/examples/jiracle-1/source/tests/domain/WorklogEntry.test.ts:129:43: author
 /Users/mdavid/dev/examples/jiracle-1/source/tests/components/AttendanceEditForm.tab-navigation.test.tsx:5:9: InkTestHelpers
 /Users/mdavid/dev/examples/jiracle-1/source/tests/components/AttendanceEditForm.tab-navigation.test.tsx:146:8: InkTestHelpers
 /Users/mdavid/dev/examples/jiracle-1/source/tests/components/AttendanceEditForm.tab-navigation.test.tsx:146:23: delay
@@ -545,7 +546,6 @@
 /Users/mdavid/dev/examples/jiracle-1/source/tests/components/WorklogSummary.test.ts:252:23: delay
 /Users/mdavid/dev/examples/jiracle-1/source/tests/components/WorklogSummary.test.ts:276:8: InkTestHelpers
 /Users/mdavid/dev/examples/jiracle-1/source/tests/components/WorklogSummary.test.ts:276:23: delay
-/Users/mdavid/dev/examples/jiracle-1/source/tests/domain/WorklogEntry.test.ts:129:43: author
 /Users/mdavid/dev/examples/jiracle-1/source/tests/hooks/useAttendanceManagement.test.tsx:11:9: InkTestHelpers
 /Users/mdavid/dev/examples/jiracle-1/source/tests/hooks/useAttendanceManagement.test.tsx:48:19: state
 /Users/mdavid/dev/examples/jiracle-1/source/tests/hooks/useAttendanceManagement.test.tsx:77:6: capturedState
@@ -1474,5 +1474,5 @@
 /Users/mdavid/dev/examples/jiracle-1/source/tests/utils/FocusableItemCalculator.test.ts:54:4: is
 /Users/mdavid/dev/examples/jiracle-1/source/tests/utils/FocusableItemCalculator.test.ts:55:2: t
 /Users/mdavid/dev/examples/jiracle-1/source/tests/utils/FocusableItemCalculator.test.ts:55:4: is
-(47046 / 48522) 96.95%
+(46953 / 48429) 96.95%
 type-coverage success.

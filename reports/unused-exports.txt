@@ -14,9 +14,6 @@ source/jira-client.ts:167 - resolveCommentPrefillDays
 source/jira-client.ts:206 - getCommentWithPrefill
 source/cli/attendance-commands.ts:6 - AttendanceCommandResult (used in module)
 source/components/FocusableCell.tsx:5 - FocusableCellProps (used in module)
-source/components/Header.tsx:31 - default
-source/components/MenuCard.tsx:44 - default
-source/components/Navigation.tsx:12 - default
 source/components/NotificationBar.tsx:5 - NotificationBarProps (used in module)
 source/components/RainbowText.tsx:9 - RainbowText
 source/components/RainbowText.tsx:4 - RainbowTextProps (used in module)

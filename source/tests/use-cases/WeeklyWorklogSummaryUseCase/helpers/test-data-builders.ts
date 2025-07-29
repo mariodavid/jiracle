@@ -90,5 +90,3 @@ export const getStandardTestDates = () => ({
 	weekStart: new Date('2024-10-14T00:00:00.000Z'), // Monday
 	weekEnd: new Date('2024-10-20T23:59:59.999Z'), // Sunday
 });
-
-export const getStandardSlidingWindowConfig = () => ({past: 14, future: 0});
