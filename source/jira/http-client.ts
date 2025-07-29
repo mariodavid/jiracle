@@ -1,6 +1,10 @@
 import type winston from 'winston';
 import type {JiraConfig} from './types.js';
 
+// Generic request/response types for better type safety
+export type HttpRequestData = Record<string, unknown>;
+export type HttpResponse<T = unknown> = T;
+
 export class JiraHttpClient {
 	private readonly baseUrl: string;
 	private readonly apiToken: string;
@@ -32,7 +36,10 @@ export class JiraHttpClient {
 		}
 	}
 
-	async post<T>(endpoint: string, data: any): Promise<T> {
+	async post<T = HttpResponse, D = HttpRequestData>(
+		endpoint: string,
+		data: D,
+	): Promise<T> {
 		const url = `${this.baseUrl}${endpoint}`;
 		this.logger.info(`POST request to ${url}`);
 
@@ -53,7 +60,10 @@ export class JiraHttpClient {
 		}
 	}
 
-	async put<T>(endpoint: string, data: any): Promise<T> {
+	async put<T = HttpResponse, D = HttpRequestData>(
+		endpoint: string,
+		data: D,
+	): Promise<T> {
 		const url = `${this.baseUrl}${endpoint}`;
 		this.logger.info(`PUT request to ${url}`);
 
