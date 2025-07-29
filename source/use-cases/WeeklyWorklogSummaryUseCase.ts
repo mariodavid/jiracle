@@ -6,6 +6,7 @@ import {
 } from '../jira-client.js';
 import {LocalDate} from '../domain/LocalDate.js';
 import {IssueKey} from '../domain/IssueKey.js';
+import {type WeekRange} from '../domain/WeekRange.js';
 import {uiLogger} from '../utils/logger.js';
 import {
 	type WeeklyWorklogSummary,
@@ -15,8 +16,7 @@ import {
 } from '../domain/WeeklyWorklogSummary.js';
 
 export type ExecuteWeeklyWorklogSummaryOptions = {
-	weekStart: Date;
-	weekEnd: Date;
+	weekRange: WeekRange;
 	userEmail?: string;
 	favoriteIssues?: FavoriteIssue[];
 	slidingWindowConfig?: {past: number; future: number};
@@ -28,8 +28,9 @@ export class WeeklyWorklogSummaryUseCase {
 	async execute(
 		options: ExecuteWeeklyWorklogSummaryOptions,
 	): Promise<WeeklyWorklogSummary> {
-		const {weekStart, weekEnd, userEmail, favoriteIssues, slidingWindowConfig} =
-			options;
+		const {weekRange, userEmail, favoriteIssues, slidingWindowConfig} = options;
+		const weekStart = weekRange.getStartOfWeekAsDate();
+		const weekEnd = weekRange.getEndOfWeekAsDate();
 		// Build JQL query for issues with worklogs in the date range
 		const jql = this.buildJqlQuery(weekStart, weekEnd);
 
@@ -210,8 +211,8 @@ export class WeeklyWorklogSummaryUseCase {
 		);
 
 		return {
-			weekStart: LocalDate.fromDate(weekStart),
-			weekEnd: LocalDate.fromDate(weekEnd),
+			weekStart: weekRange.getStart(),
+			weekEnd: weekRange.getEnd(),
 			dailySummaries,
 			weekTotal,
 		};

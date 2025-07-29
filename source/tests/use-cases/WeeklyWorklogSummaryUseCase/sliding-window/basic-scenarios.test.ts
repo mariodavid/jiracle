@@ -26,7 +26,7 @@ test('WeeklyWorklogSummaryUseCase includes sliding window issues', async t => {
 	const {client, useCase} = setupBasicTest();
 	const jqlQueries: string[] = [];
 
-	const {weekStart, weekEnd} = getStandardTestDates();
+	const {weekRange} = getStandardTestDates();
 	const slidingWindowConfig = {past: 10, future: 0}; // Look back 10 days
 
 	let capturedWindowStartDate = '';
@@ -83,8 +83,7 @@ test('WeeklyWorklogSummaryUseCase includes sliding window issues', async t => {
 	};
 
 	const result = await useCase.execute({
-		weekStart,
-		weekEnd,
+		weekRange,
 		userEmail: 'user1@example.com',
 		slidingWindowConfig,
 	});
@@ -102,7 +101,7 @@ test('WeeklyWorklogSummaryUseCase includes sliding window issues', async t => {
 	assertLookbackDateCaptured(
 		t,
 		capturedWindowStartDate,
-		weekStart,
+		weekRange.getStartOfWeekAsDate(),
 		'Should have captured a lookback start date',
 	);
 
@@ -117,7 +116,7 @@ test('WeeklyWorklogSummaryUseCase skips sliding window search when window size i
 	const {client, useCase} = setupBasicTest();
 	const jqlQueries = setupJqlQueryCapture(client);
 
-	const {weekStart, weekEnd} = getStandardTestDates();
+	const {weekRange} = getStandardTestDates();
 	const slidingWindowConfig = {past: 0, future: 0}; // No sliding window
 
 	client.searchIssuesWithWorklogs = async jql => {
@@ -127,8 +126,7 @@ test('WeeklyWorklogSummaryUseCase skips sliding window search when window size i
 	};
 
 	await useCase.execute({
-		weekStart,
-		weekEnd,
+		weekRange,
 		userEmail: 'user1@example.com',
 		slidingWindowConfig,
 	});
@@ -147,7 +145,7 @@ test('WeeklyWorklogSummaryUseCase makes sliding window search even with small wi
 	const {client, useCase} = setupBasicTest();
 	const jqlQueries = setupJqlQueryCapture(client);
 
-	const {weekStart, weekEnd} = getStandardTestDates();
+	const {weekRange} = getStandardTestDates();
 	const slidingWindowConfig = {past: 1, future: 0}; // 1 day window back from week start = Oct 13
 
 	client.searchIssuesWithWorklogs = async jql => {
@@ -157,8 +155,7 @@ test('WeeklyWorklogSummaryUseCase makes sliding window search even with small wi
 	};
 
 	await useCase.execute({
-		weekStart,
-		weekEnd,
+		weekRange,
 		userEmail: 'user1@example.com',
 		slidingWindowConfig,
 	});

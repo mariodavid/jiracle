@@ -49,26 +49,23 @@ test('useWeeklyWorklogSummary - module exports and interface', async t => {
 test('useWeeklyWorklogSummary - parameter validation requirements', t => {
 	// 1. EXPLICIT TEST DATA
 	const config = hookTestUtils.createHookTestConfig();
-	const {weekStart, weekEnd} = hookTestUtils.createTestWeekRange();
+	const weekRange = hookTestUtils.createTestWeekRange();
 
 	const validOptions: UseWeeklyWorklogSummaryOptions = {
-		weekStart,
-		weekEnd,
+		weekRange,
 		config,
 		skipAutoLoad: true,
 		userEmail: 'test@example.com',
 	};
 
 	const optionsWithoutEmail: UseWeeklyWorklogSummaryOptions = {
-		weekStart,
-		weekEnd,
+		weekRange,
 		config,
 		skipAutoLoad: true,
 	};
 
 	const optionsWithEmptyFavorites: UseWeeklyWorklogSummaryOptions = {
-		weekStart,
-		weekEnd,
+		weekRange,
 		config,
 		skipAutoLoad: true,
 		userEmail: 'test@example.com',
@@ -86,12 +83,8 @@ test('useWeeklyWorklogSummary - parameter validation requirements', t => {
 	// 3. SPECIFIC VALUE COMPARISONS
 	for (const [index, options] of parameterSets.entries()) {
 		t.true(
-			options.weekStart instanceof Date,
-			`Parameter set ${index} should have valid weekStart`,
-		);
-		t.true(
-			options.weekEnd instanceof Date,
-			`Parameter set ${index} should have valid weekEnd`,
+			typeof options.weekRange === 'object' && options.weekRange !== null,
+			`Parameter set ${index} should have valid weekRange`,
 		);
 		t.is(
 			typeof options.config,
@@ -196,60 +189,37 @@ test('useWeeklyWorklogSummary - configuration normalization requirements', t => 
 	}
 });
 
-test('useWeeklyWorklogSummary - date handling and week range validation', t => {
+test('useWeeklyWorklogSummary - WeekRange validation', t => {
 	// 1. EXPLICIT TEST DATA
-	const pastDate = new Date('2023-01-01');
-	const futureDate = new Date('2023-01-07');
-	const sameDate = new Date('2023-01-01');
-	const invalidDate = new Date('invalid');
-
-	const validDateRanges = [
-		{start: pastDate, end: futureDate, description: 'normal week range'},
-		{start: sameDate, end: sameDate, description: 'same start and end date'},
-	];
-
-	const problematicDates = [
-		{date: invalidDate, description: 'invalid date object'},
-	];
+	const config = hookTestUtils.createHookTestConfig();
+	const weekRange = hookTestUtils.createTestWeekRange();
 
 	// 2. OPERATIONS
-	// Test date range validation and handling
-	const config = hookTestUtils.createHookTestConfig();
+	// Test WeekRange validation and handling
+	const options: UseWeeklyWorklogSummaryOptions = {
+		weekRange,
+		config,
+		skipAutoLoad: true,
+	};
 
 	// 3. SPECIFIC VALUE COMPARISONS
-	for (const {start, end, description} of validDateRanges) {
-		const options: UseWeeklyWorklogSummaryOptions = {
-			weekStart: start,
-			weekEnd: end,
-			config,
-			skipAutoLoad: true,
-		};
-
-		t.true(
-			options.weekStart instanceof Date,
-			`${description}: weekStart should be Date instance`,
-		);
-		t.true(
-			options.weekEnd instanceof Date,
-			`${description}: weekEnd should be Date instance`,
-		);
-		t.true(
-			options.weekStart.getTime() <= options.weekEnd.getTime(),
-			`${description}: weekStart should be <= weekEnd`,
-		);
-	}
-
-	// Test problematic date handling
-	for (const {date, description} of problematicDates) {
-		t.true(
-			date instanceof Date,
-			`${description}: should still be Date instance`,
-		);
-		t.true(
-			Number.isNaN(date.getTime()),
-			`${description}: should have NaN time value`,
-		);
-	}
+	t.true(
+		typeof options.weekRange === 'object' && options.weekRange !== null,
+		'weekRange should be object instance',
+	);
+	t.true(
+		typeof options.weekRange.getStart === 'function',
+		'weekRange should have getStart method',
+	);
+	t.true(
+		typeof options.weekRange.getEnd === 'function',
+		'weekRange should have getEnd method',
+	);
+	t.true(
+		options.weekRange.getStart().toDate().getTime() <=
+			options.weekRange.getEnd().toDate().getTime(),
+		'weekRange start should be <= end',
+	);
 });
 
 test('useWeeklyWorklogSummary - fetch mock and API integration setup', async t => {
@@ -308,7 +278,7 @@ test('useWeeklyWorklogSummary - parameter combinations and edge cases', t => {
 	const config2 = hookTestUtils.createHookTestConfig({
 		slidingWindowDays: {past: 14, future: 7},
 	});
-	const {weekStart, weekEnd} = hookTestUtils.createTestWeekRange();
+	const weekRange = hookTestUtils.createTestWeekRange();
 	const favoriteIssues1 = [
 		{key: IssueKey.fromString('TEST-1'), defaultTime: '2h'},
 	];
@@ -319,15 +289,13 @@ test('useWeeklyWorklogSummary - parameter combinations and edge cases', t => {
 	// Test that different configurations generate different parameter sets
 	const expectedDifferentParameters = [
 		{
-			weekStart,
-			weekEnd,
+			weekRange,
 			config: config1,
 			userEmail: 'user1@example.com',
 			favoriteIssues: favoriteIssues1,
 		},
 		{
-			weekStart,
-			weekEnd,
+			weekRange,
 			config: config2,
 			userEmail: 'user2@example.com',
 			favoriteIssues: favoriteIssues2,
@@ -358,12 +326,8 @@ test('useWeeklyWorklogSummary - parameter combinations and edge cases', t => {
 	// Test all parameter combinations have required properties
 	for (const [index, parameters] of expectedDifferentParameters.entries()) {
 		t.true(
-			parameters.weekStart instanceof Date,
-			`Parameter set ${index} weekStart should be Date`,
-		);
-		t.true(
-			parameters.weekEnd instanceof Date,
-			`Parameter set ${index} weekEnd should be Date`,
+			typeof parameters.weekRange === 'object' && parameters.weekRange !== null,
+			`Parameter set ${index} weekRange should be object`,
 		);
 		t.is(
 			typeof parameters.config,
@@ -384,10 +348,10 @@ test('useWeeklyWorklogSummary - parameter combinations and edge cases', t => {
 
 test('useWeeklyWorklogSummary - WeeklyWorklogSummary data structure requirements', t => {
 	// 1. EXPLICIT TEST DATA
-	const {weekStart, weekEnd} = hookTestUtils.createTestWeekRange();
+	const weekRange = hookTestUtils.createTestWeekRange();
 	const testSummary = {
-		weekStart,
-		weekEnd,
+		weekStart: weekRange.getStart(),
+		weekEnd: weekRange.getEnd(),
 		dailySummaries: [],
 		weekTotal: 0,
 	};
@@ -410,8 +374,16 @@ test('useWeeklyWorklogSummary - WeeklyWorklogSummary data structure requirements
 	t.is(typeof testSummary.weekTotal, 'number', 'weekTotal should be number');
 
 	// Test specific values
-	t.is(testSummary.weekStart, weekStart, 'weekStart should match input');
-	t.is(testSummary.weekEnd, weekEnd, 'weekEnd should match input');
+	t.deepEqual(
+		testSummary.weekStart,
+		weekRange.getStart(),
+		'weekStart should match input',
+	);
+	t.deepEqual(
+		testSummary.weekEnd,
+		weekRange.getEnd(),
+		'weekEnd should match input',
+	);
 	t.is(testSummary.dailySummaries.length, 0, 'dailySummaries should be empty');
 	t.is(testSummary.weekTotal, 0, 'weekTotal should be zero');
 });

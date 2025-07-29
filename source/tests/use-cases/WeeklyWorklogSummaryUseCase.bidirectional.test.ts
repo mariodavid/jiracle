@@ -1,5 +1,7 @@
 import test from 'ava';
 import {IssueKey} from '../../domain/IssueKey.js';
+import {LocalDate} from '../../domain/LocalDate.js';
+import {WeekRange} from '../../domain/WeekRange.js';
 import {JiraClient} from '../../jira-client.js';
 import type {JiraConfig} from '../../jira-client.js';
 import {WeeklyWorklogSummaryUseCase} from '../../use-cases/WeeklyWorklogSummaryUseCase.js';
@@ -18,8 +20,7 @@ test('WeeklyWorklogSummaryUseCase supports bidirectional sliding window', async 
 	const client = createMockJiraClient();
 	const useCase = new WeeklyWorklogSummaryUseCase(client);
 
-	const weekStart = new Date('2024-10-14T00:00:00.000Z'); // Monday
-	const weekEnd = new Date('2024-10-20T23:59:59.999Z'); // Sunday
+	const weekRange = WeekRange.fromDate(LocalDate.fromString('2024-10-14')); // Monday
 	const slidingWindowConfig = {past: 7, future: 7}; // 7 days back and forward
 
 	// Mock current user
@@ -146,8 +147,7 @@ test('WeeklyWorklogSummaryUseCase supports bidirectional sliding window', async 
 	};
 
 	const result = await useCase.execute({
-		weekStart,
-		weekEnd,
+		weekRange,
 		userEmail: 'user1@example.com',
 		slidingWindowConfig,
 	});
@@ -184,8 +184,7 @@ test('WeeklyWorklogSummaryUseCase bidirectional deduplication works correctly', 
 	const client = createMockJiraClient();
 	const useCase = new WeeklyWorklogSummaryUseCase(client);
 
-	const weekStart = new Date('2024-10-14T00:00:00.000Z');
-	const weekEnd = new Date('2024-10-20T23:59:59.999Z');
+	const weekRange = WeekRange.fromDate(LocalDate.fromString('2024-10-14'));
 	const slidingWindowConfig = {past: 5, future: 5};
 
 	client.getCurrentUser = async () => ({emailAddress: 'user1@example.com'});
@@ -242,8 +241,7 @@ test('WeeklyWorklogSummaryUseCase bidirectional deduplication works correctly', 
 	});
 
 	const result = await useCase.execute({
-		weekStart,
-		weekEnd,
+		weekRange,
 		userEmail: 'user1@example.com',
 		slidingWindowConfig,
 	});
@@ -258,8 +256,7 @@ test('WeeklyWorklogSummaryUseCase skips future window when future is 0', async t
 	const client = createMockJiraClient();
 	const useCase = new WeeklyWorklogSummaryUseCase(client);
 
-	const weekStart = new Date('2024-10-14T00:00:00.000Z');
-	const weekEnd = new Date('2024-10-20T23:59:59.999Z');
+	const weekRange = WeekRange.fromDate(LocalDate.fromString('2024-10-14'));
 	const slidingWindowConfig = {past: 7, future: 0}; // Only past, no future
 
 	client.getCurrentUser = async () => ({emailAddress: 'user1@example.com'});
@@ -272,8 +269,7 @@ test('WeeklyWorklogSummaryUseCase skips future window when future is 0', async t
 	};
 
 	await useCase.execute({
-		weekStart,
-		weekEnd,
+		weekRange,
 		userEmail: 'user1@example.com',
 		slidingWindowConfig,
 	});
@@ -297,8 +293,7 @@ test('WeeklyWorklogSummaryUseCase skips past window when past is 0', async t => 
 	const client = createMockJiraClient();
 	const useCase = new WeeklyWorklogSummaryUseCase(client);
 
-	const weekStart = new Date('2024-10-14T00:00:00.000Z');
-	const weekEnd = new Date('2024-10-20T23:59:59.999Z');
+	const weekRange = WeekRange.fromDate(LocalDate.fromString('2024-10-14'));
 	const slidingWindowConfig = {past: 0, future: 3}; // Only future, no past
 
 	client.getCurrentUser = async () => ({emailAddress: 'user1@example.com'});
@@ -311,8 +306,7 @@ test('WeeklyWorklogSummaryUseCase skips past window when past is 0', async t => 
 	};
 
 	await useCase.execute({
-		weekStart,
-		weekEnd,
+		weekRange,
 		userEmail: 'user1@example.com',
 		slidingWindowConfig,
 	});
