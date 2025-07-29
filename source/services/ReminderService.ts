@@ -36,7 +36,7 @@ export class ReminderService {
 		}
 
 		this.interval = setInterval(() => {
-			this.checkReminders().catch(error => {
+			this.checkReminders().catch((error: unknown) => {
 				console.error('Error in reminder check:', error);
 			});
 		}, this.checkIntervalMs);

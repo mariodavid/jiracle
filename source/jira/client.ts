@@ -6,6 +6,9 @@ import type {
 	JiraIssue,
 	FavoriteIssue,
 	JiraSearchResponse,
+	JiraSearchRequest,
+	JiraSearchRawResponse,
+	JiraIssueRawResponse,
 	WorklogRequest,
 	WorklogResponse,
 } from './types.js';
@@ -78,7 +81,7 @@ export class JiraClient {
 	async fetchAssignedIssues(): Promise<JiraIssue[]> {
 		const jql =
 			'assignee = currentUser() AND resolution = Unresolved ORDER BY updated DESC';
-		const requestData = {
+		const requestData: JiraSearchRequest = {
 			jql,
 			maxResults: 50,
 			fields: [
@@ -92,9 +95,10 @@ export class JiraClient {
 			],
 		};
 
-		const rawData = await this.httpClient.post<{
-			issues: Array<{key: string; id: string; fields: any}>;
-		}>('/search', requestData);
+		const rawData = await this.httpClient.post<
+			JiraSearchRawResponse,
+			JiraSearchRequest
+		>('/search', requestData);
 
 		// Transform the raw API response to use IssueKey objects
 		const transformedIssues: JiraIssue[] = rawData.issues.map(issue => ({
@@ -114,7 +118,7 @@ export class JiraClient {
 		const jql = `key in (${favoriteKeys
 			.map(key => `"${key}"`)
 			.join(', ')}) AND resolution = Unresolved`;
-		const requestData = {
+		const requestData: JiraSearchRequest = {
 			jql,
 			maxResults: 50,
 			fields: [
@@ -128,9 +132,10 @@ export class JiraClient {
 			],
 		};
 
-		const rawData = await this.httpClient.post<{
-			issues: Array<{key: string; id: string; fields: any}>;
-		}>('/search', requestData);
+		const rawData = await this.httpClient.post<
+			JiraSearchRawResponse,
+			JiraSearchRequest
+		>('/search', requestData);
 
 		// Transform the raw API response to use IssueKey objects
 		const transformedIssues: JiraIssue[] = rawData.issues.map(issue => ({
@@ -147,11 +152,9 @@ export class JiraClient {
 
 	async fetchIssue(issueKey: string | IssueKey): Promise<JiraIssue> {
 		const key = typeof issueKey === 'string' ? issueKey : issueKey.toString();
-		const rawIssue = await this.httpClient.get<{
-			key: string;
-			id: string;
-			fields: any;
-		}>(`/issue/${key}`);
+		const rawIssue = await this.httpClient.get<JiraIssueRawResponse>(
+			`/issue/${key}`,
+		);
 
 		// Transform the raw API response to use IssueKey objects
 		return {
@@ -360,12 +363,7 @@ export class JiraClient {
 				throw new Error(`Jira API error: ${response.status} - ${errorText}`);
 			}
 
-			const rawData = (await response.json()) as {
-				issues: Array<{key: string; id: string; fields: any}>;
-				startAt: number;
-				maxResults: number;
-				total: number;
-			};
+			const rawData = (await response.json()) as JiraSearchRawResponse;
 
 			// Transform the raw API response to use IssueKey objects
 			const data: JiraSearchResponse = {

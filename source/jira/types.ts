@@ -122,3 +122,27 @@ export type ResolvedDefaults = {
 		time: 'issue' | 'group' | 'global' | 'fallback';
 	};
 };
+
+// Request types for better type safety
+export type JiraSearchRequest = {
+	jql: string;
+	maxResults: number;
+	fields: string[];
+};
+
+export type JiraSearchRawResponse = {
+	issues: Array<{
+		key: string;
+		id: string;
+		fields: JiraIssueField;
+	}>;
+	startAt: number;
+	maxResults: number;
+	total: number;
+};
+
+export type JiraIssueRawResponse = {
+	key: string;
+	id: string;
+	fields: JiraIssueField;
+};
