@@ -1,3 +1,7 @@
 node_modules
 dist
 coverage
+
+# Generated reports
+reports/type-coverage.txt
+reports/unused-exports.txt

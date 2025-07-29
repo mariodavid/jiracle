@@ -15,7 +15,6 @@ import {
 } from '../utils/TimetableCalculations.js';
 // Import {calculateFocusableItems} from '../utils/FocusableItemCalculator.js';
 import {useTableNavigation} from '../hooks/useTableNavigation.js';
-// Import {useGridNavigation} from '../hooks/useGridNavigation.js';
 import {
 	generateWeekDates,
 	buildIssueMap,
