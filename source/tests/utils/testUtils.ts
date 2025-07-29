@@ -81,62 +81,6 @@ export function createMockIssueList(count = 3): JiraIssue[] {
 }
 
 /**
- * Creates a mock config with custom favorites
- */
-export function createMockConfigWithFavorites(
-	favorites: FavoriteIssue[],
-): JiraConfig {
-	return createMockConfig({favorites});
-}
-
-/**
- * Common assertions for ink-testing-library
- */
-export const assertions = {
-	/**
-	 * Asserts that output contains all given strings
-	 */
-	containsAll(
-		output: string | undefined | undefined,
-		texts: string[],
-	): boolean {
-		if (!output) return false;
-		return texts.every(text => output.includes(text));
-	},
-
-	/**
-	 * Asserts that output contains any of the given strings
-	 */
-	containsAny(
-		output: string | undefined | undefined,
-		texts: string[],
-	): boolean {
-		if (!output) return false;
-		return texts.some(text => output.includes(text));
-	},
-
-	/**
-	 * Asserts that output does not contain any of the given strings
-	 */
-	containsNone(
-		output: string | undefined | undefined,
-		texts: string[],
-	): boolean {
-		if (!output) return true;
-		return !texts.some(text => output.includes(text));
-	},
-};
-
-/**
- * Common test delays
- */
-export const delays = {
-	SHORT: 100,
-	MEDIUM: 500,
-	LONG: 1000,
-};
-
-/**
  * Mock fetch factory for testing API calls
  */
 export function createMockFetch(responses: Record<string, any> = {}) {

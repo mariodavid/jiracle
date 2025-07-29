@@ -1,28 +1,8 @@
 {
 	"temporaryExemptions": {
-		"source/components/Header.tsx": {
-			"reason": "Default export component - may be used in CLI entry points",
-			"reviewDate": "2024-03-01",
-			"items": ["default"]
-		},
-		"source/components/MenuCard.tsx": {
-			"reason": "Default export component - may be used in navigation",
-			"reviewDate": "2024-03-01",
-			"items": ["default"]
-		},
-		"source/components/Navigation.tsx": {
-			"reason": "Default export component - may be used in main app",
-			"reviewDate": "2024-03-01",
-			"items": ["default"]
-		},
-		"source/utils/date.ts": {
-			"reason": "Utility functions may be used by external scripts",
-			"reviewDate": "2024-03-01",
-			"items": ["formatLocalDateKey"]
-		},
 		"source/jira/validation.ts": {
-			"reason": "Validation functions may be used by CLI or external integrations",
-			"reviewDate": "2024-03-01",
+			"reason": "Public validation API - may be used by external scripts or future features",
+			"reviewDate": "2025-07-29",
 			"items": ["validateIssueKey"]
 		}
 	},
