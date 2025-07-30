@@ -14,7 +14,7 @@ const validCreateOptions = {
 	issueKey: IssueKey.fromString('ABC-123'),
 	duration: 3600, // 1 hour in seconds
 	comment: 'Test comment',
-	date: LocalDate.fromString('2024-01-15').toDate(),
+	date: LocalDate.fromString('2024-01-15'),
 	author: validAuthor,
 };
 
@@ -146,9 +146,7 @@ test('WorklogEntry.fromApiResponse - creates worklog from API data', t => {
 	t.is(worklog.comment, 'API comment');
 	t.deepEqual(worklog.author, validAuthor);
 	t.false(worklog.isTemporary);
-	t.is(worklog.date.getFullYear(), 2024);
-	t.is(worklog.date.getMonth(), 0); // January = 0
-	t.is(worklog.date.getDate(), 15);
+	t.is(worklog.date.toISOString(), '2024-01-15');
 });
 
 test('WorklogEntry.fromApiResponse - handles missing comment', t => {
@@ -290,26 +288,28 @@ test('WorklogEntry - isSameDay compares dates correctly', t => {
 	// TEST DATA
 	const worklog = WorklogEntry.create({
 		...validCreateOptions,
-		date: LocalDate.fromString('2024-01-15').toDate(),
+		date: LocalDate.fromString('2024-01-15'),
 	});
 	const sameDay = LocalDate.fromString('2024-01-15');
 	const differentDay = LocalDate.fromString('2024-01-16');
 	const otherWorklog = WorklogEntry.create({
 		...validCreateOptions,
-		date: sameDay.toDate(),
+		date: sameDay,
 	});
 
 	// OPERATIONS & SPECIFIC VALUE COMPARISONS
-	t.true(worklog.isSameDay(sameDay.toDate()));
+	t.true(worklog.isSameDay(sameDay));
+	t.true(worklog.isSameDay(sameDay.toDate())); // Test backward compatibility
 	t.true(worklog.isSameDay(otherWorklog));
-	t.false(worklog.isSameDay(differentDay.toDate()));
+	t.false(worklog.isSameDay(differentDay));
+	t.false(worklog.isSameDay(differentDay.toDate())); // Test backward compatibility
 });
 
 test('WorklogEntry - toApiRequest formats request correctly', t => {
 	// TEST DATA
 	const worklog = WorklogEntry.create({
 		...validCreateOptions,
-		date: LocalDate.fromString('2024-01-15').toDate(),
+		date: LocalDate.fromString('2024-01-15'),
 		duration: 5400, // 1.5 hours
 		comment: 'API request comment',
 	});
@@ -382,7 +382,7 @@ test('WorklogEntry - toString formats correctly', t => {
 		...validCreateOptions,
 		issueKey: IssueKey.fromString('ABC-123'),
 		duration: 5400, // 1.5 hours
-		date: LocalDate.fromString('2024-01-15').toDate(),
+		date: LocalDate.fromString('2024-01-15'),
 	});
 
 	// OPERATIONS
@@ -392,6 +392,41 @@ test('WorklogEntry - toString formats correctly', t => {
 	t.is(stringRepresentation, 'WorklogEntry(ABC-123, 1h 30m, 2024-01-15)');
 });
 
+test('WorklogEntry.create - supports both Date and LocalDate inputs', t => {
+	// TEST DATA
+	const localDate = LocalDate.fromString('2024-01-15');
+	const jsDate = localDate.toDate();
+	const optionsWithLocalDate = {...validCreateOptions, date: localDate};
+	const optionsWithJSDate = {...validCreateOptions, date: jsDate};
+
+	// OPERATIONS
+	const worklogFromLocalDate = WorklogEntry.create(optionsWithLocalDate);
+	const worklogFromJSDate = WorklogEntry.create(optionsWithJSDate);
+
+	// SPECIFIC VALUE COMPARISONS
+	t.is(worklogFromLocalDate.date.toISOString(), '2024-01-15');
+	t.is(worklogFromJSDate.date.toISOString(), '2024-01-15');
+	t.is(worklogFromLocalDate.dateAsJSDate.getTime(), jsDate.getTime());
+	t.is(worklogFromJSDate.dateAsJSDate.getTime(), jsDate.getTime());
+});
+
+test('WorklogEntry - dateAsJSDate provides backward compatibility', t => {
+	// TEST DATA
+	const worklog = WorklogEntry.create({
+		...validCreateOptions,
+		date: LocalDate.fromString('2024-01-15'),
+	});
+
+	// OPERATIONS
+	const jsDate = worklog.dateAsJSDate;
+
+	// SPECIFIC VALUE COMPARISONS
+	t.is(jsDate.getFullYear(), 2024);
+	t.is(jsDate.getMonth(), 0); // January = 0
+	t.is(jsDate.getDate(), 15);
+	t.true(jsDate instanceof Date);
+});
+
 test('WorklogEntry - getters return defensive copies', t => {
 	// TEST DATA
 	const worklog = WorklogEntry.create(validCreateOptions);
@@ -399,17 +434,20 @@ test('WorklogEntry - getters return defensive copies', t => {
 	// OPERATIONS
 	const date1 = worklog.date;
 	const date2 = worklog.date;
+	const dateAsJSDate1 = worklog.dateAsJSDate;
+	const dateAsJSDate2 = worklog.dateAsJSDate;
 	const author1 = worklog.author;
 	const author2 = worklog.author;
 
 	// SPECIFIC VALUE COMPARISONS
-	t.is(date1.getTime(), date2.getTime()); // Date equality via timestamp
+	t.is(date1, date2); // LocalDate instances are the same (immutable)
 	t.deepEqual(date1, date2); // Same values
+	t.is(dateAsJSDate1.getTime(), dateAsJSDate2.getTime()); // JS Date equality via timestamp
+	t.not(dateAsJSDate1, dateAsJSDate2); // Different Date instances
 	t.not(author1, author2); // Different instances
 	t.deepEqual(author1, author2); // Same values
 
 	// Verify mutations don't affect original
-	// Note: LocalDate is immutable, so we test that the returned instances are separate
 	author1.displayName = 'Modified';
 	t.truthy(worklog.date); // Date should be present and unchanged
 	t.not(worklog.author.displayName, 'Modified');
