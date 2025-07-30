@@ -8,6 +8,8 @@ import {
 	type UseNavigationStateReturn,
 } from '../../hooks/useNavigationState.js';
 import {InkTestHelpers} from '../utils/ink-test-helpers.js';
+import {WeekRange} from '../../domain/WeekRange.js';
+import {LocalDate} from '../../domain/LocalDate.js';
 
 // Test component that uses the navigation hook and reports state changes
 function TestNavigationComponent({
@@ -28,7 +30,7 @@ function TestNavigationComponent({
 
 	return (
 		<Box>
-			<Text>Week: {navigationState.currentWeek.toISOString()}</Text>
+			<Text>Week: {navigationState.currentWeek.toWeekString()}</Text>
 			<Text>ActiveArea: {navigationState.activeArea}</Text>
 		</Box>
 	);
@@ -60,7 +62,7 @@ test('useNavigationState returns initial state with defaults', (t: any) => {
 
 test('useNavigationState uses provided initial values', (t: any) => {
 	let capturedState: UseNavigationStateReturn;
-	const initialWeek = new Date('2024-01-15');
+	const initialWeek = WeekRange.fromDate(LocalDate.fromString('2024-01-15'));
 	const initialActiveArea: ActiveArea = 'worklog-form';
 
 	render(
@@ -76,13 +78,13 @@ test('useNavigationState uses provided initial values', (t: any) => {
 	);
 
 	// Check initial state uses provided values
-	t.is(capturedState!.currentWeek.getTime(), initialWeek.getTime());
+	t.truthy(capturedState!.currentWeek.equals(initialWeek));
 	t.is(capturedState!.activeArea, initialActiveArea);
 });
 
 test('navigateToPreviousWeek moves week back by 7 days and returns to timetable', async (t: any) => {
 	let capturedState: UseNavigationStateReturn;
-	const initialWeek = new Date('2024-01-15'); // Monday
+	const initialWeek = WeekRange.fromDate(LocalDate.fromString('2024-01-15')); // Monday
 
 	const {rerender} = render(
 		React.createElement(TestNavigationComponent, {
@@ -114,15 +116,15 @@ test('navigateToPreviousWeek moves week back by 7 days and returns to timetable'
 	);
 
 	// Check week moved back 7 days
-	const expectedDate = new Date('2024-01-08');
-	t.is(capturedState!.currentWeek.getTime(), expectedDate.getTime());
+	const expectedWeek = WeekRange.fromDate(LocalDate.fromString('2024-01-08'));
+	t.truthy(capturedState!.currentWeek.equals(expectedWeek));
 	// Check active area returned to timetable
 	t.is(capturedState!.activeArea, 'timetable');
 });
 
 test('navigateToNextWeek moves week forward by 7 days and returns to timetable', async (t: any) => {
 	let capturedState: UseNavigationStateReturn;
-	const initialWeek = new Date('2024-01-15'); // Monday
+	const initialWeek = WeekRange.fromDate(LocalDate.fromString('2024-01-15')); // Monday
 
 	const {rerender} = render(
 		React.createElement(TestNavigationComponent, {
@@ -154,15 +156,15 @@ test('navigateToNextWeek moves week forward by 7 days and returns to timetable',
 	);
 
 	// Check week moved forward 7 days
-	const expectedDate = new Date('2024-01-22');
-	t.is(capturedState!.currentWeek.getTime(), expectedDate.getTime());
+	const expectedWeek = WeekRange.fromDate(LocalDate.fromString('2024-01-22'));
+	t.truthy(capturedState!.currentWeek.equals(expectedWeek));
 	// Check active area returned to timetable
 	t.is(capturedState!.activeArea, 'timetable');
 });
 
 test('navigateToCurrentWeek sets week to current date and returns to timetable', async (t: any) => {
 	let capturedState: UseNavigationStateReturn;
-	const initialWeek = new Date('2024-01-15'); // Old date
+	const initialWeek = WeekRange.fromDate(LocalDate.fromString('2024-01-15')); // Old date
 
 	const {rerender} = render(
 		React.createElement(TestNavigationComponent, {
@@ -193,13 +195,9 @@ test('navigateToCurrentWeek sets week to current date and returns to timetable',
 		}),
 	);
 
-	// Check week is close to current date (within 1 day to account for test execution time)
-	const now = new Date();
-	const timeDiff = Math.abs(
-		capturedState!.currentWeek.getTime() - now.getTime(),
-	);
-	const daysDiff = timeDiff / (1000 * 60 * 60 * 24);
-	t.true(daysDiff < 1, 'Week should be set to current date');
+	// Check week is close to current date - should contain today's date
+	const currentWeek = WeekRange.current();
+	t.truthy(capturedState!.currentWeek.equals(currentWeek));
 
 	// Check active area returned to timetable
 	t.is(capturedState!.activeArea, 'timetable');
@@ -306,7 +304,7 @@ test('all active area values work correctly', async (t: any) => {
 
 test('week navigation preserves week calculations correctly', async (t: any) => {
 	let capturedState: UseNavigationStateReturn;
-	const startDate = new Date('2024-01-15'); // Monday
+	const startDate = WeekRange.fromDate(LocalDate.fromString('2024-01-15')); // Monday
 
 	const {rerender} = render(
 		React.createElement(TestNavigationComponent, {
@@ -360,8 +358,8 @@ test('week navigation preserves week calculations correctly', async (t: any) => 
 	);
 
 	// Should be 1 week ahead of start (15 + 7 + 7 - 7 = 22)
-	const expectedDate = new Date('2024-01-22');
-	t.is(capturedState!.currentWeek.getTime(), expectedDate.getTime());
+	const expectedWeek = WeekRange.fromDate(LocalDate.fromString('2024-01-22'));
+	t.truthy(capturedState!.currentWeek.equals(expectedWeek));
 });
 
 test('hook structure and interface validation', (t: any) => {
@@ -391,7 +389,7 @@ test('hook structure and interface validation', (t: any) => {
 	}
 
 	// Validate state types
-	t.true(capturedState!.currentWeek instanceof Date);
+	t.true(capturedState!.currentWeek instanceof WeekRange);
 	t.is(typeof capturedState!.activeArea, 'string');
 
 	// Validate function types

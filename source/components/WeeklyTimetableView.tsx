@@ -9,12 +9,10 @@ import {useDeleteOperations} from '../hooks/useDeleteOperations.js';
 import {useAttendanceManagement} from '../hooks/useAttendanceManagement.js';
 import {useNavigationState} from '../hooks/useNavigationState.js';
 import type {LocalDate} from '../domain/LocalDate.js';
-import {LocalDate as LocalDateClass} from '../domain/LocalDate.js';
 import {useTitleResolver} from '../hooks/useTitleResolver.js';
 import {useActiveAreaResolver} from '../hooks/useActiveAreaResolver.js';
 import {useNotification} from '../hooks/useNotification.js';
 import {JiraClient, type JiraConfig} from '../jira-client.js';
-import {WeekRange} from '../domain/WeekRange.js';
 import type {IssueKey} from '../domain/IssueKey.js';
 import {
 	isBrowserOpenSupported,
@@ -88,7 +86,7 @@ export function WeeklyTimetableView({
 		return `${dayName}, ${dateObject.getDate()}. ${monthName}`;
 	};
 
-	const weekRange = WeekRange.fromDate(LocalDateClass.fromDate(currentWeek));
+	const weekRange = currentWeek;
 
 	// Memoize favoriteIssues to prevent unnecessary re-renders
 	const favoriteIssues = useMemo(
@@ -168,7 +166,7 @@ export function WeeklyTimetableView({
 
 	// Title resolution
 	const {title: resolvedTitle, titleColor} = useTitleResolver({
-		currentWeek: LocalDateClass.fromDate(currentWeek),
+		currentWeek,
 		worklogForm,
 		deleteCandidate,
 		deleteAttendanceCandidate,
