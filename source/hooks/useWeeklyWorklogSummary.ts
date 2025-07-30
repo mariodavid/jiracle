@@ -3,6 +3,7 @@ import {type WeeklyWorklogSummary} from '../domain/WeeklyWorklogSummary.js';
 import {WeeklyWorklogSummaryUseCase} from '../use-cases/WeeklyWorklogSummaryUseCase.js';
 import {JiraClient, normalizeSlidingWindowConfig} from '../jira-client.js';
 import type {JiraConfig, FavoriteIssue} from '../jira-client.js';
+import {type WeekRange} from '../domain/WeekRange.js';
 
 // Simple cache to avoid duplicate API calls
 const weekDataCache = new Map<string, WeeklyWorklogSummary>();
@@ -16,8 +17,7 @@ export type UseWeeklyWorklogSummaryResult = {
 };
 
 export type UseWeeklyWorklogSummaryOptions = {
-	weekStart: Date;
-	weekEnd: Date;
+	weekRange: WeekRange;
 	config: JiraConfig;
 	skipAutoLoad?: boolean;
 	userEmail?: string;
@@ -28,8 +28,7 @@ export function useWeeklyWorklogSummary(
 	options: UseWeeklyWorklogSummaryOptions,
 ): UseWeeklyWorklogSummaryResult {
 	const {
-		weekStart,
-		weekEnd,
+		weekRange,
 		config,
 		skipAutoLoad = false,
 		userEmail,
@@ -48,9 +47,9 @@ export function useWeeklyWorklogSummary(
 				.join(',') ?? '';
 		// Support both new slidingWindowDays and legacy recentWorkdaysLookback for backward compatibility
 		const normalizedWindow = normalizeSlidingWindowConfig(config);
-		const cacheKey = `${weekStart.toISOString().split('T')[0] ?? 'unknown'}-${
-			weekEnd.toISOString().split('T')[0] ?? 'unknown'
-		}-${userEmail ?? 'unknown'}-${favoriteKeys}-sliding:${
+		const cacheKey = `${weekRange.getStart().toISOString()}-${weekRange
+			.getEnd()
+			.toISOString()}-${userEmail ?? 'unknown'}-${favoriteKeys}-sliding:${
 			normalizedWindow.past
 		}:${normalizedWindow.future}`;
 
@@ -73,8 +72,7 @@ export function useWeeklyWorklogSummary(
 			const jiraClient = new JiraClient(config);
 			const useCase = new WeeklyWorklogSummaryUseCase(jiraClient);
 			const summary = await useCase.execute({
-				weekStart,
-				weekEnd,
+				weekRange,
 				userEmail,
 				favoriteIssues,
 				slidingWindowConfig: normalizedWindow, // Pass the full bidirectional config
@@ -89,13 +87,13 @@ export function useWeeklyWorklogSummary(
 			setIsLoading(false);
 			loadingCache.delete(cacheKey);
 		}
-	}, [weekStart, weekEnd, config, userEmail, favoriteIssues]);
+	}, [weekRange, config, userEmail, favoriteIssues]);
 
 	useEffect(() => {
 		if (!skipAutoLoad) {
 			void fetchData();
 		}
-	}, [weekStart, weekEnd, skipAutoLoad, userEmail, favoriteIssues, fetchData]);
+	}, [weekRange, skipAutoLoad, userEmail, favoriteIssues, fetchData]);
 
 	const refresh = () => {
 		// Clear cache for current week and reload
@@ -106,9 +104,9 @@ export function useWeeklyWorklogSummary(
 				.join(',') ?? '';
 		// Support both new slidingWindowDays and legacy recentWorkdaysLookback for backward compatibility
 		const normalizedWindow = normalizeSlidingWindowConfig(config);
-		const cacheKey = `${weekStart.toISOString().split('T')[0] ?? 'unknown'}-${
-			weekEnd.toISOString().split('T')[0] ?? 'unknown'
-		}-${userEmail ?? 'unknown'}-${favoriteKeys}-sliding:${
+		const cacheKey = `${weekRange.getStart().toISOString()}-${weekRange
+			.getEnd()
+			.toISOString()}-${userEmail ?? 'unknown'}-${favoriteKeys}-sliding:${
 			normalizedWindow.past
 		}:${normalizedWindow.future}`;
 		weekDataCache.delete(cacheKey);

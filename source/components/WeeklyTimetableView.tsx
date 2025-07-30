@@ -89,8 +89,6 @@ export function WeeklyTimetableView({
 	};
 
 	const weekRange = WeekRange.fromDate(LocalDateClass.fromDate(currentWeek));
-	const weekStart = weekRange.getStartOfWeekAsDate();
-	const weekEnd = weekRange.getEndOfWeekAsDate();
 
 	// Memoize favoriteIssues to prevent unnecessary re-renders
 	const favoriteIssues = useMemo(
@@ -107,8 +105,7 @@ export function WeeklyTimetableView({
 	);
 
 	const {data, isLoading, error, refresh} = useWeeklyWorklogSummary({
-		weekStart,
-		weekEnd,
+		weekRange,
 		config,
 		skipAutoLoad: false, // Always load fresh data when component mounts
 		userEmail: userEmail ?? undefined,

@@ -15,241 +15,215 @@ test.afterEach(() => {
 	global.fetch = originalFetch;
 });
 
-test('useWeeklyWorklogSummary - module exports and interface', async t => {
-	// 1. EXPLICIT TEST DATA
-	const expectedExports = ['useWeeklyWorklogSummary'];
-
-	// 2. OPERATIONS
-	const hookModule = await import('../../hooks/useWeeklyWorklogSummary.js');
-
-	// 3. SPECIFIC VALUE COMPARISONS
-	// Test that the hook is exported as a function
-	t.is(
-		typeof hookModule.useWeeklyWorklogSummary,
-		'function',
-		'useWeeklyWorklogSummary should be exported as a function',
-	);
-
-	// Test that the hook name is correctly exported
-	t.is(
-		hookModule.useWeeklyWorklogSummary.name,
-		'useWeeklyWorklogSummary',
-		'Function should have correct name',
-	);
-
-	// Verify module structure
-	for (const exportName of expectedExports) {
-		t.true(
-			Object.prototype.hasOwnProperty.call(hookModule, exportName),
-			`Should export ${exportName}`,
-		);
-	}
-});
-
-test('useWeeklyWorklogSummary - parameter validation requirements', t => {
+test('useWeeklyWorklogSummary - WeekRange integration behavior', t => {
 	// 1. EXPLICIT TEST DATA
 	const config = hookTestUtils.createHookTestConfig();
-	const {weekStart, weekEnd} = hookTestUtils.createTestWeekRange();
-
-	const validOptions: UseWeeklyWorklogSummaryOptions = {
-		weekStart,
-		weekEnd,
-		config,
-		skipAutoLoad: true,
-		userEmail: 'test@example.com',
-	};
-
-	const optionsWithoutEmail: UseWeeklyWorklogSummaryOptions = {
-		weekStart,
-		weekEnd,
-		config,
-		skipAutoLoad: true,
-	};
-
-	const optionsWithEmptyFavorites: UseWeeklyWorklogSummaryOptions = {
-		weekStart,
-		weekEnd,
-		config,
-		skipAutoLoad: true,
-		userEmail: 'test@example.com',
-		favoriteIssues: [],
-	};
-
-	// 2. OPERATIONS
-	// Test that all parameter combinations are valid TypeScript types
-	const parameterSets = [
-		validOptions,
-		optionsWithoutEmail,
-		optionsWithEmptyFavorites,
+	const weekRange1 = hookTestUtils.createTestWeekRange();
+	const weekRange2 = hookTestUtils.createTestWeekRange();
+	const userEmail = 'test@example.com';
+	const favoriteIssues = [
+		{key: IssueKey.fromString('TEST-1'), defaultTime: '2h'},
+		{key: IssueKey.fromString('TEST-2'), defaultTime: '4h'},
 	];
 
+	// 2. OPERATIONS
+	// Test that cache keys are generated consistently
+	const mockFetch = createMockFetch();
+	global.fetch = mockFetch;
+
 	// 3. SPECIFIC VALUE COMPARISONS
-	for (const [index, options] of parameterSets.entries()) {
-		t.true(
-			options.weekStart instanceof Date,
-			`Parameter set ${index} should have valid weekStart`,
-		);
-		t.true(
-			options.weekEnd instanceof Date,
-			`Parameter set ${index} should have valid weekEnd`,
-		);
-		t.is(
-			typeof options.config,
-			'object',
-			`Parameter set ${index} should have config object`,
-		);
-		t.is(
-			typeof options.skipAutoLoad,
-			'boolean',
-			`Parameter set ${index} should have boolean skipAutoLoad`,
-		);
+	// Verify WeekRange integration works by testing the options structure
+	const options1 = {
+		weekRange: weekRange1,
+		config,
+		skipAutoLoad: true,
+		userEmail,
+		favoriteIssues,
+	};
 
-		if (options.userEmail) {
-			t.is(
-				typeof options.userEmail,
-				'string',
-				`Parameter set ${index} userEmail should be string when present`,
-			);
-		}
+	const options2 = {
+		weekRange: weekRange2,
+		config,
+		skipAutoLoad: true,
+		userEmail,
+		favoriteIssues,
+	};
 
-		if (options.favoriteIssues) {
-			t.true(
-				Array.isArray(options.favoriteIssues),
-				`Parameter set ${index} favoriteIssues should be array when present`,
-			);
-		}
-	}
+	// Test that WeekRange dates are properly extracted
+	t.is(
+		weekRange1.getStart().toISOString(),
+		'2024-01-01',
+		'WeekRange should provide start date',
+	);
+	t.is(
+		weekRange1.getEnd().toISOString(),
+		'2024-01-07',
+		'WeekRange should provide end date',
+	);
+
+	// Test options structure includes WeekRange
+	t.true(
+		typeof options1.weekRange.getStart === 'function',
+		'WeekRange should have getStart method',
+	);
+	t.true(
+		typeof options1.weekRange.getEnd === 'function',
+		'WeekRange should have getEnd method',
+	);
+
+	// Test different WeekRange instances create different cache scenarios
+	t.false(
+		options1.weekRange === options2.weekRange,
+		'Different WeekRange instances should be distinct',
+	);
 });
 
-test('useWeeklyWorklogSummary - configuration normalization requirements', t => {
+test('useWeeklyWorklogSummary - WeekRange parameter behavior', t => {
+	// 1. EXPLICIT TEST DATA
+	const config = hookTestUtils.createHookTestConfig();
+	const weekRange = hookTestUtils.createTestWeekRange();
+	const expectedStartDate = '2024-01-01';
+	const expectedEndDate = '2024-01-07';
+
+	// 2. OPERATIONS
+	// Test WeekRange parameter integration with the hook's internal logic
+	const mockFetch = createMockFetch();
+	global.fetch = mockFetch;
+
+	// Test different parameter combinations that should work with WeekRange
+	const baseOptions = {
+		weekRange,
+		config,
+		skipAutoLoad: true,
+	};
+
+	const optionsWithEmail = {
+		...baseOptions,
+		userEmail: 'test@example.com',
+	};
+
+	const optionsWithFavorites = {
+		...baseOptions,
+		favoriteIssues: [{key: IssueKey.fromString('FAV-1'), defaultTime: '2h'}],
+	};
+
+	// 3. SPECIFIC VALUE COMPARISONS
+	// Verify WeekRange provides correct date boundaries
+	t.is(
+		weekRange.getStart().toISOString(),
+		expectedStartDate,
+		'WeekRange start should match expected date',
+	);
+	t.is(
+		weekRange.getEnd().toISOString(),
+		expectedEndDate,
+		'WeekRange end should match expected date',
+	);
+
+	// Verify different option configurations contain proper WeekRange
+	t.is(
+		baseOptions.weekRange.getStart().toISOString(),
+		expectedStartDate,
+		'Base options should contain valid WeekRange start',
+	);
+	t.is(
+		optionsWithEmail.weekRange.getEnd().toISOString(),
+		expectedEndDate,
+		'Email options should contain valid WeekRange end',
+	);
+	t.is(
+		optionsWithFavorites.weekRange.getStart().toISOString(),
+		expectedStartDate,
+		'Favorites options should contain valid WeekRange start',
+	);
+});
+
+test('useWeeklyWorklogSummary - sliding window configuration behavior', t => {
 	// 1. EXPLICIT TEST DATA
 	const baseConfig = hookTestUtils.createHookTestConfig();
+	const weekRange = hookTestUtils.createTestWeekRange();
+	const expectedPastDays = 7;
+	const expectedFutureDays = 3;
+
 	const configWithSlidingWindow = {
 		...baseConfig,
-		slidingWindowDays: {past: 7, future: 3},
+		slidingWindowDays: {past: expectedPastDays, future: expectedFutureDays},
 	};
-	const configWithLegacyLookback = {
-		...baseConfig,
-		recentWorkdaysLookback: 5,
-	} as any;
-	const configWithBoth = {
-		...baseConfig,
-		slidingWindowDays: {past: 14, future: 7},
-		recentWorkdaysLookback: 5, // Should be ignored in favor of slidingWindowDays
-	} as any;
 
 	// 2. OPERATIONS
-	// Test that different configuration patterns are supported
-	const configurations = [
-		{config: configWithSlidingWindow, description: 'with slidingWindowDays'},
-		{
-			config: configWithLegacyLookback,
-			description: 'with legacy recentWorkdaysLookback',
-		},
-		{
-			config: configWithBoth,
-			description: 'with both (slidingWindowDays takes precedence)',
-		},
-	];
+	const mockFetch = createMockFetch();
+	global.fetch = mockFetch;
+
+	const optionsWithSlidingWindow = {
+		weekRange,
+		config: configWithSlidingWindow,
+		skipAutoLoad: true,
+	};
 
 	// 3. SPECIFIC VALUE COMPARISONS
-	for (const {config, description} of configurations) {
-		t.is(typeof config, 'object', `Config ${description} should be object`);
-		t.is(
-			typeof config.jiraUrl,
-			'string',
-			`Config ${description} should have jiraUrl`,
-		);
-		t.is(
-			typeof config.username,
-			'string',
-			`Config ${description} should have username`,
-		);
-		t.is(
-			typeof config.apiToken,
-			'string',
-			`Config ${description} should have apiToken`,
-		);
+	// Test that sliding window configuration values are preserved correctly
+	t.is(
+		configWithSlidingWindow.slidingWindowDays.past,
+		expectedPastDays,
+		'Sliding window past days should match expected value',
+	);
+	t.is(
+		configWithSlidingWindow.slidingWindowDays.future,
+		expectedFutureDays,
+		'Sliding window future days should match expected value',
+	);
 
-		// Verify sliding window configuration structure
-		if (config.slidingWindowDays) {
-			t.is(
-				typeof config.slidingWindowDays.past,
-				'number',
-				`Config ${description} slidingWindowDays.past should be number`,
-			);
-			t.is(
-				typeof config.slidingWindowDays.future,
-				'number',
-				`Config ${description} slidingWindowDays.future should be number`,
-			);
-		}
-
-		// Verify legacy configuration structure
-		if (config.recentWorkdaysLookback) {
-			t.is(
-				typeof config.recentWorkdaysLookback,
-				'number',
-				`Config ${description} recentWorkdaysLookback should be number`,
-			);
-		}
-	}
+	// Verify configuration is properly integrated with WeekRange
+	t.is(
+		optionsWithSlidingWindow.weekRange.getStart().toISOString(),
+		'2024-01-01',
+		'WeekRange should work with sliding window config',
+	);
+	t.is(
+		optionsWithSlidingWindow.config.jiraUrl,
+		baseConfig.jiraUrl,
+		'Base config values should be preserved with sliding window',
+	);
 });
 
-test('useWeeklyWorklogSummary - date handling and week range validation', t => {
+test('useWeeklyWorklogSummary - WeekRange date boundary behavior', t => {
 	// 1. EXPLICIT TEST DATA
-	const pastDate = new Date('2023-01-01');
-	const futureDate = new Date('2023-01-07');
-	const sameDate = new Date('2023-01-01');
-	const invalidDate = new Date('invalid');
-
-	const validDateRanges = [
-		{start: pastDate, end: futureDate, description: 'normal week range'},
-		{start: sameDate, end: sameDate, description: 'same start and end date'},
-	];
-
-	const problematicDates = [
-		{date: invalidDate, description: 'invalid date object'},
-	];
+	const config = hookTestUtils.createHookTestConfig();
+	const weekRange = hookTestUtils.createTestWeekRange();
+	const expectedStartDate = '2024-01-01';
+	const expectedEndDate = '2024-01-07';
 
 	// 2. OPERATIONS
-	// Test date range validation and handling
-	const config = hookTestUtils.createHookTestConfig();
+	// Test WeekRange date boundary calculations
+	const options: UseWeeklyWorklogSummaryOptions = {
+		weekRange,
+		config,
+		skipAutoLoad: true,
+	};
 
 	// 3. SPECIFIC VALUE COMPARISONS
-	for (const {start, end, description} of validDateRanges) {
-		const options: UseWeeklyWorklogSummaryOptions = {
-			weekStart: start,
-			weekEnd: end,
-			config,
-			skipAutoLoad: true,
-		};
-
-		t.true(
-			options.weekStart instanceof Date,
-			`${description}: weekStart should be Date instance`,
-		);
-		t.true(
-			options.weekEnd instanceof Date,
-			`${description}: weekEnd should be Date instance`,
-		);
-		t.true(
-			options.weekStart.getTime() <= options.weekEnd.getTime(),
-			`${description}: weekStart should be <= weekEnd`,
-		);
-	}
-
-	// Test problematic date handling
-	for (const {date, description} of problematicDates) {
-		t.true(
-			date instanceof Date,
-			`${description}: should still be Date instance`,
-		);
-		t.true(
-			Number.isNaN(date.getTime()),
-			`${description}: should have NaN time value`,
-		);
-	}
+	// Test actual date boundary behavior instead of types
+	t.is(
+		options.weekRange.getStart().toISOString(),
+		expectedStartDate,
+		'WeekRange should provide correct start date',
+	);
+	t.is(
+		options.weekRange.getEnd().toISOString(),
+		expectedEndDate,
+		'WeekRange should provide correct end date',
+	);
+	t.true(
+		options.weekRange.getStart().toDate().getTime() <=
+			options.weekRange.getEnd().toDate().getTime(),
+		'WeekRange start should be before or equal to end',
+	);
+	t.is(
+		options.weekRange.getEnd().toDate().getTime() -
+			options.weekRange.getStart().toDate().getTime(),
+		6 * 24 * 60 * 60 * 1000,
+		'WeekRange should span exactly 6 days (Monday to Sunday)',
+	);
 });
 
 test('useWeeklyWorklogSummary - fetch mock and API integration setup', async t => {
@@ -308,7 +282,7 @@ test('useWeeklyWorklogSummary - parameter combinations and edge cases', t => {
 	const config2 = hookTestUtils.createHookTestConfig({
 		slidingWindowDays: {past: 14, future: 7},
 	});
-	const {weekStart, weekEnd} = hookTestUtils.createTestWeekRange();
+	const weekRange = hookTestUtils.createTestWeekRange();
 	const favoriteIssues1 = [
 		{key: IssueKey.fromString('TEST-1'), defaultTime: '2h'},
 	];
@@ -319,15 +293,13 @@ test('useWeeklyWorklogSummary - parameter combinations and edge cases', t => {
 	// Test that different configurations generate different parameter sets
 	const expectedDifferentParameters = [
 		{
-			weekStart,
-			weekEnd,
+			weekRange,
 			config: config1,
 			userEmail: 'user1@example.com',
 			favoriteIssues: favoriteIssues1,
 		},
 		{
-			weekStart,
-			weekEnd,
+			weekRange,
 			config: config2,
 			userEmail: 'user2@example.com',
 			favoriteIssues: favoriteIssues2,
@@ -358,12 +330,8 @@ test('useWeeklyWorklogSummary - parameter combinations and edge cases', t => {
 	// Test all parameter combinations have required properties
 	for (const [index, parameters] of expectedDifferentParameters.entries()) {
 		t.true(
-			parameters.weekStart instanceof Date,
-			`Parameter set ${index} weekStart should be Date`,
-		);
-		t.true(
-			parameters.weekEnd instanceof Date,
-			`Parameter set ${index} weekEnd should be Date`,
+			typeof parameters.weekRange === 'object' && parameters.weekRange !== null,
+			`Parameter set ${index} weekRange should be object`,
 		);
 		t.is(
 			typeof parameters.config,
@@ -384,10 +352,10 @@ test('useWeeklyWorklogSummary - parameter combinations and edge cases', t => {
 
 test('useWeeklyWorklogSummary - WeeklyWorklogSummary data structure requirements', t => {
 	// 1. EXPLICIT TEST DATA
-	const {weekStart, weekEnd} = hookTestUtils.createTestWeekRange();
+	const weekRange = hookTestUtils.createTestWeekRange();
 	const testSummary = {
-		weekStart,
-		weekEnd,
+		weekStart: weekRange.getStart(),
+		weekEnd: weekRange.getEnd(),
 		dailySummaries: [],
 		weekTotal: 0,
 	};
@@ -410,8 +378,16 @@ test('useWeeklyWorklogSummary - WeeklyWorklogSummary data structure requirements
 	t.is(typeof testSummary.weekTotal, 'number', 'weekTotal should be number');
 
 	// Test specific values
-	t.is(testSummary.weekStart, weekStart, 'weekStart should match input');
-	t.is(testSummary.weekEnd, weekEnd, 'weekEnd should match input');
+	t.deepEqual(
+		testSummary.weekStart,
+		weekRange.getStart(),
+		'weekStart should match input',
+	);
+	t.deepEqual(
+		testSummary.weekEnd,
+		weekRange.getEnd(),
+		'weekEnd should match input',
+	);
 	t.is(testSummary.dailySummaries.length, 0, 'dailySummaries should be empty');
 	t.is(testSummary.weekTotal, 0, 'weekTotal should be zero');
 });

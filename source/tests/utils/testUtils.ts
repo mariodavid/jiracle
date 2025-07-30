@@ -1,5 +1,7 @@
 import type {JiraIssue, JiraConfig, FavoriteIssue} from '../../jira-client.js';
 import {IssueKey} from '../../domain/IssueKey.js';
+import {WeekRange} from '../../domain/WeekRange.js';
+import {LocalDate} from '../../domain/LocalDate.js';
 
 /**
  * Factory function to create mock JiraIssue objects
@@ -177,10 +179,10 @@ export const hookTestUtils = {
 	/**
 	 * Creates test date ranges for week-based hooks
 	 */
-	createTestWeekRange() {
-		const weekStart = new Date('2024-01-01'); // Monday
-		const weekEnd = new Date('2024-01-07'); // Sunday
-		return {weekStart, weekEnd};
+	createTestWeekRange(): WeekRange {
+		// Create a WeekRange starting on Monday 2024-01-01
+		const startDate = LocalDate.fromString('2024-01-01');
+		return WeekRange.fromDate(startDate);
 	},
 
 	/**

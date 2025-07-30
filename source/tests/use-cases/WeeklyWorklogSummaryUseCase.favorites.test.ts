@@ -1,5 +1,7 @@
 import test from 'ava';
 import {IssueKey} from '../../domain/IssueKey.js';
+import {LocalDate} from '../../domain/LocalDate.js';
+import {WeekRange} from '../../domain/WeekRange.js';
 import {WeeklyWorklogSummaryUseCase} from '../../use-cases/WeeklyWorklogSummaryUseCase.js';
 import {createMockJiraClient} from './WeeklyWorklogSummaryUseCase.testutils.js';
 
@@ -7,8 +9,7 @@ test('WeeklyWorklogSummaryUseCase includes favorite issues without worklogs', as
 	const client = createMockJiraClient();
 	const useCase = new WeeklyWorklogSummaryUseCase(client);
 
-	const weekStart = new Date('2024-10-14T00:00:00.000Z');
-	const weekEnd = new Date('2024-10-20T23:59:59.999Z');
+	const weekRange = WeekRange.fromDate(LocalDate.fromString('2024-10-14'));
 
 	// Mock current user
 	client.getCurrentUser = async () => ({emailAddress: 'user1@example.com'});
@@ -100,8 +101,7 @@ test('WeeklyWorklogSummaryUseCase includes favorite issues without worklogs', as
 	];
 
 	const result = await useCase.execute({
-		weekStart,
-		weekEnd,
+		weekRange,
 		userEmail: 'user1@example.com',
 		favoriteIssues,
 	});
