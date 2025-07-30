@@ -1,4 +1,5 @@
 import {LocalDate} from '../domain/LocalDate.js';
+import type {WeekRange} from '../domain/WeekRange.js';
 import type {
 	DeleteCandidate,
 	DeleteAttendanceCandidate,
@@ -7,7 +8,7 @@ import type {AttendanceEditState} from './useAttendanceManagement.js';
 import type {WorklogFormData} from './useWorklogForm.js';
 
 export type UseTitleResolverOptions = {
-	currentWeek: Date | LocalDate;
+	currentWeek: WeekRange;
 	worklogForm: WorklogFormData;
 	deleteCandidate: DeleteCandidate | undefined;
 	deleteAttendanceCandidate: DeleteAttendanceCandidate | undefined;
@@ -82,17 +83,8 @@ export function useTitleResolver({
 	};
 
 	// Generate week title (German week: Monday to Friday with calendar week)
-	const getWeekTitle = (week: Date | LocalDate) => {
-		// Convert LocalDate to Date if needed
-		const jsWeek =
-			week instanceof LocalDate ? new Date(week.toISOString()) : week;
-		const startOfWeek = new Date(jsWeek);
-		// German week starts on Monday: getDay() returns 0=Sunday, 1=Monday, ..., 6=Saturday
-		// To get Monday as start: if Sunday (0), go back 6 days, otherwise go back (day-1) days
-		const day = startOfWeek.getDay();
-		const daysToSubtract = day === 0 ? 6 : day - 1;
-		startOfWeek.setDate(jsWeek.getDate() - daysToSubtract);
-
+	const getWeekTitle = (weekRange: WeekRange) => {
+		const startOfWeek = weekRange.getStart().toDate();
 		// End of German work week is Friday (4 days after Monday)
 		const endOfWeek = new Date(startOfWeek);
 		endOfWeek.setDate(startOfWeek.getDate() + 4);

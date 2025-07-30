@@ -1,4 +1,5 @@
 import {useState} from 'react';
+import {WeekRange} from '../domain/WeekRange.js';
 
 export type ActiveArea =
 	| 'timetable'
@@ -11,13 +12,13 @@ export type ActiveArea =
 	| 'align-time-confirmation';
 
 export type UseNavigationStateOptions = {
-	initialWeek?: Date;
+	initialWeek?: WeekRange;
 	initialActiveArea?: ActiveArea;
 };
 
 export type UseNavigationStateReturn = {
 	// State
-	currentWeek: Date;
+	currentWeek: WeekRange;
 	activeArea: ActiveArea;
 
 	// Week navigation
@@ -37,29 +38,26 @@ export type UseNavigationStateReturn = {
 export function useNavigationState(
 	options: UseNavigationStateOptions = {},
 ): UseNavigationStateReturn {
-	const {initialWeek = new Date(), initialActiveArea = 'timetable'} = options;
+	const {initialWeek = WeekRange.current(), initialActiveArea = 'timetable'} =
+		options;
 
 	const [currentWeek, setCurrentWeek] = useState(initialWeek);
 	const [activeArea, setActiveArea] = useState<ActiveArea>(initialActiveArea);
 
 	const navigateToPreviousWeek = () => {
-		const newWeek = new Date(currentWeek);
-		newWeek.setDate(currentWeek.getDate() - 7);
-		setCurrentWeek(newWeek);
+		setCurrentWeek(currentWeek.previous());
 		// Return focus to table after navigation
 		setActiveArea('timetable');
 	};
 
 	const navigateToNextWeek = () => {
-		const newWeek = new Date(currentWeek);
-		newWeek.setDate(currentWeek.getDate() + 7);
-		setCurrentWeek(newWeek);
+		setCurrentWeek(currentWeek.next());
 		// Return focus to table after navigation
 		setActiveArea('timetable');
 	};
 
 	const navigateToCurrentWeek = () => {
-		setCurrentWeek(new Date());
+		setCurrentWeek(WeekRange.current());
 		// Return focus to table after navigation
 		setActiveArea('timetable');
 	};

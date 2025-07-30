@@ -2,6 +2,7 @@ import test from 'ava';
 import {IssueKey} from '../domain/IssueKey.js';
 import {Duration} from '../domain/Duration.js';
 import {LocalDate} from '../domain/LocalDate.js';
+import {WeekRange} from '../domain/WeekRange.js';
 import {useTitleResolver} from './useTitleResolver.js';
 import type {
 	DeleteCandidate,
@@ -61,7 +62,7 @@ test('useTitleResolver returns worklog form title when form is visible', t => {
 	});
 
 	const result = useTitleResolver({
-		currentWeek: new Date('2024-01-15'),
+		currentWeek: WeekRange.fromDate(LocalDate.fromString('2024-01-15')),
 		worklogForm,
 		deleteCandidate: undefined,
 		deleteAttendanceCandidate: undefined,
@@ -79,7 +80,7 @@ test('useTitleResolver returns delete confirmation title with red color', t => {
 	});
 
 	const result = useTitleResolver({
-		currentWeek: new Date('2024-01-15'),
+		currentWeek: WeekRange.fromDate(LocalDate.fromString('2024-01-15')),
 		worklogForm: createWorklogForm(),
 		deleteCandidate,
 		deleteAttendanceCandidate: undefined,
@@ -97,7 +98,7 @@ test('useTitleResolver returns delete attendance confirmation title with red col
 	});
 
 	const result = useTitleResolver({
-		currentWeek: new Date('2024-01-15'),
+		currentWeek: WeekRange.fromDate(LocalDate.fromString('2024-01-15')),
 		worklogForm: createWorklogForm(),
 		deleteCandidate: undefined,
 		deleteAttendanceCandidate,
@@ -115,7 +116,7 @@ test('useTitleResolver returns attendance edit title', t => {
 	});
 
 	const result = useTitleResolver({
-		currentWeek: new Date('2024-01-15'),
+		currentWeek: WeekRange.fromDate(LocalDate.fromString('2024-01-15')),
 		worklogForm: createWorklogForm(),
 		deleteCandidate: undefined,
 		deleteAttendanceCandidate: undefined,
@@ -129,7 +130,7 @@ test('useTitleResolver returns attendance edit title', t => {
 
 test('useTitleResolver returns week title as default', t => {
 	const result = useTitleResolver({
-		currentWeek: new Date('2024-01-15'), // Monday
+		currentWeek: WeekRange.fromDate(LocalDate.fromString('2024-01-15')), // Monday
 		worklogForm: createWorklogForm(),
 		deleteCandidate: undefined,
 		deleteAttendanceCandidate: undefined,
@@ -152,7 +153,7 @@ test('useTitleResolver prioritizes worklog form over other states', t => {
 	const attendanceEdit = createAttendanceEdit();
 
 	const result = useTitleResolver({
-		currentWeek: new Date('2024-01-15'),
+		currentWeek: WeekRange.fromDate(LocalDate.fromString('2024-01-15')),
 		worklogForm,
 		deleteCandidate,
 		deleteAttendanceCandidate: undefined,
@@ -166,7 +167,7 @@ test('useTitleResolver prioritizes worklog form over other states', t => {
 
 test('useTitleResolver handles delete confirmation without candidate', t => {
 	const result = useTitleResolver({
-		currentWeek: new Date('2024-01-15'),
+		currentWeek: WeekRange.fromDate(LocalDate.fromString('2024-01-15')),
 		worklogForm: createWorklogForm(),
 		deleteCandidate: undefined,
 		deleteAttendanceCandidate: undefined,
@@ -181,7 +182,7 @@ test('useTitleResolver handles delete confirmation without candidate', t => {
 
 test('useTitleResolver handles attendance edit without data', t => {
 	const result = useTitleResolver({
-		currentWeek: new Date('2024-01-15'),
+		currentWeek: WeekRange.fromDate(LocalDate.fromString('2024-01-15')),
 		worklogForm: createWorklogForm(),
 		deleteCandidate: undefined,
 		deleteAttendanceCandidate: undefined,
@@ -197,7 +198,7 @@ test('useTitleResolver handles attendance edit without data', t => {
 test('useTitleResolver formats different weekdays correctly', t => {
 	// Test Tuesday
 	const tuesdayResult = useTitleResolver({
-		currentWeek: new Date('2024-01-16'), // Tuesday
+		currentWeek: WeekRange.fromDate(LocalDate.fromString('2024-01-16')), // Tuesday
 		worklogForm: createWorklogForm({
 			isVisible: true,
 			issueKey: IssueKey.fromString('TEST-456'),
@@ -213,7 +214,7 @@ test('useTitleResolver formats different weekdays correctly', t => {
 
 	// Test Sunday (week start)
 	const sundayResult = useTitleResolver({
-		currentWeek: new Date('2024-01-14'), // Sunday
+		currentWeek: WeekRange.fromDate(LocalDate.fromString('2024-01-14')), // Sunday
 		worklogForm: createWorklogForm({
 			isVisible: true,
 			issueKey: IssueKey.fromString('TEST-789'),
@@ -231,7 +232,7 @@ test('useTitleResolver formats different weekdays correctly', t => {
 test('useTitleResolver handles different months in week title', t => {
 	// Week in January 2024 (German week: Monday to Friday)
 	const result = useTitleResolver({
-		currentWeek: new Date('2024-01-01'), // Monday Jan 1st
+		currentWeek: WeekRange.fromDate(LocalDate.fromString('2024-01-01')), // Monday Jan 1st
 		worklogForm: createWorklogForm(),
 		deleteCandidate: undefined,
 		deleteAttendanceCandidate: undefined,
@@ -246,7 +247,7 @@ test('useTitleResolver handles different months in week title', t => {
 test('useTitleResolver handles year boundary correctly', t => {
 	// Test year boundary: week spanning December 2024 to January 2025
 	const result = useTitleResolver({
-		currentWeek: new Date('2024-12-30'), // Monday
+		currentWeek: WeekRange.fromDate(LocalDate.fromString('2024-12-30')), // Monday
 		worklogForm: createWorklogForm(),
 		deleteCandidate: undefined,
 		deleteAttendanceCandidate: undefined,
@@ -262,22 +263,22 @@ test('useTitleResolver calculates German calendar weeks correctly', t => {
 	// Test various dates to ensure correct ISO 8601 week calculation
 	const testCases = [
 		{
-			date: new Date('2024-01-01'),
+			date: WeekRange.fromDate(LocalDate.fromString('2024-01-01')),
 			expectedWeek: 'KW1',
 			description: 'New Year 2024',
 		},
 		{
-			date: LocalDate.fromString('2024-01-15'),
+			date: WeekRange.fromDate(LocalDate.fromString('2024-01-15')),
 			expectedWeek: 'KW3',
 			description: 'Mid January 2024',
 		},
 		{
-			date: new Date('2024-07-15'),
+			date: WeekRange.fromDate(LocalDate.fromString('2024-07-15')),
 			expectedWeek: 'KW29',
 			description: 'Mid July 2024',
 		},
 		{
-			date: new Date('2024-12-30'),
+			date: WeekRange.fromDate(LocalDate.fromString('2024-12-30')),
 			expectedWeek: 'KW1',
 			description: 'End of 2024 (KW1 of 2025)',
 		},
