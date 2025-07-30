@@ -5,6 +5,7 @@ import path from 'node:path';
 import process from 'node:process';
 import notifier from 'node-notifier';
 import {type JiraClient, type ReminderConfig} from '../jira-client.js';
+import {LocalDate} from '../domain/LocalDate.js';
 
 type ReminderState = {
 	notifiedTimes: Set<string>;
@@ -22,7 +23,7 @@ export class ReminderService {
 	) {
 		this.state = {
 			notifiedTimes: new Set(),
-			lastCheckDate: new Date().toISOString().split('T')[0]!,
+			lastCheckDate: LocalDate.today().toISOString(),
 		};
 	}
 
@@ -51,7 +52,7 @@ export class ReminderService {
 
 	private async checkReminders(): Promise<void> {
 		const now = new Date();
-		const currentDate = now.toISOString().split('T')[0]!;
+		const currentDate = LocalDate.today().toISOString();
 		const currentTime = this.formatTime(now);
 
 		// Reset notification state if date changed
