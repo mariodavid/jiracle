@@ -4,7 +4,7 @@ import {LocalDate} from '../../domain/LocalDate.js';
 import type {WeeklyWorklogSummary} from '../../domain/WeeklyWorklogSummary.js';
 import type {WeeklyAttendance} from '../../attendance/types.js';
 import type {JiraConfig} from '../../jira-client.js';
-import {TestPatterns} from '../utils/test-helpers.js';
+import {TestPatterns, TestData} from '../utils/test-helpers.js';
 import {calculateFocusableItems} from '../../utils/FocusableItemCalculator.js';
 import {navigateInDirection} from '../../services/GridNavigationService.js';
 import {AttendanceManager} from '../../attendance/AttendanceManager.js';
@@ -26,13 +26,9 @@ const mockConfig: JiraConfig = {
 	},
 };
 
-const mockWeekDates = [
-	new Date('2024-01-08'), // Monday
-	new Date('2024-01-09'), // Tuesday
-	new Date('2024-01-10'), // Wednesday
-	new Date('2024-01-11'), // Thursday
-	new Date('2024-01-12'), // Friday
-];
+const mockWeekDates = TestData.weekDates('2024-01-08')
+	.map(date => date.toDate())
+	.slice(0, 5); // Monday to Friday
 
 const mockWeeklyWorklogSummary: WeeklyWorklogSummary = {
 	weekStart: LocalDate.fromDate(mockWeekDates[0]!),

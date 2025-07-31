@@ -7,6 +7,7 @@ import {
 	getCurrentDayIndex,
 	getDefaultFocusId,
 } from '../../utils/TimetableCalculations.js';
+import {TestData} from './test-helpers.js';
 
 // Create a mock implementation since WeeklyWorklogSummary is not constructible
 function createMockSummary(dailySummaries: any[]) {
@@ -26,13 +27,9 @@ test('calculateDailyTotals - calculates totals correctly', t => {
 		{date: LocalDate.fromString('2023-01-06'), totalHours: 4, issues: {}}, // Friday
 	]);
 
-	const weekDates = [
-		new Date('2023-01-02'),
-		new Date('2023-01-03'),
-		new Date('2023-01-04'),
-		new Date('2023-01-05'),
-		new Date('2023-01-06'),
-	];
+	const weekDates = TestData.weekDates('2023-01-02')
+		.map(date => date.toDate())
+		.slice(0, 5);
 
 	const totals = calculateDailyTotals(summary as any, weekDates);
 
@@ -46,13 +43,9 @@ test('calculateDailyTotals - handles missing days', t => {
 		{date: LocalDate.fromString('2023-01-06'), totalHours: 4, issues: {}}, // Friday
 	]);
 
-	const weekDates = [
-		new Date('2023-01-02'),
-		new Date('2023-01-03'),
-		new Date('2023-01-04'),
-		new Date('2023-01-05'),
-		new Date('2023-01-06'),
-	];
+	const weekDates = TestData.weekDates('2023-01-02')
+		.map(date => date.toDate())
+		.slice(0, 5);
 
 	const totals = calculateDailyTotals(summary as any, weekDates);
 
@@ -62,13 +55,9 @@ test('calculateDailyTotals - handles missing days', t => {
 test('calculateDailyTotals - handles empty daily summaries', t => {
 	const summary = createMockSummary([]);
 
-	const weekDates = [
-		new Date('2023-01-02'),
-		new Date('2023-01-03'),
-		new Date('2023-01-04'),
-		new Date('2023-01-05'),
-		new Date('2023-01-06'),
-	];
+	const weekDates = TestData.weekDates('2023-01-02')
+		.map(date => date.toDate())
+		.slice(0, 5);
 
 	const totals = calculateDailyTotals(summary as any, weekDates);
 
@@ -82,13 +71,9 @@ test('calculateDailyTotals - handles out-of-range dates', t => {
 		{date: LocalDate.fromString('2023-01-07'), totalHours: 6.5, issues: {}}, // Next Saturday (not in week)
 	]);
 
-	const weekDates = [
-		new Date('2023-01-02'),
-		new Date('2023-01-03'),
-		new Date('2023-01-04'),
-		new Date('2023-01-05'),
-		new Date('2023-01-06'),
-	];
+	const weekDates = TestData.weekDates('2023-01-02')
+		.map(date => date.toDate())
+		.slice(0, 5);
 
 	const totals = calculateDailyTotals(summary as any, weekDates);
 
@@ -174,13 +159,9 @@ test('calculateDailyTotals - handles decimal hours correctly', t => {
 		{date: LocalDate.fromString('2023-01-04'), totalHours: 6.125, issues: {}}, // Wednesday
 	]);
 
-	const weekDates = [
-		new Date('2023-01-02'),
-		new Date('2023-01-03'),
-		new Date('2023-01-04'),
-		new Date('2023-01-05'),
-		new Date('2023-01-06'),
-	];
+	const weekDates = TestData.weekDates('2023-01-02')
+		.map(date => date.toDate())
+		.slice(0, 5);
 
 	const totals = calculateDailyTotals(summary as any, weekDates);
 
