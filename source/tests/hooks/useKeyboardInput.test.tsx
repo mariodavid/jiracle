@@ -3,6 +3,7 @@ import React from 'react';
 import {Box, Text} from 'ink';
 import {render} from 'ink-testing-library';
 import {IssueKey} from '../../domain/IssueKey.js';
+import {TestData} from '../utils/test-helpers.js';
 import type {FocusedCell} from '../../hooks/useFocusManagement.js';
 import {
 	useKeyboardInput,
@@ -89,7 +90,9 @@ test('useKeyboardInput: accepts all required handler functions', t => {
 	const mockOptions: KeyboardInputOptions = {
 		isActive: true,
 		focusedCell: undefined,
-		weekDates: [new Date('2023-07-17'), new Date('2023-07-18')],
+		weekDates: TestData.testDates()
+			.slice(0, 2)
+			.map(date => date.toDate()),
 		handlers: mockHandlers,
 	};
 
@@ -122,7 +125,7 @@ test('useKeyboardInput: works with focused cell for issue cells', t => {
 	const mockOptions: KeyboardInputOptions = {
 		isActive: true,
 		focusedCell,
-		weekDates: [new Date('2023-07-17')],
+		weekDates: [TestData.localDate('2023-07-17').toDate()],
 		handlers: mockHandlers,
 	};
 
@@ -154,7 +157,9 @@ test('useKeyboardInput: works with focused cell for attendance cells', t => {
 	const mockOptions: KeyboardInputOptions = {
 		isActive: true,
 		focusedCell,
-		weekDates: [new Date('2023-07-17'), new Date('2023-07-18')],
+		weekDates: TestData.testDates()
+			.slice(0, 2)
+			.map(date => date.toDate()),
 		handlers: mockHandlers,
 	};
 

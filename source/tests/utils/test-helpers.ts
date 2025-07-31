@@ -3,6 +3,8 @@ import {tmpdir} from 'node:os';
 import {writeFileSync, unlinkSync, existsSync} from 'node:fs';
 import type {JiraConfig} from '../../jira-client.js';
 import type {Attendance} from '../../attendance/types.js';
+import {LocalDate} from '../../domain/LocalDate.js';
+import {WeekRange} from '../../domain/WeekRange.js';
 
 // Test data factories
 export const TestData = {
@@ -38,6 +40,41 @@ export const TestData = {
 			checkOut: '30:00',
 			breakMinutes: -10,
 		};
+	},
+
+	// LocalDate and WeekRange helpers
+	localDate(dateString = '2024-01-15'): LocalDate {
+		return LocalDate.fromString(dateString);
+	},
+
+	weekRange(startDateString = '2024-01-15'): WeekRange {
+		const date = LocalDate.fromString(startDateString);
+		return WeekRange.fromDate(date);
+	},
+
+	currentWeek(): WeekRange {
+		return WeekRange.current();
+	},
+
+	testWeek(): WeekRange {
+		// Standard test week: Monday 2024-01-15 to Sunday 2024-01-21
+		return this.weekRange('2024-01-15');
+	},
+
+	weekDates(startDateString = '2024-01-15'): LocalDate[] {
+		const weekRange = this.weekRange(startDateString);
+		return weekRange.getDays();
+	},
+
+	testDates(): LocalDate[] {
+		// Common test dates for component testing
+		return [
+			this.localDate('2024-01-15'), // Monday
+			this.localDate('2024-01-16'), // Tuesday
+			this.localDate('2024-01-17'), // Wednesday
+			this.localDate('2024-01-18'), // Thursday
+			this.localDate('2024-01-19'), // Friday
+		];
 	},
 };
 
@@ -136,16 +173,20 @@ export const TimeHelpers = {
 			.padStart(2, '0')}`;
 	},
 
+	getTomorrowDate(): LocalDate {
+		return LocalDate.today().addDays(1);
+	},
+
+	getYesterdayDate(): LocalDate {
+		return LocalDate.today().addDays(-1);
+	},
+
 	getTomorrowDateString(): string {
-		const tomorrow = new Date();
-		tomorrow.setDate(tomorrow.getDate() + 1);
-		return tomorrow.toISOString().split('T')[0]!;
+		return this.getTomorrowDate().toISOString();
 	},
 
 	getYesterdayDateString(): string {
-		const yesterday = new Date();
-		yesterday.setDate(yesterday.getDate() - 1);
-		return yesterday.toISOString().split('T')[0]!;
+		return this.getYesterdayDate().toISOString();
 	},
 
 	isTimeWithinRange(
