@@ -1,5 +1,6 @@
 import process from 'node:process';
 import {Duration} from '../domain/Duration.js';
+import {LocalDate} from '../domain/LocalDate.js';
 import type {IssueKey} from '../domain/IssueKey.js';
 import {WorklogGroupService} from '../services/WorklogGroupService.js';
 import type {
@@ -146,15 +147,19 @@ export function extractIssueKeyFromInput(input: string): string | undefined {
 export function getMostRecentCommentForIssue(
 	worklogs: WorklogEntry[],
 	daysBack = 7,
-	referenceDate: Date = new Date(),
+	referenceDate: LocalDate = LocalDate.today(),
 ): string | undefined {
-	const cutoffDate = new Date(referenceDate);
-	cutoffDate.setDate(cutoffDate.getDate() - daysBack);
+	const cutoffDate = referenceDate.addDays(-daysBack);
 
 	const relevantWorklogs = worklogs
 		.filter(worklog => {
-			const worklogDate = new Date(worklog.started);
-			return worklogDate >= cutoffDate && Boolean(worklog.comment?.trim());
+			const dateString = worklog.started.split('T')[0];
+			if (!dateString) return false;
+			const worklogDate = LocalDate.fromString(dateString);
+			return (
+				worklogDate.toDate() >= cutoffDate.toDate() &&
+				Boolean(worklog.comment?.trim())
+			);
 		})
 		.sort(
 			(a, b) => new Date(b.started).getTime() - new Date(a.started).getTime(),
@@ -210,7 +215,7 @@ export function getCommentWithPrefill(
 	options: {
 		isEditMode: boolean;
 		explicitDefault?: string;
-		referenceDate: Date;
+		referenceDate: LocalDate;
 	},
 ): string {
 	// If explicit default comment is provided AND we're in edit mode, use it
@@ -220,8 +225,6 @@ export function getCommentWithPrefill(
 
 	// Try to find most recent comment for this issue using configured lookback days
 	const lookbackDays = resolveCommentPrefillDays(config, issueKey);
-	const cutoffDate = new Date(options.referenceDate);
-	cutoffDate.setDate(cutoffDate.getDate() - lookbackDays);
 
 	const recentComment = getMostRecentCommentForIssue(
 		recentWorklogs,

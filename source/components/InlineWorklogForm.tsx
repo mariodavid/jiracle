@@ -76,7 +76,7 @@ export function InlineWorklogForm({
 		const result = getCommentWithPrefill(config, issueKey, recentWorklogs, {
 			isEditMode,
 			explicitDefault: defaultComment,
-			referenceDate: new Date(currentDate.toISOString()),
+			referenceDate: currentDate,
 		});
 
 		return result;
@@ -108,7 +108,7 @@ export function InlineWorklogForm({
 				{
 					isEditMode,
 					explicitDefault: defaultComment,
-					referenceDate: new Date(currentDate.toISOString()),
+					referenceDate: currentDate,
 				},
 			);
 
