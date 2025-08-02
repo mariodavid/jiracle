@@ -18,6 +18,9 @@ import {
 	type CheckOutParameters,
 	type StatusParameters,
 } from './cli/attendance-commands.js';
+import {StatisticsUseCase} from './use-cases/StatisticsUseCase.js';
+import {formatStatisticsTable} from './utils/statistics-formatter.js';
+import {AttendanceManager} from './attendance/AttendanceManager.js';
 
 const cli = meow(
 	`
@@ -27,12 +30,14 @@ const cli = meow(
 	  $ jiracle checkin [--date <YYYY-MM-DD>] [--time <HH:MM>]
 	  $ jiracle checkout [--date <YYYY-MM-DD>] [--time <HH:MM>]
 	  $ jiracle status [--date <YYYY-MM-DD>]
+	  $ jiracle stats
 
 	Commands
 	  worklog add    Add a worklog entry to an issue
 	  checkin        Check in for attendance tracking
 	  checkout       Check out for attendance tracking  
 	  status         Show attendance status
+	  stats          Show monthly worklog and attendance statistics
 
 	Options for worklog add
 	  --issue      Issue key (e.g., DEF-2398)
@@ -53,6 +58,7 @@ const cli = meow(
 	  $ jiracle checkout --date 2025-07-11 --time 17:30
 	  $ jiracle status
 	  $ jiracle status --date 2025-07-11
+	  $ jiracle stats
 `,
 	{
 		importMeta: import.meta,
@@ -322,6 +328,32 @@ async function handleStatus() {
 	}
 }
 
+async function handleStats() {
+	try {
+		const config = loadConfig();
+		const jiraClient = new JiraClient(config, createSilentLogger());
+
+		if (!config.attendance?.enabled) {
+			console.error(
+				'Error: Attendance tracking is not enabled in configuration',
+			);
+			process.exit(1);
+		}
+
+		const attendanceManager = new AttendanceManager(config.attendance);
+		const statsUseCase = new StatisticsUseCase(jiraClient, attendanceManager);
+
+		const stats = await statsUseCase.execute();
+		console.log(formatStatisticsTable(stats));
+		process.exit(0);
+	} catch (error: unknown) {
+		console.error(
+			`Error: ${error instanceof Error ? error.message : String(error)}`,
+		);
+		process.exit(1);
+	}
+}
+
 if (cli.input.length > 0) {
 	const [command, subcommand] = cli.input;
 
@@ -341,6 +373,11 @@ if (cli.input.length > 0) {
 
 			case 'status': {
 				await handleStatus();
+				break;
+			}
+
+			case 'stats': {
+				await handleStats();
 				break;
 			}
 
