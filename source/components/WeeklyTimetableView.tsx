@@ -30,6 +30,7 @@ import {
 } from './areas/index.js';
 import {TitleBar} from './TitleBar.js';
 import {TimetableGrid} from './TimetableGrid.js';
+import {StatisticsView} from './StatisticsView.js';
 
 export type WeeklyTimetableViewProps = {
 	onBack: () => void;
@@ -220,7 +221,8 @@ export function WeeklyTimetableView({
 			activeArea === 'delete-attendance-confirmation' ||
 			activeArea === 'attendance-edit' ||
 			activeArea === 'checkin-confirmation' ||
-			activeArea === 'checkout-confirmation'
+			activeArea === 'checkout-confirmation' ||
+			activeArea === 'statistics'
 		) {
 			return;
 		}
@@ -265,6 +267,12 @@ export function WeeklyTimetableView({
 			case 'a': {
 				// Add worklog for arbitrary issue
 				handleAddWorklog();
+				break;
+			}
+
+			case 's': {
+				// Show statistics view
+				setActiveArea('statistics');
 				break;
 			}
 
@@ -363,6 +371,17 @@ export function WeeklyTimetableView({
 									worklogData={data}
 									onSubmit={handleAttendanceSubmit}
 									onCancel={handleAttendanceCancel}
+								/>
+							);
+						}
+
+						case 'statistics': {
+							return (
+								<StatisticsView
+									config={config}
+									onBack={() => {
+										setActiveArea('timetable');
+									}}
 								/>
 							);
 						}
