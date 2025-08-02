@@ -1,8 +1,6 @@
 import React, {useState, useEffect, useMemo} from 'react';
 import {Box, Text, useInput} from 'ink';
 import {Alert} from '@inkjs/ui';
-import Gradient from 'ink-gradient';
-import BigText from 'ink-big-text';
 import {JiraClient, type JiraConfig} from '../jira-client.js';
 import {AttendanceManager} from '../attendance/AttendanceManager.js';
 import {
@@ -11,6 +9,7 @@ import {
 } from '../use-cases/StatisticsUseCase.js';
 import {NotificationBar} from './NotificationBar.js';
 import {TitleBar} from './TitleBar.js';
+import {StatisticsGrid} from './StatisticsGrid.js';
 
 export type StatisticsViewProps = {
 	onBack: () => void;
@@ -121,55 +120,8 @@ export function StatisticsView({onBack, config}: StatisticsViewProps) {
 		<Box flexDirection="column">
 			<TitleBar title={`Statistics ${statistics.year}`} />
 
-			<Box marginY={1}>
-				<Gradient name="rainbow">
-					<BigText text="STATISTICS" />
-				</Gradient>
-			</Box>
-
-			<Box flexDirection="column" marginY={1}>
-				{/* Table Header */}
-				<Box>
-					<Text bold>
-						{'Month'.padEnd(12)}
-						{' | '}
-						{'Worklog Days'.padStart(12)}
-						{' | '}
-						{'Attendance Days'.padStart(15)}
-					</Text>
-				</Box>
-				<Box>
-					<Text dimColor>-------------|--------------|----------------</Text>
-				</Box>
-
-				{/* Monthly Rows */}
-				{statistics.monthlyStats.map(month => (
-					<Box key={month.month}>
-						<Text>
-							{month.month.padEnd(12)}
-							{' |'}
-							{month.worklogDays.toString().padStart(12)}
-							{' |'}
-							{month.attendanceDays.toString().padStart(15)}
-						</Text>
-					</Box>
-				))}
-
-				{/* Separator */}
-				<Box>
-					<Text dimColor>-------------|--------------|----------------</Text>
-				</Box>
-
-				{/* Total Row */}
-				<Box>
-					<Text bold>
-						{'Total'.padEnd(12)}
-						{' |'}
-						{statistics.totalWorklogDays.toString().padStart(12)}
-						{' |'}
-						{statistics.totalAttendanceDays.toString().padStart(15)}
-					</Text>
-				</Box>
+			<Box marginY={2}>
+				<StatisticsGrid statistics={statistics} />
 			</Box>
 
 			<Box marginTop={1}>
