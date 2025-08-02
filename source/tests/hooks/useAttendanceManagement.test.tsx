@@ -2,6 +2,7 @@ import test from 'ava';
 import React from 'react';
 import {render} from 'ink-testing-library';
 import {Text, Box} from 'ink';
+import {TestData} from '../utils/test-helpers.js';
 import {
 	useAttendanceManagement,
 	type UseAttendanceManagementOptions,
@@ -179,7 +180,7 @@ test('useAttendanceManagement handleAttendanceEdit sets edit state', async t => 
 	}
 
 	// Call handleAttendanceEdit
-	const testDate = new Date('2024-01-15');
+	const testDate = TestData.localDate('2024-01-15').toDate();
 	await capturedState.handleAttendanceEdit({date: testDate});
 	rerender(
 		React.createElement(TestAttendanceManagementComponent, {
@@ -217,7 +218,7 @@ test('useAttendanceManagement handleAttendanceEdit without manager does nothing'
 	);
 
 	// Call handleAttendanceEdit without manager
-	const testDate = new Date('2024-01-15');
+	const testDate = TestData.localDate('2024-01-15').toDate();
 	await capturedState.handleAttendanceEdit({date: testDate});
 	rerender(
 		React.createElement(TestAttendanceManagementComponent, {

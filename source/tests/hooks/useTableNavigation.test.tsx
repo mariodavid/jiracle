@@ -2,6 +2,7 @@ import test from 'ava';
 import React from 'react';
 import {Box, Text} from 'ink';
 import {render} from 'ink-testing-library';
+import {TestData} from '../utils/test-helpers.js';
 import {
 	useTableNavigation,
 	type TableNavigationProps,
@@ -101,7 +102,7 @@ test('useTableNavigation: manages focus state correctly', t => {
 
 	const mockOptions: TableNavigationProps = {
 		isActive: true,
-		weekDates: [new Date('2023-07-17')],
+		weekDates: [TestData.localDate('2023-07-17').toDate()],
 		issueGroups: mockIssueGroups,
 	};
 
@@ -185,7 +186,7 @@ test('useTableNavigation: manages focus state correctly', t => {
 
 test('useTableNavigation: handles callbacks without errors', t => {
 	// 1. EXPLICIT TEST DATA
-	const testDate = new Date('2023-07-17');
+	const testDate = TestData.localDate('2023-07-17').toDate();
 	let callbackCount = 0;
 
 	const mockCallbacks = {
@@ -272,7 +273,7 @@ test('useTableNavigation: works with attendance manager', t => {
 
 	const mockOptions: TableNavigationProps = {
 		isActive: true,
-		weekDates: [new Date('2023-07-17')],
+		weekDates: [TestData.localDate('2023-07-17').toDate()],
 		issueGroups: [],
 		// @ts-expect-error - simplified mock for testing
 		attendanceManager: mockAttendanceManager,
@@ -403,7 +404,9 @@ test('useTableNavigation: processes complex issue groups correctly', t => {
 
 	const mockOptions: TableNavigationProps = {
 		isActive: true,
-		weekDates: [new Date('2023-07-17'), new Date('2023-07-18')],
+		weekDates: TestData.testDates()
+			.slice(0, 2)
+			.map(date => date.toDate()),
 		issueGroups: mockIssueGroups,
 	};
 

@@ -2,10 +2,11 @@ import test from 'ava';
 import React from 'react';
 import {render} from 'ink-testing-library';
 import {WeekNavigator, getWeekTitle} from '../../components/WeekNavigator.js';
+import {TestData} from '../utils/test-helpers.js';
 
 test('WeekNavigator renders navigation buttons', t => {
 	const mockProps = {
-		currentWeek: new Date('2024-10-19T12:00:00.000Z'),
+		currentWeek: TestData.localDate('2024-10-19').toDate(),
 		onPreviousWeek() {},
 		onNextWeek() {},
 		onCurrentWeek() {},
@@ -20,7 +21,7 @@ test('WeekNavigator renders navigation buttons', t => {
 });
 
 test('getWeekTitle renders week spanning different months', t => {
-	const currentWeek = new Date('2024-10-01T12:00:00.000Z'); // Tuesday in week
+	const currentWeek = TestData.localDate('2024-10-01').toDate(); // Tuesday in week
 	const title = getWeekTitle(currentWeek);
 
 	// Handle both local (UTC+2) and GitHub Actions (UTC) environments
@@ -41,7 +42,7 @@ test('getWeekTitle renders week spanning different months', t => {
 });
 
 test('getWeekTitle renders week spanning different years', t => {
-	const currentWeek = new Date('2025-01-01T12:00:00.000Z'); // Wednesday in week
+	const currentWeek = TestData.localDate('2025-01-01').toDate(); // Wednesday in week
 	const title = getWeekTitle(currentWeek);
 
 	// Handle both local (UTC+2) and GitHub Actions (UTC) environments
@@ -61,13 +62,13 @@ test('getWeekTitle renders week spanning different years', t => {
 });
 
 test('getWeekTitle calculates correct week number', t => {
-	const currentWeek = new Date('2024-10-19T12:00:00.000Z'); // Week 42 of 2024
+	const currentWeek = TestData.localDate('2024-10-19').toDate(); // Week 42 of 2024
 	const title = getWeekTitle(currentWeek);
 	t.true(title.includes('Week 42'));
 });
 
 test('getWeekTitle handles Monday start of week correctly', t => {
-	const currentWeek = new Date('2024-10-20T12:00:00.000Z'); // Sunday
+	const currentWeek = TestData.localDate('2024-10-20').toDate(); // Sunday
 	const title = getWeekTitle(currentWeek);
 
 	// Handle both local (UTC+2) and GitHub Actions (UTC) environments
@@ -89,7 +90,7 @@ test('getWeekTitle handles Monday start of week correctly', t => {
 });
 
 test('getWeekTitle handles first week of year', t => {
-	const currentWeek = new Date('2024-01-03T12:00:00.000Z'); // Wednesday of first week
+	const currentWeek = TestData.localDate('2024-01-03').toDate(); // Wednesday of first week
 	const title = getWeekTitle(currentWeek);
 
 	// Handle both local (UTC+2) and GitHub Actions (UTC) environments

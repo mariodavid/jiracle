@@ -2,6 +2,7 @@ import test from 'ava';
 import React from 'react';
 import {render} from 'ink-testing-library';
 import {Text, Box} from 'ink';
+import {TestData} from '../utils/test-helpers.js';
 import {
 	useWorklogForm,
 	type UseWorklogFormOptions,
@@ -519,7 +520,7 @@ test('useWorklogForm validates required fields on submission', async t => {
 
 test('useWorklogForm formats date correctly for Jira API compatibility', t => {
 	// Test the date formatting logic independently to ensure Jira API compatibility
-	const testDate = new Date('2024-01-15T10:30:00.000Z');
+	const testDate = TestData.localDate('2024-01-15').toDate();
 	testDate.setHours(9, 0, 0, 0);
 
 	// This is the critical format transformation that prevents Jira API 500 errors
