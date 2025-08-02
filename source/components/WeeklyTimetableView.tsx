@@ -309,9 +309,6 @@ export function WeeklyTimetableView({
 
 			{/* Main Content Area - Fixed Height */}
 			<Box height={40} flexDirection="column">
-				{/* Extra spacing between week navigator and table - only when showing timetable */}
-				{resolvedActiveArea === 'timetable' && <Box paddingY={1} />}
-
 				{/* Conditional content: table, form, delete confirmation, or attendance edit */}
 				{(() => {
 					switch (resolvedActiveArea) {
@@ -448,7 +445,9 @@ export function WeeklyTimetableView({
 								? ' [Shift+O] Open in Browser'
 								: ''}
 						</Text>
-						<Text color="gray">[T] Today [R] Refresh [Q] Quit</Text>
+						<Text color="gray">
+							[T] Today [R] Refresh [S] Statistics [Q] Quit
+						</Text>
 					</>
 				)}
 			</Box>

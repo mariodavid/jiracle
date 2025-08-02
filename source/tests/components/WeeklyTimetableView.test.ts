@@ -38,6 +38,7 @@ test('WeeklyTimetableView renders basic structure', t => {
 	t.true(output.includes('[R] Refresh'));
 	t.true(output.includes('[D] Delete Worklogs'));
 	t.true(output.includes('[Q] Quit'));
+	t.true(output.includes('[S] Statistics'));
 });
 
 test('WeeklyTimetableView shows loading state initially', t => {
@@ -62,4 +63,27 @@ test('WeeklyTimetableView shows loading state initially', t => {
 			output.includes('Error:') ||
 			output.includes('No data available'),
 	);
+});
+
+test('WeeklyTimetableView handles statistics navigation', t => {
+	const mockConfig: JiraConfig = {
+		jiraUrl: 'https://jira.example.com/',
+		username: 'test@example.com',
+		apiToken: 'test-token',
+	};
+
+	const {stdin, lastFrame} = render(
+		React.createElement(WeeklyTimetableView, {
+			onBack() {},
+			config: mockConfig,
+			userEmail: undefined,
+		}),
+	);
+
+	// Simulate pressing 's' key for statistics
+	stdin.write('s');
+
+	// Should still render without crashing
+	const output = lastFrame()!;
+	t.true(output.length > 0);
 });

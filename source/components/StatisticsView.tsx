@@ -8,7 +8,6 @@ import {
 	type YearlyStatistics,
 } from '../use-cases/StatisticsUseCase.js';
 import {NotificationBar} from './NotificationBar.js';
-import {TitleBar} from './TitleBar.js';
 import {StatisticsGrid} from './StatisticsGrid.js';
 
 export type StatisticsViewProps = {
@@ -78,11 +77,8 @@ export function StatisticsView({onBack, config}: StatisticsViewProps) {
 	// Render loading state
 	if (isLoading) {
 		return (
-			<Box flexDirection="column">
-				<TitleBar title="Statistics" />
-				<Box alignItems="center" height={10} justifyContent="center">
-					<Text>Loading statistics...</Text>
-				</Box>
+			<Box alignItems="center" height={10} justifyContent="center">
+				<Text>Loading statistics...</Text>
 			</Box>
 		);
 	}
@@ -91,14 +87,8 @@ export function StatisticsView({onBack, config}: StatisticsViewProps) {
 	if (error) {
 		return (
 			<Box flexDirection="column">
-				<TitleBar title="Statistics" />
 				<Box marginY={1}>
 					<Alert variant="error">Error: {error}</Alert>
-				</Box>
-				<Box marginTop={1}>
-					<Text dimColor>
-						Press ESC or &apos;q&apos; to return to main view
-					</Text>
 				</Box>
 			</Box>
 		);
@@ -107,29 +97,18 @@ export function StatisticsView({onBack, config}: StatisticsViewProps) {
 	// Render statistics table
 	if (!statistics) {
 		return (
-			<Box flexDirection="column">
-				<TitleBar title="Statistics" />
-				<Box marginY={1}>
-					<Text>No statistics available</Text>
-				</Box>
+			<Box marginY={1}>
+				<Text>No statistics available</Text>
 			</Box>
 		);
 	}
 
 	return (
 		<Box flexDirection="column">
-			<TitleBar title={`Statistics ${statistics.year}`} />
-
-			<Box marginY={2}>
-				<StatisticsGrid statistics={statistics} />
-			</Box>
+			<StatisticsGrid statistics={statistics} />
 
 			<Box marginTop={1}>
 				<NotificationBar notifications={[]} />
-			</Box>
-
-			<Box marginTop={1}>
-				<Text dimColor>Press ESC or &apos;q&apos; to return to main view</Text>
 			</Box>
 		</Box>
 	);

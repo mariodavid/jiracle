@@ -142,6 +142,12 @@ export function useTitleResolver({
 		};
 	}
 
+	if (activeArea === 'statistics') {
+		return {
+			title: 'Statistics 2025',
+		};
+	}
+
 	// Default: week title
 	return {
 		title: getWeekTitle(currentWeek),
