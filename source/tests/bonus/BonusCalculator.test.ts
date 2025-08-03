@@ -1,6 +1,8 @@
 import test from 'ava';
-import {BonusCalculator} from '../../bonus/BonusCalculator.js';
+import {BonusCalculator, BonusDays} from '../../bonus/BonusCalculator.js';
 import type {BonusConfig, BonusTier} from '../../jira/types.js';
+import {Duration} from '../../domain/Duration.js';
+import {LocalDate} from '../../domain/LocalDate.js';
 
 // TEST DATA
 const DEFAULT_BONUS_CONFIG: BonusConfig = {
@@ -38,7 +40,7 @@ function createCalculatorWithCustomTiers(): BonusCalculator {
 // Default tier system tests
 test('should use default tiers when none provided', t => {
 	const calculator = createCalculatorWithDefaults();
-	const progress = calculator.calculateBonusProgress(400); // 50 bonus days
+	const progress = calculator.calculateBonusProgress(Duration.fromHours(400)); // 50 bonus days
 
 	t.is(progress.currentTier.name, 'Tier 1');
 	t.is(progress.currentTier.rate, 0.002);
@@ -48,9 +50,9 @@ test('should use default tiers when none provided', t => {
 
 test('should calculate tier progress correctly in Tier 1', t => {
 	const calculator = createCalculatorWithDefaults();
-	const progress = calculator.calculateBonusProgress(400); // 50 bonus days
+	const progress = calculator.calculateBonusProgress(Duration.fromHours(400)); // 50 bonus days
 
-	t.is(progress.currentBonusDays, 50);
+	t.is(progress.currentBonusDays.toNumber(), 50);
 	t.is(progress.tierProgress.current, 50);
 	t.is(progress.tierProgress.total, 120);
 	t.is(progress.tierProgress.percentage, 41.7);
@@ -58,9 +60,9 @@ test('should calculate tier progress correctly in Tier 1', t => {
 
 test('should calculate tier progress correctly in Tier 2', t => {
 	const calculator = createCalculatorWithDefaults();
-	const progress = calculator.calculateBonusProgress(1120); // 140 bonus days
+	const progress = calculator.calculateBonusProgress(Duration.fromHours(1120)); // 140 bonus days
 
-	t.is(progress.currentBonusDays, 140);
+	t.is(progress.currentBonusDays.toNumber(), 140);
 	t.is(progress.currentTier.name, 'Tier 2');
 	t.is(progress.tierProgress.current, 19); // 140 - 121
 	t.is(progress.tierProgress.total, 39); // 160 - 121
@@ -69,9 +71,9 @@ test('should calculate tier progress correctly in Tier 2', t => {
 
 test('should calculate tier progress correctly in Tier 3', t => {
 	const calculator = createCalculatorWithDefaults();
-	const progress = calculator.calculateBonusProgress(1480); // 185 bonus days
+	const progress = calculator.calculateBonusProgress(Duration.fromHours(1480)); // 185 bonus days
 
-	t.is(progress.currentBonusDays, 185);
+	t.is(progress.currentBonusDays.toNumber(), 185);
 	t.is(progress.currentTier.name, 'Tier 3');
 	t.is(progress.tierProgress.current, 24); // 185 - 161
 	t.is(progress.tierProgress.total, 29); // 190 - 161 (target days)
@@ -82,14 +84,14 @@ test('should calculate tier progress correctly in Tier 3', t => {
 test('should calculate earned bonus correctly across tiers', t => {
 	const calculator = createCalculatorWithDefaults();
 	// 185 days: 120 days at 0.2%, 40 days at 1.0%, 24 days at 1.2%
-	const progress = calculator.calculateBonusProgress(1480); // 185 bonus days
+	const progress = calculator.calculateBonusProgress(Duration.fromHours(1480)); // 185 bonus days
 
 	t.is(progress.earnedBonusPercentage, 91.8);
 });
 
 test('should calculate earned bonus correctly for partial tiers', t => {
 	const calculator = createCalculatorWithDefaults();
-	const progress = calculator.calculateBonusProgress(800); // 100 bonus days (Tier 1 only)
+	const progress = calculator.calculateBonusProgress(Duration.fromHours(800)); // 100 bonus days (Tier 1 only)
 
 	const expectedBonus = 100 * 0.002; // 100 days × 0.2%
 	t.is(progress.earnedBonusPercentage, expectedBonus * 100);
@@ -98,7 +100,7 @@ test('should calculate earned bonus correctly for partial tiers', t => {
 // Custom tier system tests
 test('should use custom tiers when provided', t => {
 	const calculator = createCalculatorWithCustomTiers();
-	const progress = calculator.calculateBonusProgress(800); // 100 bonus days
+	const progress = calculator.calculateBonusProgress(Duration.fromHours(800)); // 100 bonus days
 
 	t.is(progress.currentTier.name, 'Starter');
 	t.is(progress.currentTier.rate, 0.001);
@@ -108,9 +110,9 @@ test('should use custom tiers when provided', t => {
 
 test('should calculate progress in custom tier system', t => {
 	const calculator = createCalculatorWithCustomTiers();
-	const progress = calculator.calculateBonusProgress(1360); // 170 bonus days (Advanced tier)
+	const progress = calculator.calculateBonusProgress(Duration.fromHours(1360)); // 170 bonus days (Advanced tier)
 
-	t.is(progress.currentBonusDays, 170);
+	t.is(progress.currentBonusDays.toNumber(), 170);
 	t.is(progress.currentTier.name, 'Advanced');
 	t.is(progress.tierProgress.current, 69); // 170 - 101
 	t.is(progress.tierProgress.total, 79); // 180 - 101
@@ -119,7 +121,7 @@ test('should calculate progress in custom tier system', t => {
 
 test('should calculate bonus with custom tiers correctly', t => {
 	const calculator = createCalculatorWithCustomTiers();
-	const progress = calculator.calculateBonusProgress(1600); // 200 bonus days
+	const progress = calculator.calculateBonusProgress(Duration.fromHours(1600)); // 200 bonus days
 
 	t.is(progress.earnedBonusPercentage, 101.7);
 });
@@ -128,7 +130,10 @@ test('should calculate bonus with custom tiers correctly', t => {
 test('should calculate year-end projection correctly', t => {
 	const calculator = createCalculatorWithDefaults();
 	const currentDate = new Date('2025-06-15'); // Mid-year
-	const progress = calculator.calculateBonusProgress(800, currentDate); // 100 bonus days
+	const progress = calculator.calculateBonusProgress(
+		Duration.fromHours(800),
+		LocalDate.fromDate(currentDate),
+	); // 100 bonus days
 
 	// Mid-year should roughly double the current rate
 	t.true(progress.projectedYearEnd > 180);
@@ -138,7 +143,10 @@ test('should calculate year-end projection correctly', t => {
 test('should handle beginning of year projection', t => {
 	const calculator = createCalculatorWithDefaults();
 	const currentDate = new Date('2025-01-15'); // Early year
-	const progress = calculator.calculateBonusProgress(80, currentDate); // 10 bonus days
+	const progress = calculator.calculateBonusProgress(
+		Duration.fromHours(80),
+		LocalDate.fromDate(currentDate),
+	); // 10 bonus days
 
 	// Early year should have higher projection multiplier
 	t.true(progress.projectedYearEnd > 200);
@@ -147,7 +155,10 @@ test('should handle beginning of year projection', t => {
 test('should handle end of year projection', t => {
 	const calculator = createCalculatorWithDefaults();
 	const currentDate = new Date('2025-12-15'); // Late year
-	const progress = calculator.calculateBonusProgress(1600, currentDate); // 200 bonus days
+	const progress = calculator.calculateBonusProgress(
+		Duration.fromHours(1600),
+		LocalDate.fromDate(currentDate),
+	); // 200 bonus days
 
 	// Late year should have minimal projection change (209.2)
 	t.true(progress.projectedYearEnd > 200);
@@ -157,7 +168,7 @@ test('should handle end of year projection', t => {
 // Milestone detection
 test('should find next tier milestone', t => {
 	const calculator = createCalculatorWithDefaults();
-	const progress = calculator.calculateBonusProgress(800); // 100 bonus days
+	const progress = calculator.calculateBonusProgress(Duration.fromHours(800)); // 100 bonus days
 
 	t.truthy(progress.nextMilestone);
 	t.is(progress.nextMilestone!.name, 'Tier 2 starts');
@@ -167,14 +178,14 @@ test('should find next tier milestone', t => {
 
 test('should find target milestone when past all tiers', t => {
 	const calculator = createCalculatorWithDefaults();
-	const progress = calculator.calculateBonusProgress(1520); // 190 bonus days (reached target)
+	const progress = calculator.calculateBonusProgress(Duration.fromHours(1520)); // 190 bonus days (reached target)
 
 	t.is(progress.nextMilestone, undefined); // No more milestones
 });
 
 test('should find target milestone when in final tier', t => {
 	const calculator = createCalculatorWithDefaults();
-	const progress = calculator.calculateBonusProgress(1400); // 175 bonus days
+	const progress = calculator.calculateBonusProgress(Duration.fromHours(1400)); // 175 bonus days
 
 	t.truthy(progress.nextMilestone);
 	t.is(progress.nextMilestone!.name, '100% Target');
@@ -185,7 +196,7 @@ test('should find target milestone when in final tier', t => {
 // Tier visualizations
 test('should generate tier visualizations correctly', t => {
 	const calculator = createCalculatorWithDefaults();
-	const visualizations = calculator.getTierVisualizations(140); // 140 bonus days
+	const visualizations = calculator.getTierVisualizations(new BonusDays(140)); // 140 bonus days
 
 	t.is(visualizations.length, 3);
 
@@ -218,7 +229,7 @@ test('should generate tier visualizations correctly', t => {
 
 test('should handle open-ended tier visualization', t => {
 	const calculator = createCalculatorWithDefaults();
-	const visualizations = calculator.getTierVisualizations(200); // 200 bonus days
+	const visualizations = calculator.getTierVisualizations(new BonusDays(200)); // 200 bonus days
 
 	const tier3 = visualizations[2]!;
 	t.is(tier3.tier.name, 'Tier 3');
@@ -231,9 +242,9 @@ test('should handle open-ended tier visualization', t => {
 // Edge cases
 test('should handle zero hours correctly', t => {
 	const calculator = createCalculatorWithDefaults();
-	const progress = calculator.calculateBonusProgress(0);
+	const progress = calculator.calculateBonusProgress(Duration.fromHours(0));
 
-	t.is(progress.currentBonusDays, 0);
+	t.is(progress.currentBonusDays.toNumber(), 0);
 	t.is(progress.currentTier.name, 'Tier 1');
 	t.is(progress.tierProgress.current, 0);
 	t.is(progress.earnedBonusPercentage, 0);
@@ -241,24 +252,27 @@ test('should handle zero hours correctly', t => {
 
 test('should handle very high bonus days', t => {
 	const calculator = createCalculatorWithDefaults();
-	const progress = calculator.calculateBonusProgress(2400); // 300 bonus days
+	const progress = calculator.calculateBonusProgress(Duration.fromHours(2400)); // 300 bonus days
 
-	t.is(progress.currentBonusDays, 300);
+	t.is(progress.currentBonusDays.toNumber(), 300);
 	t.is(progress.currentTier.name, 'Tier 3');
 	t.true(progress.earnedBonusPercentage > 100); // Over 100% bonus
 });
 
 test('should handle fractional hours correctly', t => {
 	const calculator = createCalculatorWithDefaults();
-	const progress = calculator.calculateBonusProgress(100.5); // 12.5625 bonus days
+	const progress = calculator.calculateBonusProgress(Duration.fromHours(100.5)); // 12.5625 bonus days
 
-	t.is(progress.currentBonusDays, 12.6); // Rounded to 1 decimal
+	t.is(progress.currentBonusDays.toNumber(), 12.6); // Rounded to 1 decimal
 });
 
 test('should handle leap year in projection', t => {
 	const calculator = createCalculatorWithDefaults();
 	const leapYearDate = new Date('2024-06-15'); // 2024 is a leap year
-	const progress = calculator.calculateBonusProgress(800, leapYearDate);
+	const progress = calculator.calculateBonusProgress(
+		Duration.fromHours(800),
+		LocalDate.fromDate(leapYearDate),
+	);
 
 	// Should account for 366 days instead of 365
 	t.true(progress.projectedYearEnd > 0);
@@ -275,7 +289,7 @@ test('should handle missing tier configuration gracefully', t => {
 	};
 
 	const calculator = new BonusCalculator(configWithoutTiers);
-	const progress = calculator.calculateBonusProgress(800); // 100 bonus days
+	const progress = calculator.calculateBonusProgress(Duration.fromHours(800)); // 100 bonus days
 
 	// Should fall back to default tiers
 	t.is(progress.currentTier.name, 'Tier 1');
@@ -291,7 +305,7 @@ test('should handle different hours per bonus day', t => {
 	};
 
 	const calculator = new BonusCalculator(customConfig);
-	const progress = calculator.calculateBonusProgress(600); // 600 hours = 100 bonus days
+	const progress = calculator.calculateBonusProgress(Duration.fromHours(600)); // 600 hours = 100 bonus days
 
-	t.is(progress.currentBonusDays, 100);
+	t.is(progress.currentBonusDays.toNumber(), 100);
 });

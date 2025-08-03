@@ -12,6 +12,7 @@ import {
 	type BonusProgress,
 	type TierVisualization,
 } from '../bonus/BonusCalculator.js';
+import {Duration} from '../domain/Duration.js';
 import {NotificationBar} from './NotificationBar.js';
 import {StatisticsGrid} from './StatisticsGrid.js';
 
@@ -85,9 +86,9 @@ export function StatisticsView({
 
 				// Load bonus data if calculator is available
 				if (bonusCalculator && stats.totalHours) {
-					const progress = bonusCalculator.calculateBonusProgress(
-						stats.totalHours,
-					);
+					const totalHoursDuration = Duration.fromHours(stats.totalHours);
+					const progress =
+						bonusCalculator.calculateBonusProgress(totalHoursDuration);
 					setBonusProgress(progress);
 
 					const visualizations = bonusCalculator.getTierVisualizations(
@@ -226,15 +227,18 @@ export function StatisticsView({
 
 					<Box flexDirection="column" marginBottom={1}>
 						<Text>
-							Current Status: <Text bold>{bonusProgress.currentBonusDays}</Text>{' '}
+							Current Status:{' '}
+							<Text bold>{bonusProgress.currentBonusDays.toNumber()}</Text>{' '}
 							Bonus Days
 						</Text>
 						<Text>
 							├─ Target Progress:{' '}
 							<Text bold>
-								{bonusProgress.currentBonusDays} / {config.bonus.targetDays} (
+								{bonusProgress.currentBonusDays.toNumber()} /{' '}
+								{config.bonus.targetDays} (
 								{Math.round(
-									(bonusProgress.currentBonusDays / config.bonus.targetDays) *
+									(bonusProgress.currentBonusDays.toNumber() /
+										config.bonus.targetDays) *
 										100,
 								)}
 								%)
@@ -313,32 +317,39 @@ export function StatisticsView({
 					<Box flexDirection="column" marginBottom={1}>
 						<Text bold>Key Milestones:</Text>
 						<Box flexDirection="column" marginLeft={2}>
+							{config.bonus.tiers?.map((tier, index) => {
+								if (!tier.endDay || index === 0) return null; // Skip first tier and open-ended tiers
+								const isCompleted =
+									bonusProgress.currentBonusDays.toNumber() >= tier.endDay;
+								const nextTierName =
+									config.bonus?.tiers?.[index + 1]?.name ?? 'Final Tier';
+								return (
+									<Text key={tier.name}>
+										{isCompleted ? '✓' : '•'} {tier.endDay} days -{' '}
+										{nextTierName} starts
+										{!isCompleted &&
+											` (${
+												Math.round(
+													(tier.endDay -
+														bonusProgress.currentBonusDays.toNumber()) *
+														10,
+												) / 10
+											} days to go)`}
+									</Text>
+								);
+							})}
 							<Text>
-								{bonusProgress.currentBonusDays >= 120 ? '✓' : '•'} 120 days -
-								Tier 2 starts
-								{bonusProgress.currentBonusDays < 120 &&
-									` (${
-										Math.round((120 - bonusProgress.currentBonusDays) * 10) / 10
-									} days to go)`}
-							</Text>
-							<Text>
-								{bonusProgress.currentBonusDays >= 160 ? '✓' : '•'} 160 days -
-								Tier 3 starts
-								{bonusProgress.currentBonusDays < 160 &&
-									` (${
-										Math.round((160 - bonusProgress.currentBonusDays) * 10) / 10
-									} days to go)`}
-							</Text>
-							<Text>
-								{bonusProgress.currentBonusDays >= config.bonus.targetDays
+								{bonusProgress.currentBonusDays.toNumber() >=
+								config.bonus.targetDays
 									? '✓'
 									: '•'}{' '}
 								{config.bonus.targetDays} days - 100% Target
-								{bonusProgress.currentBonusDays < config.bonus.targetDays &&
+								{bonusProgress.currentBonusDays.toNumber() <
+									config.bonus.targetDays &&
 									` (${
 										Math.round(
 											(config.bonus.targetDays -
-												bonusProgress.currentBonusDays) *
+												bonusProgress.currentBonusDays.toNumber()) *
 												10,
 										) / 10
 									} days to go)`}

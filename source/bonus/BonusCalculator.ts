@@ -1,30 +1,168 @@
 import type {BonusConfig, BonusTier} from '../jira/types.js';
+import {LocalDate} from '../domain/LocalDate.js';
+import {type Duration} from '../domain/Duration.js';
 
-export type BonusProgress = {
-	currentBonusDays: number;
-	currentTier: BonusTier;
-	tierProgress: {
+/**
+ * Rich domain object representing bonus days with validation and behavior
+ */
+export class BonusDays {
+	static fromHours(totalHours: Duration, hoursPerBonusDay: number): BonusDays {
+		return new BonusDays(totalHours.toHours() / hoursPerBonusDay);
+	}
+
+	constructor(private readonly value: number) {
+		if (value < 0) {
+			throw new Error(`Bonus days cannot be negative: ${value}`);
+		}
+	}
+
+	toNumber(): number {
+		return Math.round(this.value * 10) / 10;
+	}
+
+	isGreaterThan(other: number): boolean {
+		return this.value > other;
+	}
+
+	isLessThan(other: number): boolean {
+		return this.value < other;
+	}
+
+	subtract(other: number): number {
+		return this.value - other;
+	}
+}
+
+/**
+ * Rich domain object for bonus progress with encapsulated calculations
+ */
+export class BonusProgress {
+	/**
+	 * Create BonusProgress with calculated values
+	 */
+	static create(data: {
+		bonusDays: BonusDays;
+		currentTier: BonusTier;
+		tierProgress: {current: number; total: number; percentage: number};
+		earnedBonusPercentage: number;
+		projectedYearEnd: number;
+		nextMilestone?: {name: string; daysRemaining: number; targetDays: number};
+	}): BonusProgress {
+		return new BonusProgress({
+			currentBonusDays: data.bonusDays,
+			currentTier: data.currentTier,
+			tierProgress: data.tierProgress,
+			earnedBonusPercentage: Math.round(data.earnedBonusPercentage * 100) / 100,
+			projectedYearEnd: Math.round(data.projectedYearEnd * 10) / 10,
+			nextMilestone: data.nextMilestone,
+		});
+	}
+
+	public readonly currentBonusDays: BonusDays;
+	public readonly currentTier: BonusTier;
+	public readonly tierProgress: {
 		current: number;
 		total: number;
 		percentage: number;
 	};
-	earnedBonusPercentage: number;
-	projectedYearEnd: number;
-	nextMilestone?: {
+
+	public readonly earnedBonusPercentage: number;
+
+	public readonly projectedYearEnd: number;
+
+	public readonly nextMilestone?: {
 		name: string;
 		daysRemaining: number;
 		targetDays: number;
 	};
-};
 
-export type TierVisualization = {
-	tier: BonusTier;
-	progress: number;
-	total: number;
-	percentage: number;
-	isCompleted: boolean;
-	isCurrent: boolean;
-};
+	constructor(data: {
+		currentBonusDays: BonusDays;
+		currentTier: BonusTier;
+		tierProgress: {
+			current: number;
+			total: number;
+			percentage: number;
+		};
+		earnedBonusPercentage: number;
+		projectedYearEnd: number;
+		nextMilestone?: {
+			name: string;
+			daysRemaining: number;
+			targetDays: number;
+		};
+	}) {
+		this.currentBonusDays = data.currentBonusDays;
+		this.currentTier = data.currentTier;
+		this.tierProgress = data.tierProgress;
+		this.earnedBonusPercentage = data.earnedBonusPercentage;
+		this.projectedYearEnd = data.projectedYearEnd;
+		this.nextMilestone = data.nextMilestone;
+	}
+}
+
+/**
+ * Rich domain object for tier visualization with behavior
+ */
+export class TierVisualization {
+	/**
+	 * Create TierVisualization with calculated values
+	 */
+	static create(
+		tier: BonusTier,
+		currentBonusDays: BonusDays,
+		targetDays: number,
+	): TierVisualization {
+		const tierStart = tier.startDay;
+		const tierEnd = tier.endDay ?? targetDays + 30;
+		const tierSize = tierEnd - tierStart;
+
+		const progress = Math.max(
+			0,
+			Math.min(currentBonusDays.toNumber() - tierStart, tierSize),
+		);
+		const percentage = tierSize > 0 ? (progress / tierSize) * 100 : 0;
+
+		return new TierVisualization({
+			tier,
+			progress: Math.round(progress * 10) / 10,
+			total: tierSize,
+			percentage: Math.round(percentage * 10) / 10,
+			isCompleted: currentBonusDays.toNumber() >= tierEnd,
+			isCurrent:
+				currentBonusDays.toNumber() >= tierStart &&
+				currentBonusDays.toNumber() < tierEnd,
+		});
+	}
+
+	public readonly tier: BonusTier;
+
+	public readonly progress: number;
+
+	public readonly total: number;
+
+	public readonly percentage: number;
+
+	public readonly isCompleted: boolean;
+
+	public readonly isCurrent: boolean;
+
+	constructor(data: {
+		tier: BonusTier;
+		progress: number;
+		total: number;
+		percentage: number;
+		isCompleted: boolean;
+		isCurrent: boolean;
+	}) {
+		this.tier = data.tier;
+		this.progress = data.progress;
+		this.total = data.total;
+		this.percentage = data.percentage;
+		this.isCompleted = data.isCompleted;
+		this.isCurrent = data.isCurrent;
+	}
+}
 
 export class BonusCalculator {
 	private readonly defaultTiers: BonusTier[] = [
@@ -51,10 +189,13 @@ export class BonusCalculator {
 	constructor(private readonly config: BonusConfig) {}
 
 	calculateBonusProgress(
-		totalHours: number,
-		currentDate?: Date,
+		totalHours: Duration,
+		currentDate?: LocalDate,
 	): BonusProgress {
-		const bonusDays = totalHours / this.config.hoursPerBonusDay;
+		const bonusDays = BonusDays.fromHours(
+			totalHours,
+			this.config.hoursPerBonusDay,
+		);
 		const tiers = this.config.tiers ?? this.defaultTiers;
 
 		const currentTier = this.getCurrentTier(bonusDays, tiers);
@@ -62,51 +203,34 @@ export class BonusCalculator {
 		const earnedBonusPercentage = this.calculateEarnedBonus(bonusDays, tiers);
 		const projectedYearEnd = this.calculateProjection(
 			bonusDays,
-			currentDate ?? new Date(),
+			currentDate ?? LocalDate.today(),
 		);
 		const nextMilestone = this.findNextMilestone(bonusDays, tiers);
 
-		return {
-			currentBonusDays: Math.round(bonusDays * 10) / 10,
+		return BonusProgress.create({
+			bonusDays,
 			currentTier,
 			tierProgress,
-			earnedBonusPercentage: Math.round(earnedBonusPercentage * 100) / 100,
-			projectedYearEnd: Math.round(projectedYearEnd * 10) / 10,
+			earnedBonusPercentage,
+			projectedYearEnd,
 			nextMilestone,
-		};
-	}
-
-	getTierVisualizations(currentBonusDays: number): TierVisualization[] {
-		const tiers = this.config.tiers ?? this.defaultTiers;
-
-		return tiers.map(tier => {
-			const tierStart = tier.startDay;
-			const tierEnd = tier.endDay ?? this.config.targetDays + 30; // Add buffer for open-ended tier
-			const tierSize = tierEnd - tierStart;
-
-			const progress = Math.max(
-				0,
-				Math.min(currentBonusDays - tierStart, tierSize),
-			);
-			const percentage = tierSize > 0 ? (progress / tierSize) * 100 : 0;
-
-			return {
-				tier,
-				progress: Math.round(progress * 10) / 10,
-				total: tierSize,
-				percentage: Math.round(percentage * 10) / 10,
-				isCompleted: currentBonusDays >= tierEnd,
-				isCurrent: currentBonusDays >= tierStart && currentBonusDays < tierEnd,
-			};
 		});
 	}
 
-	private getCurrentTier(bonusDays: number, tiers: BonusTier[]): BonusTier {
+	getTierVisualizations(currentBonusDays: BonusDays): TierVisualization[] {
+		const tiers = this.config.tiers ?? this.defaultTiers;
+
+		return tiers.map(tier =>
+			TierVisualization.create(tier, currentBonusDays, this.config.targetDays),
+		);
+	}
+
+	private getCurrentTier(bonusDays: BonusDays, tiers: BonusTier[]): BonusTier {
 		// Find the tier where bonusDays falls within the range
 		for (const tier of tiers) {
 			if (
-				bonusDays >= tier.startDay &&
-				(tier.endDay === undefined || bonusDays <= tier.endDay)
+				bonusDays.toNumber() >= tier.startDay &&
+				(tier.endDay === undefined || bonusDays.toNumber() <= tier.endDay)
 			) {
 				return tier;
 			}
@@ -117,13 +241,13 @@ export class BonusCalculator {
 	}
 
 	private calculateTierProgress(
-		bonusDays: number,
+		bonusDays: BonusDays,
 		currentTier: BonusTier,
 	): {current: number; total: number; percentage: number} {
 		const tierStart = currentTier.startDay;
 		const tierEnd = currentTier.endDay ?? this.config.targetDays;
 		const tierSize = tierEnd - tierStart;
-		const current = Math.max(0, bonusDays - tierStart);
+		const current = Math.max(0, bonusDays.subtract(tierStart));
 		const percentage = tierSize > 0 ? (current / tierSize) * 100 : 0;
 
 		return {
@@ -133,15 +257,18 @@ export class BonusCalculator {
 		};
 	}
 
-	private calculateEarnedBonus(bonusDays: number, tiers: BonusTier[]): number {
+	private calculateEarnedBonus(
+		bonusDays: BonusDays,
+		tiers: BonusTier[],
+	): number {
 		let earnedBonus = 0;
 
 		for (const tier of tiers) {
 			const tierStart = tier.startDay;
 			const tierEnd = tier.endDay ?? Number.POSITIVE_INFINITY;
 
-			if (bonusDays > tierStart) {
-				const daysInTier = Math.min(bonusDays, tierEnd) - tierStart;
+			if (bonusDays.isGreaterThan(tierStart)) {
+				const daysInTier = Math.min(bonusDays.toNumber(), tierEnd) - tierStart;
 				earnedBonus += daysInTier * tier.rate;
 			}
 		}
@@ -149,40 +276,36 @@ export class BonusCalculator {
 		return earnedBonus * 100; // Convert to percentage
 	}
 
-	private calculateProjection(bonusDays: number, currentDate: Date): number {
-		const dayOfYear = this.getDayOfYear(currentDate);
-		const daysInYear = this.isLeapYear(currentDate.getFullYear()) ? 366 : 365;
-
-		if (dayOfYear === 0) {
-			return bonusDays;
-		}
-
-		const dailyRate = bonusDays / dayOfYear;
-		return dailyRate * daysInYear;
+	private calculateProjection(
+		bonusDays: BonusDays,
+		currentDate: LocalDate,
+	): number {
+		return currentDate.projectAnnualRate(bonusDays.toNumber());
 	}
 
 	private findNextMilestone(
-		bonusDays: number,
+		bonusDays: BonusDays,
 		tiers: BonusTier[],
 	): {name: string; daysRemaining: number; targetDays: number} | undefined {
 		// Check for tier transitions first
 		for (const tier of tiers) {
-			if (tier.endDay && bonusDays < tier.endDay) {
+			if (tier.endDay && bonusDays.isLessThan(tier.endDay)) {
 				const nextTierName = this.getNextTierName(tier, tiers);
 				return {
 					name: `${nextTierName} starts`,
-					daysRemaining: Math.round((tier.endDay - bonusDays) * 10) / 10,
+					daysRemaining:
+						Math.round((tier.endDay - bonusDays.toNumber()) * 10) / 10,
 					targetDays: tier.endDay,
 				};
 			}
 		}
 
 		// Check for target milestone
-		if (bonusDays < this.config.targetDays) {
+		if (bonusDays.isLessThan(this.config.targetDays)) {
 			return {
 				name: '100% Target',
 				daysRemaining:
-					Math.round((this.config.targetDays - bonusDays) * 10) / 10,
+					Math.round((this.config.targetDays - bonusDays.toNumber()) * 10) / 10,
 				targetDays: this.config.targetDays,
 			};
 		}
@@ -194,15 +317,5 @@ export class BonusCalculator {
 		const currentIndex = tiers.indexOf(currentTier);
 		const nextTier = tiers[currentIndex + 1];
 		return nextTier?.name ?? 'Final Tier';
-	}
-
-	private getDayOfYear(date: Date): number {
-		const start = new Date(date.getFullYear(), 0, 0);
-		const diff = date.getTime() - start.getTime();
-		return Math.floor(diff / (1000 * 60 * 60 * 24));
-	}
-
-	private isLeapYear(year: number): boolean {
-		return (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
 	}
 }
