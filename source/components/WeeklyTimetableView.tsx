@@ -1,4 +1,4 @@
-import React, {useMemo, useCallback} from 'react';
+import React, {useMemo, useCallback, useState} from 'react';
 import {Box, Text, useInput} from 'ink';
 import {Alert} from '@inkjs/ui';
 import Gradient from 'ink-gradient';
@@ -14,11 +14,7 @@ import {useActiveAreaResolver} from '../hooks/useActiveAreaResolver.js';
 import {useNotification} from '../hooks/useNotification.js';
 import {JiraClient, type JiraConfig} from '../jira-client.js';
 import type {IssueKey} from '../domain/IssueKey.js';
-import {
-	isBrowserOpenSupported,
-	openInBrowser,
-	generateJiraIssueUrl,
-} from '../utils/browser.js';
+import {openInBrowser, generateJiraIssueUrl} from '../utils/browser.js';
 import {NotificationBar} from './NotificationBar.js';
 import {
 	DeleteWorklogConfirmationArea,
@@ -31,6 +27,7 @@ import {
 import {TitleBar} from './TitleBar.js';
 import {TimetableGrid} from './TimetableGrid.js';
 import {StatisticsView} from './StatisticsView.js';
+import {HelpText} from './HelpText.js';
 
 export type WeeklyTimetableViewProps = {
 	onBack: () => void;
@@ -186,6 +183,9 @@ export function WeeklyTimetableView({
 
 	// Notification system
 	const {notifications} = useNotification();
+
+	// State for bonus tab availability
+	const [showBonusTab, setShowBonusTab] = useState<boolean>(false);
 
 	// Always use fresh data from the hook
 	const displayData = data;
@@ -379,6 +379,7 @@ export function WeeklyTimetableView({
 									onBack={() => {
 										setActiveArea('timetable');
 									}}
+									onBonusTabChange={setShowBonusTab}
 								/>
 							);
 						}
@@ -423,34 +424,11 @@ export function WeeklyTimetableView({
 			</Box>
 
 			{/* Footer Area - Fixed Height */}
-			<Box
-				height={7}
-				justifyContent="center"
-				flexDirection="column"
-				alignItems="center"
-			>
-				{worklogForm.isVisible ? (
-					<Text color="gray">
-						[↑↓] Select Time [Tab] Switch Areas [Enter] Submit [Esc] Cancel
-					</Text>
-				) : (
-					<>
-						<Text color="gray">
-							[↑↓←→] Navigate Cells [Enter] Log Work [A] Add Worklog [Shift+←→]
-							Week Navigation
-						</Text>
-						<Text color="gray">
-							[D] Delete Worklogs [I] Check In [O] Check Out
-							{isBrowserOpenSupported() && config.jiraUrl
-								? ' [Shift+O] Open in Browser'
-								: ''}
-						</Text>
-						<Text color="gray">
-							[T] Today [R] Refresh [S] Statistics [Q] Quit
-						</Text>
-					</>
-				)}
-			</Box>
+			<HelpText
+				activeArea={resolvedActiveArea}
+				config={config}
+				showBonusTab={showBonusTab}
+			/>
 		</Box>
 	);
 }
