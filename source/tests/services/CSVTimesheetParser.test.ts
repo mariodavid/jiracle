@@ -1,6 +1,8 @@
 import test from 'ava';
 import {parseCSVTimesheet} from '../../services/CSVTimesheetParser.js';
 import {LocalDate} from '../../domain/LocalDate.js';
+import {WorkingPeriod} from '../../domain/WorkingPeriod.js';
+import {Duration} from '../../domain/Duration.js';
 
 // Test Data - Define expected inputs and outputs
 const VALID_CSV_HEADER =
@@ -22,13 +24,11 @@ invalid-date,08:00,18:00,00:30,Backend Development,9.5,PROJ-1234,,,,,,,,,`;
 
 const EXPECTED_SINGLE_ENTRY_RESULT = {
 	date: LocalDate.fromString('2025-06-02'),
-	startTime: '08:00',
-	endTime: '18:00',
-	breakMinutes: 30,
+	workingPeriod: WorkingPeriod.create('08:00', '18:00', 30),
 	workItems: [
 		{
 			description: 'Backend Development',
-			hours: 9.5,
+			duration: Duration.fromHours(9.5),
 			issueKey: 'PROJ-1234',
 		},
 	],
@@ -36,18 +36,16 @@ const EXPECTED_SINGLE_ENTRY_RESULT = {
 
 const EXPECTED_MULTIPLE_WORK_ITEMS_RESULT = {
 	date: LocalDate.fromString('2025-06-10'),
-	startTime: '07:30',
-	endTime: '18:15',
-	breakMinutes: 30,
+	workingPeriod: WorkingPeriod.create('07:30', '18:15', 30),
 	workItems: [
 		{
 			description: 'Frontend Updates',
-			hours: 4,
+			duration: Duration.fromHours(4),
 			issueKey: 'PROJ-1234',
 		},
 		{
 			description: 'Backend Work',
-			hours: 6,
+			duration: Duration.fromHours(6),
 			issueKey: 'FEAT-5678',
 		},
 	],
@@ -62,11 +60,13 @@ test('parseCSVTimesheet - parses valid CSV with single work item', t => {
 
 	const entry = result.entries[0]!;
 	t.true(entry.date.equals(EXPECTED_SINGLE_ENTRY_RESULT.date));
-	t.is(entry.startTime, EXPECTED_SINGLE_ENTRY_RESULT.startTime);
-	t.is(entry.endTime, EXPECTED_SINGLE_ENTRY_RESULT.endTime);
-	t.is(entry.breakMinutes, EXPECTED_SINGLE_ENTRY_RESULT.breakMinutes);
+	t.is(entry.workingPeriod.getStartTime().toString(), '08:00');
+	t.is(entry.workingPeriod.getEndTime().toString(), '18:00');
+	t.is(entry.workingPeriod.getBreakDuration().toMinutes(), 30);
 	t.is(entry.workItems.length, 1);
-	t.deepEqual(entry.workItems[0], EXPECTED_SINGLE_ENTRY_RESULT.workItems[0]);
+	t.is(entry.workItems[0]!.description, 'Backend Development');
+	t.is(entry.workItems[0]!.duration.toHours(), 9.5);
+	t.is(entry.workItems[0]!.issueKey, 'PROJ-1234');
 });
 
 test('parseCSVTimesheet - parses valid CSV with multiple work items', t => {
@@ -77,11 +77,16 @@ test('parseCSVTimesheet - parses valid CSV with multiple work items', t => {
 
 	const entry = result.entries[0]!;
 	t.true(entry.date.equals(EXPECTED_MULTIPLE_WORK_ITEMS_RESULT.date));
-	t.is(entry.startTime, EXPECTED_MULTIPLE_WORK_ITEMS_RESULT.startTime);
-	t.is(entry.endTime, EXPECTED_MULTIPLE_WORK_ITEMS_RESULT.endTime);
-	t.is(entry.breakMinutes, EXPECTED_MULTIPLE_WORK_ITEMS_RESULT.breakMinutes);
+	t.is(entry.workingPeriod.getStartTime().toString(), '07:30');
+	t.is(entry.workingPeriod.getEndTime().toString(), '18:15');
+	t.is(entry.workingPeriod.getBreakDuration().toMinutes(), 30);
 	t.is(entry.workItems.length, 2);
-	t.deepEqual(entry.workItems, EXPECTED_MULTIPLE_WORK_ITEMS_RESULT.workItems);
+	t.is(entry.workItems[0]!.description, 'Frontend Updates');
+	t.is(entry.workItems[0]!.duration.toHours(), 4);
+	t.is(entry.workItems[0]!.issueKey, 'PROJ-1234');
+	t.is(entry.workItems[1]!.description, 'Backend Work');
+	t.is(entry.workItems[1]!.duration.toHours(), 6);
+	t.is(entry.workItems[1]!.issueKey, 'FEAT-5678');
 });
 
 test('parseCSVTimesheet - handles empty CSV', t => {
@@ -157,7 +162,7 @@ test('parseCSVTimesheet - parses break duration in HH:MM format', t => {
 
 	t.is(result.errors.length, 0);
 	t.is(result.entries.length, 1);
-	t.is(result.entries[0]!.breakMinutes, 75); // 1 hour 15 minutes = 75 minutes
+	t.is(result.entries[0]!.workingPeriod.getBreakDuration().toMinutes(), 75); // 1 hour 15 minutes = 75 minutes
 });
 
 test('parseCSVTimesheet - skips empty work items', t => {

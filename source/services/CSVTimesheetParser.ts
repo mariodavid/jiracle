@@ -1,16 +1,16 @@
 import {LocalDate} from '../domain/LocalDate.js';
+import {WorkingPeriod} from '../domain/WorkingPeriod.js';
+import {Duration} from '../domain/Duration.js';
 
 export type WorkItem = {
 	description: string;
-	hours: number;
+	duration: Duration;
 	issueKey: string;
 };
 
 export type TimesheetEntry = {
 	date: LocalDate;
-	startTime: string;
-	endTime: string;
-	breakMinutes: number;
+	workingPeriod: WorkingPeriod;
 	workItems: WorkItem[];
 };
 
@@ -126,11 +126,15 @@ function parseLine(line: string, _lineNumber: number): TimesheetEntry {
 	const breakMinutes = parseBreakDuration(breakString!);
 	const workItems = parseWorkItems(columns);
 
+	const workingPeriod = WorkingPeriod.create(
+		trimmedStartTime,
+		trimmedEndTime,
+		breakMinutes,
+	);
+
 	return {
 		date,
-		startTime: trimmedStartTime,
-		endTime: trimmedEndTime,
-		breakMinutes,
+		workingPeriod,
 		workItems,
 	};
 }
@@ -256,7 +260,7 @@ function parseWorkItems(columns: string[]): WorkItem[] {
 
 		workItems.push({
 			description,
-			hours,
+			duration: Duration.fromHours(hours),
 			issueKey,
 		});
 	}

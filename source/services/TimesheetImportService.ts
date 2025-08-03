@@ -190,11 +190,11 @@ export class TimesheetImportService {
 		for (const worklogResult of worklogResults) {
 			if (worklogResult.success) {
 				result.worklogsCreated += 1;
-				result.totalHours += worklogResult.workItem.hours;
+				result.totalHours += worklogResult.workItem.duration.toHours();
 
 				result.importedWorklogs.push({
 					issueKey: worklogResult.workItem.issueKey,
-					hours: worklogResult.workItem.hours,
+					hours: worklogResult.workItem.duration.toHours(),
 					description: worklogResult.workItem.description,
 					date: entry.date.toISOString(),
 				});
@@ -207,29 +207,18 @@ export class TimesheetImportService {
 	private createAttendance(entry: TimesheetEntry): Attendance {
 		return {
 			date: entry.date.toISOString(),
-			checkIn: entry.startTime,
-			checkOut: entry.endTime,
-			breakMinutes: entry.breakMinutes,
-			totalHours: this.calculateTotalHours(entry),
+			checkIn: entry.workingPeriod.getStartTime().toString(),
+			checkOut: entry.workingPeriod.getEndTime().toString(),
+			breakMinutes: entry.workingPeriod.getBreakDuration().toMinutes(),
+			totalHours: entry.workingPeriod.getWorkingHours(),
 		};
-	}
-
-	private calculateTotalHours(entry: TimesheetEntry): number {
-		const startParts = entry.startTime.split(':').map(Number);
-		const endParts = entry.endTime.split(':').map(Number);
-
-		const startMinutes = (startParts[0] ?? 0) * 60 + (startParts[1] ?? 0);
-		const endMinutes = (endParts[0] ?? 0) * 60 + (endParts[1] ?? 0);
-
-		const totalMinutes = endMinutes - startMinutes - entry.breakMinutes;
-		return Number((totalMinutes / 60).toFixed(2));
 	}
 
 	private async createWorklog(
 		workItem: WorkItem,
 		date: LocalDate,
 	): Promise<void> {
-		const durationSeconds = Math.round(workItem.hours * 3600);
+		const durationSeconds = workItem.duration.toSeconds();
 
 		const worklogEntry = WorklogEntry.create({
 			issueKey: workItem.issueKey,
