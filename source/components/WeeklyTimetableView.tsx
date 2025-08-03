@@ -31,6 +31,7 @@ import {
 import {TitleBar} from './TitleBar.js';
 import {TimetableGrid} from './TimetableGrid.js';
 import {StatisticsView} from './StatisticsView.js';
+import {BonusOverviewView} from './BonusOverviewView.js';
 
 export type WeeklyTimetableViewProps = {
 	onBack: () => void;
@@ -276,6 +277,12 @@ export function WeeklyTimetableView({
 				break;
 			}
 
+			case 'b': {
+				// Show bonus overview
+				setActiveArea('bonus-overview');
+				break;
+			}
+
 			default: {
 				// No action for other keys
 				break;
@@ -375,6 +382,17 @@ export function WeeklyTimetableView({
 						case 'statistics': {
 							return (
 								<StatisticsView
+									config={config}
+									onBack={() => {
+										setActiveArea('timetable');
+									}}
+								/>
+							);
+						}
+
+						case 'bonus-overview': {
+							return (
+								<BonusOverviewView
 									config={config}
 									onBack={() => {
 										setActiveArea('timetable');

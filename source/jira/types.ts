@@ -35,6 +35,13 @@ export type SlidingWindowConfig = {
 	future: number;
 };
 
+export type BonusTier = {
+	name: string;
+	startDay: number;
+	endDay: number | undefined;
+	rate: number;
+};
+
 export type BonusConfig = {
 	enabled: boolean;
 	hoursPerBonusDay: number;
@@ -44,6 +51,7 @@ export type BonusConfig = {
 		standard: number;
 		stretch: number;
 	};
+	tiers?: BonusTier[];
 };
 
 export type JiraConfig = {

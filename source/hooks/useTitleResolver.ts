@@ -148,6 +148,12 @@ export function useTitleResolver({
 		};
 	}
 
+	if (activeArea === 'bonus-overview') {
+		return {
+			title: 'Bonus Overview 2025',
+		};
+	}
+
 	// Default: week title
 	return {
 		title: getWeekTitle(currentWeek),
