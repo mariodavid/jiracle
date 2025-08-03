@@ -67,10 +67,10 @@ function MonthRow({month, showBonus, bonusConfig}: MonthRowProps) {
 			</Box>
 			{showBonus && (
 				<>
-					<Box width={12} justifyContent="flex-end">
+					<Box width={15} justifyContent="flex-end">
 						<Text>{month.businessDays ?? '-'}</Text>
 					</Box>
-					<Box width={10} justifyContent="flex-end">
+					<Box width={15} justifyContent="flex-end">
 						<Text>{month.bonusDays?.toFixed(1) ?? '-'}</Text>
 					</Box>
 					<Box width={12} justifyContent="flex-end">
@@ -140,7 +140,7 @@ export function StatisticsGrid({statistics, bonusConfig}: StatisticsGridProps) {
 
 	// New layout: Month + Work Days + Bonus Days + Efficiency + Target
 	const baseWidth = 2 + 12; // Margin + Month
-	const bonusWidth = showBonus ? 12 + 10 + 12 + 8 : 0; // Work Days + Bonus + Efficiency + Target
+	const bonusWidth = showBonus ? 15 + 15 + 12 + 8 : 0; // Work Days + Bonus + Efficiency + Target
 	const tableWidth = baseWidth + bonusWidth + 8;
 
 	return (
@@ -159,12 +159,12 @@ export function StatisticsGrid({statistics, bonusConfig}: StatisticsGridProps) {
 				</Box>
 				{showBonus && (
 					<>
-						<Box width={12} justifyContent="flex-end">
+						<Box width={15} justifyContent="flex-end">
 							<Text bold color="white">
 								Work Days
 							</Text>
 						</Box>
-						<Box width={10} justifyContent="flex-end">
+						<Box width={15} justifyContent="flex-end">
 							<Text bold color="white">
 								Bonus Days
 							</Text>
@@ -220,7 +220,7 @@ export function StatisticsGrid({statistics, bonusConfig}: StatisticsGridProps) {
 				</Box>
 				{showBonus && (
 					<>
-						<Box width={12} justifyContent="flex-end">
+						<Box width={15} justifyContent="flex-end">
 							<Text bold color="yellow">
 								{monthData.reduce(
 									(sum, month) => sum + (month.businessDays ?? 0),
@@ -228,7 +228,7 @@ export function StatisticsGrid({statistics, bonusConfig}: StatisticsGridProps) {
 								)}
 							</Text>
 						</Box>
-						<Box width={10} justifyContent="flex-end">
+						<Box width={15} justifyContent="flex-end">
 							<Text bold color="yellow">
 								{statistics.totalBonusDays?.toFixed(1) ?? '-'}
 							</Text>
