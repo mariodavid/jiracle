@@ -9,10 +9,8 @@ import {loadJiraConfig} from '../utils/config-loader.js';
 
 export type ImportParameters = {
 	file: string;
-	dryRun?: boolean;
 	skipExisting?: boolean;
 	updateExisting?: boolean;
-	verbose?: boolean;
 };
 
 export type ImportResult = {
@@ -35,13 +33,7 @@ function createSilentLogger(): winston.Logger {
 export async function executeImport(
 	parameters: ImportParameters,
 ): Promise<ImportResult> {
-	const {
-		file,
-		dryRun = false,
-		skipExisting = true,
-		updateExisting = false,
-		verbose = false,
-	} = parameters;
+	const {file, skipExisting = true, updateExisting = false} = parameters;
 
 	try {
 		// Validate file exists
@@ -117,12 +109,11 @@ export async function executeImport(
 			{
 				skipExisting,
 				updateExisting,
-				dryRun,
 			},
 		);
 
 		// Format result message
-		const resultMessage = formatImportResult(importResult, dryRun, verbose);
+		const resultMessage = formatImportResult(importResult);
 
 		return {
 			success: importResult.stats.errors.length === 0,
@@ -139,69 +130,19 @@ export async function executeImport(
 
 function formatImportResult(
 	result: Awaited<ReturnType<TimesheetImportService['importTimesheet']>>,
-	dryRun: boolean,
-	verbose: boolean,
 ): string {
-	const {stats, importedWorklogs, skippedDates} = result;
+	const {stats} = result;
 	const lines: string[] = [];
 
-	if (dryRun) {
-		lines.push(
-			'DRY RUN - No data was imported\n',
-			'',
-			'Would import:',
-			`- ${stats.totalRows} total entries`,
-			`- ${
-				stats.attendanceCreated + stats.attendanceUpdated
-			} attendance records`,
-			`- ${stats.worklogsCreated} worklog entries`,
-			`- ${stats.totalHours} total hours`,
-		);
-	} else {
-		lines.push(
-			'✅ Import completed successfully!',
-			`- Processed ${stats.totalRows} entries`,
-			`- Created ${stats.attendanceCreated} new attendance records`,
-			`- Updated ${stats.attendanceUpdated} existing attendance records`,
-			`- Skipped ${stats.attendanceSkipped} existing entries`,
-			`- Created ${stats.worklogsCreated} worklog entries`,
-			`- Total hours logged: ${stats.totalHours}`,
-		);
-	}
-
-	// Verbose output
-	if (verbose) {
-		lines.push('');
-		if (importedWorklogs.length > 0) {
-			lines.push('Worklog entries:');
-			for (const worklog of importedWorklogs) {
-				lines.push(
-					`  ✓ ${worklog.date}: ${worklog.issueKey} - ${worklog.hours}h (${worklog.description})`,
-				);
-			}
-		}
-
-		if (skippedDates.length > 0) {
-			lines.push('', 'Skipped dates (existing entries):');
-			for (const date of skippedDates) {
-				lines.push(`  ⚠ ${date}`);
-			}
-		}
-
-		// Group by issue keys
-		const issueStats: Record<string, number> = {};
-		for (const worklog of importedWorklogs) {
-			issueStats[worklog.issueKey] =
-				(issueStats[worklog.issueKey] ?? 0) + worklog.hours;
-		}
-
-		if (Object.keys(issueStats).length > 0) {
-			lines.push('', 'Hours by issue:');
-			for (const [issueKey, hours] of Object.entries(issueStats)) {
-				lines.push(`  ${issueKey}: ${hours}h`);
-			}
-		}
-	}
+	lines.push(
+		'✅ Import completed successfully!',
+		`- Processed ${stats.totalRows} entries`,
+		`- Created ${stats.attendanceCreated} new attendance records`,
+		`- Updated ${stats.attendanceUpdated} existing attendance records`,
+		`- Skipped ${stats.attendanceSkipped} existing entries`,
+		`- Created ${stats.worklogsCreated} worklog entries`,
+		`- Total hours logged: ${stats.totalHours}`,
+	);
 
 	// Errors
 	if (stats.errors.length > 0) {

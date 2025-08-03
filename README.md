@@ -75,6 +75,9 @@ jiracle checkin          # Check in for work
 jiracle checkout         # Check out from work
 jiracle status           # Show today's status
 
+# CSV import
+jiracle import timesheet.csv  # Import timesheet from CSV file
+
 # Help and version
 jiracle --help
 jiracle --version
@@ -94,6 +97,51 @@ jiracle --version
 ### Time Entry
 
 Enter time in formats like: `2h`, `30m`, `1h 30m`, `1.5`, `90`
+
+### CSV Import
+
+Import bulk timesheet data from CSV files for efficient time tracking:
+
+```bash
+jiracle import timesheet.csv
+```
+
+#### CSV Format
+
+The CSV file must contain exactly 16 columns with this header structure:
+
+```csv
+Date,Start,End,Break,Work Item 1,Hours 1,Issue 1,Work Item 2,Hours 2,Issue 2,Work Item 3,Hours 3,Issue 3,Work Item 4,Hours 4,Issue 4
+2025-07-15,08:00,17:30,1:00,Backend Development,4.5,PROJ-1001,Code Review,2.0,PROJ-1002,Documentation,2.0,DOC-500,,,
+2025-07-16,07:30,16:00,0:45,Frontend Work,3.5,FEAT-2001,Bug Fixes,2.5,BUG-1500,Sprint Planning,1.75,PROJ-1001,,,
+```
+
+#### Column Details
+
+- **Date**: Date in YYYY-MM-DD format
+- **Start/End**: Work start/end times in HH:MM format
+- **Break**: Break duration in HH:MM or minutes (e.g., `1:00` or `60`)
+- **Work Item 1-4**: Description of work performed
+- **Hours 1-4**: Time spent in decimal format (e.g., `4.5` for 4h 30m)
+- **Issue 1-4**: Jira issue key (e.g., `PROJ-1001`)
+
+#### What the Import Does
+
+1. **Creates attendance records** with check-in/out times and breaks
+2. **Logs time to Jira issues** with descriptions as worklog comments
+3. **Validates all data** and reports any errors clearly
+4. **Skips existing entries** to prevent duplicates
+5. **Shows summary** of imported records and hours
+
+#### Example Output
+
+```
+✅ Import completed successfully!
+- Processed 2 entries
+- Created 2 new attendance records
+- Created 6 worklog entries
+- Total hours logged: 16.25
+```
 
 ## Development
 

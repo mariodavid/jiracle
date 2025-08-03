@@ -25,7 +25,7 @@ const cli = meow(
 	Usage
 	  $ jiracle
 	  $ jiracle worklog add --issue <issue-key> --date <YYYY-MM-DD> --time <time> --comment <comment>
-	  $ jiracle import <csv-file> [options]
+	  $ jiracle import <csv-file>
 	  $ jiracle checkin [--date <YYYY-MM-DD>] [--time <HH:MM>]
 	  $ jiracle checkout [--date <YYYY-MM-DD>] [--time <HH:MM>]
 	  $ jiracle status [--date <YYYY-MM-DD>]
@@ -42,11 +42,6 @@ const cli = meow(
 	  --time       Time spent (e.g., 5h, 30m, 2.5h)
 	  --comment    Worklog comment
 
-	Options for import
-	  --dry-run              Preview what would be imported
-	  --skip-existing        Skip dates with existing entries (default)
-	  --update-existing      Update existing entries
-	  --verbose              Show detailed progress output
 
 	Options for attendance commands
 	  --date       Date in YYYY-MM-DD format (defaults to today)
@@ -56,8 +51,6 @@ const cli = meow(
 	  $ jiracle
 	  $ jiracle worklog add --issue DEF-2398 --date 2025-08-01 --time 5h --comment "Did some work"
 	  $ jiracle import timesheet.csv
-	  $ jiracle import timesheet.csv --dry-run
-	  $ jiracle import timesheet.csv --update-existing --verbose
 	  $ jiracle checkin
 	  $ jiracle checkin --time 08:30
 	  $ jiracle checkout
@@ -83,22 +76,6 @@ const cli = meow(
 			comment: {
 				type: 'string',
 				alias: 'c',
-			},
-			dryRun: {
-				type: 'boolean',
-				default: false,
-			},
-			skipExisting: {
-				type: 'boolean',
-				default: true,
-			},
-			updateExisting: {
-				type: 'boolean',
-				default: false,
-			},
-			verbose: {
-				type: 'boolean',
-				default: false,
 			},
 		},
 	},
@@ -350,7 +327,7 @@ async function handleStatus() {
 }
 
 async function handleImport() {
-	const {dryRun, skipExisting, updateExisting, verbose} = cli.flags;
+	const {skipExisting, updateExisting} = cli.flags;
 
 	// Get the CSV file from the command arguments
 	const csvFile = cli.input[1];
@@ -362,10 +339,8 @@ async function handleImport() {
 
 	const parameters: ImportParameters = {
 		file: csvFile,
-		dryRun: Boolean(dryRun),
 		skipExisting: Boolean(skipExisting),
 		updateExisting: Boolean(updateExisting),
-		verbose: Boolean(verbose),
 	};
 
 	try {
