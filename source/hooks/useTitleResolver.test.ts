@@ -10,6 +10,7 @@ import type {
 } from './useDeleteOperations.js';
 import type {AttendanceEditState} from './useAttendanceManagement.js';
 import type {WorklogFormData} from './useWorklogForm.js';
+import type {ActiveArea} from './useNavigationState.js';
 
 // Test data factories
 const createWorklogForm = (
@@ -125,6 +126,20 @@ test('useTitleResolver returns attendance edit title', t => {
 	});
 
 	t.is(result.title, 'Anwesenheit - Monday, Jan 15');
+	t.is(result.titleColor, undefined);
+});
+
+test('useTitleResolver returns statistics title', t => {
+	const result = useTitleResolver({
+		currentWeek: WeekRange.fromDate(LocalDate.fromString('2024-01-15')),
+		worklogForm: createWorklogForm(),
+		deleteCandidate: undefined,
+		deleteAttendanceCandidate: undefined,
+		attendanceEdit: undefined,
+		activeArea: 'statistics' as ActiveArea,
+	});
+
+	t.is(result.title, 'Statistics 2025');
 	t.is(result.titleColor, undefined);
 });
 

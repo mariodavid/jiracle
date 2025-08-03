@@ -30,6 +30,7 @@ import {
 } from './areas/index.js';
 import {TitleBar} from './TitleBar.js';
 import {TimetableGrid} from './TimetableGrid.js';
+import {StatisticsView} from './StatisticsView.js';
 
 export type WeeklyTimetableViewProps = {
 	onBack: () => void;
@@ -220,7 +221,8 @@ export function WeeklyTimetableView({
 			activeArea === 'delete-attendance-confirmation' ||
 			activeArea === 'attendance-edit' ||
 			activeArea === 'checkin-confirmation' ||
-			activeArea === 'checkout-confirmation'
+			activeArea === 'checkout-confirmation' ||
+			activeArea === 'statistics'
 		) {
 			return;
 		}
@@ -268,6 +270,12 @@ export function WeeklyTimetableView({
 				break;
 			}
 
+			case 's': {
+				// Show statistics view
+				setActiveArea('statistics');
+				break;
+			}
+
 			default: {
 				// No action for other keys
 				break;
@@ -301,9 +309,6 @@ export function WeeklyTimetableView({
 
 			{/* Main Content Area - Fixed Height */}
 			<Box height={40} flexDirection="column">
-				{/* Extra spacing between week navigator and table - only when showing timetable */}
-				{resolvedActiveArea === 'timetable' && <Box paddingY={1} />}
-
 				{/* Conditional content: table, form, delete confirmation, or attendance edit */}
 				{(() => {
 					switch (resolvedActiveArea) {
@@ -363,6 +368,17 @@ export function WeeklyTimetableView({
 									worklogData={data}
 									onSubmit={handleAttendanceSubmit}
 									onCancel={handleAttendanceCancel}
+								/>
+							);
+						}
+
+						case 'statistics': {
+							return (
+								<StatisticsView
+									config={config}
+									onBack={() => {
+										setActiveArea('timetable');
+									}}
 								/>
 							);
 						}
@@ -429,7 +445,9 @@ export function WeeklyTimetableView({
 								? ' [Shift+O] Open in Browser'
 								: ''}
 						</Text>
-						<Text color="gray">[T] Today [R] Refresh [Q] Quit</Text>
+						<Text color="gray">
+							[T] Today [R] Refresh [S] Statistics [Q] Quit
+						</Text>
 					</>
 				)}
 			</Box>

@@ -27,7 +27,6 @@ const cli = meow(
 	  $ jiracle checkin [--date <YYYY-MM-DD>] [--time <HH:MM>]
 	  $ jiracle checkout [--date <YYYY-MM-DD>] [--time <HH:MM>]
 	  $ jiracle status [--date <YYYY-MM-DD>]
-
 	Commands
 	  worklog add    Add a worklog entry to an issue
 	  checkin        Check in for attendance tracking

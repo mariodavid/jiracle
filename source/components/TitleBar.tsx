@@ -8,10 +8,19 @@ type TitleBarProps = {
 
 export function TitleBar({title, color = 'cyan'}: TitleBarProps) {
 	return (
-		<Box justifyContent="center" paddingY={1}>
-			<Text bold color={color}>
-				{title}
-			</Text>
+		<Box flexDirection="column">
+			<Box justifyContent="center" paddingY={1}>
+				<Text bold color={color}>
+					{title}
+				</Text>
+			</Box>
+			{/* Extra spacing after title */}
+			<Box>
+				<Text> </Text>
+			</Box>
+			<Box>
+				<Text> </Text>
+			</Box>
 		</Box>
 	);
 }

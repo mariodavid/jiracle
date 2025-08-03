@@ -9,7 +9,8 @@ export type ActiveArea =
 	| 'attendance-edit'
 	| 'checkin-confirmation'
 	| 'checkout-confirmation'
-	| 'align-time-confirmation';
+	| 'align-time-confirmation'
+	| 'statistics';
 
 export type UseNavigationStateOptions = {
 	initialWeek?: WeekRange;
