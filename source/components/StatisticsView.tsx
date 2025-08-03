@@ -18,11 +18,16 @@ import {StatisticsGrid} from './StatisticsGrid.js';
 export type StatisticsViewProps = {
 	onBack: () => void;
 	config: JiraConfig;
+	onBonusTabChange?: (showBonusTab: boolean) => void;
 };
 
 type StatisticsTab = 'monthly' | 'bonus';
 
-export function StatisticsView({onBack, config}: StatisticsViewProps) {
+export function StatisticsView({
+	onBack,
+	config,
+	onBonusTabChange,
+}: StatisticsViewProps) {
 	const [statistics, setStatistics] = useState<YearlyStatistics | undefined>(
 		undefined,
 	);
@@ -101,6 +106,12 @@ export function StatisticsView({onBack, config}: StatisticsViewProps) {
 
 		void loadStatistics();
 	}, [statisticsUseCase, bonusCalculator]);
+
+	// Notify parent about bonus tab availability
+	useEffect(() => {
+		const showBonusTab = Boolean(bonusCalculator && bonusProgress);
+		onBonusTabChange?.(showBonusTab);
+	}, [bonusCalculator, bonusProgress, onBonusTabChange]);
 
 	// Handle keyboard input
 	useInput((input, key) => {
@@ -185,17 +196,7 @@ export function StatisticsView({onBack, config}: StatisticsViewProps) {
 			)}
 
 			<Box marginTop={1}>
-				<NotificationBar
-					notifications={[
-						{
-							id: 1,
-							message: showBonusTab
-								? '[Tab/←→] Switch Tabs [1] Monthly [2] Bonus [Q] Back'
-								: '[Q] Back',
-							type: 'info',
-						},
-					]}
-				/>
+				<NotificationBar notifications={[]} />
 			</Box>
 		</Box>
 	);
@@ -208,133 +209,141 @@ export function StatisticsView({onBack, config}: StatisticsViewProps) {
 		const targetYear = new Date().getFullYear();
 
 		return (
-			<Box flexDirection="column" alignItems="center">
-				{/* Current Status */}
-				<Box flexDirection="column" marginBottom={1} alignItems="center">
-					<Text bold color="cyan">
-						Bonus Progress {targetYear}
-					</Text>
-					<Text>═══════════════════════════════════════════════════</Text>
-				</Box>
-
-				<Box flexDirection="column" marginBottom={1} alignItems="center">
-					<Text>
-						Current Status: <Text bold>{bonusProgress.currentBonusDays}</Text>{' '}
-						Bonus Days
-					</Text>
-					<Text>
-						├─ Target Progress:{' '}
-						<Text bold>
-							{bonusProgress.currentBonusDays} / {config.bonus.targetDays} (
-							{Math.round(
-								(bonusProgress.currentBonusDays / config.bonus.targetDays) *
-									100,
-							)}
-							%)
-						</Text>
-					</Text>
-					<Text>
-						├─ Current Tier:{' '}
-						<Text bold color="yellow">
-							{bonusProgress.currentTier.name}
-						</Text>{' '}
-						({(bonusProgress.currentTier.rate * 100).toFixed(1)}% per day)
-					</Text>
-					<Text>
-						├─ Earned Bonus:{' '}
-						<Text bold color="green">
-							{bonusProgress.earnedBonusPercentage.toFixed(2)}%
-						</Text>
-					</Text>
-					<Text>
-						└─ Projected Year-End:{' '}
-						<Text bold>
-							{bonusProgress.projectedYearEnd} days (
-							{Math.round(
-								(bonusProgress.projectedYearEnd / config.bonus.targetDays) *
-									100,
-							)}
-							%)
-						</Text>
-					</Text>
-				</Box>
-
-				{/* Tier Progress */}
-				<Box flexDirection="column" marginBottom={1} alignItems="center">
-					<Text bold>Tier Progress:</Text>
-					<Box flexDirection="column" marginLeft={2}>
-						{tierVisualizations.map(viz => (
-							<Box key={viz.tier.name} marginBottom={0}>
-								<Text>
-									{viz.tier.name}{' '}
-									{renderProgressBar(viz.percentage, viz.isCurrent)}{' '}
-									{viz.isCompleted ? (
-										<Text color="green">✓ Complete</Text>
-									) : (
-										<Text>
-											{viz.progress.toFixed(1)}/
-											{viz.total === Number.POSITIVE_INFINITY
-												? `${viz.tier.startDay}+`
-												: viz.total}{' '}
-											({viz.percentage.toFixed(0)}%)
-										</Text>
-									)}
-								</Text>
-							</Box>
-						))}
-					</Box>
-				</Box>
-
-				{/* Next Milestone */}
-				{bonusProgress.nextMilestone && (
-					<Box flexDirection="column" marginBottom={1} alignItems="center">
-						<Text bold>Next Milestone:</Text>
-						<Box marginLeft={2}>
-							<Text>
-								• {bonusProgress.nextMilestone.targetDays} days -{' '}
-								{bonusProgress.nextMilestone.name} (
-								<Text color="yellow">
-									{bonusProgress.nextMilestone.daysRemaining} days to go
-								</Text>
-								)
+			<Box flexDirection="column" justifyContent="center" alignItems="center">
+				{/* Centered Content Container */}
+				<Box flexDirection="column">
+					{/* Current Status */}
+					<Box flexDirection="column" marginBottom={1}>
+						<Box justifyContent="center" marginBottom={1}>
+							<Text bold color="cyan">
+								Bonus Progress {targetYear}
 							</Text>
 						</Box>
+						<Box justifyContent="center" marginBottom={1}>
+							<Text>═══════════════════════════════════════════════════</Text>
+						</Box>
 					</Box>
-				)}
 
-				{/* Key Milestones Summary */}
-				<Box flexDirection="column" marginBottom={1} alignItems="center">
-					<Text bold>Key Milestones:</Text>
-					<Box marginLeft={2}>
+					<Box flexDirection="column" marginBottom={1}>
 						<Text>
-							{bonusProgress.currentBonusDays >= 120 ? '✓' : '•'} 120 days -
-							Tier 2 starts
-							{bonusProgress.currentBonusDays < 120 &&
-								` (${
-									Math.round((120 - bonusProgress.currentBonusDays) * 10) / 10
-								} days to go)`}
+							Current Status: <Text bold>{bonusProgress.currentBonusDays}</Text>{' '}
+							Bonus Days
 						</Text>
 						<Text>
-							{bonusProgress.currentBonusDays >= 160 ? '✓' : '•'} 160 days -
-							Tier 3 starts
-							{bonusProgress.currentBonusDays < 160 &&
-								` (${
-									Math.round((160 - bonusProgress.currentBonusDays) * 10) / 10
-								} days to go)`}
+							├─ Target Progress:{' '}
+							<Text bold>
+								{bonusProgress.currentBonusDays} / {config.bonus.targetDays} (
+								{Math.round(
+									(bonusProgress.currentBonusDays / config.bonus.targetDays) *
+										100,
+								)}
+								%)
+							</Text>
 						</Text>
 						<Text>
-							{bonusProgress.currentBonusDays >= config.bonus.targetDays
-								? '✓'
-								: '•'}{' '}
-							{config.bonus.targetDays} days - 100% Target
-							{bonusProgress.currentBonusDays < config.bonus.targetDays &&
-								` (${
-									Math.round(
-										(config.bonus.targetDays - bonusProgress.currentBonusDays) *
-											10,
-									) / 10
-								} days to go)`}
+							├─ Current Tier:{' '}
+							<Text bold color="yellow">
+								{bonusProgress.currentTier.name}
+							</Text>{' '}
+							({(bonusProgress.currentTier.rate * 100).toFixed(1)}% per day)
 						</Text>
+						<Text>
+							├─ Earned Bonus:{' '}
+							<Text bold color="green">
+								{bonusProgress.earnedBonusPercentage.toFixed(2)}%
+							</Text>
+						</Text>
+						<Text>
+							└─ Projected Year-End:{' '}
+							<Text bold>
+								{bonusProgress.projectedYearEnd} days (
+								{Math.round(
+									(bonusProgress.projectedYearEnd / config.bonus.targetDays) *
+										100,
+								)}
+								%)
+							</Text>
+						</Text>
+					</Box>
+
+					{/* Tier Progress */}
+					<Box flexDirection="column" marginBottom={1}>
+						<Text bold>Tier Progress:</Text>
+						<Box flexDirection="column" marginLeft={2}>
+							{tierVisualizations.map(viz => (
+								<Box key={viz.tier.name} marginBottom={0}>
+									<Text>
+										{viz.tier.name}{' '}
+										{renderProgressBar(viz.percentage, viz.isCurrent)}{' '}
+										{viz.isCompleted ? (
+											<Text color="green">✓ Complete</Text>
+										) : (
+											<Text>
+												{viz.progress.toFixed(1)}/
+												{viz.total === Number.POSITIVE_INFINITY
+													? `${viz.tier.startDay}+`
+													: viz.total}{' '}
+												({viz.percentage.toFixed(0)}%)
+											</Text>
+										)}
+									</Text>
+								</Box>
+							))}
+						</Box>
+					</Box>
+
+					{/* Next Milestone */}
+					{bonusProgress.nextMilestone && (
+						<Box flexDirection="column" marginBottom={1}>
+							<Text bold>Next Milestone:</Text>
+							<Box marginLeft={2}>
+								<Text>
+									• {bonusProgress.nextMilestone.targetDays} days -{' '}
+									{bonusProgress.nextMilestone.name} (
+									<Text color="yellow">
+										{bonusProgress.nextMilestone.daysRemaining} days to go
+									</Text>
+									)
+								</Text>
+							</Box>
+						</Box>
+					)}
+
+					{/* Key Milestones Summary */}
+					<Box flexDirection="column" marginBottom={1}>
+						<Text bold>Key Milestones:</Text>
+						<Box flexDirection="column" marginLeft={2}>
+							<Text>
+								{bonusProgress.currentBonusDays >= 120 ? '✓' : '•'} 120 days -
+								Tier 2 starts
+								{bonusProgress.currentBonusDays < 120 &&
+									` (${
+										Math.round((120 - bonusProgress.currentBonusDays) * 10) / 10
+									} days to go)`}
+							</Text>
+							<Text>
+								{bonusProgress.currentBonusDays >= 160 ? '✓' : '•'} 160 days -
+								Tier 3 starts
+								{bonusProgress.currentBonusDays < 160 &&
+									` (${
+										Math.round((160 - bonusProgress.currentBonusDays) * 10) / 10
+									} days to go)`}
+							</Text>
+							<Text>
+								{bonusProgress.currentBonusDays >= config.bonus.targetDays
+									? '✓'
+									: '•'}{' '}
+								{config.bonus.targetDays} days - 100% Target
+								{bonusProgress.currentBonusDays < config.bonus.targetDays &&
+									` (${
+										Math.round(
+											(config.bonus.targetDays -
+												bonusProgress.currentBonusDays) *
+												10,
+										) / 10
+									} days to go)`}
+							</Text>
+						</Box>
 					</Box>
 				</Box>
 			</Box>
