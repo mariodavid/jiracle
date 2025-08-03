@@ -35,6 +35,17 @@ export type SlidingWindowConfig = {
 	future: number;
 };
 
+export type BonusConfig = {
+	enabled: boolean;
+	hoursPerBonusDay: number;
+	targetDays: number;
+	targets: {
+		minimum: number;
+		standard: number;
+		stretch: number;
+	};
+};
+
 export type JiraConfig = {
 	jiraUrl: string;
 	username: string;
@@ -49,6 +60,7 @@ export type JiraConfig = {
 	attendance?: AttendanceConfig;
 	slidingWindowDays?: SlidingWindowConfig;
 	commentPrefillDays?: number;
+	bonus?: BonusConfig;
 };
 
 export type JiraIssueField = {

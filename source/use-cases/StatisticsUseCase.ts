@@ -1,12 +1,18 @@
 import {LocalDate} from '../domain/LocalDate.js';
 import {type JiraClient} from '../jira-client.js';
 import {type AttendanceManager} from '../attendance/AttendanceManager.js';
+import {type BonusConfig} from '../jira/types.js';
 import {uiLogger} from '../utils/logger.js';
 
 export type MonthlyStatistics = {
 	month: string;
 	worklogDays: number;
 	attendanceDays: number;
+	totalHours?: number;
+	businessDays?: number;
+	potentialHours?: number;
+	bonusDays?: number;
+	efficiency?: number;
 };
 
 export type YearlyStatistics = {
@@ -14,12 +20,16 @@ export type YearlyStatistics = {
 	monthlyStats: MonthlyStatistics[];
 	totalWorklogDays: number;
 	totalAttendanceDays: number;
+	totalHours?: number;
+	totalBonusDays?: number;
+	yearToDateEfficiency?: number;
 };
 
 export class StatisticsUseCase {
 	constructor(
 		private readonly jiraClient: JiraClient,
 		private readonly attendanceManager: AttendanceManager,
+		private readonly bonusConfig?: BonusConfig,
 	) {}
 
 	async execute(year?: number): Promise<YearlyStatistics> {
@@ -38,12 +48,34 @@ export class StatisticsUseCase {
 			0,
 		);
 
-		return {
+		const result: YearlyStatistics = {
 			year: targetYear,
 			monthlyStats,
 			totalWorklogDays,
 			totalAttendanceDays,
 		};
+
+		if (this.bonusConfig?.enabled) {
+			const totalHours = monthlyStats.reduce(
+				(sum, month) => sum + (month.totalHours ?? 0),
+				0,
+			);
+			const totalBonusDays = monthlyStats.reduce(
+				(sum, month) => sum + (month.bonusDays ?? 0),
+				0,
+			);
+			const totalBusinessDays = monthlyStats.reduce(
+				(sum, month) => sum + (month.businessDays ?? 0),
+				0,
+			);
+
+			result.totalHours = totalHours;
+			result.totalBonusDays = totalBonusDays;
+			result.yearToDateEfficiency =
+				totalBusinessDays > 0 ? (totalBonusDays / totalBusinessDays) * 100 : 0;
+		}
+
+		return result;
 	}
 
 	private async calculateMonthlyStatistics(
@@ -77,28 +109,48 @@ export class StatisticsUseCase {
 		month: number,
 		monthName: string,
 	): Promise<MonthlyStatistics> {
-		const [worklogDays, attendanceDays] = await Promise.all([
-			this.calculateWorklogDaysForMonth(year, month),
+		const [worklogDaysResult, attendanceDays] = await Promise.all([
+			this.calculateWorklogDaysAndHoursForMonth(year, month),
 			this.calculateAttendanceDaysForMonth(year, month),
 		]);
 
-		uiLogger.debug('StatisticsUseCase: Month calculated', {
-			monthName,
-			worklogDays,
-			attendanceDays,
-		});
-
-		return {
+		const result: MonthlyStatistics = {
 			month: monthName,
-			worklogDays,
+			worklogDays: worklogDaysResult.days,
 			attendanceDays,
 		};
+
+		if (this.bonusConfig?.enabled) {
+			const businessDays = this.calculateBusinessDaysInMonth(year, month);
+			const potentialHours = businessDays * this.bonusConfig.hoursPerBonusDay;
+			const bonusDays =
+				worklogDaysResult.hours / this.bonusConfig.hoursPerBonusDay;
+			const efficiency =
+				businessDays > 0 ? (bonusDays / businessDays) * 100 : 0;
+
+			result.totalHours = worklogDaysResult.hours;
+			result.businessDays = businessDays;
+			result.potentialHours = potentialHours;
+			result.bonusDays = Math.round(bonusDays * 100) / 100;
+			result.efficiency = Math.round(efficiency * 100) / 100;
+		}
+
+		uiLogger.debug('StatisticsUseCase: Month calculated', {
+			monthName,
+			worklogDays: result.worklogDays,
+			attendanceDays: result.attendanceDays,
+			totalHours: result.totalHours,
+			bonusDays: result.bonusDays,
+			efficiency: result.efficiency,
+		});
+
+		return result;
 	}
 
-	private async calculateWorklogDaysForMonth(
+	private async calculateWorklogDaysAndHoursForMonth(
 		year: number,
 		month: number,
-	): Promise<number> {
+	): Promise<{days: number; hours: number}> {
 		const startDate = this.getMonthStart(year, month);
 		const endDate = this.getMonthEnd(year, month);
 
@@ -110,6 +162,7 @@ export class StatisticsUseCase {
 			const currentUserEmail = currentUser.emailAddress;
 
 			const worklogDates = new Set<string>();
+			let totalHours = 0;
 
 			const worklogPromises = searchResult.issues.map(async issue => {
 				const worklogResponse = await this.jiraClient.getIssueWorklogs(
@@ -120,15 +173,17 @@ export class StatisticsUseCase {
 					worklog => worklog.author.emailAddress === currentUserEmail,
 				);
 
-				return userWorklogs
-					.map(worklog => {
-						const worklogDate = new Date(worklog.started);
-						const worklogLocalDate = LocalDate.fromDate(worklogDate);
-						return this.isDateInMonth(worklogLocalDate, year, month)
-							? worklogLocalDate.toISOString()
-							: null;
-					})
-					.filter((date): date is string => date !== null);
+				const validDates: string[] = [];
+				for (const worklog of userWorklogs) {
+					const worklogDate = new Date(worklog.started);
+					const worklogLocalDate = LocalDate.fromDate(worklogDate);
+					if (this.isDateInMonth(worklogLocalDate, year, month)) {
+						validDates.push(worklogLocalDate.toISOString());
+						totalHours += worklog.timeSpentSeconds / 3600;
+					}
+				}
+
+				return validDates;
 			});
 
 			const allWorklogDates = await Promise.all(worklogPromises);
@@ -139,14 +194,14 @@ export class StatisticsUseCase {
 				}
 			}
 
-			return worklogDates.size;
+			return {days: worklogDates.size, hours: totalHours};
 		} catch (error: unknown) {
-			uiLogger.error('Error calculating worklog days', {
+			uiLogger.error('Error calculating worklog days and hours', {
 				year,
 				month,
 				error: error instanceof Error ? error.message : String(error),
 			});
-			return 0;
+			return {days: 0, hours: 0};
 		}
 	}
 
@@ -208,5 +263,20 @@ export class StatisticsUseCase {
 
 	private formatDateForJql(date: LocalDate): string {
 		return date.toISOString();
+	}
+
+	private calculateBusinessDaysInMonth(year: number, month: number): number {
+		const lastDayOfMonth = new Date(year, month, 0).getDate();
+		let businessDays = 0;
+
+		for (let day = 1; day <= lastDayOfMonth; day++) {
+			const date = new Date(year, month - 1, day);
+			const dayOfWeek = date.getDay();
+			if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+				businessDays++;
+			}
+		}
+
+		return businessDays;
 	}
 }
