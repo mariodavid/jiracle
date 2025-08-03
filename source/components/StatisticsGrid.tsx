@@ -91,14 +91,6 @@ function MonthRow({month, showBonus, bonusConfig}: MonthRowProps) {
 					</Box>
 				</>
 			)}
-			<Box width={12} justifyContent="flex-end">
-				<Text>{month.worklogDays}</Text>
-			</Box>
-			<Box width={18} justifyContent="flex-end">
-				<Text>
-					{month.attendanceDays} ({month.attendanceDays * 8}h)
-				</Text>
-			</Box>
 			<Box width={8} justifyContent="flex-end">
 				<Text> </Text>
 			</Box>
@@ -146,8 +138,8 @@ export function StatisticsGrid({statistics, bonusConfig}: StatisticsGridProps) {
 	const monthData = statistics.monthlyStats;
 	const showBonus = bonusConfig?.enabled && statistics.totalHours !== undefined;
 
-	// New layout: Month + Work Days + Bonus Days + Efficiency + Target + Attendance
-	const baseWidth = 2 + 12 + 12 + 18; // Margin + Month + Worklog Days + Attendance Days
+	// New layout: Month + Work Days + Bonus Days + Efficiency + Target
+	const baseWidth = 2 + 12; // Margin + Month
 	const bonusWidth = showBonus ? 12 + 10 + 12 + 8 : 0; // Work Days + Bonus + Efficiency + Target
 	const tableWidth = baseWidth + bonusWidth + 8;
 
@@ -189,16 +181,6 @@ export function StatisticsGrid({statistics, bonusConfig}: StatisticsGridProps) {
 						</Box>
 					</>
 				)}
-				<Box width={12} justifyContent="flex-end">
-					<Text bold color="white">
-						Worklog Days
-					</Text>
-				</Box>
-				<Box width={18} justifyContent="flex-end">
-					<Text bold color="white">
-						Attendance Days (Hours)
-					</Text>
-				</Box>
 				<Box width={8} justifyContent="flex-end">
 					<Text bold color="white">
 						{' '}
@@ -263,17 +245,6 @@ export function StatisticsGrid({statistics, bonusConfig}: StatisticsGridProps) {
 						</Box>
 					</>
 				)}
-				<Box width={12} justifyContent="flex-end">
-					<Text bold color="yellow">
-						{statistics.totalWorklogDays}
-					</Text>
-				</Box>
-				<Box width={18} justifyContent="flex-end">
-					<Text bold color="yellow">
-						{statistics.totalAttendanceDays} (
-						{statistics.totalAttendanceDays * 8}h)
-					</Text>
-				</Box>
 				<Box width={8} justifyContent="flex-end">
 					<Text> </Text>
 				</Box>
