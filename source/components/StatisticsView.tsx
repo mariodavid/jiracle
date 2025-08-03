@@ -38,8 +38,8 @@ export function StatisticsView({onBack, config}: StatisticsViewProps) {
 			return undefined;
 		}
 
-		return new StatisticsUseCase(jiraClient, attendanceManager);
-	}, [jiraClient, attendanceManager]);
+		return new StatisticsUseCase(jiraClient, attendanceManager, config.bonus);
+	}, [jiraClient, attendanceManager, config.bonus]);
 
 	// Load statistics data
 	useEffect(() => {
@@ -105,7 +105,7 @@ export function StatisticsView({onBack, config}: StatisticsViewProps) {
 
 	return (
 		<Box flexDirection="column">
-			<StatisticsGrid statistics={statistics} />
+			<StatisticsGrid statistics={statistics} bonusConfig={config.bonus} />
 
 			<Box marginTop={1}>
 				<NotificationBar notifications={[]} />

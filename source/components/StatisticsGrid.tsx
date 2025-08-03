@@ -1,14 +1,147 @@
 import React from 'react';
 import {Box, Text} from 'ink';
 import type {YearlyStatistics} from '../use-cases/StatisticsUseCase.js';
+import type {BonusConfig} from '../jira/types.js';
 
 export type StatisticsGridProps = {
 	statistics: YearlyStatistics;
+	bonusConfig?: BonusConfig;
 };
 
-export function StatisticsGrid({statistics}: StatisticsGridProps) {
+// Helper functions
+function getEfficiencyColor(efficiency?: number): string {
+	if (!efficiency) return 'white';
+	if (efficiency >= 90) return 'green';
+	if (efficiency >= 70) return 'yellow';
+	return 'red';
+}
+
+function getTargetIndicator(
+	bonusDays?: number,
+	bonusConfig?: BonusConfig,
+): string {
+	if (!bonusDays || !bonusConfig?.targets) return '';
+	const monthlyTarget = bonusConfig.targetDays / 12;
+	return bonusDays >= monthlyTarget ? '✓' : '✗';
+}
+
+function getTargetColor(totalBonusDays?: number, targetValue?: number): string {
+	return totalBonusDays && targetValue && totalBonusDays >= targetValue
+		? 'green'
+		: 'red';
+}
+
+function getTargetStatus(
+	totalBonusDays?: number,
+	targetValue?: number,
+): string {
+	return totalBonusDays && targetValue && totalBonusDays >= targetValue
+		? '✓'
+		: '✗';
+}
+
+type MonthRowProps = {
+	month: {
+		month: string;
+		worklogDays: number;
+		attendanceDays: number;
+		totalHours?: number;
+		businessDays?: number;
+		bonusDays?: number;
+		efficiency?: number;
+	};
+	showBonus: boolean | undefined;
+	bonusConfig?: BonusConfig;
+};
+
+function MonthRow({month, showBonus, bonusConfig}: MonthRowProps) {
+	return (
+		<Box flexDirection="row">
+			<Box width={2}>
+				<Text> </Text>
+			</Box>
+			<Box width={12}>
+				<Text bold color="cyan">
+					{month.month}
+				</Text>
+			</Box>
+			{showBonus && (
+				<>
+					<Box width={15} justifyContent="flex-end">
+						<Text>{month.businessDays ?? '-'}</Text>
+					</Box>
+					<Box width={15} justifyContent="flex-end">
+						<Text>{month.bonusDays?.toFixed(1) ?? '-'}</Text>
+					</Box>
+					<Box width={12} justifyContent="flex-end">
+						<Text color={getEfficiencyColor(month.efficiency)}>
+							{month.efficiency?.toFixed(1) ?? '-'}%
+						</Text>
+					</Box>
+					<Box width={8} justifyContent="flex-end">
+						<Text
+							color={
+								getTargetIndicator(month.bonusDays, bonusConfig) === '✓'
+									? 'green'
+									: 'red'
+							}
+						>
+							{getTargetIndicator(month.bonusDays, bonusConfig)}
+						</Text>
+					</Box>
+				</>
+			)}
+			<Box width={8} justifyContent="flex-end">
+				<Text> </Text>
+			</Box>
+		</Box>
+	);
+}
+
+type TargetSummaryProps = {
+	totalBonusDays?: number;
+	targets: {
+		minimum: number;
+		standard: number;
+		stretch: number;
+	};
+};
+
+function TargetSummary({totalBonusDays, targets}: TargetSummaryProps) {
+	return (
+		<>
+			<Box marginTop={1}>
+				<Text> </Text>
+			</Box>
+			<Box flexDirection="row" justifyContent="center">
+				<Text>Targets: </Text>
+				<Text color={getTargetColor(totalBonusDays, targets.minimum)}>
+					Minimum ({targets.minimum}){' '}
+					{getTargetStatus(totalBonusDays, targets.minimum)}
+				</Text>
+				<Text> | </Text>
+				<Text color={getTargetColor(totalBonusDays, targets.standard)}>
+					Standard ({targets.standard}){' '}
+					{getTargetStatus(totalBonusDays, targets.standard)}
+				</Text>
+				<Text> | </Text>
+				<Text color={getTargetColor(totalBonusDays, targets.stretch)}>
+					Stretch ({targets.stretch}){' '}
+					{getTargetStatus(totalBonusDays, targets.stretch)}
+				</Text>
+			</Box>
+		</>
+	);
+}
+
+export function StatisticsGrid({statistics, bonusConfig}: StatisticsGridProps) {
 	const monthData = statistics.monthlyStats;
-	const tableWidth = 2 + 20 + 12 + 18 + 8; // Adjusted for wider attendance column
+	const showBonus = bonusConfig?.enabled && statistics.totalHours !== undefined;
+
+	// New layout: Month + Work Days + Bonus Days + Efficiency + Target
+	const baseWidth = 2 + 12; // Margin + Month
+	const bonusWidth = showBonus ? 15 + 15 + 12 + 8 : 0; // Work Days + Bonus + Efficiency + Target
+	const tableWidth = baseWidth + bonusWidth + 8;
 
 	return (
 		<Box flexDirection="column" paddingX={1} alignItems="center" minHeight={25}>
@@ -19,21 +152,35 @@ export function StatisticsGrid({statistics}: StatisticsGridProps) {
 						{' '}
 					</Text>
 				</Box>
-				<Box width={20}>
+				<Box width={12}>
 					<Text bold color="white">
-						{' '}
+						Month
 					</Text>
 				</Box>
-				<Box width={12} justifyContent="flex-end">
-					<Text bold color="white">
-						Worklog Days
-					</Text>
-				</Box>
-				<Box width={18} justifyContent="flex-end">
-					<Text bold color="white">
-						Attendance Days (Hours)
-					</Text>
-				</Box>
+				{showBonus && (
+					<>
+						<Box width={15} justifyContent="flex-end">
+							<Text bold color="white">
+								Work Days
+							</Text>
+						</Box>
+						<Box width={15} justifyContent="flex-end">
+							<Text bold color="white">
+								Bonus Days
+							</Text>
+						</Box>
+						<Box width={12} justifyContent="flex-end">
+							<Text bold color="white">
+								Efficiency
+							</Text>
+						</Box>
+						<Box width={8} justifyContent="flex-end">
+							<Text bold color="white">
+								Target
+							</Text>
+						</Box>
+					</>
+				)}
 				<Box width={8} justifyContent="flex-end">
 					<Text bold color="white">
 						{' '}
@@ -48,27 +195,12 @@ export function StatisticsGrid({statistics}: StatisticsGridProps) {
 
 			{/* Data Rows */}
 			{monthData.map(month => (
-				<Box key={month.month} flexDirection="row">
-					<Box width={2}>
-						<Text> </Text>
-					</Box>
-					<Box width={20}>
-						<Text bold color="cyan">
-							{month.month}
-						</Text>
-					</Box>
-					<Box width={12} justifyContent="flex-end">
-						<Text>{month.worklogDays}</Text>
-					</Box>
-					<Box width={18} justifyContent="flex-end">
-						<Text>
-							{month.attendanceDays} ({month.attendanceDays * 8}h)
-						</Text>
-					</Box>
-					<Box width={8} justifyContent="flex-end">
-						<Text> </Text>
-					</Box>
-				</Box>
+				<MonthRow
+					key={month.month}
+					month={month}
+					showBonus={showBonus}
+					bonusConfig={bonusConfig}
+				/>
 			))}
 
 			{/* Total Separator */}
@@ -81,26 +213,50 @@ export function StatisticsGrid({statistics}: StatisticsGridProps) {
 				<Box width={2}>
 					<Text> </Text>
 				</Box>
-				<Box width={20}>
+				<Box width={12}>
 					<Text bold color="yellow">
-						Total
+						YTD Total
 					</Text>
 				</Box>
-				<Box width={12} justifyContent="flex-end">
-					<Text bold color="yellow">
-						{statistics.totalWorklogDays}
-					</Text>
-				</Box>
-				<Box width={18} justifyContent="flex-end">
-					<Text bold color="yellow">
-						{statistics.totalAttendanceDays} (
-						{statistics.totalAttendanceDays * 8}h)
-					</Text>
-				</Box>
+				{showBonus && (
+					<>
+						<Box width={15} justifyContent="flex-end">
+							<Text bold color="yellow">
+								{monthData.reduce(
+									(sum, month) => sum + (month.businessDays ?? 0),
+									0,
+								)}
+							</Text>
+						</Box>
+						<Box width={15} justifyContent="flex-end">
+							<Text bold color="yellow">
+								{statistics.totalBonusDays?.toFixed(1) ?? '-'}
+							</Text>
+						</Box>
+						<Box width={12} justifyContent="flex-end">
+							<Text bold color="yellow">
+								{statistics.yearToDateEfficiency?.toFixed(1) ?? '-'}%
+							</Text>
+						</Box>
+						<Box width={8} justifyContent="flex-end">
+							<Text bold color="yellow">
+								{' '}
+							</Text>
+						</Box>
+					</>
+				)}
 				<Box width={8} justifyContent="flex-end">
 					<Text> </Text>
 				</Box>
 			</Box>
+
+			{/* Target Summary Row */}
+			{showBonus && bonusConfig?.targets && (
+				<TargetSummary
+					totalBonusDays={statistics.totalBonusDays}
+					targets={bonusConfig.targets}
+				/>
+			)}
 		</Box>
 	);
 }
