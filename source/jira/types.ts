@@ -44,6 +44,8 @@ export type BonusConfig = {
 		standard: number;
 		stretch: number;
 	};
+	billableCustomField?: string;
+	billableValues?: string[];
 };
 
 export type JiraConfig = {
@@ -64,6 +66,7 @@ export type JiraConfig = {
 };
 
 export type JiraIssueField = {
+	[customFieldKey: `customfield_${string}`]: any;
 	summary: string;
 	status: {
 		name: string;

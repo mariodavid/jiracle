@@ -9,6 +9,8 @@ export type MonthlyStatistics = {
 	worklogDays: number;
 	attendanceDays: number;
 	totalHours?: number;
+	billableHours?: number;
+	nonBillableHours?: number;
 	businessDays?: number;
 	potentialHours?: number;
 	bonusDays?: number;
