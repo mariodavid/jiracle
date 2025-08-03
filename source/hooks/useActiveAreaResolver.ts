@@ -23,7 +23,6 @@ export type ResolvedActiveArea =
 	| 'align-time-confirmation'
 	| 'attendance-edit'
 	| 'statistics'
-	| 'bonus-overview'
 	| 'timetable';
 
 export function useActiveAreaResolver({
@@ -72,11 +71,6 @@ export function useActiveAreaResolver({
 	// Statistics view
 	if (activeArea === 'statistics') {
 		return 'statistics';
-	}
-
-	// Bonus overview
-	if (activeArea === 'bonus-overview') {
-		return 'bonus-overview';
 	}
 
 	// Default: Timetable

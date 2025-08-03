@@ -10,8 +10,7 @@ export type ActiveArea =
 	| 'checkin-confirmation'
 	| 'checkout-confirmation'
 	| 'align-time-confirmation'
-	| 'statistics'
-	| 'bonus-overview';
+	| 'statistics';
 
 export type UseNavigationStateOptions = {
 	initialWeek?: WeekRange;
