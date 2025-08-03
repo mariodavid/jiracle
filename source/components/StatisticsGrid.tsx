@@ -25,14 +25,6 @@ function getTargetIndicator(
 	return bonusDays >= monthlyTarget ? '✓' : '✗';
 }
 
-function formatPotentialDays(
-	businessDays?: number,
-	bonusConfig?: BonusConfig,
-): string {
-	if (!businessDays || !bonusConfig?.hoursPerBonusDay) return '-';
-	return `${businessDays}`;
-}
-
 function getTargetColor(totalBonusDays?: number, targetValue?: number): string {
 	return totalBonusDays && targetValue && totalBonusDays >= targetValue
 		? 'green'
@@ -75,11 +67,8 @@ function MonthRow({month, showBonus, bonusConfig}: MonthRowProps) {
 			</Box>
 			{showBonus && (
 				<>
-					<Box width={10} justifyContent="flex-end">
-						<Text>{month.businessDays ?? '-'}</Text>
-					</Box>
 					<Box width={12} justifyContent="flex-end">
-						<Text>{formatPotentialDays(month.businessDays, bonusConfig)}</Text>
+						<Text>{month.businessDays ?? '-'}</Text>
 					</Box>
 					<Box width={10} justifyContent="flex-end">
 						<Text>{month.bonusDays?.toFixed(1) ?? '-'}</Text>
@@ -157,9 +146,9 @@ export function StatisticsGrid({statistics, bonusConfig}: StatisticsGridProps) {
 	const monthData = statistics.monthlyStats;
 	const showBonus = bonusConfig?.enabled && statistics.totalHours !== undefined;
 
-	// New layout: Month + Work Days + Potential Days + Bonus Days + Efficiency + Target + Attendance
+	// New layout: Month + Work Days + Bonus Days + Efficiency + Target + Attendance
 	const baseWidth = 2 + 12 + 12 + 18; // Margin + Month + Worklog Days + Attendance Days
-	const bonusWidth = showBonus ? 10 + 12 + 10 + 12 + 8 : 0; // Work Days + Potential Days + Bonus + Efficiency + Target
+	const bonusWidth = showBonus ? 12 + 10 + 12 + 8 : 0; // Work Days + Bonus + Efficiency + Target
 	const tableWidth = baseWidth + bonusWidth + 8;
 
 	return (
@@ -178,14 +167,9 @@ export function StatisticsGrid({statistics, bonusConfig}: StatisticsGridProps) {
 				</Box>
 				{showBonus && (
 					<>
-						<Box width={10} justifyContent="flex-end">
-							<Text bold color="white">
-								Work Days
-							</Text>
-						</Box>
 						<Box width={12} justifyContent="flex-end">
 							<Text bold color="white">
-								Potential Days
+								Work Days
 							</Text>
 						</Box>
 						<Box width={10} justifyContent="flex-end">
@@ -254,14 +238,6 @@ export function StatisticsGrid({statistics, bonusConfig}: StatisticsGridProps) {
 				</Box>
 				{showBonus && (
 					<>
-						<Box width={10} justifyContent="flex-end">
-							<Text bold color="yellow">
-								{monthData.reduce(
-									(sum, month) => sum + (month.businessDays ?? 0),
-									0,
-								)}
-							</Text>
-						</Box>
 						<Box width={12} justifyContent="flex-end">
 							<Text bold color="yellow">
 								{monthData.reduce(
