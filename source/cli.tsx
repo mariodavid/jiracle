@@ -18,17 +18,20 @@ import {
 	type CheckOutParameters,
 	type StatusParameters,
 } from './cli/attendance-commands.js';
+import {executeImport, type ImportParameters} from './cli/import-commands.js';
 
 const cli = meow(
 	`
 	Usage
 	  $ jiracle
 	  $ jiracle worklog add --issue <issue-key> --date <YYYY-MM-DD> --time <time> --comment <comment>
+	  $ jiracle import <csv-file> [options]
 	  $ jiracle checkin [--date <YYYY-MM-DD>] [--time <HH:MM>]
 	  $ jiracle checkout [--date <YYYY-MM-DD>] [--time <HH:MM>]
 	  $ jiracle status [--date <YYYY-MM-DD>]
 	Commands
 	  worklog add    Add a worklog entry to an issue
+	  import         Import timesheet data from CSV file
 	  checkin        Check in for attendance tracking
 	  checkout       Check out for attendance tracking  
 	  status         Show attendance status
@@ -39,6 +42,12 @@ const cli = meow(
 	  --time       Time spent (e.g., 5h, 30m, 2.5h)
 	  --comment    Worklog comment
 
+	Options for import
+	  --dry-run              Preview what would be imported
+	  --skip-existing        Skip dates with existing entries (default)
+	  --update-existing      Update existing entries
+	  --verbose              Show detailed progress output
+
 	Options for attendance commands
 	  --date       Date in YYYY-MM-DD format (defaults to today)
 	  --time       Time in HH:MM format (uses config defaults if not provided)
@@ -46,6 +55,9 @@ const cli = meow(
 	Examples
 	  $ jiracle
 	  $ jiracle worklog add --issue DEF-2398 --date 2025-08-01 --time 5h --comment "Did some work"
+	  $ jiracle import timesheet.csv
+	  $ jiracle import timesheet.csv --dry-run
+	  $ jiracle import timesheet.csv --update-existing --verbose
 	  $ jiracle checkin
 	  $ jiracle checkin --time 08:30
 	  $ jiracle checkout
@@ -71,6 +83,22 @@ const cli = meow(
 			comment: {
 				type: 'string',
 				alias: 'c',
+			},
+			dryRun: {
+				type: 'boolean',
+				default: false,
+			},
+			skipExisting: {
+				type: 'boolean',
+				default: true,
+			},
+			updateExisting: {
+				type: 'boolean',
+				default: false,
+			},
+			verbose: {
+				type: 'boolean',
+				default: false,
 			},
 		},
 	},
@@ -321,6 +349,42 @@ async function handleStatus() {
 	}
 }
 
+async function handleImport() {
+	const {dryRun, skipExisting, updateExisting, verbose} = cli.flags;
+
+	// Get the CSV file from the command arguments
+	const csvFile = cli.input[1];
+
+	if (!csvFile) {
+		console.error('Error: CSV file path is required');
+		process.exit(1);
+	}
+
+	const parameters: ImportParameters = {
+		file: csvFile,
+		dryRun: Boolean(dryRun),
+		skipExisting: Boolean(skipExisting),
+		updateExisting: Boolean(updateExisting),
+		verbose: Boolean(verbose),
+	};
+
+	try {
+		const result = await executeImport(parameters);
+		if (result.success) {
+			console.log(result.message);
+			process.exit(0);
+		} else {
+			console.error(`Error: ${result.message}`);
+			process.exit(1);
+		}
+	} catch (error: unknown) {
+		console.error(
+			`Error: ${error instanceof Error ? error.message : String(error)}`,
+		);
+		process.exit(1);
+	}
+}
+
 if (cli.input.length > 0) {
 	const [command, subcommand] = cli.input;
 
@@ -328,6 +392,11 @@ if (cli.input.length > 0) {
 		await handleWorklogAdd();
 	} else {
 		switch (command) {
+			case 'import': {
+				await handleImport();
+				break;
+			}
+
 			case 'checkin': {
 				await handleCheckIn();
 				break;

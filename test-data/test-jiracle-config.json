@@ -1,0 +1,27 @@
+{
+	"host": "https://test-jira.example.com",
+	"username": "test.user@example.com",
+	"token": "test-api-token-123",
+	"defaultTime": "4h",
+	"defaultComment": "Development work",
+	"projects": [
+		{
+			"keyPrefix": "PROJ",
+			"defaultTime": "2h",
+			"defaultComment": "Project work"
+		},
+		{
+			"keyPrefix": "FEAT",
+			"defaultTime": "3h",
+			"defaultComment": "Feature development"
+		}
+	],
+	"favorites": [
+		{
+			"issueKey": "PROJ-1001",
+			"alias": "main-project",
+			"defaultTime": "4h",
+			"defaultComment": "Main project development"
+		}
+	]
+}

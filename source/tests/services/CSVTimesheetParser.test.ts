@@ -1,0 +1,186 @@
+import test from 'ava';
+import {parseCSVTimesheet} from '../../services/CSVTimesheetParser.js';
+import {LocalDate} from '../../domain/LocalDate.js';
+
+// Test Data - Define expected inputs and outputs
+const VALID_CSV_HEADER =
+	'Date,Start,End,Break,Work Item 1,Hours 1,Issue 1,Work Item 2,Hours 2,Issue 2,Work Item 3,Hours 3,Issue 3,Work Item 4,Hours 4,Issue 4';
+
+const VALID_CSV_SINGLE_ENTRY = `${VALID_CSV_HEADER}
+2025-06-02,08:00,18:00,00:30,Backend Development,9.5,PROJ-1234,,,,,,,,,`;
+
+const VALID_CSV_MULTIPLE_WORK_ITEMS = `${VALID_CSV_HEADER}
+2025-06-10,07:30,18:15,00:30,Frontend Updates,4,PROJ-1234,Backend Work,6,FEAT-5678,,,,,,`;
+
+const INVALID_CSV_WRONG_COLUMNS = 'Date,Start,End,Break,Invalid,Headers';
+
+const INVALID_CSV_MISSING_REQUIRED = `${VALID_CSV_HEADER}
+2025-06-02,,18:00,00:30,Backend Development,9.5,PROJ-1234,,,,,,,,,`;
+
+const INVALID_CSV_BAD_DATE = `${VALID_CSV_HEADER}
+invalid-date,08:00,18:00,00:30,Backend Development,9.5,PROJ-1234,,,,,,,,,`;
+
+const EXPECTED_SINGLE_ENTRY_RESULT = {
+	date: LocalDate.fromString('2025-06-02'),
+	startTime: '08:00',
+	endTime: '18:00',
+	breakMinutes: 30,
+	workItems: [
+		{
+			description: 'Backend Development',
+			hours: 9.5,
+			issueKey: 'PROJ-1234',
+		},
+	],
+};
+
+const EXPECTED_MULTIPLE_WORK_ITEMS_RESULT = {
+	date: LocalDate.fromString('2025-06-10'),
+	startTime: '07:30',
+	endTime: '18:15',
+	breakMinutes: 30,
+	workItems: [
+		{
+			description: 'Frontend Updates',
+			hours: 4,
+			issueKey: 'PROJ-1234',
+		},
+		{
+			description: 'Backend Work',
+			hours: 6,
+			issueKey: 'FEAT-5678',
+		},
+	],
+};
+
+// Tests - Verify exact expected results
+test('parseCSVTimesheet - parses valid CSV with single work item', t => {
+	const result = parseCSVTimesheet(VALID_CSV_SINGLE_ENTRY);
+
+	t.is(result.errors.length, 0);
+	t.is(result.entries.length, 1);
+
+	const entry = result.entries[0]!;
+	t.true(entry.date.equals(EXPECTED_SINGLE_ENTRY_RESULT.date));
+	t.is(entry.startTime, EXPECTED_SINGLE_ENTRY_RESULT.startTime);
+	t.is(entry.endTime, EXPECTED_SINGLE_ENTRY_RESULT.endTime);
+	t.is(entry.breakMinutes, EXPECTED_SINGLE_ENTRY_RESULT.breakMinutes);
+	t.is(entry.workItems.length, 1);
+	t.deepEqual(entry.workItems[0], EXPECTED_SINGLE_ENTRY_RESULT.workItems[0]);
+});
+
+test('parseCSVTimesheet - parses valid CSV with multiple work items', t => {
+	const result = parseCSVTimesheet(VALID_CSV_MULTIPLE_WORK_ITEMS);
+
+	t.is(result.errors.length, 0);
+	t.is(result.entries.length, 1);
+
+	const entry = result.entries[0]!;
+	t.true(entry.date.equals(EXPECTED_MULTIPLE_WORK_ITEMS_RESULT.date));
+	t.is(entry.startTime, EXPECTED_MULTIPLE_WORK_ITEMS_RESULT.startTime);
+	t.is(entry.endTime, EXPECTED_MULTIPLE_WORK_ITEMS_RESULT.endTime);
+	t.is(entry.breakMinutes, EXPECTED_MULTIPLE_WORK_ITEMS_RESULT.breakMinutes);
+	t.is(entry.workItems.length, 2);
+	t.deepEqual(entry.workItems, EXPECTED_MULTIPLE_WORK_ITEMS_RESULT.workItems);
+});
+
+test('parseCSVTimesheet - handles empty CSV', t => {
+	const result = parseCSVTimesheet('');
+
+	t.is(result.entries.length, 0);
+	t.is(result.errors.length, 1);
+	t.is(result.errors[0], 'CSV file has no header line');
+});
+
+test('parseCSVTimesheet - validates header columns', t => {
+	const result = parseCSVTimesheet(INVALID_CSV_WRONG_COLUMNS);
+
+	t.is(result.entries.length, 0);
+	t.is(result.errors.length, 1);
+	t.true(result.errors[0]!.includes('Expected 16 columns, but found 6'));
+});
+
+test('parseCSVTimesheet - validates required fields', t => {
+	const result = parseCSVTimesheet(INVALID_CSV_MISSING_REQUIRED);
+
+	t.is(result.entries.length, 0);
+	t.is(result.errors.length, 1);
+	t.true(result.errors[0]!.includes('Start time is required'));
+});
+
+test('parseCSVTimesheet - validates date format', t => {
+	const result = parseCSVTimesheet(INVALID_CSV_BAD_DATE);
+
+	t.is(result.entries.length, 0);
+	t.is(result.errors.length, 1);
+	t.true(result.errors[0]!.includes('Invalid date format'));
+});
+
+test('parseCSVTimesheet - validates time format', t => {
+	const invalidTimeCSV = `${VALID_CSV_HEADER}
+2025-06-02,25:00,18:00,00:30,Backend Development,9.5,PROJ-1234,,,,,,,,,`;
+
+	const result = parseCSVTimesheet(invalidTimeCSV);
+
+	t.is(result.entries.length, 0);
+	t.is(result.errors.length, 1);
+	t.true(result.errors[0]!.includes('Invalid start time format'));
+});
+
+test('parseCSVTimesheet - validates work item hours', t => {
+	const invalidHoursCSV = `${VALID_CSV_HEADER}
+2025-06-02,08:00,18:00,00:30,Backend Development,invalid,PROJ-1234,,,,,,,,,`;
+
+	const result = parseCSVTimesheet(invalidHoursCSV);
+
+	t.is(result.entries.length, 0);
+	t.is(result.errors.length, 1);
+	t.true(result.errors[0]!.includes('Invalid hours'));
+});
+
+test('parseCSVTimesheet - requires issue key when work item provided', t => {
+	const missingIssueCSV = `${VALID_CSV_HEADER}
+2025-06-02,08:00,18:00,00:30,Backend Development,9.5,,,,,,,,,,`;
+
+	const result = parseCSVTimesheet(missingIssueCSV);
+
+	t.is(result.entries.length, 0);
+	t.is(result.errors.length, 1);
+	t.true(result.errors[0]!.includes('Issue key is required'));
+});
+
+test('parseCSVTimesheet - parses break duration in HH:MM format', t => {
+	const breakHHMMCSV = `${VALID_CSV_HEADER}
+2025-06-02,08:00,18:00,01:15,Backend Development,9.5,PROJ-1234,,,,,,,,,`;
+
+	const result = parseCSVTimesheet(breakHHMMCSV);
+
+	t.is(result.errors.length, 0);
+	t.is(result.entries.length, 1);
+	t.is(result.entries[0]!.breakMinutes, 75); // 1 hour 15 minutes = 75 minutes
+});
+
+test('parseCSVTimesheet - skips empty work items', t => {
+	const emptyWorkItemCSV = `${VALID_CSV_HEADER}
+2025-06-02,08:00,18:00,00:30,Backend Development,9.5,PROJ-1234,,,,,,,,,`;
+
+	const result = parseCSVTimesheet(emptyWorkItemCSV);
+
+	t.is(result.errors.length, 0);
+	t.is(result.entries.length, 1);
+	t.is(result.entries[0]!.workItems.length, 1);
+	t.is(result.entries[0]!.workItems[0]!.description, 'Backend Development');
+});
+
+test('parseCSVTimesheet - processes multiple CSV lines', t => {
+	const multipleEntriesCSV = `${VALID_CSV_HEADER}
+2025-06-02,08:00,18:00,00:30,Backend Development,9.5,PROJ-1234,,,,,,,,,
+2025-06-03,07:30,17:00,01:00,Frontend Work,8.0,FEAT-5678,,,,,,,,,`;
+
+	const result = parseCSVTimesheet(multipleEntriesCSV);
+
+	t.is(result.errors.length, 0);
+	t.is(result.entries.length, 2);
+	t.is(result.entries[0]!.workItems[0]!.description, 'Backend Development');
+	t.is(result.entries[1]!.workItems[0]!.description, 'Frontend Work');
+});
