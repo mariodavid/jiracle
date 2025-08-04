@@ -1,4 +1,6 @@
 import type {JiraIssue, BonusConfig, WorklogEntry} from '../jira/types.js';
+import {BillabilityRule} from '../domain/BillabilityRule.js';
+import {BillableWorklogEntry} from '../domain/BillableWorklogEntry.js';
 
 export type WorklogWithIssue = {
 	worklog: WorklogEntry;
@@ -7,23 +9,17 @@ export type WorklogWithIssue = {
 
 export const BillableHoursCalculator = {
 	isBillableWorklog(issue: JiraIssue, bonusConfig: BonusConfig): boolean {
-		if (!bonusConfig.billableCustomField) {
-			return true;
-		}
-
-		const customFieldValue: unknown = (issue.fields as any)[
-			bonusConfig.billableCustomField
-		];
-
-		if (bonusConfig.billableValues && bonusConfig.billableValues.length > 0) {
-			return bonusConfig.billableValues.includes(String(customFieldValue));
-		}
-
-		return (
-			customFieldValue !== null &&
-			customFieldValue !== undefined &&
-			customFieldValue !== ''
-		);
+		const rule = this.createBillabilityRule(bonusConfig);
+		const mockWorklog: WorklogEntry = {
+			id: 'temp',
+			issueId: issue.id,
+			author: {displayName: '', emailAddress: ''},
+			comment: undefined,
+			started: '',
+			timeSpentSeconds: 0,
+		};
+		const entry = BillableWorklogEntry.create(mockWorklog, issue, rule);
+		return entry.isBillable();
 	},
 
 	calculateBillableHours(
@@ -34,12 +30,12 @@ export const BillableHoursCalculator = {
 			return this.calculateTotalHours(worklogsWithIssues);
 		}
 
-		return (
-			worklogsWithIssues
-				.filter(({issue}) => this.isBillableWorklog(issue, bonusConfig))
-				.reduce((total, {worklog}) => total + worklog.timeSpentSeconds, 0) /
-			3600
-		);
+		const rule = this.createBillabilityRule(bonusConfig);
+		const entries = this.createBillableEntries(worklogsWithIssues, rule);
+
+		return entries
+			.filter(entry => entry.isBillable())
+			.reduce((total, entry) => total + entry.getHours(), 0);
 	},
 
 	calculateNonBillableHours(
@@ -50,20 +46,38 @@ export const BillableHoursCalculator = {
 			return 0;
 		}
 
-		return (
-			worklogsWithIssues
-				.filter(({issue}) => !this.isBillableWorklog(issue, bonusConfig))
-				.reduce((total, {worklog}) => total + worklog.timeSpentSeconds, 0) /
-			3600
-		);
+		const rule = this.createBillabilityRule(bonusConfig);
+		const entries = this.createBillableEntries(worklogsWithIssues, rule);
+
+		return entries
+			.filter(entry => entry.isNonBillable())
+			.reduce((total, entry) => total + entry.getHours(), 0);
 	},
 
 	calculateTotalHours(worklogsWithIssues: WorklogWithIssue[]): number {
-		return (
-			worklogsWithIssues.reduce(
-				(total, {worklog}) => total + worklog.timeSpentSeconds,
-				0,
-			) / 3600
+		const rule = BillabilityRule.alwaysBillable();
+		const entries = this.createBillableEntries(worklogsWithIssues, rule);
+
+		return entries.reduce((total, entry) => total + entry.getHours(), 0);
+	},
+
+	createBillabilityRule(bonusConfig: BonusConfig): BillabilityRule {
+		if (!bonusConfig.billableCustomField) {
+			return BillabilityRule.alwaysBillable();
+		}
+
+		return BillabilityRule.create(
+			bonusConfig.billableCustomField,
+			bonusConfig.billableValues,
+		);
+	},
+
+	createBillableEntries(
+		worklogsWithIssues: WorklogWithIssue[],
+		rule: BillabilityRule,
+	): BillableWorklogEntry[] {
+		return worklogsWithIssues.map(({worklog, issue}) =>
+			BillableWorklogEntry.create(worklog, issue, rule),
 		);
 	},
 };

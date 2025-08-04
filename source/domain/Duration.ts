@@ -101,6 +101,13 @@ export class Duration {
 	}
 
 	/**
+	 * Create Duration from seconds
+	 */
+	static fromSeconds(seconds: number): Duration {
+		return new Duration(Math.round(seconds / 60));
+	}
+
+	/**
 	 * Parse time string and throw if invalid
 	 */
 	static parseOrThrow(input: string): Duration {
