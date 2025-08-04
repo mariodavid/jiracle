@@ -60,9 +60,9 @@ test('isBillableWorklog - returns true when no custom field configured', t => {
 
 test('isBillableWorklog - returns true when custom field has non-empty value and no specific values configured', t => {
 	// EXPLICIT TEST DATA
-	const issue = createTestIssue({customfield_13649: 'External Client'});
+	const issue = createTestIssue({customfield_12345: 'External Client'});
 	const bonusConfig = createTestBonusConfig({
-		billableCustomField: 'customfield_13649',
+		billableCustomField: 'customfield_12345',
 	});
 
 	// OPERATIONS
@@ -74,9 +74,9 @@ test('isBillableWorklog - returns true when custom field has non-empty value and
 
 test('isBillableWorklog - returns false when custom field is null', t => {
 	// EXPLICIT TEST DATA
-	const issue = createTestIssue({customfield_13649: null});
+	const issue = createTestIssue({customfield_12345: null});
 	const bonusConfig = createTestBonusConfig({
-		billableCustomField: 'customfield_13649',
+		billableCustomField: 'customfield_12345',
 	});
 
 	// OPERATIONS
@@ -88,9 +88,9 @@ test('isBillableWorklog - returns false when custom field is null', t => {
 
 test('isBillableWorklog - returns false when custom field is empty string', t => {
 	// EXPLICIT TEST DATA
-	const issue = createTestIssue({customfield_13649: ''});
+	const issue = createTestIssue({customfield_12345: ''});
 	const bonusConfig = createTestBonusConfig({
-		billableCustomField: 'customfield_13649',
+		billableCustomField: 'customfield_12345',
 	});
 
 	// OPERATIONS
@@ -102,9 +102,9 @@ test('isBillableWorklog - returns false when custom field is empty string', t =>
 
 test('isBillableWorklog - returns true when custom field value matches billable values', t => {
 	// EXPLICIT TEST DATA
-	const issue = createTestIssue({customfield_13649: 'External Client'});
+	const issue = createTestIssue({customfield_12345: 'External Client'});
 	const bonusConfig = createTestBonusConfig({
-		billableCustomField: 'customfield_13649',
+		billableCustomField: 'customfield_12345',
 		billableValues: ['External Client', 'Partner Project'],
 	});
 
@@ -117,9 +117,9 @@ test('isBillableWorklog - returns true when custom field value matches billable 
 
 test('isBillableWorklog - returns false when custom field value does not match billable values', t => {
 	// EXPLICIT TEST DATA
-	const issue = createTestIssue({customfield_13649: 'Internal Meeting'});
+	const issue = createTestIssue({customfield_12345: 'Internal Meeting'});
 	const bonusConfig = createTestBonusConfig({
-		billableCustomField: 'customfield_13649',
+		billableCustomField: 'customfield_12345',
 		billableValues: ['External Client', 'Partner Project'],
 	});
 
@@ -154,19 +154,19 @@ test('calculateBillableHours - filters only billable worklogs', t => {
 	const worklogsWithIssues: WorklogWithIssue[] = [
 		{
 			worklog: createTestWorklog(3600),
-			issue: createTestIssue({customfield_13649: 'External Client'}),
+			issue: createTestIssue({customfield_12345: 'External Client'}),
 		}, // 1 hour - billable
 		{
 			worklog: createTestWorklog(7200),
-			issue: createTestIssue({customfield_13649: null}),
+			issue: createTestIssue({customfield_12345: null}),
 		}, // 2 hours - non-billable
 		{
 			worklog: createTestWorklog(1800),
-			issue: createTestIssue({customfield_13649: 'Partner Project'}),
+			issue: createTestIssue({customfield_12345: 'Partner Project'}),
 		}, // 0.5 hours - billable
 	];
 	const bonusConfig = createTestBonusConfig({
-		billableCustomField: 'customfield_13649',
+		billableCustomField: 'customfield_12345',
 		billableValues: ['External Client', 'Partner Project'],
 	});
 	const expectedHours = 1.5;
@@ -205,19 +205,19 @@ test('calculateNonBillableHours - filters only non-billable worklogs', t => {
 	const worklogsWithIssues: WorklogWithIssue[] = [
 		{
 			worklog: createTestWorklog(3600),
-			issue: createTestIssue({customfield_13649: 'External Client'}),
+			issue: createTestIssue({customfield_12345: 'External Client'}),
 		}, // 1 hour - billable
 		{
 			worklog: createTestWorklog(7200),
-			issue: createTestIssue({customfield_13649: null}),
+			issue: createTestIssue({customfield_12345: null}),
 		}, // 2 hours - non-billable
 		{
 			worklog: createTestWorklog(1800),
-			issue: createTestIssue({customfield_13649: 'Internal Meeting'}),
+			issue: createTestIssue({customfield_12345: 'Internal Meeting'}),
 		}, // 0.5 hours - non-billable
 	];
 	const bonusConfig = createTestBonusConfig({
-		billableCustomField: 'customfield_13649',
+		billableCustomField: 'customfield_12345',
 		billableValues: ['External Client', 'Partner Project'],
 	});
 	const expectedHours = 2.5;
@@ -254,16 +254,16 @@ test('calculateBillableHours - returns total hours when bonus disabled', t => {
 	const worklogsWithIssues: WorklogWithIssue[] = [
 		{
 			worklog: createTestWorklog(3600),
-			issue: createTestIssue({customfield_13649: null}),
+			issue: createTestIssue({customfield_12345: null}),
 		}, // 1 hour - would be non-billable
 		{
 			worklog: createTestWorklog(7200),
-			issue: createTestIssue({customfield_13649: 'External'}),
+			issue: createTestIssue({customfield_12345: 'External'}),
 		}, // 2 hours - would be billable
 	];
 	const bonusConfig = createTestBonusConfig({
 		enabled: false,
-		billableCustomField: 'customfield_13649',
+		billableCustomField: 'customfield_12345',
 		billableValues: ['External'],
 	});
 	const expectedHours = 3;

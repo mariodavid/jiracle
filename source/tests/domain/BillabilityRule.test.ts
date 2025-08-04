@@ -49,8 +49,8 @@ test('BillabilityRule.create with no custom field returns billable', t => {
 
 test('BillabilityRule evaluates custom field as non-billable when null', t => {
 	// EXPLICIT TEST DATA
-	const rule = BillabilityRule.create('customfield_13649');
-	const issue = createTestIssue({customfield_13649: null});
+	const rule = BillabilityRule.create('customfield_12345');
+	const issue = createTestIssue({customfield_12345: null});
 
 	// OPERATIONS
 	const result = rule.evaluate(issue);
@@ -61,8 +61,8 @@ test('BillabilityRule evaluates custom field as non-billable when null', t => {
 
 test('BillabilityRule evaluates custom field as billable when has value and no specific values', t => {
 	// EXPLICIT TEST DATA
-	const rule = BillabilityRule.create('customfield_13649');
-	const issue = createTestIssue({customfield_13649: 'External Client'});
+	const rule = BillabilityRule.create('customfield_12345');
+	const issue = createTestIssue({customfield_12345: 'External Client'});
 
 	// OPERATIONS
 	const result = rule.evaluate(issue);
@@ -73,11 +73,11 @@ test('BillabilityRule evaluates custom field as billable when has value and no s
 
 test('BillabilityRule evaluates specific values correctly when match found', t => {
 	// EXPLICIT TEST DATA
-	const rule = BillabilityRule.create('customfield_13649', [
+	const rule = BillabilityRule.create('customfield_12345', [
 		'External Client',
 		'Partner',
 	]);
-	const issue = createTestIssue({customfield_13649: 'External Client'});
+	const issue = createTestIssue({customfield_12345: 'External Client'});
 
 	// OPERATIONS
 	const result = rule.evaluate(issue);
@@ -88,11 +88,11 @@ test('BillabilityRule evaluates specific values correctly when match found', t =
 
 test('BillabilityRule evaluates specific values correctly when no match found', t => {
 	// EXPLICIT TEST DATA
-	const rule = BillabilityRule.create('customfield_13649', [
+	const rule = BillabilityRule.create('customfield_12345', [
 		'External Client',
 		'Partner',
 	]);
-	const issue = createTestIssue({customfield_13649: 'Internal Meeting'});
+	const issue = createTestIssue({customfield_12345: 'Internal Meeting'});
 
 	// OPERATIONS
 	const result = rule.evaluate(issue);
@@ -103,11 +103,11 @@ test('BillabilityRule evaluates specific values correctly when no match found', 
 
 test('BillabilityRule equals works correctly for same rules', t => {
 	// EXPLICIT TEST DATA
-	const rule1 = BillabilityRule.create('customfield_13649', [
+	const rule1 = BillabilityRule.create('customfield_12345', [
 		'External',
 		'Partner',
 	]);
-	const rule2 = BillabilityRule.create('customfield_13649', [
+	const rule2 = BillabilityRule.create('customfield_12345', [
 		'External',
 		'Partner',
 	]);
@@ -121,8 +121,8 @@ test('BillabilityRule equals works correctly for same rules', t => {
 
 test('BillabilityRule equals returns false for different custom fields', t => {
 	// EXPLICIT TEST DATA
-	const rule1 = BillabilityRule.create('customfield_13649');
-	const rule2 = BillabilityRule.create('customfield_13650');
+	const rule1 = BillabilityRule.create('customfield_12345');
+	const rule2 = BillabilityRule.create('customfield_67890');
 
 	// OPERATIONS
 	const result = rule1.equals(rule2);
