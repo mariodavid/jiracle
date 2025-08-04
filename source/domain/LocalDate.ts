@@ -73,4 +73,44 @@ export class LocalDate {
 	toDate(): Date {
 		return new Date(this.dateKey + 'T00:00:00.000Z');
 	}
+
+	/**
+	 * Get day of year (1-366)
+	 */
+	getDayOfYear(): number {
+		const date = this.toDate();
+		const start = new Date(date.getFullYear(), 0, 0);
+		const diff = date.getTime() - start.getTime();
+		return Math.floor(diff / (1000 * 60 * 60 * 24));
+	}
+
+	/**
+	 * Check if the year of this date is a leap year
+	 */
+	isLeapYear(): boolean {
+		const year = this.toDate().getFullYear();
+		return (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
+	}
+
+	/**
+	 * Project annual rate based on current progress
+	 */
+	projectAnnualRate(currentValue: number): number {
+		const dayOfYear = this.getDayOfYear();
+		const daysInYear = this.isLeapYear() ? 366 : 365;
+
+		if (dayOfYear === 0) {
+			return currentValue;
+		}
+
+		const dailyRate = currentValue / dayOfYear;
+		return dailyRate * daysInYear;
+	}
+
+	/**
+	 * Get the year of this date
+	 */
+	getYear(): number {
+		return this.toDate().getFullYear();
+	}
 }
