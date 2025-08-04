@@ -1,4 +1,5 @@
 import {LocalDate} from '../domain/LocalDate.js';
+import {Duration} from '../domain/Duration.js';
 import {type JiraClient} from '../jira-client.js';
 import {type AttendanceManager} from '../attendance/AttendanceManager.js';
 import {type BonusConfig} from '../jira/types.js';
@@ -9,6 +10,8 @@ export type MonthlyStatistics = {
 	worklogDays: number;
 	attendanceDays: number;
 	totalHours?: number;
+	billableHours?: number;
+	nonBillableHours?: number;
 	businessDays?: number;
 	potentialHours?: number;
 	bonusDays?: number;
@@ -179,7 +182,9 @@ export class StatisticsUseCase {
 					const worklogLocalDate = LocalDate.fromDate(worklogDate);
 					if (this.isDateInMonth(worklogLocalDate, year, month)) {
 						validDates.push(worklogLocalDate.toISOString());
-						totalHours += worklog.timeSpentSeconds / 3600;
+						totalHours += Duration.fromSeconds(
+							worklog.timeSpentSeconds,
+						).toHours();
 					}
 				}
 
