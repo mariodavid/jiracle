@@ -326,12 +326,20 @@ export class JiraClient {
 		);
 	}
 
-	async searchIssuesWithWorklogs(jql: string): Promise<JiraSearchResponse> {
+	async searchIssuesWithWorklogs(
+		jql: string,
+		additionalFields?: string[],
+	): Promise<JiraSearchResponse> {
 		const searchUrl = `${this.baseUrl}/search`;
+		const baseFields = ['id', 'key', 'summary'];
+		const fields = additionalFields
+			? [...baseFields, ...additionalFields]
+			: baseFields;
+
 		const requestData = {
 			jql,
 			maxResults: 100,
-			fields: ['id', 'key', 'summary'],
+			fields,
 		};
 
 		this.logger.info('Searching issues with worklogs', {

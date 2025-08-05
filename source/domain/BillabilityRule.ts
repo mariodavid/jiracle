@@ -1,4 +1,5 @@
 import type {JiraIssue} from '../jira/types.js';
+import {uiLogger} from '../utils/logger.js';
 import {CustomFieldAccessor} from './CustomFieldAccessor.js';
 
 export enum BillabilityStatus {
@@ -55,13 +56,28 @@ export class BillabilityRule {
 	}
 
 	private determineFromCustomField(value: unknown): BillabilityStatus {
+		uiLogger.debug('BillabilityRule: Evaluating custom field', {
+			customField: this.customField,
+			value,
+			valueType: typeof value,
+			billableValues: this.billableValues,
+		});
+
 		if (value === null || value === undefined || value === '') {
 			return BillabilityStatus.NonBillable;
 		}
 
 		if (this.billableValues && this.billableValues.length > 0) {
 			const stringValue = String(value);
-			return this.billableValues.includes(stringValue)
+			const isBillable = this.billableValues.includes(stringValue);
+
+			uiLogger.debug('BillabilityRule: Specific values check', {
+				stringValue,
+				billableValues: this.billableValues,
+				isBillable,
+			});
+
+			return isBillable
 				? BillabilityStatus.Billable
 				: BillabilityStatus.NonBillable;
 		}
