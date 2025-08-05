@@ -278,30 +278,21 @@ export function StatisticsView({
 							<Text>
 								├─ Current Value:{' '}
 								<Text bold color="green">
-									{CurrencyFormatter.formatSimple(
-										bonusProgress.financialProjection.currentAmount,
-										bonusProgress.financialProjection.currency,
-									)}
+									{bonusProgress.financialProjection.currentAmount.formatSimple()}
 								</Text>{' '}
 								({bonusProgress.earnedBonusPercentage.toFixed(2)}% earned)
 							</Text>
 							<Text>
 								├─ Year-End Projection:{' '}
 								<Text bold>
-									{CurrencyFormatter.formatSimple(
-										bonusProgress.financialProjection.projectedAmount,
-										bonusProgress.financialProjection.currency,
-									)}
+									{bonusProgress.financialProjection.projectedAmount.formatSimple()}
 								</Text>{' '}
 								(at current pace)
 							</Text>
 							<Text>
 								└─ Maximum Possible:{' '}
 								<Text bold color="yellow">
-									{CurrencyFormatter.formatSimple(
-										bonusProgress.financialProjection.maximumPossible,
-										bonusProgress.financialProjection.currency,
-									)}
+									{bonusProgress.financialProjection.maximumPossible.formatSimple()}
 								</Text>{' '}
 								(if 250 days reached)
 							</Text>

@@ -1,7 +1,7 @@
 import type {BonusConfig, BonusTier, BonusTarget} from '../jira/types.js';
 import {LocalDate} from '../domain/LocalDate.js';
 import {type Duration} from '../domain/Duration.js';
-import {type Money} from '../domain/Money.js';
+import {Money} from '../domain/Money.js';
 
 /**
  * Rich domain object representing bonus days with validation and behavior
@@ -432,10 +432,9 @@ export class BonusCalculator {
 		const maximumPossible = this.calculateBonusAmount(250, tiers, targetAmount); // Cap at 250 days
 
 		return FinancialProjection.create({
-			currentAmount,
-			projectedAmount,
-			maximumPossible,
-			currency,
+			currentAmount: new Money(currentAmount, currency),
+			projectedAmount: new Money(projectedAmount, currency),
+			maximumPossible: new Money(maximumPossible, currency),
 		});
 	}
 
