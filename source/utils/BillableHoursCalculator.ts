@@ -1,6 +1,7 @@
 import type {JiraIssue, BonusConfig, WorklogEntry} from '../jira/types.js';
 import {BillabilityRule} from '../domain/BillabilityRule.js';
 import {BillableWorklogEntry} from '../domain/BillableWorklogEntry.js';
+import {uiLogger} from './logger.js';
 
 export type WorklogWithIssue = {
 	worklog: WorklogEntry;
@@ -27,15 +28,35 @@ export const BillableHoursCalculator = {
 		bonusConfig: BonusConfig,
 	): number {
 		if (!bonusConfig.enabled || !bonusConfig.billableCustomField) {
-			return this.calculateTotalHours(worklogsWithIssues);
+			const totalHours = this.calculateTotalHours(worklogsWithIssues);
+			uiLogger.debug(
+				'BillableHoursCalculator: No billable config, all hours billable',
+				{
+					totalHours,
+					worklogsCount: worklogsWithIssues.length,
+				},
+			);
+			return totalHours;
 		}
 
 		const rule = this.createBillabilityRule(bonusConfig);
 		const entries = this.createBillableEntries(worklogsWithIssues, rule);
 
-		return entries
-			.filter(entry => entry.isBillable())
-			.reduce((total, entry) => total + entry.getHours(), 0);
+		const billableEntries = entries.filter(entry => entry.isBillable());
+		const billableHours = billableEntries.reduce(
+			(total, entry) => total + entry.getHours(),
+			0,
+		);
+
+		uiLogger.debug('BillableHoursCalculator: Billable hours calculation', {
+			totalEntries: entries.length,
+			billableEntries: billableEntries.length,
+			billableHours,
+			billableCustomField: bonusConfig.billableCustomField,
+			billableValues: bonusConfig.billableValues,
+		});
+
+		return billableHours;
 	},
 
 	calculateNonBillableHours(
@@ -49,9 +70,19 @@ export const BillableHoursCalculator = {
 		const rule = this.createBillabilityRule(bonusConfig);
 		const entries = this.createBillableEntries(worklogsWithIssues, rule);
 
-		return entries
-			.filter(entry => entry.isNonBillable())
-			.reduce((total, entry) => total + entry.getHours(), 0);
+		const nonBillableEntries = entries.filter(entry => entry.isNonBillable());
+		const nonBillableHours = nonBillableEntries.reduce(
+			(total, entry) => total + entry.getHours(),
+			0,
+		);
+
+		uiLogger.debug('BillableHoursCalculator: Non-billable hours calculation', {
+			totalEntries: entries.length,
+			nonBillableEntries: nonBillableEntries.length,
+			nonBillableHours,
+		});
+
+		return nonBillableHours;
 	},
 
 	calculateTotalHours(worklogsWithIssues: WorklogWithIssue[]): number {

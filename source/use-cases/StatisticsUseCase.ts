@@ -226,6 +226,18 @@ export class StatisticsUseCase {
 				  )
 				: 0;
 
+			uiLogger.debug('StatisticsUseCase: Billable hours calculation', {
+				year,
+				month,
+				totalHours,
+				billableHours,
+				nonBillableHours,
+				worklogsCount: worklogsWithIssues.length,
+				bonusConfigEnabled: this.bonusConfig?.enabled,
+				billableCustomField: this.bonusConfig?.billableCustomField,
+				billableValues: this.bonusConfig?.billableValues,
+			});
+
 			return {
 				days: worklogDates.size,
 				hours: totalHours,
