@@ -76,6 +76,7 @@ Enable bonus progress tracking with financial projections and target milestones:
 ```
 
 **Configuration Options:**
+
 - `enabled`: Enable/disable bonus tracking
 - `hoursPerBonusDay`: Hours required per bonus day (default: 8)
 - `targetDays`: Primary target for 100% bonus (default: 190)
@@ -85,6 +86,7 @@ Enable bonus progress tracking with financial projections and target milestones:
 - `billableCustomField`: Jira custom field ID for billable hours classification
 
 **Features:**
+
 - **Financial Projections**: Current, projected, and maximum possible bonus amounts
 - **Multi-Target Tracking**: Progress against Minimum, Standard, Stretch, and Maximum goals
 - **Tier Visualization**: Progress bars showing achievement status across all targets
