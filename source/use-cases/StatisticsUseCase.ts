@@ -171,7 +171,13 @@ export class StatisticsUseCase {
 		const jql = this.buildJqlQuery(startDate, endDate);
 
 		try {
-			const searchResult = await this.jiraClient.searchIssuesWithWorklogs(jql);
+			const additionalFields = this.bonusConfig?.billableCustomField
+				? [this.bonusConfig.billableCustomField]
+				: [];
+			const searchResult = await this.jiraClient.searchIssuesWithWorklogs(
+				jql,
+				additionalFields,
+			);
 			const currentUser = await this.jiraClient.getCurrentUser();
 			const currentUserEmail = currentUser.emailAddress;
 
