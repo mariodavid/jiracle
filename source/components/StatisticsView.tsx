@@ -312,29 +312,34 @@ export function StatisticsView({
 					<Box flexDirection="column" marginBottom={1}>
 						<Text bold>Target Milestones:</Text>
 						<Box flexDirection="column" marginLeft={2}>
-							{bonusProgress.targetProgresses.map(progress => (
-								<Box key={progress.target.label} marginBottom={0}>
-									<Text>
-										├─ {progress.target.label} ({progress.target.days} days){' '}
-										{renderProgressBar(progress.percentage, false, 20)}{' '}
-										{progress.isAchieved ? (
-											<Text color="green">✓ Achieved</Text>
-										) : (
-											<Text>
-												{progress.progress.toFixed(1)}/{progress.target.days} (
-												{progress.percentage.toFixed(0)}%)
+							{bonusProgress.targetProgresses.map(progress => {
+								const labelText = `├─ ${progress.target.label} (${progress.target.days} days)`;
+								const paddedLabel = labelText.padEnd(28, ' ');
+
+								return (
+									<Box key={progress.target.label} marginBottom={0}>
+										<Text>
+											{paddedLabel}{' '}
+											{renderProgressBar(progress.percentage, false, 20)}{' '}
+											{progress.isAchieved ? (
+												<Text color="green">✓ Achieved</Text>
+											) : (
+												<Text>
+													{progress.progress.toFixed(1)}/{progress.target.days}{' '}
+													({progress.percentage.toFixed(0)}%)
+												</Text>
+											)}{' '}
+											→{' '}
+											<Text color="yellow">
+												{CurrencyFormatter.formatSimple(
+													progress.projectedAmount,
+													bonusProgress.financialProjection.currency,
+												)}
 											</Text>
-										)}{' '}
-										→{' '}
-										<Text color="yellow">
-											{CurrencyFormatter.formatSimple(
-												progress.projectedAmount,
-												bonusProgress.financialProjection.currency,
-											)}
 										</Text>
-									</Text>
-								</Box>
-							))}
+									</Box>
+								);
+							})}
 						</Box>
 					</Box>
 

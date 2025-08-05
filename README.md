@@ -12,6 +12,7 @@ Terminal-based Jira time tracking with a keyboard-driven weekly timetable interf
 - **Keyboard navigation** with arrow keys and shortcuts
 - **Quick time entry** directly in grid cells
 - **Attendance tracking** with check-in/check-out
+- **Bonus progress tracking** with financial projections
 - **Smart defaults** and comment auto-fill
 - **Offline-capable** with Jira sync
 
@@ -50,6 +51,46 @@ Create `~/.config/jiracle.json`:
 ```
 
 ### Configuration Options
+
+#### Bonus Tracking
+
+Enable bonus progress tracking with financial projections and target milestones:
+
+```json
+{
+	"bonus": {
+		"enabled": true,
+		"hoursPerBonusDay": 8,
+		"targetDays": 190,
+		"targetAmount": 10000,
+		"currency": "EUR",
+		"targets": {
+			"minimum": {"days": 150, "label": "Minimum", "percentage": 79},
+			"standard": {"days": 190, "label": "Standard", "percentage": 100},
+			"stretch": {"days": 210, "label": "Stretch", "percentage": 128},
+			"maximum": {"days": 230, "label": "Maximum", "percentage": 148}
+		},
+		"billableCustomField": "customfield_12345"
+	}
+}
+```
+
+**Configuration Options:**
+- `enabled`: Enable/disable bonus tracking
+- `hoursPerBonusDay`: Hours required per bonus day (default: 8)
+- `targetDays`: Primary target for 100% bonus (default: 190)
+- `targetAmount`: Total bonus amount in base currency
+- `currency`: Currency for financial display (e.g., "EUR", "USD")
+- `targets`: Four milestone levels with days, labels, and percentage values
+- `billableCustomField`: Jira custom field ID for billable hours classification
+
+**Features:**
+- **Financial Projections**: Current, projected, and maximum possible bonus amounts
+- **Multi-Target Tracking**: Progress against Minimum, Standard, Stretch, and Maximum goals
+- **Tier Visualization**: Progress bars showing achievement status across all targets
+- **Real-time Calculations**: Automatic year-end projections based on current pace
+
+Access via: `jiracle` → Statistics → Tab 2 (Bonus Overview)
 
 #### Sliding Window
 
