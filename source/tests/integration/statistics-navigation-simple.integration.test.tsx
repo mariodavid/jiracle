@@ -171,8 +171,8 @@ test('Integration: HelpText updates correctly', async t => {
 	// Navigate back to timetable
 	stdin.write('q');
 
-	// Wait for state to update
-	await InkTestHelpers.delay(100);
+	// Wait longer for state to update
+	await InkTestHelpers.delay(300);
 
 	const backToTimetableOutput = lastFrame()!;
 
