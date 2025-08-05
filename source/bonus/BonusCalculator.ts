@@ -1,6 +1,7 @@
 import type {BonusConfig, BonusTier, BonusTarget} from '../jira/types.js';
 import {LocalDate} from '../domain/LocalDate.js';
 import {type Duration} from '../domain/Duration.js';
+import {type Money} from '../domain/Money.js';
 
 /**
  * Rich domain object representing bonus days with validation and behavior
@@ -34,38 +35,42 @@ export class BonusDays {
 }
 
 /**
- * Rich domain object for financial projections
+ * Rich domain object for financial projections using Money value objects
  */
 export class FinancialProjection {
 	static create(data: {
-		currentAmount: number;
-		projectedAmount: number;
-		maximumPossible: number;
-		currency: string;
+		currentAmount: Money;
+		projectedAmount: Money;
+		maximumPossible: Money;
 	}): FinancialProjection {
-		return new FinancialProjection({
-			currentAmount: Math.round(data.currentAmount * 100) / 100,
-			projectedAmount: Math.round(data.projectedAmount * 100) / 100,
-			maximumPossible: Math.round(data.maximumPossible * 100) / 100,
-			currency: data.currency,
-		});
+		// Ensure all amounts use the same currency
+		const currency = data.currentAmount.getCurrency();
+		if (
+			data.projectedAmount.getCurrency() !== currency ||
+			data.maximumPossible.getCurrency() !== currency
+		) {
+			throw new Error(
+				'All financial projection amounts must use the same currency',
+			);
+		}
+
+		return new FinancialProjection(data);
 	}
 
-	public readonly currentAmount: number;
-	public readonly projectedAmount: number;
-	public readonly maximumPossible: number;
+	public readonly currentAmount: Money;
+	public readonly projectedAmount: Money;
+	public readonly maximumPossible: Money;
 	public readonly currency: string;
 
 	constructor(data: {
-		currentAmount: number;
-		projectedAmount: number;
-		maximumPossible: number;
-		currency: string;
+		currentAmount: Money;
+		projectedAmount: Money;
+		maximumPossible: Money;
 	}) {
 		this.currentAmount = data.currentAmount;
 		this.projectedAmount = data.projectedAmount;
 		this.maximumPossible = data.maximumPossible;
-		this.currency = data.currency;
+		this.currency = data.currentAmount.getCurrency();
 	}
 }
 
