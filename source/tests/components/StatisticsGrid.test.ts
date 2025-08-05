@@ -14,6 +14,8 @@ const EXPECTED_YEARLY_STATISTICS: YearlyStatistics = {
 			attendanceDays: 20,
 			businessDays: 23,
 			totalHours: 184,
+			billableHours: 184,
+			nonBillableHours: 0,
 			bonusDays: 23,
 			efficiency: 100,
 		},
@@ -23,6 +25,8 @@ const EXPECTED_YEARLY_STATISTICS: YearlyStatistics = {
 			attendanceDays: 18,
 			businessDays: 20,
 			totalHours: 160,
+			billableHours: 160,
+			nonBillableHours: 0,
 			bonusDays: 20,
 			efficiency: 100,
 		},
@@ -32,6 +36,8 @@ const EXPECTED_YEARLY_STATISTICS: YearlyStatistics = {
 			attendanceDays: 0,
 			businessDays: 21,
 			totalHours: 0,
+			billableHours: 0,
+			nonBillableHours: 0,
 			bonusDays: 0,
 			efficiency: 0,
 		},
@@ -75,8 +81,9 @@ test('should render statistics table with proper headers', t => {
 	const output = renderStatisticsGrid(EXPECTED_YEARLY_STATISTICS);
 
 	t.true(output.includes('Work Days'));
-	t.true(output.includes('Bonus Days'));
-	t.true(output.includes('Efficiency'));
+	t.true(output.includes('Billable'));
+	t.true(output.includes('Non-Bill'));
+	t.true(output.includes('%'));
 	t.true(output.includes('Target'));
 });
 
@@ -86,20 +93,21 @@ test('should render monthly statistics with correct data', t => {
 	// January data
 	t.true(output.includes('January'));
 	t.true(output.includes('23')); // Business days
-	t.true(output.includes('23.0')); // Bonus days
+	t.true(output.includes('23.0')); // Billable days (184 hours / 8 hours per day)
+	t.true(output.includes('0.0')); // Non-billable days
 	t.true(output.includes('100.0%')); // Efficiency
 	t.true(output.includes('✓')); // Target achieved
 
 	// February data
 	t.true(output.includes('February'));
 	t.true(output.includes('20')); // Business days
-	t.true(output.includes('20.0')); // Bonus days
+	t.true(output.includes('20.0')); // Billable days (160 hours / 8 hours per day)
 	t.true(output.includes('100.0%')); // Efficiency
 
 	// March data (zero values)
 	t.true(output.includes('March'));
 	t.true(output.includes('21')); // Business days
-	t.true(output.includes('0.0')); // Bonus days
+	t.true(output.includes('0.0')); // Billable and non-billable days
 	t.true(output.includes('0.0%')); // Efficiency
 });
 
@@ -108,7 +116,8 @@ test('should render total row with correct calculations', t => {
 
 	t.true(output.includes('YTD Total'));
 	t.true(output.includes('64')); // Total business days (23+20+21)
-	t.true(output.includes('43.0')); // Total bonus days
+	t.true(output.includes('43.0')); // Total billable days (344 hours / 8 hours per day)
+	t.true(output.includes('0.0')); // Total non-billable days
 	t.true(output.includes('16.5%')); // Year-to-date efficiency (rounded)
 });
 
@@ -122,6 +131,8 @@ test('should calculate bonus days correctly using 8-hour workday', t => {
 				attendanceDays: 1,
 				businessDays: 23,
 				totalHours: 8,
+				billableHours: 8,
+				nonBillableHours: 0,
 				bonusDays: 1,
 				efficiency: 4.35,
 			},
@@ -135,7 +146,7 @@ test('should calculate bonus days correctly using 8-hour workday', t => {
 
 	const output = renderStatisticsGrid(singleDayStats);
 
-	t.true(output.includes('1.0')); // 1 bonus day from 8 hours
+	t.true(output.includes('1.0')); // 1 billable day from 8 hours
 });
 
 test('should handle empty statistics gracefully', t => {
@@ -143,8 +154,9 @@ test('should handle empty statistics gracefully', t => {
 
 	// Should not show bonus columns when no bonus data
 	t.false(output.includes('Work Days'));
-	t.false(output.includes('Bonus Days'));
-	t.false(output.includes('Efficiency'));
+	t.false(output.includes('Billable'));
+	t.false(output.includes('Non-Bill'));
+	t.false(output.includes('%'));
 	t.false(output.includes('Target'));
 
 	// Should render month names only
