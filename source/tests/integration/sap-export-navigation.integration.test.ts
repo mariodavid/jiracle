@@ -64,7 +64,7 @@ test.serial(
 
 			// Press 'e' to trigger export
 			stdin.write('e');
-			InkTestHelpers.delay(100);
+			await InkTestHelpers.delay(100);
 			const exportOutput = lastFrame()!;
 
 			// SPECIFIC VALUE COMPARISONS
@@ -185,8 +185,8 @@ test.serial(
 	'Integration: SAP Export navigation - disabled SAP shows configuration error',
 	async t => {
 		// EXPLICIT TEST DATA
-		const expectedErrorMessage = 'SAP export is not enabled';
-		const expectedConfigMessage = 'Please configure SAP settings';
+		const expectedErrorMessage =
+			'SAP export is not enabled. Please configure SAP settings.';
 		const mockConfig = createConfigWithoutSAP();
 
 		// OPERATIONS
@@ -202,16 +202,23 @@ test.serial(
 			// Press 'e' to trigger export
 			stdin.write('e');
 			await InkTestHelpers.delay(100);
+
+			// Should see the MonthYearSelector first
+			const selectionOutput = lastFrame()!;
+			t.true(
+				selectionOutput.includes('Select Export Period'),
+				'Should show period selection screen first',
+			);
+
+			// Press Enter to proceed to confirmation where error should be shown
+			stdin.write('\r'); // Enter key
+			await InkTestHelpers.delay(100);
 			const errorOutput = lastFrame()!;
 
 			// SPECIFIC VALUE COMPARISONS
 			t.true(
 				errorOutput.includes(expectedErrorMessage),
-				'Should show SAP disabled error message',
-			);
-			t.true(
-				errorOutput.includes(expectedConfigMessage),
-				'Should show configuration instruction',
+				'Should show SAP disabled error message in confirmation screen',
 			);
 		});
 	},
