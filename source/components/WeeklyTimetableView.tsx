@@ -13,6 +13,7 @@ import {useTitleResolver} from '../hooks/useTitleResolver.js';
 import {useActiveAreaResolver} from '../hooks/useActiveAreaResolver.js';
 import {useNotification} from '../hooks/useNotification.js';
 import {JiraClient, type JiraConfig} from '../jira-client.js';
+import {useSAPExport} from '../hooks/useSAPExport.js';
 import type {IssueKey} from '../domain/IssueKey.js';
 import {openInBrowser, generateJiraIssueUrl} from '../utils/browser.js';
 import {NotificationBar} from './NotificationBar.js';
@@ -27,6 +28,7 @@ import {
 import {TitleBar} from './TitleBar.js';
 import {TimetableGrid} from './TimetableGrid.js';
 import {StatisticsView} from './StatisticsView.js';
+import {SAPExportView} from './SAPExportView.js';
 import {HelpText} from './HelpText.js';
 
 export type WeeklyTimetableViewProps = {
@@ -42,6 +44,9 @@ export function WeeklyTimetableView({
 }: WeeklyTimetableViewProps) {
 	// Create JiraClient instance (memoized to prevent infinite loops)
 	const jiraClient = useMemo(() => new JiraClient(config), [config]);
+
+	// SAP export functionality
+	const {handleExport: handleSAPExport} = useSAPExport(config);
 
 	// Navigation state management
 	const {
@@ -222,7 +227,8 @@ export function WeeklyTimetableView({
 			activeArea === 'attendance-edit' ||
 			activeArea === 'checkin-confirmation' ||
 			activeArea === 'checkout-confirmation' ||
-			activeArea === 'statistics'
+			activeArea === 'statistics' ||
+			activeArea === 'sap-export'
 		) {
 			return;
 		}
@@ -273,6 +279,12 @@ export function WeeklyTimetableView({
 			case 's': {
 				// Show statistics view
 				setActiveArea('statistics');
+				break;
+			}
+
+			case 'e': {
+				// Export to SAP S/4HANA
+				setActiveArea('sap-export');
 				break;
 			}
 
@@ -380,6 +392,18 @@ export function WeeklyTimetableView({
 										setActiveArea('timetable');
 									}}
 									onBonusTabChange={setShowBonusTab}
+								/>
+							);
+						}
+
+						case 'sap-export': {
+							return (
+								<SAPExportView
+									config={config}
+									onBack={() => {
+										setActiveArea('timetable');
+									}}
+									onExport={handleSAPExport}
 								/>
 							);
 						}

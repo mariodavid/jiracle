@@ -56,6 +56,13 @@ export type BonusConfig = {
 	billableValues?: string[];
 };
 
+export type SAPConfig = {
+	enabled: boolean;
+	persnr: string;
+	commentPrefix?: string;
+	removeExistingTimesheets: boolean;
+};
+
 export type JiraConfig = {
 	jiraUrl: string;
 	username: string;
@@ -71,6 +78,7 @@ export type JiraConfig = {
 	slidingWindowDays?: SlidingWindowConfig;
 	commentPrefillDays?: number;
 	bonus?: BonusConfig;
+	sap?: SAPConfig;
 };
 
 export type JiraIssueField = {

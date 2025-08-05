@@ -35,6 +35,10 @@ export function HelpText({
 				);
 			}
 
+			case 'sap-export': {
+				return <Text color="gray">[Enter] Confirm [Q] Cancel/Back</Text>;
+			}
+
 			case 'delete-confirmation':
 			case 'delete-attendance-confirmation':
 			case 'checkin-confirmation':
@@ -59,7 +63,8 @@ export function HelpText({
 								: ''}
 						</Text>
 						<Text color="gray">
-							[T] Today [R] Refresh [S] Statistics [Q] Quit
+							[T] Today [R] Refresh [S] Statistics{' '}
+							{config.sap?.enabled ? '[E] SAP Export' : '[E] Export'} [Q] Quit
 						</Text>
 					</>
 				);

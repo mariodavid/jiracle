@@ -53,7 +53,9 @@ test('WeeklyTimetableView shows comprehensive keyboard shortcuts', t => {
 		output.includes('[↑↓←→] Navigate Cells [Enter] Log Work [A] Add Worklog'),
 	);
 	t.true(output.includes('[D] Delete Worklogs [I] Check In [O] Check Out'));
-	t.true(output.includes('[T] Today [R] Refresh [S] Statistics [Q] Quit'));
+	t.true(
+		output.includes('[T] Today [R] Refresh [S] Statistics [E] Export [Q] Quit'),
+	);
 });
 
 test('WeeklyTimetableView renders with default configuration', t => {
