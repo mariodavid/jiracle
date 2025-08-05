@@ -4,6 +4,10 @@ import {type JiraClient} from '../jira-client.js';
 import {type AttendanceManager} from '../attendance/AttendanceManager.js';
 import {type BonusConfig} from '../jira/types.js';
 import {uiLogger} from '../utils/logger.js';
+import {
+	BillableHoursCalculator,
+	type WorklogWithIssue,
+} from '../utils/BillableHoursCalculator.js';
 
 export type MonthlyStatistics = {
 	month: string;
@@ -121,13 +125,15 @@ export class StatisticsUseCase {
 			month: monthName,
 			worklogDays: worklogDaysResult.days,
 			attendanceDays,
+			billableHours: worklogDaysResult.billableHours,
+			nonBillableHours: worklogDaysResult.nonBillableHours,
 		};
 
 		if (this.bonusConfig?.enabled) {
 			const businessDays = this.calculateBusinessDaysInMonth(year, month);
 			const potentialHours = businessDays * this.bonusConfig.hoursPerBonusDay;
 			const bonusDays =
-				worklogDaysResult.hours / this.bonusConfig.hoursPerBonusDay;
+				worklogDaysResult.billableHours / this.bonusConfig.hoursPerBonusDay;
 			const efficiency =
 				businessDays > 0 ? (bonusDays / businessDays) * 100 : 0;
 
@@ -153,7 +159,12 @@ export class StatisticsUseCase {
 	private async calculateWorklogDaysAndHoursForMonth(
 		year: number,
 		month: number,
-	): Promise<{days: number; hours: number}> {
+	): Promise<{
+		days: number;
+		hours: number;
+		billableHours: number;
+		nonBillableHours: number;
+	}> {
 		const startDate = this.getMonthStart(year, month);
 		const endDate = this.getMonthEnd(year, month);
 
@@ -166,6 +177,7 @@ export class StatisticsUseCase {
 
 			const worklogDates = new Set<string>();
 			let totalHours = 0;
+			const worklogsWithIssues: WorklogWithIssue[] = [];
 
 			const worklogPromises = searchResult.issues.map(async issue => {
 				const worklogResponse = await this.jiraClient.getIssueWorklogs(
@@ -185,6 +197,7 @@ export class StatisticsUseCase {
 						totalHours += Duration.fromSeconds(
 							worklog.timeSpentSeconds,
 						).toHours();
+						worklogsWithIssues.push({worklog, issue});
 					}
 				}
 
@@ -199,14 +212,33 @@ export class StatisticsUseCase {
 				}
 			}
 
-			return {days: worklogDates.size, hours: totalHours};
+			const billableHours = this.bonusConfig
+				? BillableHoursCalculator.calculateBillableHours(
+						worklogsWithIssues,
+						this.bonusConfig,
+				  )
+				: totalHours;
+
+			const nonBillableHours = this.bonusConfig
+				? BillableHoursCalculator.calculateNonBillableHours(
+						worklogsWithIssues,
+						this.bonusConfig,
+				  )
+				: 0;
+
+			return {
+				days: worklogDates.size,
+				hours: totalHours,
+				billableHours,
+				nonBillableHours,
+			};
 		} catch (error: unknown) {
 			uiLogger.error('Error calculating worklog days and hours', {
 				year,
 				month,
 				error: error instanceof Error ? error.message : String(error),
 			});
-			return {days: 0, hours: 0};
+			return {days: 0, hours: 0, billableHours: 0, nonBillableHours: 0};
 		}
 	}
 

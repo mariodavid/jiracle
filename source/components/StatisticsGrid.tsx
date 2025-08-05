@@ -46,6 +46,9 @@ type MonthRowProps = {
 		worklogDays: number;
 		attendanceDays: number;
 		totalHours?: number;
+		billableHours?: number;
+		nonBillableHours?: number;
+		potentialHours?: number;
 		businessDays?: number;
 		bonusDays?: number;
 		efficiency?: number;
@@ -67,13 +70,29 @@ function MonthRow({month, showBonus, bonusConfig}: MonthRowProps) {
 			</Box>
 			{showBonus && (
 				<>
-					<Box width={15} justifyContent="flex-end">
+					<Box width={12} justifyContent="flex-end">
 						<Text>{month.businessDays ?? '-'}</Text>
 					</Box>
 					<Box width={15} justifyContent="flex-end">
-						<Text>{month.bonusDays?.toFixed(1) ?? '-'}</Text>
+						<Text>
+							{month.potentialHours !== undefined &&
+							month.potentialHours !== null
+								? `${month.potentialHours.toFixed(1)}h`
+								: '-'}
+						</Text>
 					</Box>
 					<Box width={12} justifyContent="flex-end">
+						<Text color="green">{month.billableHours?.toFixed(1) ?? '-'}h</Text>
+					</Box>
+					<Box width={12} justifyContent="flex-end">
+						<Text color="red">
+							{month.nonBillableHours?.toFixed(1) ?? '-'}h
+						</Text>
+					</Box>
+					<Box width={12} justifyContent="flex-end">
+						<Text>{month.bonusDays?.toFixed(1) ?? '-'}</Text>
+					</Box>
+					<Box width={10} justifyContent="flex-end">
 						<Text color={getEfficiencyColor(month.efficiency)}>
 							{month.efficiency?.toFixed(1) ?? '-'}%
 						</Text>
@@ -138,9 +157,9 @@ export function StatisticsGrid({statistics, bonusConfig}: StatisticsGridProps) {
 	const monthData = statistics.monthlyStats;
 	const showBonus = bonusConfig?.enabled && statistics.totalHours !== undefined;
 
-	// New layout: Month + Work Days + Bonus Days + Efficiency + Target
+	// New layout: Month + Work Days + Potential + Billable + Non-Bill + Total + Bonus Days + Efficiency + Target
 	const baseWidth = 2 + 12; // Margin + Month
-	const bonusWidth = showBonus ? 15 + 15 + 12 + 8 : 0; // Work Days + Bonus + Efficiency + Target
+	const bonusWidth = showBonus ? 12 + 15 + 12 + 12 + 12 + 10 + 8 : 0; // Work Days + Potential + Billable + Non-Bill + Total + Bonus + Efficiency + Target
 	const tableWidth = baseWidth + bonusWidth + 8;
 
 	return (
@@ -159,17 +178,32 @@ export function StatisticsGrid({statistics, bonusConfig}: StatisticsGridProps) {
 				</Box>
 				{showBonus && (
 					<>
-						<Box width={15} justifyContent="flex-end">
+						<Box width={12} justifyContent="flex-end">
 							<Text bold color="white">
 								Work Days
 							</Text>
 						</Box>
 						<Box width={15} justifyContent="flex-end">
 							<Text bold color="white">
-								Bonus Days
+								Potential
 							</Text>
 						</Box>
 						<Box width={12} justifyContent="flex-end">
+							<Text bold color="white">
+								Billable
+							</Text>
+						</Box>
+						<Box width={12} justifyContent="flex-end">
+							<Text bold color="white">
+								Non-Bill
+							</Text>
+						</Box>
+						<Box width={12} justifyContent="flex-end">
+							<Text bold color="white">
+								Bonus Days
+							</Text>
+						</Box>
+						<Box width={10} justifyContent="flex-end">
 							<Text bold color="white">
 								Efficiency
 							</Text>
@@ -220,7 +254,7 @@ export function StatisticsGrid({statistics, bonusConfig}: StatisticsGridProps) {
 				</Box>
 				{showBonus && (
 					<>
-						<Box width={15} justifyContent="flex-end">
+						<Box width={12} justifyContent="flex-end">
 							<Text bold color="yellow">
 								{monthData.reduce(
 									(sum, month) => sum + (month.businessDays ?? 0),
@@ -230,10 +264,37 @@ export function StatisticsGrid({statistics, bonusConfig}: StatisticsGridProps) {
 						</Box>
 						<Box width={15} justifyContent="flex-end">
 							<Text bold color="yellow">
-								{statistics.totalBonusDays?.toFixed(1) ?? '-'}
+								{monthData
+									.reduce((sum, month) => sum + (month.potentialHours ?? 0), 0)
+									.toFixed(1)}
+								h
 							</Text>
 						</Box>
 						<Box width={12} justifyContent="flex-end">
+							<Text bold color="green">
+								{monthData
+									.reduce((sum, month) => sum + (month.billableHours ?? 0), 0)
+									.toFixed(1)}
+								h
+							</Text>
+						</Box>
+						<Box width={12} justifyContent="flex-end">
+							<Text bold color="red">
+								{monthData
+									.reduce(
+										(sum, month) => sum + (month.nonBillableHours ?? 0),
+										0,
+									)
+									.toFixed(1)}
+								h
+							</Text>
+						</Box>
+						<Box width={12} justifyContent="flex-end">
+							<Text bold color="yellow">
+								{statistics.totalBonusDays?.toFixed(1) ?? '-'}
+							</Text>
+						</Box>
+						<Box width={10} justifyContent="flex-end">
 							<Text bold color="yellow">
 								{statistics.yearToDateEfficiency?.toFixed(1) ?? '-'}%
 							</Text>
