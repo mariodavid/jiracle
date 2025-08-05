@@ -184,6 +184,31 @@ export class WorklogEntry {
 		});
 	}
 
+	getTotalHours(): number {
+		return this.durationHours;
+	}
+
+	isOnDate(date: LocalDate): boolean {
+		return this._date.equals(date);
+	}
+
+	isInDateRange(startDate: LocalDate, endDate: LocalDate): boolean {
+		const worklogDate = this._date.toDate();
+		const start = startDate.toDate();
+		const end = endDate.toDate();
+		return worklogDate >= start && worklogDate <= end;
+	}
+
+	isByAuthor(emailAddress: string): boolean {
+		return (
+			this._author.emailAddress.toLowerCase() === emailAddress.toLowerCase()
+		);
+	}
+
+	hasComment(): boolean {
+		return Boolean(this._comment && this._comment.trim().length > 0);
+	}
+
 	isSameDay(other: WorklogEntry | Date | LocalDate): boolean {
 		if (other instanceof WorklogEntry) {
 			return this._date.equals(other._date);

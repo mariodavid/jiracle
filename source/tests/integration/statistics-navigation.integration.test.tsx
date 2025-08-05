@@ -52,10 +52,13 @@ function createConfigWithBonus(attendancePath: string): JiraConfig {
 			enabled: true,
 			hoursPerBonusDay: 8,
 			targetDays: 190,
+			targetAmount: 10_000,
+			currency: 'EUR',
 			targets: {
-				minimum: 150,
-				standard: 190,
-				stretch: 210,
+				minimum: {days: 150, label: 'Minimum', percentage: 79},
+				standard: {days: 190, label: 'Standard', percentage: 100},
+				stretch: {days: 210, label: 'Stretch', percentage: 128},
+				maximum: {days: 230, label: 'Maximum', percentage: 148},
 			},
 			tiers: [
 				{name: 'Tier 1', startDay: 0, endDay: 119, rate: 0.002},

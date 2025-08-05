@@ -22,15 +22,83 @@ export type MonthlyStatistics = {
 	efficiency?: number;
 };
 
-export type YearlyStatistics = {
-	year: number;
-	monthlyStats: MonthlyStatistics[];
-	totalWorklogDays: number;
-	totalAttendanceDays: number;
-	totalHours?: number;
-	totalBonusDays?: number;
-	yearToDateEfficiency?: number;
-};
+export class YearlyStatistics {
+	static create(data: {
+		year: number;
+		monthlyStats: MonthlyStatistics[];
+		totalWorklogDays: number;
+		totalAttendanceDays: number;
+		totalHours?: number;
+		totalBillableHours?: number;
+		totalNonBillableHours?: number;
+		totalBonusDays?: number;
+		yearToDateEfficiency?: number;
+	}): YearlyStatistics {
+		return new YearlyStatistics(data);
+	}
+
+	private constructor(
+		private readonly data: {
+			year: number;
+			monthlyStats: MonthlyStatistics[];
+			totalWorklogDays: number;
+			totalAttendanceDays: number;
+			totalHours?: number;
+			totalBillableHours?: number;
+			totalNonBillableHours?: number;
+			totalBonusDays?: number;
+			yearToDateEfficiency?: number;
+		},
+	) {}
+
+	get year(): number {
+		return this.data.year;
+	}
+
+	get monthlyStats(): MonthlyStatistics[] {
+		return this.data.monthlyStats;
+	}
+
+	get totalWorklogDays(): number {
+		return this.data.totalWorklogDays;
+	}
+
+	get totalAttendanceDays(): number {
+		return this.data.totalAttendanceDays;
+	}
+
+	get totalHours(): number | undefined {
+		return this.data.totalHours;
+	}
+
+	get totalBillableHours(): number | undefined {
+		return this.data.totalBillableHours;
+	}
+
+	get totalNonBillableHours(): number | undefined {
+		return this.data.totalNonBillableHours;
+	}
+
+	get totalBonusDays(): number | undefined {
+		return this.data.totalBonusDays;
+	}
+
+	get yearToDateEfficiency(): number | undefined {
+		return this.data.yearToDateEfficiency;
+	}
+
+	getBillableHoursDuration(): Duration | undefined {
+		return this.data.totalBillableHours
+			? Duration.fromHours(this.data.totalBillableHours)
+			: undefined;
+	}
+
+	getTotalHoursDuration(): Duration | undefined {
+		return this.data.totalHours
+			? Duration.fromHours(this.data.totalHours)
+			: undefined;
+	}
+}
 
 export class StatisticsUseCase {
 	constructor(
@@ -55,7 +123,7 @@ export class StatisticsUseCase {
 			0,
 		);
 
-		const result: YearlyStatistics = {
+		const resultData = {
 			year: targetYear,
 			monthlyStats,
 			totalWorklogDays,
@@ -67,6 +135,14 @@ export class StatisticsUseCase {
 				(sum, month) => sum + (month.totalHours ?? 0),
 				0,
 			);
+			const totalBillableHours = monthlyStats.reduce(
+				(sum, month) => sum + (month.billableHours ?? 0),
+				0,
+			);
+			const totalNonBillableHours = monthlyStats.reduce(
+				(sum, month) => sum + (month.nonBillableHours ?? 0),
+				0,
+			);
 			const totalBonusDays = monthlyStats.reduce(
 				(sum, month) => sum + (month.bonusDays ?? 0),
 				0,
@@ -76,13 +152,20 @@ export class StatisticsUseCase {
 				0,
 			);
 
-			result.totalHours = totalHours;
-			result.totalBonusDays = totalBonusDays;
-			result.yearToDateEfficiency =
-				totalBusinessDays > 0 ? (totalBonusDays / totalBusinessDays) * 100 : 0;
+			return YearlyStatistics.create({
+				...resultData,
+				totalHours,
+				totalBillableHours,
+				totalNonBillableHours,
+				totalBonusDays,
+				yearToDateEfficiency:
+					totalBusinessDays > 0
+						? (totalBonusDays / totalBusinessDays) * 100
+						: 0,
+			});
 		}
 
-		return result;
+		return YearlyStatistics.create(resultData);
 	}
 
 	private async calculateMonthlyStatistics(

@@ -9,7 +9,14 @@ const DEFAULT_BONUS_CONFIG: BonusConfig = {
 	enabled: true,
 	hoursPerBonusDay: 8,
 	targetDays: 190,
-	targets: {minimum: 150, standard: 190, stretch: 210},
+	targetAmount: 10_000,
+	currency: 'EUR',
+	targets: {
+		minimum: {days: 150, label: 'Minimum', percentage: 79},
+		standard: {days: 190, label: 'Standard', percentage: 100},
+		stretch: {days: 210, label: 'Stretch', percentage: 128},
+		maximum: {days: 230, label: 'Maximum', percentage: 148},
+	},
 };
 
 const CUSTOM_TIERS: BonusTier[] = [
@@ -22,7 +29,14 @@ const CUSTOM_BONUS_CONFIG: BonusConfig = {
 	enabled: true,
 	hoursPerBonusDay: 8,
 	targetDays: 200,
-	targets: {minimum: 160, standard: 200, stretch: 240},
+	targetAmount: 15_000,
+	currency: 'EUR',
+	targets: {
+		minimum: {days: 160, label: 'Minimum', percentage: 80},
+		standard: {days: 200, label: 'Standard', percentage: 100},
+		stretch: {days: 240, label: 'Stretch', percentage: 120},
+		maximum: {days: 260, label: 'Maximum', percentage: 140},
+	},
 	tiers: CUSTOM_TIERS,
 };
 
@@ -180,7 +194,10 @@ test('should find target milestone when past all tiers', t => {
 	const calculator = createCalculatorWithDefaults();
 	const progress = calculator.calculateBonusProgress(Duration.fromHours(1520)); // 190 bonus days (reached target)
 
-	t.is(progress.nextMilestone, undefined); // No more milestones
+	t.truthy(progress.nextMilestone); // Now shows stretch milestone
+	t.is(progress.nextMilestone!.name, 'Stretch (€12,800)');
+	t.is(progress.nextMilestone!.targetDays, 210);
+	t.is(progress.nextMilestone!.daysRemaining, 20);
 });
 
 test('should find target milestone when in final tier', t => {
@@ -188,7 +205,7 @@ test('should find target milestone when in final tier', t => {
 	const progress = calculator.calculateBonusProgress(Duration.fromHours(1400)); // 175 bonus days
 
 	t.truthy(progress.nextMilestone);
-	t.is(progress.nextMilestone!.name, '100% Target');
+	t.is(progress.nextMilestone!.name, 'Standard (€10,000)');
 	t.is(progress.nextMilestone!.targetDays, 190);
 	t.is(progress.nextMilestone!.daysRemaining, 15);
 });
@@ -284,7 +301,14 @@ test('should handle missing tier configuration gracefully', t => {
 		enabled: true,
 		hoursPerBonusDay: 8,
 		targetDays: 190,
-		targets: {minimum: 150, standard: 190, stretch: 210},
+		targetAmount: 10_000,
+		currency: 'EUR',
+		targets: {
+			minimum: {days: 150, label: 'Minimum', percentage: 79},
+			standard: {days: 190, label: 'Standard', percentage: 100},
+			stretch: {days: 210, label: 'Stretch', percentage: 128},
+			maximum: {days: 230, label: 'Maximum', percentage: 148},
+		},
 		// No tiers property
 	};
 
@@ -301,7 +325,14 @@ test('should handle different hours per bonus day', t => {
 		enabled: true,
 		hoursPerBonusDay: 6, // 6 hours instead of 8
 		targetDays: 190,
-		targets: {minimum: 150, standard: 190, stretch: 210},
+		targetAmount: 10_000,
+		currency: 'EUR',
+		targets: {
+			minimum: {days: 150, label: 'Minimum', percentage: 79},
+			standard: {days: 190, label: 'Standard', percentage: 100},
+			stretch: {days: 210, label: 'Stretch', percentage: 128},
+			maximum: {days: 230, label: 'Maximum', percentage: 148},
+		},
 	};
 
 	const calculator = new BonusCalculator(customConfig);

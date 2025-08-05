@@ -41,7 +41,14 @@ function createTestBonusConfig(
 		enabled: true,
 		hoursPerBonusDay: 8,
 		targetDays: 200,
-		targets: {minimum: 150, standard: 200, stretch: 220},
+		targetAmount: 10_000,
+		currency: 'EUR',
+		targets: {
+			minimum: {days: 150, label: 'Minimum', percentage: 75},
+			standard: {days: 200, label: 'Standard', percentage: 100},
+			stretch: {days: 220, label: 'Stretch', percentage: 110},
+			maximum: {days: 240, label: 'Maximum', percentage: 120},
+		},
 		...overrides,
 	};
 }
