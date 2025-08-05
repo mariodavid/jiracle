@@ -76,6 +76,97 @@ export const TestData = {
 			this.localDate('2024-01-19'), // Friday
 		];
 	},
+
+	// Additional LocalDate utilities for testing edge cases
+	yesterday(): LocalDate {
+		return LocalDate.today().addDays(-1);
+	},
+
+	tomorrow(): LocalDate {
+		return LocalDate.today().addDays(1);
+	},
+
+	daysAgo(days: number): LocalDate {
+		return LocalDate.today().addDays(-days);
+	},
+
+	daysFromNow(days: number): LocalDate {
+		return LocalDate.today().addDays(days);
+	},
+
+	// WeekRange utilities for testing
+	lastWeek(): WeekRange {
+		return WeekRange.current().previous();
+	},
+
+	nextWeek(): WeekRange {
+		return WeekRange.current().next();
+	},
+
+	weeksAgo(weeks: number): WeekRange {
+		let current = WeekRange.current();
+
+		for (let i = 0; i < weeks; i++) {
+			current = current.previous();
+		}
+
+		return current;
+	},
+
+	weeksFromNow(weeks: number): WeekRange {
+		let current = WeekRange.current();
+
+		for (let i = 0; i < weeks; i++) {
+			current = current.next();
+		}
+
+		return current;
+	},
+
+	// Common test scenarios
+	yearBoundaryWeek(): WeekRange {
+		// Week spanning December 2024 to January 2025 (useful for testing year boundaries)
+		return WeekRange.fromDate(LocalDate.fromString('2024-12-30'));
+	},
+
+	leapYearDate(): LocalDate {
+		// February 29, 2024 (leap year date)
+		return LocalDate.fromString('2024-02-29');
+	},
+
+	endOfMonthDate(): LocalDate {
+		// January 31, 2024 (end of month)
+		return LocalDate.fromString('2024-01-31');
+	},
+
+	// Date range utilities
+	dateRange(start: string, end: string): LocalDate[] {
+		const startDate = LocalDate.fromString(start);
+		const endDate = LocalDate.fromString(end);
+		const dates: LocalDate[] = [];
+		let current = startDate;
+
+		while (current.toISOString() <= endDate.toISOString()) {
+			dates.push(current);
+			current = current.addDays(1);
+		}
+
+		return dates;
+	},
+
+	// Week-related date collections
+	workWeekDates(startDateString = '2024-01-15'): LocalDate[] {
+		// Returns Monday through Friday of the given week
+		const weekRange = this.weekRange(startDateString);
+		return weekRange.getWeekdays();
+	},
+
+	weekendDates(startDateString = '2024-01-15'): LocalDate[] {
+		// Returns Saturday and Sunday of the given week
+		const weekRange = this.weekRange(startDateString);
+		const allDays = weekRange.getDays();
+		return [allDays[5]!, allDays[6]!]; // Saturday and Sunday
+	},
 };
 
 // Config factories

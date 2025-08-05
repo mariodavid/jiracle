@@ -5,8 +5,7 @@ import type {
 	WorklogResponse,
 } from '../../../../jira/types.js';
 import {IssueKey} from '../../../../domain/IssueKey.js';
-import {LocalDate} from '../../../../domain/LocalDate.js';
-import {WeekRange} from '../../../../domain/WeekRange.js';
+import {TestData} from '../../../utils/test-helpers.js';
 
 export const createMockIssue = (overrides: {
 	id?: string;
@@ -89,5 +88,5 @@ export const createWorklogResponseWithWorklogs = (
 });
 
 export const getStandardTestDates = () => ({
-	weekRange: WeekRange.fromDate(LocalDate.fromString('2024-10-14')), // Monday
+	weekRange: TestData.weekRange('2024-10-14'), // Monday
 });

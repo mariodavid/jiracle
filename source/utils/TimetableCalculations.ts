@@ -3,6 +3,29 @@ import {LocalDate} from '../domain/LocalDate.js';
 
 export function calculateDailyTotals(
 	data: WeeklyWorklogSummary,
+	weekDates: LocalDate[],
+): number[] {
+	const totals: number[] = Array.from({length: 5}, () => 0);
+
+	for (const dailySummary of data.dailySummaries) {
+		const dateKey = dailySummary.date.toISOString();
+		const dayIndex = weekDates.findIndex(
+			date => date.toISOString() === dateKey,
+		);
+
+		if (dayIndex >= 0) {
+			totals[dayIndex] = dailySummary.totalHours;
+		}
+	}
+
+	return totals;
+}
+
+/**
+ * @deprecated Use calculateDailyTotals with LocalDate[] instead
+ */
+export function calculateDailyTotalsFromDates(
+	data: WeeklyWorklogSummary,
 	weekDates: Date[],
 ): number[] {
 	const totals: number[] = Array.from({length: 5}, () => 0);

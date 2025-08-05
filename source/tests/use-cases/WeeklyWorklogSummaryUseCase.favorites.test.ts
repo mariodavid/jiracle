@@ -1,15 +1,14 @@
 import test from 'ava';
 import {IssueKey} from '../../domain/IssueKey.js';
-import {LocalDate} from '../../domain/LocalDate.js';
-import {WeekRange} from '../../domain/WeekRange.js';
 import {WeeklyWorklogSummaryUseCase} from '../../use-cases/WeeklyWorklogSummaryUseCase.js';
+import {TestData} from '../utils/test-helpers.js';
 import {createMockJiraClient} from './WeeklyWorklogSummaryUseCase.testutils.js';
 
 test('WeeklyWorklogSummaryUseCase includes favorite issues without worklogs', async t => {
 	const client = createMockJiraClient();
 	const useCase = new WeeklyWorklogSummaryUseCase(client);
 
-	const weekRange = WeekRange.fromDate(LocalDate.fromString('2024-10-14'));
+	const weekRange = TestData.weekRange('2024-10-14');
 
 	// Mock current user
 	client.getCurrentUser = async () => ({emailAddress: 'user1@example.com'});

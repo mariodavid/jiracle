@@ -8,7 +8,17 @@ export type IssueData = {
 	weekTotal: number;
 };
 
-export function generateWeekDates(weekStart: Date): Date[] {
+export function generateWeekDates(weekStart: LocalDate): LocalDate[] {
+	const mondayStart = weekStart.getWeekStart();
+
+	// Only generate weekdays (Monday to Friday) using LocalDate arithmetic
+	return Array.from({length: 5}, (_, i) => mondayStart.addDays(i));
+}
+
+/**
+ * @deprecated Use generateWeekDates with LocalDate instead
+ */
+export function generateWeekDatesFromDate(weekStart: Date): Date[] {
 	const mondayStart = LocalDate.fromDate(weekStart).getWeekStart();
 
 	// Only generate weekdays (Monday to Friday) using LocalDate arithmetic

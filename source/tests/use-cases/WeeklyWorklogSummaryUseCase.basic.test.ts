@@ -1,15 +1,14 @@
 import test from 'ava';
-import {LocalDate} from '../../domain/LocalDate.js';
 import {IssueKey} from '../../domain/IssueKey.js';
-import {WeekRange} from '../../domain/WeekRange.js';
 import {WeeklyWorklogSummaryUseCase} from '../../use-cases/WeeklyWorklogSummaryUseCase.js';
+import {TestData} from '../utils/test-helpers.js';
 import {createMockJiraClient} from './WeeklyWorklogSummaryUseCase.testutils.js';
 
 test('WeeklyWorklogSummaryUseCase builds correct JQL query', async t => {
 	const client = createMockJiraClient();
 	const useCase = new WeeklyWorklogSummaryUseCase(client);
 
-	const weekRange = WeekRange.fromDate(LocalDate.fromString('2024-10-14')); // Monday
+	const weekRange = TestData.weekRange('2024-10-14'); // Monday
 
 	// Mock the methods
 	let capturedJql = '';
@@ -31,7 +30,7 @@ test('WeeklyWorklogSummaryUseCase aggregates worklogs by day', async t => {
 	const client = createMockJiraClient();
 	const useCase = new WeeklyWorklogSummaryUseCase(client);
 
-	const weekRange = WeekRange.fromDate(LocalDate.fromString('2024-10-14'));
+	const weekRange = TestData.weekRange('2024-10-14');
 
 	// Mock current user
 	client.getCurrentUser = async () => ({emailAddress: 'user1@example.com'});
@@ -130,7 +129,7 @@ test('WeeklyWorklogSummaryUseCase filters by current user email', async t => {
 	const client = createMockJiraClient();
 	const useCase = new WeeklyWorklogSummaryUseCase(client);
 
-	const weekRange = WeekRange.fromDate(LocalDate.fromString('2024-10-14'));
+	const weekRange = TestData.weekRange('2024-10-14');
 
 	// Mock current user
 	client.getCurrentUser = async () => ({emailAddress: 'user1@example.com'});
@@ -204,7 +203,7 @@ test('WeeklyWorklogSummaryUseCase filters by date range', async t => {
 	const client = createMockJiraClient();
 	const useCase = new WeeklyWorklogSummaryUseCase(client);
 
-	const weekRange = WeekRange.fromDate(LocalDate.fromString('2024-10-14'));
+	const weekRange = TestData.weekRange('2024-10-14');
 
 	// Mock current user
 	client.getCurrentUser = async () => ({emailAddress: 'user1@example.com'});
@@ -288,7 +287,7 @@ test('WeeklyWorklogSummaryUseCase handles empty results', async t => {
 	const client = createMockJiraClient();
 	const useCase = new WeeklyWorklogSummaryUseCase(client);
 
-	const weekRange = WeekRange.fromDate(LocalDate.fromString('2024-10-14'));
+	const weekRange = TestData.weekRange('2024-10-14');
 
 	// Mock current user
 	client.getCurrentUser = async () => ({emailAddress: 'user1@example.com'});
@@ -313,7 +312,7 @@ test('WeeklyWorklogSummaryUseCase converts time correctly', async t => {
 	const client = createMockJiraClient();
 	const useCase = new WeeklyWorklogSummaryUseCase(client);
 
-	const weekRange = WeekRange.fromDate(LocalDate.fromString('2024-10-14'));
+	const weekRange = TestData.weekRange('2024-10-14');
 
 	// Mock current user
 	client.getCurrentUser = async () => ({emailAddress: 'user1@example.com'});
