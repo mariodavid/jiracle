@@ -74,7 +74,7 @@ test.serial(
 
 		const config = createMockConfig();
 		const service = new SAPExportService(config);
-		const result = await service.exportTimesheet(expectedRequestData);
+		const result = await service.exportTimesheetLegacy(expectedRequestData);
 
 		// SPECIFIC VALUE COMPARISONS
 		t.is(result.success, true, 'Should indicate successful export');
@@ -123,7 +123,7 @@ test.serial(
 
 		const config = createMockConfig();
 		const service = new SAPExportService(config);
-		const result = await service.exportTimesheet(requestData);
+		const result = await service.exportTimesheetLegacy(requestData);
 
 		// SPECIFIC VALUE COMPARISONS
 		t.is(result.success, false, 'Should indicate failed export');
@@ -183,7 +183,7 @@ test.serial(
 
 		const config = createMockConfig();
 		const service = new SAPExportService(config);
-		const result = await service.exportTimesheet(requestData);
+		const result = await service.exportTimesheetLegacy(requestData);
 
 		// SPECIFIC VALUE COMPARISONS
 		t.is(result.success, false, 'Should indicate failed export');
@@ -227,7 +227,7 @@ test.serial(
 
 		const config = createMockConfig();
 		const service = new SAPExportService(config);
-		const result = await service.exportTimesheet(requestData);
+		const result = await service.exportTimesheetLegacy(requestData);
 
 		// SPECIFIC VALUE COMPARISONS
 		t.is(result.success, false, 'Should indicate failed export');

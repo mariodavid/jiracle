@@ -1,6 +1,23 @@
 import type {JiraConfig} from '../jira/types.js';
+import {MonthYear} from '../domain/MonthYear.js';
+import {PersonnelNumber} from '../domain/PersonnelNumber.js';
+import {ExportPeriod} from '../domain/ExportPeriod.js';
+import {SAPResponse} from '../domain/SAPResponse.js';
+import {
+	SAPExportResult,
+	type LegacySAPExportResult,
+	toLegacyResult,
+} from '../domain/SAPExportResult.js';
 
 export type SAPExportRequest = {
+	period: ExportPeriod;
+	personnelNumber: PersonnelNumber;
+	commentPrefix?: string;
+	removeExistingTimesheets: boolean;
+};
+
+// Legacy compatibility - keep the old type for existing code
+export type LegacySAPExportRequest = {
 	year: number;
 	month: number;
 	persnr: string;
@@ -8,21 +25,27 @@ export type SAPExportRequest = {
 	removeExistingTimesheets: boolean;
 };
 
-export type SAPExportResult = {
-	success: boolean;
-	message?: string;
-	errors?: string[];
-	warnings?: string[];
-};
+// Legacy compatibility - re-export as the old name
+export {type LegacySAPExportResult as SAPExportResult} from '../domain/SAPExportResult.js';
 
 export class SAPExportService {
 	constructor(private readonly config: JiraConfig) {}
 
-	async exportTimesheet(request: SAPExportRequest): Promise<SAPExportResult> {
+	async exportTimesheet(
+		request: SAPExportRequest,
+	): Promise<LegacySAPExportResult> {
+		const monthYear = request.period.getMonthYear();
+		if (!monthYear) {
+			return {
+				success: false,
+				errors: ['Export period must be within a single month'],
+			};
+		}
+
 		const formData = new URLSearchParams({
-			year: request.year.toString(),
-			month: request.month.toString(),
-			persnr: request.persnr,
+			year: monthYear.getYear().toString(),
+			month: monthYear.getMonth().toString(),
+			persnr: request.personnelNumber.toString(),
 			'comment-prefix': request.commentPrefix ?? '',
 			's4-delete': request.removeExistingTimesheets
 				? 'removeExistingTimesheets'
@@ -47,101 +70,63 @@ export class SAPExportService {
 
 			if (!response.ok) {
 				// Parse HTML even for error responses to extract specific error messages
-				const parseResult = this.parseResponse(html);
+				const sapResponse = new SAPResponse(html);
+				const result = SAPExportResult.fromSAPResponse(sapResponse);
+				const legacyResult = toLegacyResult(result);
+
 				// Only use parsed results if they contain meaningful errors (not generic "Unknown response")
 				if (
-					parseResult.errors &&
-					parseResult.errors.length > 0 &&
-					!parseResult.errors[0]?.includes('Unknown response from server')
+					legacyResult.errors &&
+					legacyResult.errors.length > 0 &&
+					!legacyResult.errors[0]?.includes('Unknown response from server')
 				) {
-					return parseResult;
+					return legacyResult;
 				}
 
 				// Fallback to HTTP status if no specific errors found
-				return {
-					success: false,
-					errors: [`HTTP ${response.status}: ${response.statusText}`],
-				};
+				const httpError = SAPExportResult.fromHttpError(
+					response.status,
+					response.statusText,
+				);
+				return toLegacyResult(httpError);
 			}
 
-			return this.parseResponse(html);
+			const sapResponse = new SAPResponse(html);
+			const result = SAPExportResult.fromSAPResponse(sapResponse);
+			return toLegacyResult(result);
 		} catch (error: unknown) {
+			const networkError = SAPExportResult.fromNetworkError(
+				error instanceof Error ? error : new Error('Unknown error'),
+			);
+			return toLegacyResult(networkError);
+		}
+	}
+
+	// Legacy compatibility method for existing code
+	async exportTimesheetLegacy(
+		request: LegacySAPExportRequest,
+	): Promise<LegacySAPExportResult> {
+		// Validate personnel number first for legacy compatibility
+		if (!request.persnr || !PersonnelNumber.isValid(request.persnr)) {
 			return {
 				success: false,
 				errors: [
-					`Network error: ${
-						error instanceof Error ? error.message : 'Unknown error'
-					}`,
+					'Personnel number (Persnr) is missing. Please configure in settings.',
 				],
 			};
 		}
-	}
 
-	private parseResponse(html: string): SAPExportResult {
-		if (html.includes('Timesheet successfully sent to S4/Hana.')) {
-			return {
-				success: true,
-				message: 'Timesheet successfully exported to SAP S/4HANA',
-			};
-		}
+		const monthYear = new MonthYear(request.year, request.month);
+		const period = ExportPeriod.forMonth(monthYear);
+		const personnelNumber = PersonnelNumber.fromString(request.persnr);
 
-		const errors: string[] = [];
-		const warnings: string[] = [];
-
-		// Check for specific error types first
-		if (
-			html.includes('Please provide the personnel number') ||
-			html.includes('Cannot find employee for')
-		) {
-			errors.push(
-				'Personnel number (Persnr) is missing. Please configure in settings.',
-			);
-		} else {
-			// Only parse generic errors if no specific errors were found
-			const errorPattern =
-				/<div class="aui-message aui-message-error"[^>]*>(.*?)<\/div>/gs;
-
-			let match;
-			while ((match = errorPattern.exec(html)) !== null) {
-				if (match[1]) {
-					errors.push(this.cleanHtml(match[1]));
-				}
-			}
-		}
-
-		// Always parse warnings
-		const warningPattern =
-			/<div class="aui-message aui-message-warning"[^>]*>(.*?)<\/div>/gs;
-
-		let match;
-		while ((match = warningPattern.exec(html)) !== null) {
-			if (match[1]) {
-				warnings.push(this.cleanHtml(match[1]));
-			}
-		}
-
-		if (html.includes('No worklogs found')) {
-			errors.push('No worklogs found for the selected period.');
-		}
-
-		if (errors.length > 0) {
-			return {
-				success: false,
-				errors,
-				warnings: warnings.length > 0 ? warnings : undefined,
-			};
-		}
-
-		return {
-			success: false,
-			errors: ['Unknown response from server. Export may have failed.'],
+		const modernRequest: SAPExportRequest = {
+			period,
+			personnelNumber,
+			commentPrefix: request.commentPrefix,
+			removeExistingTimesheets: request.removeExistingTimesheets,
 		};
-	}
 
-	private cleanHtml(html: string): string {
-		return html
-			.replace(/<[^>]*>/g, '')
-			.replace(/\s+/g, ' ')
-			.trim();
+		return this.exportTimesheet(modernRequest);
 	}
 }

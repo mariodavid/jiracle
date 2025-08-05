@@ -1,5 +1,8 @@
 import test from 'ava';
 import {SAPExportService} from '../../services/SAPExportService.js';
+import {MonthYear} from '../../domain/MonthYear.js';
+import {PersonnelNumber} from '../../domain/PersonnelNumber.js';
+import {ExportPeriod} from '../../domain/ExportPeriod.js';
 import type {JiraConfig} from '../../jira/types.js';
 
 const createMockConfig = (): JiraConfig => ({
@@ -14,155 +17,141 @@ const createMockConfig = (): JiraConfig => ({
 	},
 });
 
-test('SAPExportService parseResponse handles success message', t => {
-	// EXPLICIT TEST DATA
-	const successHtml =
-		'<div>Some content</div>Timesheet successfully sent to S4/Hana.<div>More content</div>';
-	const expectedMessage = 'Timesheet successfully exported to SAP S/4HANA';
-	const expectedSuccess = true;
+// Mock global fetch
+const originalFetch = global.fetch;
 
-	// OPERATIONS
-	const config = createMockConfig();
-	const service = new SAPExportService(config);
-	const result = (service as any).parseResponse(successHtml);
+function setupSuccessfulMockFetch() {
+	global.fetch = async (): Promise<Response> =>
+		({
+			ok: true,
+			status: 200,
+			text: async () =>
+				'<div>Some content</div>Timesheet successfully sent to S4/Hana.<div>More content</div>',
+		} as Response);
+}
 
-	// SPECIFIC VALUE COMPARISONS
-	t.is(result.success, expectedSuccess, 'Should indicate success');
-	t.is(
-		result.message,
-		expectedMessage,
-		'Should return correct success message',
-	);
-	t.is(result.errors, undefined, 'Should not have errors');
-});
+function teardownMockFetch() {
+	global.fetch = originalFetch;
+}
 
-test('SAPExportService parseResponse handles error messages', t => {
-	// EXPLICIT TEST DATA
-	const errorHtml = `
-		<div class="aui-message aui-message-error">
-			<p>Personnel number is required</p>
-		</div>
-	`;
-	const expectedError = 'Personnel number is required';
-	const expectedSuccess = false;
+test.serial(
+	'SAPExportService handles successful export with domain objects',
+	async t => {
+		// EXPLICIT TEST DATA
+		const expectedSuccess = true;
+		const expectedMessage = 'Timesheet successfully exported to SAP S/4HANA';
+		const monthYear = new MonthYear(2024, 3);
+		const period = ExportPeriod.forMonth(monthYear);
+		const personnelNumber = PersonnelNumber.fromString('12345');
 
-	// OPERATIONS
-	const config = createMockConfig();
-	const service = new SAPExportService(config);
-	const result = (service as any).parseResponse(errorHtml);
+		// OPERATIONS
+		setupSuccessfulMockFetch();
+		const config = createMockConfig();
+		const service = new SAPExportService(config);
 
-	// SPECIFIC VALUE COMPARISONS
-	t.is(result.success, expectedSuccess, 'Should indicate failure');
-	t.true(Array.isArray(result.errors), 'Should have errors array');
-	t.is(result.errors!.length, 1, 'Should have one error');
-	t.is(
-		result.errors![0],
-		expectedError,
-		'Should extract correct error message',
-	);
-});
+		const result = await service.exportTimesheet({
+			period,
+			personnelNumber,
+			commentPrefix: 'SAP:',
+			removeExistingTimesheets: true,
+		});
 
-test('SAPExportService parseResponse handles warning messages', t => {
-	// EXPLICIT TEST DATA
-	const warningHtml = `
-		<div class="aui-message aui-message-warning">
-			<p>Some worklogs are missing sponsor information</p>
-		</div>
-		<div class="aui-message aui-message-error">
-			<p>Export failed</p>
-		</div>
-	`;
-	const expectedWarning = 'Some worklogs are missing sponsor information';
-	const expectedError = 'Export failed';
-	const expectedSuccess = false;
+		teardownMockFetch();
 
-	// OPERATIONS
-	const config = createMockConfig();
-	const service = new SAPExportService(config);
-	const result = (service as any).parseResponse(warningHtml);
+		// SPECIFIC VALUE COMPARISONS
+		t.is(result.success, expectedSuccess, 'Should indicate success');
+		t.is(result.message, expectedMessage, 'Should return success message');
+		t.is(result.errors, undefined, 'Should not have errors');
+	},
+);
 
-	// SPECIFIC VALUE COMPARISONS
-	t.is(result.success, expectedSuccess, 'Should indicate failure');
-	t.true(Array.isArray(result.errors), 'Should have errors array');
-	t.true(Array.isArray(result.warnings), 'Should have warnings array');
-	t.is(result.errors!.length, 1, 'Should have one error');
-	t.is(result.warnings!.length, 1, 'Should have one warning');
-	t.is(
-		result.errors![0],
-		expectedError,
-		'Should extract correct error message',
-	);
-	t.is(
-		result.warnings![0],
-		expectedWarning,
-		'Should extract correct warning message',
-	);
-});
+test.serial(
+	'SAPExportService legacy method works with primitive data',
+	async t => {
+		// EXPLICIT TEST DATA
+		const expectedSuccess = true;
+		const legacyRequest = {
+			year: 2024,
+			month: 3,
+			persnr: '123456',
+			commentPrefix: 'SAP:',
+			removeExistingTimesheets: true,
+		};
 
-test('SAPExportService parseResponse handles personnel number missing message', t => {
-	// EXPLICIT TEST DATA
-	const personnelHtml = 'Please provide the personnel number for export';
-	const expectedError =
-		'Personnel number (Persnr) is missing. Please configure in settings.';
-	const expectedSuccess = false;
+		// OPERATIONS
+		setupSuccessfulMockFetch();
+		const config = createMockConfig();
+		const service = new SAPExportService(config);
 
-	// OPERATIONS
-	const config = createMockConfig();
-	const service = new SAPExportService(config);
-	const result = (service as any).parseResponse(personnelHtml);
+		const result = await service.exportTimesheetLegacy(legacyRequest);
 
-	// SPECIFIC VALUE COMPARISONS
-	t.is(result.success, expectedSuccess, 'Should indicate failure');
-	t.true(Array.isArray(result.errors), 'Should have errors array');
-	t.is(result.errors!.length, 1, 'Should have one error');
-	t.is(
-		result.errors![0],
-		expectedError,
-		'Should return standardized personnel error message',
-	);
-});
+		teardownMockFetch();
 
-test('SAPExportService parseResponse handles no worklogs message', t => {
-	// EXPLICIT TEST DATA
-	const noWorklogsHtml = 'No worklogs found for the selected period';
-	const expectedError = 'No worklogs found for the selected period.';
-	const expectedSuccess = false;
+		// SPECIFIC VALUE COMPARISONS
+		t.is(result.success, expectedSuccess, 'Should indicate success');
+		t.truthy(result.message, 'Should have success message');
+	},
+);
 
-	// OPERATIONS
-	const config = createMockConfig();
-	const service = new SAPExportService(config);
-	const result = (service as any).parseResponse(noWorklogsHtml);
+test.serial(
+	'SAPExportService validates export period spans single month',
+	async t => {
+		// EXPLICIT TEST DATA
+		const expectedSuccess = false;
+		const expectedError = 'Export period must be within a single month';
+		const startDate = MonthYear.fromString('2024-03').getStartDate();
+		const endDate = MonthYear.fromString('2024-04').getEndDate();
+		const crossMonthPeriod = ExportPeriod.forDateRange(startDate, endDate);
+		const personnelNumber = PersonnelNumber.fromString('12345');
 
-	// SPECIFIC VALUE COMPARISONS
-	t.is(result.success, expectedSuccess, 'Should indicate failure');
-	t.true(Array.isArray(result.errors), 'Should have errors array');
-	t.is(result.errors!.length, 1, 'Should have one error');
-	t.is(
-		result.errors![0],
-		expectedError,
-		'Should return correct no worklogs error message',
-	);
-});
+		// OPERATIONS
+		const config = createMockConfig();
+		const service = new SAPExportService(config);
 
-test('SAPExportService parseResponse handles unknown response', t => {
-	// EXPLICIT TEST DATA
-	const unknownHtml =
-		'<div>Some random HTML content without success or error indicators</div>';
-	const expectedError = 'Unknown response from server. Export may have failed.';
-	const expectedSuccess = false;
+		const result = await service.exportTimesheet({
+			period: crossMonthPeriod,
+			personnelNumber,
+			commentPrefix: 'SAP:',
+			removeExistingTimesheets: true,
+		});
 
-	// OPERATIONS
-	const config = createMockConfig();
-	const service = new SAPExportService(config);
-	const result = (service as any).parseResponse(unknownHtml);
+		// SPECIFIC VALUE COMPARISONS
+		t.is(result.success, expectedSuccess, 'Should indicate failure');
+		t.truthy(result.errors, 'Should have errors');
+		t.is(
+			result.errors![0],
+			expectedError,
+			'Should show period validation error',
+		);
+	},
+);
 
-	// SPECIFIC VALUE COMPARISONS
-	t.is(result.success, expectedSuccess, 'Should indicate failure');
-	t.true(Array.isArray(result.errors), 'Should have errors array');
-	t.is(result.errors!.length, 1, 'Should have one error');
-	t.is(
-		result.errors![0],
-		expectedError,
-		'Should return unknown response error message',
-	);
-});
+test.serial(
+	'SAPExportService legacy method validates personnel number format',
+	async t => {
+		// EXPLICIT TEST DATA
+		const expectedError =
+			'Personnel number (Persnr) is missing. Please configure in settings.';
+		const invalidRequest = {
+			year: 2024,
+			month: 3,
+			persnr: 'abc',
+			commentPrefix: 'SAP:',
+			removeExistingTimesheets: true,
+		};
+
+		// OPERATIONS
+		const config = createMockConfig();
+		const service = new SAPExportService(config);
+		const result = await service.exportTimesheetLegacy(invalidRequest);
+
+		// SPECIFIC VALUE COMPARISONS
+		t.false(result.success, 'Should indicate failure');
+		t.truthy(result.errors, 'Should have errors');
+		t.is(
+			result.errors![0],
+			expectedError,
+			'Should return personnel validation error',
+		);
+	},
+);

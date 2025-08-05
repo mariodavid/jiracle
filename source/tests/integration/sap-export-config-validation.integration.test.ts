@@ -52,7 +52,7 @@ test.serial(
 		});
 
 		const service = new SAPExportService(configWithoutSAP);
-		const result = await service.exportTimesheet(requestData);
+		const result = await service.exportTimesheetLegacy(requestData);
 
 		// SPECIFIC VALUE COMPARISONS
 		t.is(result.success, false, 'Should fail when personnel number is missing');
@@ -100,7 +100,7 @@ test.serial(
 		});
 
 		const service = new SAPExportService(configWithDisabledSAP);
-		const result = await service.exportTimesheet(requestData);
+		const result = await service.exportTimesheetLegacy(requestData);
 
 		// SPECIFIC VALUE COMPARISONS - Service doesn't check enabled flag
 		t.is(
@@ -159,7 +159,7 @@ test.serial(
 		});
 
 		const service = new SAPExportService(configWithEmptyPersnr);
-		const result = await service.exportTimesheet(requestData);
+		const result = await service.exportTimesheetLegacy(requestData);
 
 		// SPECIFIC VALUE COMPARISONS
 		t.is(result.success, false, 'Should fail when personnel number is empty');
@@ -209,7 +209,7 @@ test.serial(
 		});
 
 		const service = new SAPExportService(completeValidConfig);
-		const result = await service.exportTimesheet(requestData);
+		const result = await service.exportTimesheetLegacy(requestData);
 
 		// SPECIFIC VALUE COMPARISONS
 		t.is(

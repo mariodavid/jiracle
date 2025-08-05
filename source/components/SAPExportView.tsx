@@ -36,7 +36,7 @@ export function SAPExportView({config, onBack}: SAPExportViewProps) {
 		setStep('exporting');
 
 		try {
-			const exportResult = await sapService.exportTimesheet({
+			const exportResult = await sapService.exportTimesheetLegacy({
 				year: selection.year,
 				month: selection.month,
 				persnr: config.sap.persnr,

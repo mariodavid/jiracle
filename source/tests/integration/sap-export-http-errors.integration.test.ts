@@ -56,7 +56,7 @@ test.serial(
 
 		const config = createMockConfig();
 		const service = new SAPExportService(config);
-		const result = await service.exportTimesheet(requestData);
+		const result = await service.exportTimesheetLegacy(requestData);
 
 		// SPECIFIC VALUE COMPARISONS
 		t.is(result.success, false, 'Should fail on network timeout');
@@ -94,7 +94,7 @@ test.serial(
 
 		const config = createMockConfig();
 		const service = new SAPExportService(config);
-		const result = await service.exportTimesheet(requestData);
+		const result = await service.exportTimesheetLegacy(requestData);
 
 		// SPECIFIC VALUE COMPARISONS
 		t.is(result.success, false, 'Should fail on 401 unauthorized');
@@ -129,7 +129,7 @@ test.serial(
 
 		const config = createMockConfig();
 		const service = new SAPExportService(config);
-		const result = await service.exportTimesheet(requestData);
+		const result = await service.exportTimesheetLegacy(requestData);
 
 		// SPECIFIC VALUE COMPARISONS
 		t.is(result.success, false, 'Should fail on 500 server error');
@@ -165,7 +165,7 @@ test.serial(
 
 		const config = createMockConfig();
 		const service = new SAPExportService(config);
-		const result = await service.exportTimesheet(requestData);
+		const result = await service.exportTimesheetLegacy(requestData);
 
 		// SPECIFIC VALUE COMPARISONS
 		t.is(result.success, false, 'Should fail on DNS resolution failure');
