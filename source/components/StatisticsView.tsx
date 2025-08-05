@@ -13,6 +13,7 @@ import {
 	type TierVisualization,
 } from '../bonus/BonusCalculator.js';
 import {Duration} from '../domain/Duration.js';
+import {CurrencyFormatter} from '../utils/currency-formatter.js';
 import {NotificationBar} from './NotificationBar.js';
 import {StatisticsGrid} from './StatisticsGrid.js';
 
@@ -270,6 +271,73 @@ export function StatisticsView({
 						</Text>
 					</Box>
 
+					{/* Financial Projection */}
+					<Box flexDirection="column" marginBottom={1}>
+						<Text bold>Financial Projection:</Text>
+						<Box flexDirection="column" marginLeft={2}>
+							<Text>
+								├─ Current Value:{' '}
+								<Text bold color="green">
+									{CurrencyFormatter.formatSimple(
+										bonusProgress.financialProjection.currentAmount,
+										bonusProgress.financialProjection.currency,
+									)}
+								</Text>{' '}
+								({bonusProgress.earnedBonusPercentage.toFixed(2)}% earned)
+							</Text>
+							<Text>
+								├─ Year-End Projection:{' '}
+								<Text bold>
+									{CurrencyFormatter.formatSimple(
+										bonusProgress.financialProjection.projectedAmount,
+										bonusProgress.financialProjection.currency,
+									)}
+								</Text>{' '}
+								(at current pace)
+							</Text>
+							<Text>
+								└─ Maximum Possible:{' '}
+								<Text bold color="yellow">
+									{CurrencyFormatter.formatSimple(
+										bonusProgress.financialProjection.maximumPossible,
+										bonusProgress.financialProjection.currency,
+									)}
+								</Text>{' '}
+								(if 250 days reached)
+							</Text>
+						</Box>
+					</Box>
+
+					{/* Target Milestones */}
+					<Box flexDirection="column" marginBottom={1}>
+						<Text bold>Target Milestones:</Text>
+						<Box flexDirection="column" marginLeft={2}>
+							{bonusProgress.targetProgresses.map(progress => (
+								<Box key={progress.target.label} marginBottom={0}>
+									<Text>
+										├─ {progress.target.label} ({progress.target.days} days){' '}
+										{renderProgressBar(progress.percentage, false, 20)}{' '}
+										{progress.isAchieved ? (
+											<Text color="green">✓ Achieved</Text>
+										) : (
+											<Text>
+												{progress.progress.toFixed(1)}/{progress.target.days} (
+												{progress.percentage.toFixed(0)}%)
+											</Text>
+										)}{' '}
+										→{' '}
+										<Text color="yellow">
+											{CurrencyFormatter.formatSimple(
+												progress.projectedAmount,
+												bonusProgress.financialProjection.currency,
+											)}
+										</Text>
+									</Text>
+								</Box>
+							))}
+						</Box>
+					</Box>
+
 					{/* Tier Progress */}
 					<Box flexDirection="column" marginBottom={1}>
 						<Text bold>Tier Progress:</Text>
@@ -312,50 +380,6 @@ export function StatisticsView({
 							</Box>
 						</Box>
 					)}
-
-					{/* Key Milestones Summary */}
-					<Box flexDirection="column" marginBottom={1}>
-						<Text bold>Key Milestones:</Text>
-						<Box flexDirection="column" marginLeft={2}>
-							{config.bonus.tiers?.map((tier, index) => {
-								if (!tier.endDay || index === 0) return null; // Skip first tier and open-ended tiers
-								const isCompleted =
-									bonusProgress.currentBonusDays.toNumber() >= tier.endDay;
-								const nextTierName =
-									config.bonus?.tiers?.[index + 1]?.name ?? 'Final Tier';
-								return (
-									<Text key={tier.name}>
-										{isCompleted ? '✓' : '•'} {tier.endDay} days -{' '}
-										{nextTierName} starts
-										{!isCompleted &&
-											` (${
-												Math.round(
-													(tier.endDay -
-														bonusProgress.currentBonusDays.toNumber()) *
-														10,
-												) / 10
-											} days to go)`}
-									</Text>
-								);
-							})}
-							<Text>
-								{bonusProgress.currentBonusDays.toNumber() >=
-								config.bonus.targetDays
-									? '✓'
-									: '•'}{' '}
-								{config.bonus.targetDays} days - 100% Target
-								{bonusProgress.currentBonusDays.toNumber() <
-									config.bonus.targetDays &&
-									` (${
-										Math.round(
-											(config.bonus.targetDays -
-												bonusProgress.currentBonusDays.toNumber()) *
-												10,
-										) / 10
-									} days to go)`}
-							</Text>
-						</Box>
-					</Box>
 				</Box>
 			</Box>
 		);

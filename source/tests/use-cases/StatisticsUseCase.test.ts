@@ -242,7 +242,14 @@ test('bonus tracking: should calculate monthly bonus metrics correctly', async t
 		enabled: true,
 		hoursPerBonusDay: 8,
 		targetDays: 190,
-		targets: {minimum: 150, standard: 190, stretch: 210},
+		targetAmount: 10_000,
+		currency: 'EUR',
+		targets: {
+			minimum: {days: 150, label: 'Minimum', percentage: 79},
+			standard: {days: 190, label: 'Standard', percentage: 100},
+			stretch: {days: 210, label: 'Stretch', percentage: 128},
+			maximum: {days: 230, label: 'Maximum', percentage: 148},
+		},
 	};
 
 	const mockWorklogData = [
@@ -348,7 +355,14 @@ test('bonus tracking: should validate target achievement correctly', async t => 
 		enabled: true,
 		hoursPerBonusDay: 8,
 		targetDays: 200,
-		targets: {minimum: 150, standard: 200, stretch: 230},
+		targetAmount: 10_000,
+		currency: 'EUR',
+		targets: {
+			minimum: {days: 150, label: 'Minimum', percentage: 75},
+			standard: {days: 200, label: 'Standard', percentage: 100},
+			stretch: {days: 230, label: 'Stretch', percentage: 115},
+			maximum: {days: 250, label: 'Maximum', percentage: 125},
+		},
 	};
 
 	const mockYearlyWorklogData = [
@@ -406,11 +420,11 @@ test('bonus tracking: should validate target achievement correctly', async t => 
 
 	// Target achievement validation
 	const isMinimumTargetReached =
-		result.totalBonusDays! >= testBonusConfig.targets.minimum;
+		result.totalBonusDays! >= testBonusConfig.targets.minimum.days;
 	const isStandardTargetReached =
-		result.totalBonusDays! >= testBonusConfig.targets.standard;
+		result.totalBonusDays! >= testBonusConfig.targets.standard.days;
 	const isStretchTargetReached =
-		result.totalBonusDays! >= testBonusConfig.targets.stretch;
+		result.totalBonusDays! >= testBonusConfig.targets.stretch.days;
 
 	t.false(isMinimumTargetReached); // 110.5 < 150
 	t.false(isStandardTargetReached); // 110.5 < 200
@@ -435,7 +449,14 @@ test('bonus tracking: should handle configuration edge cases correctly', async t
 		enabled: false,
 		hoursPerBonusDay: 8,
 		targetDays: 190,
-		targets: {minimum: 150, standard: 190, stretch: 210},
+		targetAmount: 10_000,
+		currency: 'EUR',
+		targets: {
+			minimum: {days: 150, label: 'Minimum', percentage: 79},
+			standard: {days: 190, label: 'Standard', percentage: 100},
+			stretch: {days: 210, label: 'Stretch', percentage: 128},
+			maximum: {days: 230, label: 'Maximum', percentage: 148},
+		},
 	};
 
 	const mockWorklogData = [
@@ -494,7 +515,14 @@ test('bonus tracking: should integrate with real attendance data correctly', asy
 		enabled: true,
 		hoursPerBonusDay: 8,
 		targetDays: 190,
-		targets: {minimum: 150, standard: 190, stretch: 210},
+		targetAmount: 10_000,
+		currency: 'EUR',
+		targets: {
+			minimum: {days: 150, label: 'Minimum', percentage: 79},
+			standard: {days: 190, label: 'Standard', percentage: 100},
+			stretch: {days: 210, label: 'Stretch', percentage: 128},
+			maximum: {days: 230, label: 'Maximum', percentage: 148},
+		},
 	};
 
 	const mockWorklogData = [

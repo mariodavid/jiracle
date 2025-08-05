@@ -121,9 +121,10 @@ function MonthRow({month, showBonus, bonusConfig}: MonthRowProps) {
 type TargetSummaryProps = {
 	totalBonusDays?: number;
 	targets: {
-		minimum: number;
-		standard: number;
-		stretch: number;
+		minimum: {days: number; label: string; percentage: number};
+		standard: {days: number; label: string; percentage: number};
+		stretch: {days: number; label: string; percentage: number};
+		maximum: {days: number; label: string; percentage: number};
 	};
 };
 
@@ -135,19 +136,19 @@ function TargetSummary({totalBonusDays, targets}: TargetSummaryProps) {
 			</Box>
 			<Box flexDirection="row" justifyContent="center">
 				<Text>Targets: </Text>
-				<Text color={getTargetColor(totalBonusDays, targets.minimum)}>
-					Minimum ({targets.minimum}){' '}
-					{getTargetStatus(totalBonusDays, targets.minimum)}
+				<Text color={getTargetColor(totalBonusDays, targets.minimum.days)}>
+					Minimum ({targets.minimum.days}){' '}
+					{getTargetStatus(totalBonusDays, targets.minimum.days)}
 				</Text>
 				<Text> | </Text>
-				<Text color={getTargetColor(totalBonusDays, targets.standard)}>
-					Standard ({targets.standard}){' '}
-					{getTargetStatus(totalBonusDays, targets.standard)}
+				<Text color={getTargetColor(totalBonusDays, targets.standard.days)}>
+					Standard ({targets.standard.days}){' '}
+					{getTargetStatus(totalBonusDays, targets.standard.days)}
 				</Text>
 				<Text> | </Text>
-				<Text color={getTargetColor(totalBonusDays, targets.stretch)}>
-					Stretch ({targets.stretch}){' '}
-					{getTargetStatus(totalBonusDays, targets.stretch)}
+				<Text color={getTargetColor(totalBonusDays, targets.stretch.days)}>
+					Stretch ({targets.stretch.days}){' '}
+					{getTargetStatus(totalBonusDays, targets.stretch.days)}
 				</Text>
 			</Box>
 		</>

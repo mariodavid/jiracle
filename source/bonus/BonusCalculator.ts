@@ -1,4 +1,4 @@
-import type {BonusConfig, BonusTier} from '../jira/types.js';
+import type {BonusConfig, BonusTier, BonusTarget} from '../jira/types.js';
 import {LocalDate} from '../domain/LocalDate.js';
 import {type Duration} from '../domain/Duration.js';
 
@@ -34,6 +34,86 @@ export class BonusDays {
 }
 
 /**
+ * Rich domain object for financial projections
+ */
+export class FinancialProjection {
+	static create(data: {
+		currentAmount: number;
+		projectedAmount: number;
+		maximumPossible: number;
+		currency: string;
+	}): FinancialProjection {
+		return new FinancialProjection({
+			currentAmount: Math.round(data.currentAmount * 100) / 100,
+			projectedAmount: Math.round(data.projectedAmount * 100) / 100,
+			maximumPossible: Math.round(data.maximumPossible * 100) / 100,
+			currency: data.currency,
+		});
+	}
+
+	public readonly currentAmount: number;
+	public readonly projectedAmount: number;
+	public readonly maximumPossible: number;
+	public readonly currency: string;
+
+	constructor(data: {
+		currentAmount: number;
+		projectedAmount: number;
+		maximumPossible: number;
+		currency: string;
+	}) {
+		this.currentAmount = data.currentAmount;
+		this.projectedAmount = data.projectedAmount;
+		this.maximumPossible = data.maximumPossible;
+		this.currency = data.currency;
+	}
+}
+
+/**
+ * Rich domain object for target progress tracking
+ */
+export class TargetProgress {
+	static create(
+		target: BonusTarget,
+		currentBonusDays: BonusDays,
+		targetAmount: number,
+	): TargetProgress {
+		const progress = Math.min(currentBonusDays.toNumber(), target.days);
+		const percentage = (progress / target.days) * 100;
+		const isAchieved = currentBonusDays.toNumber() >= target.days;
+		const projectedAmount = (targetAmount * target.percentage) / 100;
+
+		return new TargetProgress({
+			target,
+			progress: Math.round(progress * 10) / 10,
+			percentage: Math.round(percentage * 10) / 10,
+			isAchieved,
+			projectedAmount: Math.round(projectedAmount * 100) / 100,
+		});
+	}
+
+	public readonly target: BonusTarget;
+	public readonly progress: number;
+	public readonly percentage: number;
+	public readonly isAchieved: boolean;
+	public readonly projectedAmount: number;
+
+	constructor(data: {
+		target: BonusTarget;
+		progress: number;
+		percentage: number;
+		isAchieved: boolean;
+		projectedAmount: number;
+	}) {
+		this.target = data.target;
+		this.progress = data.progress;
+		this.percentage = data.percentage;
+		this.isAchieved = data.isAchieved;
+		this.projectedAmount = data.projectedAmount;
+	}
+}
+
+/**
  * Rich domain object for bonus progress with encapsulated calculations
  */
 export class BonusProgress {
@@ -47,6 +127,8 @@ export class BonusProgress {
 		earnedBonusPercentage: number;
 		projectedYearEnd: number;
 		nextMilestone?: {name: string; daysRemaining: number; targetDays: number};
+		financialProjection: FinancialProjection;
+		targetProgresses: TargetProgress[];
 	}): BonusProgress {
 		return new BonusProgress({
 			currentBonusDays: data.bonusDays,
@@ -55,6 +137,8 @@ export class BonusProgress {
 			earnedBonusPercentage: Math.round(data.earnedBonusPercentage * 100) / 100,
 			projectedYearEnd: Math.round(data.projectedYearEnd * 10) / 10,
 			nextMilestone: data.nextMilestone,
+			financialProjection: data.financialProjection,
+			targetProgresses: data.targetProgresses,
 		});
 	}
 
@@ -76,6 +160,10 @@ export class BonusProgress {
 		targetDays: number;
 	};
 
+	public readonly financialProjection: FinancialProjection;
+
+	public readonly targetProgresses: TargetProgress[];
+
 	constructor(data: {
 		currentBonusDays: BonusDays;
 		currentTier: BonusTier;
@@ -91,6 +179,8 @@ export class BonusProgress {
 			daysRemaining: number;
 			targetDays: number;
 		};
+		financialProjection: FinancialProjection;
+		targetProgresses: TargetProgress[];
 	}) {
 		this.currentBonusDays = data.currentBonusDays;
 		this.currentTier = data.currentTier;
@@ -98,6 +188,8 @@ export class BonusProgress {
 		this.earnedBonusPercentage = data.earnedBonusPercentage;
 		this.projectedYearEnd = data.projectedYearEnd;
 		this.nextMilestone = data.nextMilestone;
+		this.financialProjection = data.financialProjection;
+		this.targetProgresses = data.targetProgresses;
 	}
 }
 
@@ -186,6 +278,13 @@ export class BonusCalculator {
 		},
 	];
 
+	private readonly defaultTargets: Record<string, BonusTarget> = {
+		minimum: {days: 150, label: 'Minimum', percentage: 79},
+		standard: {days: 190, label: 'Standard', percentage: 100},
+		stretch: {days: 210, label: 'Stretch', percentage: 128},
+		maximum: {days: 230, label: 'Maximum', percentage: 148},
+	};
+
 	constructor(private readonly config: BonusConfig) {}
 
 	calculateBonusProgress(
@@ -197,6 +296,7 @@ export class BonusCalculator {
 			this.config.hoursPerBonusDay,
 		);
 		const tiers = this.config.tiers ?? this.defaultTiers;
+		const targets = this.getTargets();
 
 		const currentTier = this.getCurrentTier(bonusDays, tiers);
 		const tierProgress = this.calculateTierProgress(bonusDays, currentTier);
@@ -205,7 +305,15 @@ export class BonusCalculator {
 			bonusDays,
 			currentDate ?? LocalDate.today(),
 		);
-		const nextMilestone = this.findNextMilestone(bonusDays, tiers);
+		const nextMilestone = this.findNextMilestone(bonusDays, tiers, targets);
+
+		const financialProjection = this.calculateFinancialProjection(
+			bonusDays,
+			projectedYearEnd,
+			tiers,
+		);
+
+		const targetProgresses = this.calculateTargetProgresses(bonusDays, targets);
 
 		return BonusProgress.create({
 			bonusDays,
@@ -214,6 +322,8 @@ export class BonusCalculator {
 			earnedBonusPercentage,
 			projectedYearEnd,
 			nextMilestone,
+			financialProjection,
+			targetProgresses,
 		});
 	}
 
@@ -283,9 +393,82 @@ export class BonusCalculator {
 		return currentDate.projectAnnualRate(bonusDays.toNumber());
 	}
 
+	private getTargets(): Record<string, BonusTarget> {
+		if (this.config.targets) {
+			return {
+				minimum: this.config.targets.minimum,
+				standard: this.config.targets.standard,
+				stretch: this.config.targets.stretch,
+				maximum: this.config.targets.maximum,
+			};
+		}
+
+		return this.defaultTargets;
+	}
+
+	private calculateFinancialProjection(
+		bonusDays: BonusDays,
+		projectedYearEnd: number,
+		tiers: BonusTier[],
+	): FinancialProjection {
+		const targetAmount = this.config.targetAmount || 10_000;
+		const currency = this.config.currency || 'EUR';
+
+		const currentAmount = this.calculateBonusAmount(
+			bonusDays.toNumber(),
+			tiers,
+			targetAmount,
+		);
+		const projectedAmount = this.calculateBonusAmount(
+			projectedYearEnd,
+			tiers,
+			targetAmount,
+		);
+		const maximumPossible = this.calculateBonusAmount(250, tiers, targetAmount); // Cap at 250 days
+
+		return FinancialProjection.create({
+			currentAmount,
+			projectedAmount,
+			maximumPossible,
+			currency,
+		});
+	}
+
+	private calculateTargetProgresses(
+		bonusDays: BonusDays,
+		targets: Record<string, BonusTarget>,
+	): TargetProgress[] {
+		const targetAmount = this.config.targetAmount || 10_000;
+
+		return Object.values(targets).map(target =>
+			TargetProgress.create(target, bonusDays, targetAmount),
+		);
+	}
+
+	private calculateBonusAmount(
+		days: number,
+		tiers: BonusTier[],
+		targetAmount: number,
+	): number {
+		let amount = 0;
+
+		for (const tier of tiers) {
+			const tierStart = tier.startDay;
+			const tierEnd = tier.endDay ?? Number.POSITIVE_INFINITY;
+
+			if (days > tierStart) {
+				const daysInTier = Math.min(days, tierEnd) - tierStart;
+				amount += daysInTier * tier.rate * targetAmount;
+			}
+		}
+
+		return amount;
+	}
+
 	private findNextMilestone(
 		bonusDays: BonusDays,
 		tiers: BonusTier[],
+		targets: Record<string, BonusTarget>,
 	): {name: string; daysRemaining: number; targetDays: number} | undefined {
 		// Check for tier transitions first
 		for (const tier of tiers) {
@@ -300,14 +483,20 @@ export class BonusCalculator {
 			}
 		}
 
-		// Check for target milestone
-		if (bonusDays.isLessThan(this.config.targetDays)) {
-			return {
-				name: '100% Target',
-				daysRemaining:
-					Math.round((this.config.targetDays - bonusDays.toNumber()) * 10) / 10,
-				targetDays: this.config.targetDays,
-			};
+		// Check for target milestones
+		const targetsList = Object.values(targets).sort((a, b) => a.days - b.days);
+		for (const target of targetsList) {
+			if (bonusDays.isLessThan(target.days)) {
+				const targetAmount = this.config.targetAmount || 10_000;
+				const projectedAmount = (targetAmount * target.percentage) / 100;
+
+				return {
+					name: `${target.label} (€${projectedAmount.toLocaleString()})`,
+					daysRemaining:
+						Math.round((target.days - bonusDays.toNumber()) * 10) / 10,
+					targetDays: target.days,
+				};
+			}
 		}
 
 		return undefined;

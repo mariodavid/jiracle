@@ -61,7 +61,14 @@ const MOCK_BONUS_CONFIG = {
 	enabled: true,
 	hoursPerBonusDay: 8,
 	targetDays: 190,
-	targets: {minimum: 150, standard: 190, stretch: 210},
+	targetAmount: 10_000,
+	currency: 'EUR',
+	targets: {
+		minimum: {days: 150, label: 'Minimum', percentage: 79},
+		standard: {days: 190, label: 'Standard', percentage: 100},
+		stretch: {days: 210, label: 'Stretch', percentage: 128},
+		maximum: {days: 230, label: 'Maximum', percentage: 148},
+	},
 };
 
 // OPERATIONS

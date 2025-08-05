@@ -42,14 +42,23 @@ export type BonusTier = {
 	rate: number;
 };
 
+export type BonusTarget = {
+	days: number;
+	label: string;
+	percentage: number;
+};
+
 export type BonusConfig = {
 	enabled: boolean;
 	hoursPerBonusDay: number;
 	targetDays: number;
+	targetAmount: number;
+	currency: string;
 	targets: {
-		minimum: number;
-		standard: number;
-		stretch: number;
+		minimum: BonusTarget;
+		standard: BonusTarget;
+		stretch: BonusTarget;
+		maximum: BonusTarget;
 	};
 	tiers?: BonusTier[];
 	billableCustomField?: string;
