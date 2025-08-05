@@ -48,12 +48,11 @@ export function SAPExportConfirmation({
 
 	if (!sapConfig?.enabled) {
 		return (
-			<Box flexDirection="column">
-				<Alert variant="error">
-					SAP export is not enabled. Please configure SAP settings.
-				</Alert>
-				<Box marginTop={1}>
-					<Text dimColor>[Q] Back</Text>
+			<Box justifyContent="center">
+				<Box flexDirection="column" width={60}>
+					<Alert variant="error">
+						SAP export is not enabled. Please configure SAP settings.
+					</Alert>
 				</Box>
 			</Box>
 		);
@@ -61,53 +60,52 @@ export function SAPExportConfirmation({
 
 	if (!sapConfig.persnr) {
 		return (
-			<Box flexDirection="column">
-				<Alert variant="error">
-					Personnel number (Persnr) is missing. Please configure in settings.
-				</Alert>
-				<Box marginTop={1}>
-					<Text dimColor>[Q] Back</Text>
+			<Box justifyContent="center">
+				<Box flexDirection="column" width={60}>
+					<Alert variant="error">
+						Personnel number (Persnr) is missing. Please configure in settings.
+					</Alert>
 				</Box>
 			</Box>
 		);
 	}
 
 	return (
-		<Box flexDirection="column">
-			<Box marginBottom={2}>
-				<Text bold>Export Timesheet to SAP S/4HANA</Text>
-			</Box>
-
-			<Box
-				flexDirection="column"
-				borderStyle="single"
-				paddingX={2}
-				paddingY={1}
-				marginBottom={2}
-			>
-				<Text bold>Export Details:</Text>
-				<Box marginTop={1} flexDirection="column">
-					<Text>
-						├─ Month: {monthName} {selection.year}
-					</Text>
-					<Text>├─ Personnel Number: {sapConfig.persnr}</Text>
-					<Text>├─ Comment Prefix: {sapConfig.commentPrefix ?? '(none)'}</Text>
-					<Text>
-						└─ Delete Existing:{' '}
-						{sapConfig.removeExistingTimesheets ? 'Yes' : 'No'}
-					</Text>
+		<Box justifyContent="center">
+			<Box flexDirection="column" width={60}>
+				<Box marginBottom={2} justifyContent="center">
+					<Text bold>Export Timesheet to SAP S/4HANA</Text>
 				</Box>
-			</Box>
 
-			<Box flexDirection="column" marginBottom={2}>
-				<Text>This will send your timesheet to SAP S/4HANA.</Text>
-				{sapConfig.removeExistingTimesheets && (
-					<Text color="yellow">Existing entries will be replaced.</Text>
-				)}
-			</Box>
+				<Box
+					flexDirection="column"
+					borderStyle="single"
+					paddingX={2}
+					paddingY={1}
+					marginBottom={2}
+				>
+					<Text bold>Export Details:</Text>
+					<Box marginTop={1} flexDirection="column">
+						<Text>
+							├─ Month: {monthName} {selection.year}
+						</Text>
+						<Text>├─ Personnel Number: {sapConfig.persnr}</Text>
+						<Text>
+							├─ Comment Prefix: {sapConfig.commentPrefix ?? '(none)'}
+						</Text>
+						<Text>
+							└─ Delete Existing:{' '}
+							{sapConfig.removeExistingTimesheets ? 'Yes' : 'No'}
+						</Text>
+					</Box>
+				</Box>
 
-			<Box marginTop={1}>
-				<Text dimColor>[Enter] Confirm [Q] Cancel</Text>
+				<Box flexDirection="column" marginBottom={2}>
+					<Text>This will send your timesheet to SAP S/4HANA.</Text>
+					{sapConfig.removeExistingTimesheets && (
+						<Text color="yellow">Existing entries will be replaced.</Text>
+					)}
+				</Box>
 			</Box>
 		</Box>
 	);

@@ -73,55 +73,57 @@ export function MonthYearSelector({
 	});
 
 	return (
-		<Box flexDirection="column">
-			<Box marginBottom={1}>
-				<Text bold>Select Export Period</Text>
-			</Box>
-
-			<Box flexDirection="column" gap={1}>
-				<Box flexDirection="row" alignItems="center" gap={2}>
-					<Text>Year:</Text>
-					<Box width={10}>
-						{focusField === 'year' ? (
-							<Select
-								options={years}
-								defaultValue={selectedYear.toString()}
-								onChange={value => {
-									setSelectedYear(Number.parseInt(value, 10));
-								}}
-							/>
-						) : (
-							<Text>{selectedYear}</Text>
-						)}
-					</Box>
+		<Box justifyContent="center">
+			<Box flexDirection="column" width={40}>
+				<Box marginBottom={1} justifyContent="center">
+					<Text bold>Select Export Period</Text>
 				</Box>
 
-				<Box flexDirection="row" alignItems="center" gap={2}>
-					<Text>Month:</Text>
-					<Box width={20}>
-						{focusField === 'month' ? (
-							<Select
-								options={MONTHS}
-								defaultValue={selectedMonth.toString()}
-								onChange={value => {
-									setSelectedMonth(Number.parseInt(value, 10));
-								}}
-							/>
-						) : (
-							<Text>
-								{
-									MONTHS.find(
-										m => Number.parseInt(m.value, 10) === selectedMonth,
-									)?.label
-								}
-							</Text>
-						)}
+				<Box flexDirection="column" gap={1}>
+					<Box flexDirection="row" alignItems="center" gap={2}>
+						<Box width={6}>
+							<Text>Year:</Text>
+						</Box>
+						<Box width={10}>
+							{focusField === 'year' ? (
+								<Select
+									options={years}
+									defaultValue={selectedYear.toString()}
+									onChange={value => {
+										setSelectedYear(Number.parseInt(value, 10));
+									}}
+								/>
+							) : (
+								<Text>{selectedYear}</Text>
+							)}
+						</Box>
+					</Box>
+
+					<Box flexDirection="row" alignItems="center" gap={2}>
+						<Box width={6}>
+							<Text>Month:</Text>
+						</Box>
+						<Box width={18}>
+							{focusField === 'month' ? (
+								<Select
+									options={MONTHS}
+									defaultValue={selectedMonth.toString()}
+									onChange={value => {
+										setSelectedMonth(Number.parseInt(value, 10));
+									}}
+								/>
+							) : (
+								<Text>
+									{
+										MONTHS.find(
+											m => Number.parseInt(m.value, 10) === selectedMonth,
+										)?.label
+									}
+								</Text>
+							)}
+						</Box>
 					</Box>
 				</Box>
-			</Box>
-
-			<Box marginTop={2}>
-				<Text dimColor>[Tab] Switch field [Enter] Continue [Q] Cancel</Text>
 			</Box>
 		</Box>
 	);

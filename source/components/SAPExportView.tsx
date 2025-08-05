@@ -1,8 +1,8 @@
 import React, {useState, useCallback} from 'react';
-import {Box} from 'ink';
+import {Box, Text} from 'ink';
+import {Spinner} from '@inkjs/ui';
 import type {JiraConfig} from '../jira/types.js';
-import {SAPExportService} from '../services/SAPExportService.js';
-import type {SAPExportResult} from '../services/SAPExportService.js';
+import type {LegacySAPExportResult} from '../domain/SAPExportResult.js';
 import {MonthYearSelector} from './MonthYearSelector.js';
 import type {MonthYearSelection} from './MonthYearSelector.js';
 import {SAPExportConfirmation} from './SAPExportConfirmation.js';
@@ -12,16 +12,21 @@ import LoadingScreen from './LoadingScreen.js';
 type SAPExportViewProps = {
 	config: JiraConfig;
 	onBack: () => void;
+	onExport: (parameters: {
+		year: number;
+		month: number;
+		persnr: string;
+		commentPrefix?: string;
+		removeExistingTimesheets: boolean;
+	}) => Promise<LegacySAPExportResult>;
 };
 
 type ExportStep = 'select-period' | 'confirm' | 'exporting' | 'result';
 
-export function SAPExportView({config, onBack}: SAPExportViewProps) {
+export function SAPExportView({config, onBack, onExport}: SAPExportViewProps) {
 	const [step, setStep] = useState<ExportStep>('select-period');
 	const [selection, setSelection] = useState<MonthYearSelection | undefined>();
-	const [result, setResult] = useState<SAPExportResult | undefined>();
-
-	const sapService = new SAPExportService(config);
+	const [result, setResult] = useState<LegacySAPExportResult | undefined>();
 
 	const handlePeriodSelect = useCallback((selected: MonthYearSelection) => {
 		setSelection(selected);
@@ -36,7 +41,7 @@ export function SAPExportView({config, onBack}: SAPExportViewProps) {
 		setStep('exporting');
 
 		try {
-			const exportResult = await sapService.exportTimesheetLegacy({
+			const exportResult = await onExport({
 				year: selection.year,
 				month: selection.month,
 				persnr: config.sap.persnr,
@@ -57,7 +62,7 @@ export function SAPExportView({config, onBack}: SAPExportViewProps) {
 			});
 			setStep('result');
 		}
-	}, [selection, config.sap, sapService]);
+	}, [selection, config.sap, onExport]);
 
 	const handleCancel = useCallback(() => {
 		if (step === 'select-period') {
@@ -98,7 +103,21 @@ export function SAPExportView({config, onBack}: SAPExportViewProps) {
 	}
 
 	if (step === 'exporting') {
-		return <LoadingScreen message="Exporting timesheet to SAP S/4HANA..." />;
+		return (
+			<Box
+				width="100%"
+				justifyContent="center"
+				alignItems="center"
+				paddingY={5}
+			>
+				<Box flexDirection="row" alignItems="center">
+					<Spinner type="dots" />
+					<Box marginLeft={1}>
+						<Text>Exporting timesheet to SAP S/4HANA...</Text>
+					</Box>
+				</Box>
+			</Box>
+		);
 	}
 
 	if (step === 'result' && result) {

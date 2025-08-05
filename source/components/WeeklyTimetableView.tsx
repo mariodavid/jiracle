@@ -13,6 +13,7 @@ import {useTitleResolver} from '../hooks/useTitleResolver.js';
 import {useActiveAreaResolver} from '../hooks/useActiveAreaResolver.js';
 import {useNotification} from '../hooks/useNotification.js';
 import {JiraClient, type JiraConfig} from '../jira-client.js';
+import {useSAPExport} from '../hooks/useSAPExport.js';
 import type {IssueKey} from '../domain/IssueKey.js';
 import {openInBrowser, generateJiraIssueUrl} from '../utils/browser.js';
 import {NotificationBar} from './NotificationBar.js';
@@ -43,6 +44,9 @@ export function WeeklyTimetableView({
 }: WeeklyTimetableViewProps) {
 	// Create JiraClient instance (memoized to prevent infinite loops)
 	const jiraClient = useMemo(() => new JiraClient(config), [config]);
+
+	// SAP export functionality
+	const {handleExport: handleSAPExport} = useSAPExport(config);
 
 	// Navigation state management
 	const {
@@ -399,6 +403,7 @@ export function WeeklyTimetableView({
 									onBack={() => {
 										setActiveArea('timetable');
 									}}
+									onExport={handleSAPExport}
 								/>
 							);
 						}

@@ -1,7 +1,7 @@
 import React from 'react';
 import {Box, Text, useInput} from 'ink';
 import {Alert} from '@inkjs/ui';
-import type {SAPExportResult as SAPResult} from '../services/SAPExportService.js';
+import type {LegacySAPExportResult as SAPResult} from '../domain/SAPExportResult.js';
 
 type SAPExportResultProps = {
 	result: SAPResult;
@@ -9,32 +9,29 @@ type SAPExportResultProps = {
 };
 
 export function SAPExportResult({result, onBack}: SAPExportResultProps) {
-	useInput(input => {
-		if (input === 'q') {
+	useInput((input, key) => {
+		if (input === 'q' || key.return) {
 			onBack();
 		}
 	});
 
 	if (result.success) {
 		return (
-			<Box flexDirection="column">
-				<Box marginBottom={2}>
-					<Text bold>Export Successful ✓</Text>
-				</Box>
+			<Box justifyContent="center">
+				<Box flexDirection="column" width={60}>
+					<Box marginBottom={2} justifyContent="center">
+						<Text bold>Export Successful ✓</Text>
+					</Box>
 
-				<Alert key="success-alert" variant="success">
-					{result.message ?? 'Timesheet successfully exported to SAP S/4HANA'}
-				</Alert>
+					<Alert key="success-alert" variant="success">
+						{result.message ?? 'Timesheet successfully exported to SAP S/4HANA'}
+					</Alert>
 
-				<Box flexDirection="column" marginTop={2} marginBottom={2}>
-					<Text>The data will be available in S/4HANA shortly.</Text>
-					<Text color="yellow">
-						Remember to release your time sheet in S/4HANA.
-					</Text>
-				</Box>
-
-				<Box marginTop={1}>
-					<Text dimColor>[Q] Back to menu</Text>
+					<Box flexDirection="column" marginTop={2} marginBottom={2}>
+						<Text color="yellow">
+							Remember to release your time sheet in S/4HANA.
+						</Text>
+					</Box>
 				</Box>
 			</Box>
 		);

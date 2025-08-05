@@ -44,7 +44,7 @@ test.serial(
 	'Integration: SAP Export navigation - e-key triggers export flow',
 	async t => {
 		// EXPLICIT TEST DATA
-		const expectedTimetableHelp = '[E] Export';
+		const expectedTimetableHelp = '[E] SAP Export';
 		const expectedExportScreen = 'Select Export Period';
 		const mockConfig = createValidSAPConfig();
 
@@ -140,7 +140,7 @@ test.serial(
 	'Integration: SAP Export navigation - q-key cancellation at each step',
 	async t => {
 		// EXPLICIT TEST DATA
-		const expectedTimetableHelp = '[E] Export';
+		const expectedTimetableHelp = '[E] SAP Export';
 		const expectedSelectionScreen = 'Select Export Period';
 		const mockConfig = createValidSAPConfig();
 
@@ -185,8 +185,7 @@ test.serial(
 	'Integration: SAP Export navigation - disabled SAP shows configuration error',
 	async t => {
 		// EXPLICIT TEST DATA
-		const expectedErrorMessage =
-			'SAP export is not enabled. Please configure SAP settings.';
+		const expectedErrorMessage = 'SAP export is not enabled';
 		const mockConfig = createConfigWithoutSAP();
 
 		// OPERATIONS
