@@ -23,6 +23,7 @@ export type ResolvedActiveArea =
 	| 'align-time-confirmation'
 	| 'attendance-edit'
 	| 'statistics'
+	| 'sap-export'
 	| 'timetable';
 
 export function useActiveAreaResolver({
@@ -71,6 +72,11 @@ export function useActiveAreaResolver({
 	// Statistics view
 	if (activeArea === 'statistics') {
 		return 'statistics';
+	}
+
+	// SAP export view
+	if (activeArea === 'sap-export') {
+		return 'sap-export';
 	}
 
 	// Default: Timetable

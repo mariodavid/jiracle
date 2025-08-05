@@ -27,6 +27,7 @@ import {
 import {TitleBar} from './TitleBar.js';
 import {TimetableGrid} from './TimetableGrid.js';
 import {StatisticsView} from './StatisticsView.js';
+import {SAPExportView} from './SAPExportView.js';
 import {HelpText} from './HelpText.js';
 
 export type WeeklyTimetableViewProps = {
@@ -222,7 +223,8 @@ export function WeeklyTimetableView({
 			activeArea === 'attendance-edit' ||
 			activeArea === 'checkin-confirmation' ||
 			activeArea === 'checkout-confirmation' ||
-			activeArea === 'statistics'
+			activeArea === 'statistics' ||
+			activeArea === 'sap-export'
 		) {
 			return;
 		}
@@ -273,6 +275,12 @@ export function WeeklyTimetableView({
 			case 's': {
 				// Show statistics view
 				setActiveArea('statistics');
+				break;
+			}
+
+			case 'e': {
+				// Export to SAP S/4HANA
+				setActiveArea('sap-export');
 				break;
 			}
 
@@ -380,6 +388,17 @@ export function WeeklyTimetableView({
 										setActiveArea('timetable');
 									}}
 									onBonusTabChange={setShowBonusTab}
+								/>
+							);
+						}
+
+						case 'sap-export': {
+							return (
+								<SAPExportView
+									config={config}
+									onBack={() => {
+										setActiveArea('timetable');
+									}}
 								/>
 							);
 						}
