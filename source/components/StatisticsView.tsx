@@ -12,7 +12,6 @@ import {
 	type BonusProgress,
 	type TierVisualization,
 } from '../bonus/BonusCalculator.js';
-import {Duration} from '../domain/Duration.js';
 import {CurrencyFormatter} from '../utils/currency-formatter.js';
 import {NotificationBar} from './NotificationBar.js';
 import {StatisticsGrid} from './StatisticsGrid.js';
@@ -86,10 +85,11 @@ export function StatisticsView({
 				setStatistics(stats);
 
 				// Load bonus data if calculator is available
-				if (bonusCalculator && stats.totalHours) {
-					const totalHoursDuration = Duration.fromHours(stats.totalHours);
-					const progress =
-						bonusCalculator.calculateBonusProgress(totalHoursDuration);
+				const billableHoursDuration = stats.getBillableHoursDuration();
+				if (bonusCalculator && billableHoursDuration) {
+					const progress = bonusCalculator.calculateBonusProgress(
+						billableHoursDuration,
+					);
 					setBonusProgress(progress);
 
 					const visualizations = bonusCalculator.getTierVisualizations(

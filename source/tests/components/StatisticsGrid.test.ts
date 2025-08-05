@@ -2,10 +2,10 @@ import test from 'ava';
 import React from 'react';
 import {render} from 'ink-testing-library';
 import {StatisticsGrid} from '../../components/StatisticsGrid.js';
-import type {YearlyStatistics} from '../../use-cases/StatisticsUseCase.js';
+import {YearlyStatistics} from '../../use-cases/StatisticsUseCase.js';
 
 // TEST DATA
-const EXPECTED_YEARLY_STATISTICS: YearlyStatistics = {
+const EXPECTED_YEARLY_STATISTICS = YearlyStatistics.create({
 	year: 2025,
 	monthlyStats: [
 		{
@@ -47,14 +47,14 @@ const EXPECTED_YEARLY_STATISTICS: YearlyStatistics = {
 	totalHours: 344,
 	totalBonusDays: 43,
 	yearToDateEfficiency: 16.48,
-};
+});
 
-const EXPECTED_EMPTY_STATISTICS: YearlyStatistics = {
+const EXPECTED_EMPTY_STATISTICS = YearlyStatistics.create({
 	year: 2025,
 	monthlyStats: [],
 	totalWorklogDays: 0,
 	totalAttendanceDays: 0,
-};
+});
 
 // Mock bonus config for testing
 const MOCK_BONUS_CONFIG = {
@@ -129,7 +129,7 @@ test('should render total row with correct calculations', t => {
 });
 
 test('should calculate bonus days correctly using 8-hour workday', t => {
-	const singleDayStats: YearlyStatistics = {
+	const singleDayStats = YearlyStatistics.create({
 		year: 2025,
 		monthlyStats: [
 			{
@@ -149,7 +149,7 @@ test('should calculate bonus days correctly using 8-hour workday', t => {
 		totalHours: 8,
 		totalBonusDays: 1,
 		yearToDateEfficiency: 0.38,
-	};
+	});
 
 	const output = renderStatisticsGrid(singleDayStats);
 

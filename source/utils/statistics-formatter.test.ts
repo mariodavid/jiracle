@@ -1,5 +1,5 @@
 import test from 'ava';
-import type {YearlyStatistics} from '../use-cases/StatisticsUseCase.js';
+import {YearlyStatistics} from '../use-cases/StatisticsUseCase.js';
 import {formatStatisticsTable} from './statistics-formatter.js';
 
 test('formatStatisticsTable displays yearly statistics with explicit test data', t => {
@@ -21,12 +21,12 @@ test('formatStatisticsTable displays yearly statistics with explicit test data',
 	const expectedTotalWorklogDays = 47;
 	const expectedTotalAttendanceDays = 56;
 
-	const input: YearlyStatistics = {
+	const input = YearlyStatistics.create({
 		year: testYear,
 		monthlyStats: testMonthlyStats,
 		totalWorklogDays: expectedTotalWorklogDays,
 		totalAttendanceDays: expectedTotalAttendanceDays,
-	};
+	});
 
 	const expectedHeader = 'Month        | Worklog Days | Attendance Days';
 	const expectedSeparator = '-------------|--------------|----------------';
@@ -64,12 +64,12 @@ test('formatStatisticsTable handles zero values with explicit test data', t => {
 	const expectedTotalWorklogDays = 0;
 	const expectedTotalAttendanceDays = 0;
 
-	const input: YearlyStatistics = {
+	const input = YearlyStatistics.create({
 		year: testYear,
 		monthlyStats: testMonthlyStats,
 		totalWorklogDays: expectedTotalWorklogDays,
 		totalAttendanceDays: expectedTotalAttendanceDays,
-	};
+	});
 
 	const expectedJanuaryRow = 'January      |           0 |              0';
 	const expectedTotalRow = 'Total        |           0 |              0';
@@ -99,12 +99,12 @@ test('formatStatisticsTable handles large numbers with explicit test data', t =>
 	const expectedTotalWorklogDays = 999;
 	const expectedTotalAttendanceDays = 1000;
 
-	const input: YearlyStatistics = {
+	const input = YearlyStatistics.create({
 		year: testYear,
 		monthlyStats: testMonthlyStats,
 		totalWorklogDays: expectedTotalWorklogDays,
 		totalAttendanceDays: expectedTotalAttendanceDays,
-	};
+	});
 
 	const expectedJanuaryRow = 'January      |         999 |           1000';
 	const expectedTotalRow = 'Total        |         999 |           1000';
