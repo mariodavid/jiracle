@@ -30,21 +30,13 @@ export function useVacationManagement({
 			// Note: Overlap detection would require async data loading
 			// For now, we'll just proceed with the vacation creation
 
-			// Create vacation entries for each day
-			const startDateString = startDate.toISOString();
-			const endDateString = endDate.toISOString();
+			// Create vacation entries for each day using LocalDate domain methods
 			const promises: Array<Promise<Attendance>> = [];
+			let currentDate = startDate;
 
-			// Simple date iteration using Date objects
-			const startDateObject = new Date(startDateString);
-			const endDateObject = new Date(endDateString);
-			const currentDateObject = new Date(startDateObject);
-
-			while (currentDateObject.getTime() <= endDateObject.getTime()) {
-				const dateString = currentDateObject.toISOString().split('T')[0] ?? '';
-
+			while (currentDate.toISOString() <= endDate.toISOString()) {
 				const vacationEntry: Attendance = {
-					date: dateString,
+					date: currentDate.toISOString(),
 					checkIn: 'VACATION',
 					checkOut: 'VACATION',
 					breakMinutes: 0,
@@ -53,7 +45,7 @@ export function useVacationManagement({
 				};
 
 				promises.push(attendanceManager.updateAttendance(vacationEntry));
-				currentDateObject.setDate(currentDateObject.getDate() + 1);
+				currentDate = currentDate.addDays(1);
 			}
 
 			await Promise.all(promises);

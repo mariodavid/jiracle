@@ -1,6 +1,7 @@
 import React, {useState} from 'react';
 import {Box, Text, useInput} from 'ink';
 import {LocalDate} from '../domain/LocalDate.js';
+import {VacationPeriod} from '../domain/VacationPeriod.js';
 
 export type VacationEntryFormProps = {
 	onSave: (startDate: LocalDate, endDate: LocalDate) => void;
@@ -75,20 +76,12 @@ export function VacationEntryForm({onSave, onCancel}: VacationEntryFormProps) {
 		}
 	});
 
-	const calculateDays = (): number => {
-		if (startDate.toISOString() > endDate.toISOString()) {
-			return 0;
+	const createVacationPeriod = (): VacationPeriod | undefined => {
+		try {
+			return VacationPeriod.create(startDate, endDate);
+		} catch {
+			return undefined;
 		}
-
-		let count = 0;
-		let currentDate = startDate;
-
-		while (currentDate.toISOString() <= endDate.toISOString()) {
-			count++;
-			currentDate = currentDate.addDays(1);
-		}
-
-		return count;
 	};
 
 	const getDayOfWeek = (date: LocalDate): string => {
@@ -100,9 +93,10 @@ export function VacationEntryForm({onSave, onCancel}: VacationEntryFormProps) {
 		return `${date.toISOString()} (${getDayOfWeek(date)})`;
 	};
 
-	const days = calculateDays();
-	const isValidRange = startDate.toISOString() <= endDate.toISOString();
-	const hasWeekends = checkForWeekends(startDate, endDate);
+	const vacationPeriod = createVacationPeriod();
+	const days: number = vacationPeriod?.getDurationDays() ?? 0;
+	const isValidRange: boolean = vacationPeriod?.isValidRange() ?? false;
+	const hasWeekends: boolean = vacationPeriod?.includesWeekends() ?? false;
 
 	return (
 		<Box flexDirection="column" paddingX={2}>
@@ -174,25 +168,4 @@ export function VacationEntryForm({onSave, onCancel}: VacationEntryFormProps) {
 			</Box>
 		</Box>
 	);
-}
-
-function checkForWeekends(startDate: LocalDate, endDate: LocalDate): boolean {
-	if (startDate.toISOString() > endDate.toISOString()) {
-		return false;
-	}
-
-	let currentDate = startDate;
-
-	while (currentDate.toISOString() <= endDate.toISOString()) {
-		const dayOfWeek = currentDate.toDate().getDay();
-
-		if (dayOfWeek === 0 || dayOfWeek === 6) {
-			// Sunday or Saturday
-			return true;
-		}
-
-		currentDate = currentDate.addDays(1);
-	}
-
-	return false;
 }
