@@ -1,4 +1,4 @@
-import {LocalDate} from '../domain/LocalDate.js';
+import type {LocalDate} from '../domain/LocalDate.js';
 import type {WeekRange} from '../domain/WeekRange.js';
 import type {
 	DeleteCandidate,
@@ -30,10 +30,8 @@ export function useTitleResolver({
 	activeArea,
 }: UseTitleResolverOptions): UseTitleResolverReturn {
 	// Format date for display
-	const formatDate = (date: Date | LocalDate) => {
-		// Convert LocalDate to Date if needed
-		const jsDate =
-			date instanceof LocalDate ? new Date(date.toISOString()) : date;
+	const formatDate = (date: LocalDate) => {
+		const jsDate = date.toDate();
 		const days = [
 			'Sunday',
 			'Monday',
@@ -62,40 +60,45 @@ export function useTitleResolver({
 		} ${jsDate.getDate()}`;
 	};
 
-	// Calculate German calendar week (ISO 8601)
-	const getGermanWeekNumber = (date: Date) => {
-		const target = new Date(date);
-		// ISO week starts on Monday
-		const dayOfWeek = (target.getDay() + 6) % 7; // Monday = 0, Sunday = 6
-		target.setDate(target.getDate() - dayOfWeek + 3); // Move to Wednesday of that week
+	// Calculate German calendar week (ISO 8601) using LocalDate/WeekRange
+	const getGermanWeekNumber = (weekRange: WeekRange) => {
+		// Use the Wednesday of the week to determine the year (ISO 8601 standard)
+		const wednesday = weekRange.getStart().addDays(2);
+		const year = wednesday.toDate().getFullYear();
 
-		// Get first Thursday of year (week 1 is the week containing the first Thursday)
-		const firstThursday = new Date(target.getFullYear(), 0, 4);
-		const firstThursdayDay = (firstThursday.getDay() + 6) % 7; // Monday = 0
-		firstThursday.setDate(firstThursday.getDate() - firstThursdayDay + 3); // Move to Wednesday of week 1
+		// Find first Thursday of the year
+		const firstThursday = new Date(year, 0, 4);
+		const firstThursdayDayOfWeek = firstThursday.getDay();
 
-		// Calculate week number
-		const weekNumber = Math.floor(
-			(target.getTime() - firstThursday.getTime()) / (7 * 24 * 60 * 60 * 1000) +
-				1,
+		// Find the Monday of the week containing the first Thursday
+		const firstMondayOfYear = new Date(firstThursday);
+		firstMondayOfYear.setDate(
+			firstThursday.getDate() -
+				(firstThursdayDayOfWeek === 0 ? 6 : firstThursdayDayOfWeek - 1),
 		);
-		return weekNumber;
+
+		// Calculate weeks between first Monday and current week start
+		const weekStart = weekRange.getStart().toDate();
+		const diffInMs = weekStart.getTime() - firstMondayOfYear.getTime();
+		const diffInWeeks = Math.floor(diffInMs / (7 * 24 * 60 * 60 * 1000));
+		return diffInWeeks + 1;
+	};
+
+	// Format date for week display (dd.mm format)
+	const formatWeekDate = (date: LocalDate) => {
+		const jsDate = date.toDate();
+		const month = jsDate.getMonth() + 1;
+		const day = jsDate.getDate();
+		return `${day}.${month}`;
 	};
 
 	// Generate week title (German week: Monday to Friday with calendar week)
 	const getWeekTitle = (weekRange: WeekRange) => {
-		const startOfWeek = weekRange.getStart().toDate();
+		const startOfWeek = weekRange.getStart();
 		// End of German work week is Friday (4 days after Monday)
-		const endOfWeek = new Date(startOfWeek);
-		endOfWeek.setDate(startOfWeek.getDate() + 4);
+		const endOfWeek = startOfWeek.addDays(4);
 
-		const formatWeekDate = (date: Date) => {
-			const month = date.getMonth() + 1;
-			const day = date.getDate();
-			return `${day}.${month}`;
-		};
-
-		const weekNumber = getGermanWeekNumber(startOfWeek);
+		const weekNumber = getGermanWeekNumber(weekRange);
 		return `KW${weekNumber} (${formatWeekDate(startOfWeek)} - ${formatWeekDate(
 			endOfWeek,
 		)})`;

@@ -121,9 +121,9 @@ export function TimetableGrid({
 	const weekStartLocal = data
 		? data.weekStart
 		: LocalDate.today().getWeekStart();
-	const weekDates = generateWeekDates(
-		new Date(weekStartLocal.toISOString() + 'T00:00:00.000Z'),
-	);
+	const weekDates = generateWeekDates(weekStartLocal);
+	// Convert to Date[] for components that still need it
+	const weekDatesAsDate = weekDates.map(date => date.toDate());
 	const issueMap =
 		data && data.dailySummaries.length > 0
 			? buildIssueMap(data)
@@ -133,7 +133,7 @@ export function TimetableGrid({
 	// Calculate daily deltas (logged hours - attendance hours)
 	const dailyLoggedHours: Record<string, number> = {};
 	for (const [index, date] of weekDates.entries()) {
-		const dateKey = LocalDate.fromDate(date).toISOString();
+		const dateKey = date.toISOString();
 		dailyLoggedHours[dateKey] = dailyTotals[index] ?? 0;
 	}
 
@@ -146,7 +146,7 @@ export function TimetableGrid({
 	// Unified table navigation (focus management + keyboard input)
 	const {focusedCell, handleFocusChange} = useTableNavigation({
 		isActive,
-		weekDates,
+		weekDates: weekDatesAsDate,
 		attendanceManager,
 		issueGroups,
 		onWeekChange,
@@ -204,7 +204,7 @@ export function TimetableGrid({
 	// 		// Calculate preferred column index (today's weekday)
 	// 		const today = LocalDate.today();
 	// 		const todayColumnIndex = weekDates.findIndex(date =>
-	// 			LocalDate.fromDate(date).equals(today),
+	// 			date.equals(today),
 	// 		);
 	// 		const preferredColumn = todayColumnIndex >= 0 ? todayColumnIndex : 0; // Default to Monday
 
@@ -272,7 +272,10 @@ export function TimetableGrid({
 				{DAYS.map((day, index) => {
 					const date = weekDates[index];
 					const dayMonth = date
-						? `(${date.getDate()}.${date.getMonth() + 1})`
+						? (() => {
+								const jsDate = date.toDate();
+								return `(${jsDate.getDate()}.${jsDate.getMonth() + 1})`;
+						  })()
 						: '';
 					return (
 						<Box key={day} width={12} justifyContent="flex-end">
@@ -292,7 +295,7 @@ export function TimetableGrid({
 			{/* Attendance rows - only show if attendanceManager is available */}
 			{attendanceManager && (
 				<AttendanceRows
-					weekDates={weekDates}
+					weekDates={weekDatesAsDate}
 					weeklyAttendance={weeklyAttendance}
 					isActive={isActive}
 					onFocusChange={handleFocusChange}
@@ -384,9 +387,7 @@ export function TimetableGrid({
 											<FocusableCell
 												key={`${issueKey}-focusable-cell-${index}`}
 												value={formatHours(
-													issueData.dailyHours[
-														LocalDate.fromDate(date).toISOString()
-													] ?? 0,
+													issueData.dailyHours[date.toISOString()] ?? 0,
 												)}
 												focusId={`issue-${issueKey}-${index}`}
 												isActive={true}
@@ -403,9 +404,7 @@ export function TimetableGrid({
 											>
 												<Text>
 													{formatHours(
-														issueData.dailyHours[
-															LocalDate.fromDate(date).toISOString()
-														] ?? 0,
+														issueData.dailyHours[date.toISOString()] ?? 0,
 													)}
 												</Text>
 											</Box>
@@ -514,7 +513,7 @@ export function TimetableGrid({
 			{/* Attendance footer rows (hours and delta) - only show if attendanceManager is available */}
 			{attendanceManager && (
 				<AttendanceFooterRows
-					weekDates={weekDates}
+					weekDates={weekDatesAsDate}
 					weeklyAttendance={weeklyAttendance}
 					dailyLoggedHours={dailyLoggedHours}
 					config={config}
