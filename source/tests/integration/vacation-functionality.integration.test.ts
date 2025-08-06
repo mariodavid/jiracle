@@ -36,7 +36,7 @@ test('vacation integration - basic grouping functionality', t => {
 		result[0]!.endDate.equals(expectedEndDate),
 		'End date should match expected',
 	);
-	t.is(result[0]!.days, 2, 'Should have 2 days');
+	t.is(result[0]!.getDurationDays(), 2, 'Should have 2 days');
 });
 
 test('vacation integration - date range calculation', t => {

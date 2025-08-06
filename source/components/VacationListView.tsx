@@ -1,13 +1,9 @@
 import React from 'react';
 import {Box, Text, useInput} from 'ink';
-import {LocalDate} from '../domain/LocalDate.js';
-import type {Attendance} from '../attendance/types.js';
-
-export type VacationEntry = {
-	startDate: LocalDate;
-	endDate: LocalDate;
-	days: number;
-};
+import {VacationService} from '../domain/VacationService.js';
+// eslint-disable-next-line @typescript-eslint/consistent-type-imports
+import {VacationEntry} from '../domain/VacationEntry.js';
+import type {LocalDate} from '../domain/LocalDate.js';
 
 export type VacationListViewProps = {
 	vacationEntries: VacationEntry[];
@@ -53,31 +49,10 @@ export function VacationListView({
 		}
 	});
 
-	const totalDays = vacationEntries.reduce((sum, entry) => sum + entry.days, 0);
-
-	const formatDateRange = (entry: VacationEntry): string => {
-		const startDate = entry.startDate.toDate();
-		const endDate = entry.endDate.toDate();
-		const startMonth = getGermanMonth(startDate.getMonth());
-		const endMonth = getGermanMonth(endDate.getMonth());
-
-		if (entry.startDate.equals(entry.endDate)) {
-			// Single day
-			return `${startMonth} ${String(startDate.getDate())}`;
-		}
-
-		if (startDate.getMonth() === endDate.getMonth()) {
-			// Same month
-			return `${startMonth} ${String(startDate.getDate())} - ${String(
-				endDate.getDate(),
-			)}`;
-		}
-
-		// Different months
-		return `${startMonth} ${String(startDate.getDate())} - ${endMonth} ${String(
-			endDate.getDate(),
-		)}`;
-	};
+	const totalDays = vacationEntries.reduce(
+		(sum, entry) => sum + entry.getDurationDays(),
+		0,
+	);
 
 	return (
 		<Box flexDirection="column" paddingX={2}>
@@ -118,9 +93,9 @@ export function VacationListView({
 					{vacationEntries.map((entry, index) => (
 						<Box key={index} paddingY={0}>
 							<Box width={35}>
-								<Text>{formatDateRange(entry)}</Text>
+								<Text>{entry.formatDateRange()}</Text>
 							</Box>
-							<Text>{entry.days}</Text>
+							<Text>{entry.getDurationDays()}</Text>
 						</Box>
 					))}
 				</Box>
@@ -149,66 +124,4 @@ export function VacationListView({
 	);
 }
 
-function getGermanMonth(monthIndex: number): string {
-	const months = [
-		'Jan',
-		'Feb',
-		'Mär',
-		'Apr',
-		'Mai',
-		'Jun',
-		'Jul',
-		'Aug',
-		'Sep',
-		'Okt',
-		'Nov',
-		'Dez',
-	];
-	return months[monthIndex] ?? 'Unknown';
-}
-
-export function groupVacationDates(
-	attendanceRecords: Attendance[],
-): VacationEntry[] {
-	// Filter vacation entries and sort by date
-	const vacationDates = attendanceRecords
-		.filter(
-			record => record.checkIn === 'VACATION' && record.checkOut === 'VACATION',
-		)
-		.map(record => LocalDate.fromString(record.date))
-		.sort((a, b) => a.toISOString().localeCompare(b.toISOString()));
-
-	if (vacationDates.length === 0) {
-		return [];
-	}
-
-	const groups: VacationEntry[] = [];
-	let currentGroup: LocalDate[] = [vacationDates[0]!];
-
-	for (let i = 1; i < vacationDates.length; i++) {
-		const currentDate = vacationDates[i]!;
-		const lastDate = currentGroup[currentGroup.length - 1]!;
-
-		// Check if current date is consecutive to the last date
-		if (currentDate.equals(lastDate.addDays(1))) {
-			currentGroup.push(currentDate);
-		} else {
-			// Start new group
-			groups.push({
-				startDate: currentGroup[0]!,
-				endDate: currentGroup[currentGroup.length - 1]!,
-				days: currentGroup.length,
-			});
-			currentGroup = [currentDate];
-		}
-	}
-
-	// Add the last group
-	groups.push({
-		startDate: currentGroup[0]!,
-		endDate: currentGroup[currentGroup.length - 1]!,
-		days: currentGroup.length,
-	});
-
-	return groups;
-}
+export const {groupVacationDates} = VacationService;

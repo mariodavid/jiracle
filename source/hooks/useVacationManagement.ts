@@ -1,5 +1,6 @@
 import {useCallback} from 'react';
 import type {LocalDate} from '../domain/LocalDate.js';
+import {VacationPeriod} from '../domain/VacationPeriod.js';
 import type {AttendanceManager} from '../attendance/AttendanceManager.js';
 import type {Attendance} from '../attendance/types.js';
 
@@ -23,20 +24,21 @@ export function useVacationManagement({
 			}
 
 			// Validate date range
-			if (startDate.toISOString() > endDate.toISOString()) {
+			if (startDate.isAfter(endDate)) {
 				throw new Error('Start date must be before or equal to end date');
 			}
 
 			// Note: Overlap detection would require async data loading
 			// For now, we'll just proceed with the vacation creation
 
-			// Create vacation entries for each day using LocalDate domain methods
+			// Create vacation entries using VacationPeriod domain methods
+			const vacationPeriod = VacationPeriod.create(startDate, endDate);
+			const allDates = vacationPeriod.getAllDates();
 			const promises: Array<Promise<Attendance>> = [];
-			let currentDate = startDate;
 
-			while (currentDate.toISOString() <= endDate.toISOString()) {
+			for (const date of allDates) {
 				const vacationEntry: Attendance = {
-					date: currentDate.toISOString(),
+					date: date.toISOString(),
 					checkIn: 'VACATION',
 					checkOut: 'VACATION',
 					breakMinutes: 0,
@@ -45,7 +47,6 @@ export function useVacationManagement({
 				};
 
 				promises.push(attendanceManager.updateAttendance(vacationEntry));
-				currentDate = currentDate.addDays(1);
 			}
 
 			await Promise.all(promises);

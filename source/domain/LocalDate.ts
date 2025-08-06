@@ -50,6 +50,22 @@ export class LocalDate {
 		return this.dateKey === other.dateKey;
 	}
 
+	isAfter(other: LocalDate): boolean {
+		return this.dateKey > other.dateKey;
+	}
+
+	isBefore(other: LocalDate): boolean {
+		return this.dateKey < other.dateKey;
+	}
+
+	isAfterOrEqual(other: LocalDate): boolean {
+		return this.dateKey >= other.dateKey;
+	}
+
+	isBeforeOrEqual(other: LocalDate): boolean {
+		return this.dateKey <= other.dateKey;
+	}
+
 	addDays(days: number): LocalDate {
 		const date = new Date(this.dateKey + 'T00:00:00.000Z');
 		date.setUTCDate(date.getUTCDate() + days);

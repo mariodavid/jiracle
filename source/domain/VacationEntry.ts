@@ -72,4 +72,38 @@ export class VacationEntry {
 
 		return `${start} - ${end} (${duration} days)`;
 	}
+
+	formatDateRange(): string {
+		const startDate = this.startDate.toDate();
+		const endDate = this.endDate.toDate();
+		const monthNames = [
+			'Jan',
+			'Feb',
+			'Mär',
+			'Apr',
+			'Mai',
+			'Jun',
+			'Jul',
+			'Aug',
+			'Sep',
+			'Okt',
+			'Nov',
+			'Dez',
+		];
+
+		const startMonth = monthNames[startDate.getMonth()] ?? 'Unknown';
+		const endMonth = monthNames[endDate.getMonth()] ?? 'Unknown';
+		const startDay = startDate.getDate();
+		const endDay = endDate.getDate();
+
+		if (this.startDate.equals(this.endDate)) {
+			return `${startMonth} ${startDay}`;
+		}
+
+		if (startMonth === endMonth) {
+			return `${startMonth} ${startDay}-${endDay}`;
+		}
+
+		return `${startMonth} ${startDay} - ${endMonth} ${endDay}`;
+	}
 }

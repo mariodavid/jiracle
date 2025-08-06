@@ -2,7 +2,7 @@ import type {LocalDate} from './LocalDate.js';
 
 export class VacationPeriod {
 	static create(startDate: LocalDate, endDate: LocalDate): VacationPeriod {
-		if (startDate.toISOString() > endDate.toISOString()) {
+		if (startDate.isAfter(endDate)) {
 			throw new Error('Start date must be before or equal to end date');
 		}
 
@@ -22,7 +22,7 @@ export class VacationPeriod {
 		let count = 0;
 		let currentDate = this.startDate;
 
-		while (currentDate.toISOString() <= this.endDate.toISOString()) {
+		while (currentDate.isBeforeOrEqual(this.endDate)) {
 			count++;
 			currentDate = currentDate.addDays(1);
 		}
@@ -31,13 +31,13 @@ export class VacationPeriod {
 	}
 
 	isValidRange(): boolean {
-		return this.startDate.toISOString() <= this.endDate.toISOString();
+		return this.startDate.isBeforeOrEqual(this.endDate);
 	}
 
 	includesWeekends(): boolean {
 		let currentDate = this.startDate;
 
-		while (currentDate.toISOString() <= this.endDate.toISOString()) {
+		while (currentDate.isBeforeOrEqual(this.endDate)) {
 			const dayOfWeek = currentDate.toDate().getDay();
 
 			if (dayOfWeek === 0 || dayOfWeek === 6) {
@@ -52,10 +52,8 @@ export class VacationPeriod {
 	}
 
 	contains(date: LocalDate): boolean {
-		const dateString = date.toISOString();
 		return (
-			dateString >= this.startDate.toISOString() &&
-			dateString <= this.endDate.toISOString()
+			date.isAfterOrEqual(this.startDate) && date.isBeforeOrEqual(this.endDate)
 		);
 	}
 
@@ -72,7 +70,7 @@ export class VacationPeriod {
 		const dates: LocalDate[] = [];
 		let currentDate = this.startDate;
 
-		while (currentDate.toISOString() <= this.endDate.toISOString()) {
+		while (currentDate.isBeforeOrEqual(this.endDate)) {
 			dates.push(currentDate);
 			currentDate = currentDate.addDays(1);
 		}

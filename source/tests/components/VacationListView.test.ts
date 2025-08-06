@@ -53,7 +53,7 @@ test('groupVacationDates - groups consecutive vacation days', t => {
 		result[0]!.endDate.equals(expectedGroups[0]!.endDate),
 		'First group end date should match',
 	);
-	t.is(result[0]!.days, 2, 'First group should have 2 days');
+	t.is(result[0]!.getDurationDays(), 2, 'First group should have 2 days');
 
 	t.true(
 		result[1]!.startDate.equals(expectedGroups[1]!.startDate),
@@ -63,7 +63,7 @@ test('groupVacationDates - groups consecutive vacation days', t => {
 		result[1]!.endDate.equals(expectedGroups[1]!.endDate),
 		'Second group end date should match',
 	);
-	t.is(result[1]!.days, 1, 'Second group should have 1 day');
+	t.is(result[1]!.getDurationDays(), 1, 'Second group should have 1 day');
 });
 
 test('groupVacationDates - handles single vacation day', t => {
@@ -96,7 +96,7 @@ test('groupVacationDates - handles single vacation day', t => {
 		result[0]!.endDate.equals(expectedGroup.endDate),
 		'Group end date should match',
 	);
-	t.is(result[0]!.days, 1, 'Group should have 1 day');
+	t.is(result[0]!.getDurationDays(), 1, 'Group should have 1 day');
 });
 
 test('groupVacationDates - filters out non-vacation attendance', t => {
@@ -197,5 +197,5 @@ test('groupVacationDates - handles year boundary correctly', t => {
 		result[0]!.endDate.equals(LocalDate.fromString('2025-01-02')),
 		'Should end on Jan 2',
 	);
-	t.is(result[0]!.days, 4, 'Should have 4 days total');
+	t.is(result[0]!.getDurationDays(), 4, 'Should have 4 days total');
 });
