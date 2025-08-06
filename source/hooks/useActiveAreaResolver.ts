@@ -24,6 +24,8 @@ export type ResolvedActiveArea =
 	| 'attendance-edit'
 	| 'statistics'
 	| 'sap-export'
+	| 'vacation-list'
+	| 'vacation-form'
 	| 'timetable';
 
 export function useActiveAreaResolver({
@@ -77,6 +79,15 @@ export function useActiveAreaResolver({
 	// SAP export view
 	if (activeArea === 'sap-export') {
 		return 'sap-export';
+	}
+
+	// Vacation views
+	if (activeArea === 'vacation-list') {
+		return 'vacation-list';
+	}
+
+	if (activeArea === 'vacation-form') {
+		return 'vacation-form';
 	}
 
 	// Default: Timetable

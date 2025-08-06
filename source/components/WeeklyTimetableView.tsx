@@ -8,10 +8,11 @@ import {useWorklogForm} from '../hooks/useWorklogForm.js';
 import {useDeleteOperations} from '../hooks/useDeleteOperations.js';
 import {useAttendanceManagement} from '../hooks/useAttendanceManagement.js';
 import {useNavigationState} from '../hooks/useNavigationState.js';
-import type {LocalDate} from '../domain/LocalDate.js';
 import {useTitleResolver} from '../hooks/useTitleResolver.js';
 import {useActiveAreaResolver} from '../hooks/useActiveAreaResolver.js';
 import {useNotification} from '../hooks/useNotification.js';
+import {useVacationManagement} from '../hooks/useVacationManagement.js';
+import type {LocalDate} from '../domain/LocalDate.js';
 import {JiraClient, type JiraConfig} from '../jira-client.js';
 import {useSAPExport} from '../hooks/useSAPExport.js';
 import type {IssueKey} from '../domain/IssueKey.js';
@@ -30,6 +31,8 @@ import {TimetableGrid} from './TimetableGrid.js';
 import {StatisticsView} from './StatisticsView.js';
 import {SAPExportView} from './SAPExportView.js';
 import {HelpText} from './HelpText.js';
+import {VacationListView, groupVacationDates} from './VacationListView.js';
+import {VacationEntryForm} from './VacationEntryForm.js';
 
 export type WeeklyTimetableViewProps = {
 	onBack: () => void;
@@ -147,6 +150,11 @@ export function WeeklyTimetableView({
 		onActiveAreaChange: handleActiveAreaChange,
 	});
 
+	// Vacation management state
+	const {addVacationDays, removeVacationDays} = useVacationManagement({
+		attendanceManager,
+	});
+
 	// Delete operations state management
 	const {
 		deleteCandidate,
@@ -228,7 +236,9 @@ export function WeeklyTimetableView({
 			activeArea === 'checkin-confirmation' ||
 			activeArea === 'checkout-confirmation' ||
 			activeArea === 'statistics' ||
-			activeArea === 'sap-export'
+			activeArea === 'sap-export' ||
+			activeArea === 'vacation-list' ||
+			activeArea === 'vacation-form'
 		) {
 			return;
 		}
@@ -285,6 +295,12 @@ export function WeeklyTimetableView({
 			case 'e': {
 				// Export to SAP S/4HANA
 				setActiveArea('sap-export');
+				break;
+			}
+
+			case 'h': {
+				// Show vacation list (holiday)
+				setActiveArea('vacation-list');
 				break;
 			}
 
@@ -404,6 +420,54 @@ export function WeeklyTimetableView({
 										setActiveArea('timetable');
 									}}
 									onExport={handleSAPExport}
+								/>
+							);
+						}
+
+						case 'vacation-list': {
+							const vacationEntries = attendanceManager
+								? groupVacationDates(
+										Object.values(attendanceManager.getWeeklyAttendance()),
+								  )
+								: [];
+
+							return (
+								<VacationListView
+									vacationEntries={vacationEntries}
+									currentYear={new Date().getFullYear()}
+									onAddVacation={() => {
+										setActiveArea('vacation-form');
+									}}
+									onRemoveVacation={async startDate => {
+										try {
+											await removeVacationDays(startDate);
+											refreshAttendance();
+										} catch (error: unknown) {
+											console.error('Failed to remove vacation:', error);
+										}
+									}}
+									onBack={() => {
+										setActiveArea('timetable');
+									}}
+								/>
+							);
+						}
+
+						case 'vacation-form': {
+							return (
+								<VacationEntryForm
+									onSave={async (startDate, endDate) => {
+										try {
+											await addVacationDays(startDate, endDate);
+											refreshAttendance();
+											setActiveArea('vacation-list');
+										} catch (error: unknown) {
+											console.error('Failed to save vacation:', error);
+										}
+									}}
+									onCancel={() => {
+										setActiveArea('vacation-list');
+									}}
 								/>
 							);
 						}
