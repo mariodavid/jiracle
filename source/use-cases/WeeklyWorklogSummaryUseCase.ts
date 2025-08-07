@@ -7,6 +7,7 @@ import {
 import {LocalDate} from '../domain/LocalDate.js';
 import {IssueKey} from '../domain/IssueKey.js';
 import {type WeekRange} from '../domain/WeekRange.js';
+import {Duration} from '../domain/Duration.js';
 import {uiLogger} from '../utils/logger.js';
 import {
 	type WeeklyWorklogSummary,
@@ -284,7 +285,8 @@ export class WeeklyWorklogSummaryUseCase {
 				iwl => iwl.issue.key.toString() === issueKey,
 			)!;
 			const totalHours = worklogs.reduce(
-				(sum: number, wl): number => sum + wl.timeSpentSeconds / 3600,
+				(sum: number, wl): number =>
+					sum + Duration.fromSeconds(wl.timeSpentSeconds).toHours(),
 				0,
 			);
 
