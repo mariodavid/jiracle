@@ -7,6 +7,7 @@ import {
 	type UseWorklogFormOptions,
 } from '../../hooks/useWorklogForm.js';
 import type {JiraConfig} from '../../jira-client.js';
+import {WorklogSummary} from '../../domain/WeeklyWorklogSummary.js';
 import {Duration} from '../../domain/Duration.js';
 import {LocalDate} from '../../domain/LocalDate.js';
 import {IssueKey} from '../../domain/IssueKey.js';
@@ -313,13 +314,13 @@ test('useWorklogForm distinguishes between edit and new worklog modes', async t 
 				date: LocalDate.fromString('2024-01-15'),
 				totalHours: 3,
 				issues: [
-					{
+					WorklogSummary.create({
 						issueKey: IssueKey.fromString('TEST-123'),
 						issueSummary: 'Test issue for worklog editing',
-						hours: 3,
+						duration: Duration.fromHours(3),
 						worklogId: 'existing-worklog-123',
 						comment: 'Existing work',
-					},
+					}),
 				],
 			},
 		],

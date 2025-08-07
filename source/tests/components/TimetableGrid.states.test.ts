@@ -2,8 +2,12 @@ import test from 'ava';
 import React from 'react';
 import {render} from 'ink-testing-library';
 import {TimetableGrid} from '../../components/TimetableGrid.js';
-import type {WeeklyWorklogSummary} from '../../domain/WeeklyWorklogSummary.js';
+import {
+	type WeeklyWorklogSummary,
+	WorklogSummary,
+} from '../../domain/WeeklyWorklogSummary.js';
 import {LocalDate} from '../../domain/LocalDate.js';
+import {Duration} from '../../domain/Duration.js';
 import {IssueKey} from '../../domain/IssueKey.js';
 
 test('TimetableGrid shows loading state', t => {
@@ -55,11 +59,11 @@ test('TimetableGrid renders table header', t => {
 				date: LocalDate.fromString('2024-10-19'),
 				totalHours: 4,
 				issues: [
-					{
+					WorklogSummary.create({
 						issueKey: IssueKey.fromString('TEST-117'),
 						issueSummary: 'Test Issue Summary',
-						hours: 4,
-					},
+						duration: Duration.fromHours(4),
+					}),
 				],
 			},
 		],
@@ -94,11 +98,11 @@ test('TimetableGrid displays dates in weekday headers', t => {
 				date: LocalDate.fromString('2024-10-14'),
 				totalHours: 8,
 				issues: [
-					{
+					WorklogSummary.create({
 						issueKey: IssueKey.fromString('TEST-123'),
 						issueSummary: 'Test Issue',
-						hours: 8,
-					},
+						duration: Duration.fromHours(8),
+					}),
 				],
 			},
 		],
@@ -132,16 +136,16 @@ test('TimetableGrid renders issue data correctly', t => {
 				date: LocalDate.fromString('2024-10-18'), // Friday
 				totalHours: 5.5,
 				issues: [
-					{
+					WorklogSummary.create({
 						issueKey: IssueKey.fromString('TEST-117'),
 						issueSummary: 'Test Issue Summary',
-						hours: 4,
-					},
-					{
+						duration: Duration.fromHours(4),
+					}),
+					WorklogSummary.create({
 						issueKey: IssueKey.fromString('TEST-117'),
 						issueSummary: 'Test Issue Summary',
-						hours: 1.5,
-					},
+						duration: Duration.fromHours(1.5),
+					}),
 				],
 			},
 		],
@@ -170,11 +174,11 @@ test('TimetableGrid formats hours correctly', t => {
 				date: LocalDate.fromString('2024-10-18'), // Friday
 				totalHours: 2.5,
 				issues: [
-					{
+					WorklogSummary.create({
 						issueKey: IssueKey.fromString('TEST-117'),
 						issueSummary: 'Test Issue Summary',
-						hours: 2.5,
-					},
+						duration: Duration.fromHours(2.5),
+					}),
 				],
 			},
 		],
@@ -201,16 +205,16 @@ test('TimetableGrid shows daily totals', t => {
 				date: LocalDate.fromString('2024-10-18'), // Friday
 				totalHours: 8,
 				issues: [
-					{
+					WorklogSummary.create({
 						issueKey: IssueKey.fromString('TEST-117'),
 						issueSummary: 'First Issue',
-						hours: 4,
-					},
-					{
+						duration: Duration.fromHours(4),
+					}),
+					WorklogSummary.create({
 						issueKey: IssueKey.fromString('TEST-118'),
 						issueSummary: 'Second Issue',
-						hours: 4,
-					},
+						duration: Duration.fromHours(4),
+					}),
 				],
 			},
 		],
@@ -238,11 +242,11 @@ test('TimetableGrid shows week total', t => {
 				date: LocalDate.fromString('2024-10-19'),
 				totalHours: 7,
 				issues: [
-					{
+					WorklogSummary.create({
 						issueKey: IssueKey.fromString('TEST-117'),
 						issueSummary: 'Test Issue',
-						hours: 7,
-					},
+						duration: Duration.fromHours(7),
+					}),
 				],
 			},
 		],
@@ -269,16 +273,16 @@ test('TimetableGrid handles multiple issues correctly', t => {
 				date: LocalDate.fromString('2024-10-19'),
 				totalHours: 8,
 				issues: [
-					{
+					WorklogSummary.create({
 						issueKey: IssueKey.fromString('TEST-117'),
 						issueSummary: 'First Issue',
-						hours: 4,
-					},
-					{
+						duration: Duration.fromHours(4),
+					}),
+					WorklogSummary.create({
 						issueKey: IssueKey.fromString('TEST-118'),
 						issueSummary: 'Second Issue',
-						hours: 4,
-					},
+						duration: Duration.fromHours(4),
+					}),
 				],
 			},
 		],
@@ -308,11 +312,11 @@ test('TimetableGrid shows dash for zero hours', t => {
 				date: LocalDate.fromString('2024-10-18'), // Only Friday has work
 				totalHours: 4,
 				issues: [
-					{
+					WorklogSummary.create({
 						issueKey: IssueKey.fromString('TEST-117'),
 						issueSummary: 'Test Issue',
-						hours: 4,
-					},
+						duration: Duration.fromHours(4),
+					}),
 				],
 			},
 		],

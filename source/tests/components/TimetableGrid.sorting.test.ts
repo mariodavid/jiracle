@@ -2,8 +2,12 @@ import test from 'ava';
 import React from 'react';
 import {render} from 'ink-testing-library';
 import {TimetableGrid} from '../../components/TimetableGrid.js';
-import type {WeeklyWorklogSummary} from '../../domain/WeeklyWorklogSummary.js';
+import {
+	type WeeklyWorklogSummary,
+	WorklogSummary,
+} from '../../domain/WeeklyWorklogSummary.js';
 import {LocalDate} from '../../domain/LocalDate.js';
+import {Duration} from '../../domain/Duration.js';
 import {IssueKey} from '../../domain/IssueKey.js';
 
 test('TimetableGrid sorts issues by project prefix and number', t => {
@@ -15,31 +19,31 @@ test('TimetableGrid sorts issues by project prefix and number', t => {
 				date: LocalDate.fromString('2024-10-18'),
 				totalHours: 12,
 				issues: [
-					{
+					WorklogSummary.create({
 						issueKey: IssueKey.fromString('DEF-2457'),
 						issueSummary: 'DEF issue 2457',
-						hours: 2,
-					},
-					{
+						duration: Duration.fromHours(2),
+					}),
+					WorklogSummary.create({
 						issueKey: IssueKey.fromString('ABC-5417'),
 						issueSummary: 'ABC issue 5417',
-						hours: 3,
-					},
-					{
+						duration: Duration.fromHours(3),
+					}),
+					WorklogSummary.create({
 						issueKey: IssueKey.fromString('DEF-2456'),
 						issueSummary: 'DEF issue 2456',
-						hours: 1,
-					},
-					{
+						duration: Duration.fromHours(1),
+					}),
+					WorklogSummary.create({
 						issueKey: IssueKey.fromString('ABC-5420'),
 						issueSummary: 'ABC issue 5420',
-						hours: 4,
-					},
-					{
+						duration: Duration.fromHours(4),
+					}),
+					WorklogSummary.create({
 						issueKey: IssueKey.fromString('ABC-5419'),
 						issueSummary: 'ABC issue 5419',
-						hours: 2,
-					},
+						duration: Duration.fromHours(2),
+					}),
 				],
 			},
 		],
@@ -89,21 +93,21 @@ test('TimetableGrid sorts issues with different project prefixes correctly', t =
 				date: LocalDate.fromString('2024-10-18'),
 				totalHours: 9,
 				issues: [
-					{
+					WorklogSummary.create({
 						issueKey: IssueKey.fromString('ZZZ-100'),
 						issueSummary: 'Last project issue',
-						hours: 3,
-					},
-					{
+						duration: Duration.fromHours(3),
+					}),
+					WorklogSummary.create({
 						issueKey: IssueKey.fromString('AAA-200'),
 						issueSummary: 'First project issue',
-						hours: 3,
-					},
-					{
+						duration: Duration.fromHours(3),
+					}),
+					WorklogSummary.create({
 						issueKey: IssueKey.fromString('BBB-50'),
 						issueSummary: 'Second project issue',
-						hours: 3,
-					},
+						duration: Duration.fromHours(3),
+					}),
 				],
 			},
 		],
@@ -142,16 +146,16 @@ test('TimetableGrid sorts issues numerically within same project (124 before 102
 				date: LocalDate.fromString('2024-10-18'),
 				totalHours: 6,
 				issues: [
-					{
+					WorklogSummary.create({
 						issueKey: IssueKey.fromString('ABC-1029'),
 						issueSummary: 'Higher number issue',
-						hours: 3,
-					},
-					{
+						duration: Duration.fromHours(3),
+					}),
+					WorklogSummary.create({
 						issueKey: IssueKey.fromString('ABC-124'),
 						issueSummary: 'Lower number issue',
-						hours: 3,
-					},
+						duration: Duration.fromHours(3),
+					}),
 				],
 			},
 		],

@@ -12,8 +12,8 @@ import {uiLogger} from '../utils/logger.js';
 import {
 	type WeeklyWorklogSummary,
 	type DailyWorklogSummary,
-	type IssueWorklogEntry,
 	type IssueWithWorklogs,
+	WorklogSummary,
 } from '../domain/WeeklyWorklogSummary.js';
 
 export type ExecuteWeeklyWorklogSummaryOptions = {
@@ -284,31 +284,26 @@ export class WeeklyWorklogSummaryUseCase {
 			const {issue} = issuesWithWorklogs.find(
 				iwl => iwl.issue.key.toString() === issueKey,
 			)!;
-			const totalHours = worklogs.reduce(
-				(sum: number, wl): number =>
-					sum + Duration.fromSeconds(wl.timeSpentSeconds).toHours(),
+			const totalSeconds = worklogs.reduce(
+				(sum: number, wl): number => sum + wl.timeSpentSeconds,
 				0,
 			);
 
 			// Create issue entry with optional worklog ID and comment if there's exactly one worklog
-			const issueEntry: IssueWorklogEntry = {
+			const issueEntry = WorklogSummary.create({
 				issueKey: issue.key,
 				issueSummary: issue.fields.summary,
-				hours: totalHours,
-				// Only include worklog ID and comment if there's exactly one worklog for this issue/date
-				...(worklogs.length === 1 &&
-					worklogs[0] && {
-						worklogId: worklogs[0].id,
-						comment: worklogs[0].comment,
-					}),
-			};
+				duration: Duration.fromSeconds(totalSeconds),
+				worklogId: worklogs.length === 1 ? worklogs[0]?.id : undefined,
+				comment: worklogs.length === 1 ? worklogs[0]?.comment : undefined,
+			});
 
 			const existingSummary = dailyWorklogMap.get(localDateKey!);
 			if (existingSummary) {
 				existingSummary.issues.push(issueEntry);
 				dailyWorklogMap.set(localDateKey!, {
 					...existingSummary,
-					totalHours: existingSummary.totalHours + totalHours,
+					totalHours: existingSummary.totalHours + issueEntry.hours,
 				});
 			} else {
 				// Get date from the first worklog or fallback to current date
@@ -317,7 +312,7 @@ export class WeeklyWorklogSummaryUseCase {
 					: new Date();
 				dailyWorklogMap.set(localDateKey!, {
 					date: LocalDate.fromDate(worklogDate),
-					totalHours,
+					totalHours: issueEntry.hours,
 					issues: [issueEntry],
 				});
 			}
@@ -385,11 +380,13 @@ export class WeeklyWorklogSummaryUseCase {
 				summary = favorite.key.toString();
 			}
 
-			firstDay.issues.push({
-				issueKey: favorite.key,
-				issueSummary: summary,
-				hours: 0,
-			});
+			firstDay.issues.push(
+				WorklogSummary.create({
+					issueKey: favorite.key,
+					issueSummary: summary,
+					duration: Duration.fromSeconds(0),
+				}),
+			);
 		}
 	}
 
@@ -448,11 +445,13 @@ export class WeeklyWorklogSummaryUseCase {
 		// Add sliding window issues with 0 hours to the first day
 		const firstDay = dailySummaries[0]!;
 		for (const issue of slidingWindowIssuesWithoutCurrentWeekWorklogs) {
-			firstDay.issues.push({
-				issueKey: issue.key,
-				issueSummary: issue.fields.summary,
-				hours: 0,
-			});
+			firstDay.issues.push(
+				WorklogSummary.create({
+					issueKey: issue.key,
+					issueSummary: issue.fields.summary,
+					duration: Duration.fromSeconds(0),
+				}),
+			);
 		}
 	}
 }
