@@ -49,4 +49,11 @@ export const VacationService = {
 
 		return groups;
 	},
+
+	calculateTotalDays(vacationEntries: VacationEntry[]): number {
+		return vacationEntries.reduce(
+			(sum, entry) => sum + entry.getDurationDays(),
+			0,
+		);
+	},
 };

@@ -18,7 +18,7 @@ export function VacationEntryForm({onSave, onCancel}: VacationEntryFormProps) {
 	useInput((_input, key) => {
 		if (key.return) {
 			// Validate and save
-			if (startDate.toISOString() > endDate.toISOString()) {
+			if (startDate.isAfter(endDate)) {
 				// Invalid range - could show error
 				return;
 			}

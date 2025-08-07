@@ -127,8 +127,8 @@ export class AttendanceCSVStorage {
 		return attendances.filter(a => {
 			const attendanceDate = LocalDate.fromString(a.date);
 			return (
-				attendanceDate.toISOString() >= startDate.toISOString() &&
-				attendanceDate.toISOString() <= endDate.toISOString()
+				attendanceDate.isAfterOrEqual(startDate) &&
+				attendanceDate.isBeforeOrEqual(endDate)
 			);
 		});
 	}

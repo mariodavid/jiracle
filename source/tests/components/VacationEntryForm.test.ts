@@ -53,8 +53,8 @@ test('LocalDate - date comparison works correctly', t => {
 	const date1Copy = LocalDate.fromString('2025-08-01');
 
 	// OPERATIONS
-	const isEarlier = date1.toISOString() < date2.toISOString();
-	const isLater = date1.toISOString() > date2.toISOString();
+	const isEarlier = date1.isBefore(date2);
+	const isLater = date1.isAfter(date2);
 	const isEqual = date1.equals(date1Copy);
 
 	// SPECIFIC VALUE COMPARISONS
@@ -101,7 +101,7 @@ test('vacation range calculation - single day', t => {
 	let count = 0;
 	let currentDate = startDate;
 
-	while (currentDate.toISOString() <= endDate.toISOString()) {
+	while (currentDate.isBeforeOrEqual(endDate)) {
 		count++;
 		currentDate = currentDate.addDays(1);
 	}
@@ -119,7 +119,7 @@ test('vacation range calculation - multi day', t => {
 	let count = 0;
 	let currentDate = startDate;
 
-	while (currentDate.toISOString() <= endDate.toISOString()) {
+	while (currentDate.isBeforeOrEqual(endDate)) {
 		count++;
 		currentDate = currentDate.addDays(1);
 	}
@@ -137,7 +137,7 @@ test('vacation range calculation - crosses month boundary', t => {
 	let count = 0;
 	let currentDate = startDate;
 
-	while (currentDate.toISOString() <= endDate.toISOString()) {
+	while (currentDate.isBeforeOrEqual(endDate)) {
 		count++;
 		currentDate = currentDate.addDays(1);
 	}

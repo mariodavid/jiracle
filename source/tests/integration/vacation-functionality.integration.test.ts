@@ -48,7 +48,7 @@ test('vacation integration - date range calculation', t => {
 	let dayCount = 0;
 	let currentDate = startDate;
 
-	while (currentDate.toISOString() <= endDate.toISOString()) {
+	while (currentDate.isBeforeOrEqual(endDate)) {
 		dayCount++;
 		currentDate = currentDate.addDays(1);
 	}

@@ -49,10 +49,7 @@ export function VacationListView({
 		}
 	});
 
-	const totalDays = vacationEntries.reduce(
-		(sum, entry) => sum + entry.getDurationDays(),
-		0,
-	);
+	const totalDays = VacationService.calculateTotalDays(vacationEntries);
 
 	return (
 		<Box flexDirection="column" paddingX={2}>
