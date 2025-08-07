@@ -4,8 +4,10 @@ import {render} from 'ink-testing-library';
 import figures from 'figures';
 import {TimetableGrid} from '../../components/TimetableGrid.js';
 import type {WeeklyWorklogSummary} from '../../domain/WeeklyWorklogSummary.js';
+import {WorklogSummary} from '../../domain/WeeklyWorklogSummary.js';
 import {LocalDate} from '../../domain/LocalDate.js';
 import {IssueKey} from '../../domain/IssueKey.js';
+import {Duration} from '../../domain/Duration.js';
 
 test('TimetableGrid shows favorite issues with asterisk marker', t => {
 	const sampleData: WeeklyWorklogSummary = {
@@ -16,16 +18,16 @@ test('TimetableGrid shows favorite issues with asterisk marker', t => {
 				date: LocalDate.fromString('2024-10-18'),
 				totalHours: 6,
 				issues: [
-					{
+					WorklogSummary.create({
 						issueKey: IssueKey.fromString('ABC-5417'),
 						issueSummary: 'Favorite issue',
-						hours: 3,
-					},
-					{
+						duration: Duration.fromHours(3),
+					}),
+					WorklogSummary.create({
 						issueKey: IssueKey.fromString('DEF-2456'),
 						issueSummary: 'Regular issue',
-						hours: 3,
-					},
+						duration: Duration.fromHours(3),
+					}),
 				],
 			},
 		],
@@ -77,11 +79,11 @@ test('TimetableGrid handles favorite issues without worklogs', t => {
 				date: LocalDate.fromString('2024-10-18'),
 				totalHours: 3,
 				issues: [
-					{
+					WorklogSummary.create({
 						issueKey: IssueKey.fromString('DEF-2456'),
 						issueSummary: 'Issue with worklog',
-						hours: 3,
-					},
+						duration: Duration.fromHours(3),
+					}),
 				],
 			},
 		],
@@ -187,16 +189,16 @@ test('TimetableGrid displays aliases for favorite issues', t => {
 				date: LocalDate.fromString('2024-10-18'),
 				totalHours: 6,
 				issues: [
-					{
+					WorklogSummary.create({
 						issueKey: IssueKey.fromString('DEF-2456'),
 						issueSummary: 'Dev work issue',
-						hours: 4,
-					},
-					{
+						duration: Duration.fromHours(4),
+					}),
+					WorklogSummary.create({
 						issueKey: IssueKey.fromString('ABC-5419'),
 						issueSummary: 'Monitoring issue',
-						hours: 2,
-					},
+						duration: Duration.fromHours(2),
+					}),
 				],
 			},
 		],
@@ -256,11 +258,11 @@ test('TimetableGrid shows original key when no alias is configured', t => {
 				date: LocalDate.fromString('2024-10-18'),
 				totalHours: 4,
 				issues: [
-					{
+					WorklogSummary.create({
 						issueKey: IssueKey.fromString('DEF-2456'),
 						issueSummary: 'Issue without alias',
-						hours: 4,
-					},
+						duration: Duration.fromHours(4),
+					}),
 				],
 			},
 		],
@@ -301,16 +303,16 @@ test('TimetableGrid handles mixed alias and non-alias favorites', t => {
 				date: LocalDate.fromString('2024-10-18'),
 				totalHours: 6,
 				issues: [
-					{
+					WorklogSummary.create({
 						issueKey: IssueKey.fromString('DEF-2456'),
 						issueSummary: 'Dev work',
-						hours: 3,
-					},
-					{
+						duration: Duration.fromHours(3),
+					}),
+					WorklogSummary.create({
 						issueKey: IssueKey.fromString('ABC-5419'),
 						issueSummary: 'Regular work',
-						hours: 3,
-					},
+						duration: Duration.fromHours(3),
+					}),
 				],
 			},
 		],

@@ -3,8 +3,10 @@ import React from 'react';
 import {render} from 'ink-testing-library';
 import {TimetableGrid} from '../../components/TimetableGrid.js';
 import type {WeeklyWorklogSummary} from '../../domain/WeeklyWorklogSummary.js';
+import {WorklogSummary} from '../../domain/WeeklyWorklogSummary.js';
 import {LocalDate} from '../../domain/LocalDate.js';
 import {IssueKey} from '../../domain/IssueKey.js';
+import {Duration} from '../../domain/Duration.js';
 
 test('TimetableGrid shows dash for empty group total', t => {
 	// Create data with the group issue but 0 hours
@@ -16,11 +18,11 @@ test('TimetableGrid shows dash for empty group total', t => {
 				date: LocalDate.fromString('2024-10-18'),
 				totalHours: 0,
 				issues: [
-					{
+					WorklogSummary.create({
 						issueKey: IssueKey.fromString('TEST-123'),
 						issueSummary: 'Test work',
-						hours: 0, // No hours logged
-					},
+						duration: Duration.fromHours(0), // No hours logged
+					}),
 				],
 			},
 		],
@@ -76,11 +78,11 @@ test('TimetableGrid shows group total with hours suffix when not empty', t => {
 				date: LocalDate.fromString('2024-10-18'),
 				totalHours: 8,
 				issues: [
-					{
+					WorklogSummary.create({
 						issueKey: IssueKey.fromString('TEST-123'),
 						issueSummary: 'Test work',
-						hours: 8,
-					},
+						duration: Duration.fromHours(8),
+					}),
 				],
 			},
 		],
@@ -136,11 +138,11 @@ test('TimetableGrid shows group total with desired amount and status', t => {
 				date: LocalDate.fromString('2024-10-18'),
 				totalHours: 8,
 				issues: [
-					{
+					WorklogSummary.create({
 						issueKey: IssueKey.fromString('TEST-123'),
 						issueSummary: 'Test work',
-						hours: 8,
-					},
+						duration: Duration.fromHours(8),
+					}),
 				],
 			},
 		],

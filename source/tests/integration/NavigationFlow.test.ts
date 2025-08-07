@@ -1,7 +1,11 @@
 import test from 'ava';
 import {IssueKey} from '../../domain/IssueKey.js';
 import {LocalDate} from '../../domain/LocalDate.js';
-import type {WeeklyWorklogSummary} from '../../domain/WeeklyWorklogSummary.js';
+import {Duration} from '../../domain/Duration.js';
+import {
+	type WeeklyWorklogSummary,
+	WorklogSummary,
+} from '../../domain/WeeklyWorklogSummary.js';
 import type {WeeklyAttendance} from '../../attendance/types.js';
 import type {JiraConfig} from '../../jira-client.js';
 import {TestPatterns, TestData} from '../utils/test-helpers.js';
@@ -39,11 +43,11 @@ const mockWeeklyWorklogSummary: WeeklyWorklogSummary = {
 			date: LocalDate.fromDate(mockWeekDates[0]!),
 			totalHours: 4,
 			issues: [
-				{
+				WorklogSummary.create({
 					issueKey: IssueKey.fromString('PROJ-123'),
 					issueSummary: 'Test Issue',
-					hours: 4,
-				},
+					duration: Duration.fromHours(4),
+				}),
 			],
 		},
 	],
@@ -268,9 +272,9 @@ test('data integration: attendance and worklog data structures work together', a
 		t.truthy(worklogSummary.date, 'Worklog summary must have date');
 		t.truthy(worklogSummary.issues, 'Worklog summary must have issues array');
 		t.is(
-			typeof worklogSummary.issues[0]!.hours,
+			typeof worklogSummary.issues[0]!.duration.toHours(),
 			'number',
-			'Issue hours must be number',
+			'Issue duration must convert to number of hours',
 		);
 
 		// Verify IssueKey consistency

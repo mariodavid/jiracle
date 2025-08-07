@@ -2,8 +2,12 @@ import test from 'ava';
 import React from 'react';
 import {render} from 'ink-testing-library';
 import {TimetableGrid} from '../../components/TimetableGrid.js';
-import {type WeeklyWorklogSummary} from '../../domain/WeeklyWorklogSummary.js';
+import {
+	type WeeklyWorklogSummary,
+	WorklogSummary,
+} from '../../domain/WeeklyWorklogSummary.js';
 import {LocalDate} from '../../domain/LocalDate.js';
+import {Duration} from '../../domain/Duration.js';
 import type {FavoriteIssue, JiraConfig} from '../../jira-client.js';
 import {IssueKey} from '../../domain/IssueKey.js';
 
@@ -19,16 +23,16 @@ const mockData: WeeklyWorklogSummary = {
 			date: LocalDate.fromString('2023-01-02'),
 			totalHours: 8,
 			issues: [
-				{
+				WorklogSummary.create({
 					issueKey: IssueKey.fromString('PROJ-1'),
 					issueSummary: 'First issue',
-					hours: 4,
-				},
-				{
+					duration: Duration.fromHours(4),
+				}),
+				WorklogSummary.create({
 					issueKey: IssueKey.fromString('PROJ-2'),
 					issueSummary: 'Second issue',
-					hours: 4,
-				},
+					duration: Duration.fromHours(4),
+				}),
 			],
 		},
 	],

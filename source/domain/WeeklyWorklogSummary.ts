@@ -3,6 +3,7 @@
 
 import type {IssueKey} from './IssueKey.js';
 import type {LocalDate} from './LocalDate.js';
+import type {Duration} from './Duration.js';
 
 export type WeeklyWorklogSummary = {
 	weekStart: LocalDate;
@@ -17,15 +18,65 @@ export type DailyWorklogSummary = {
 	issues: IssueWorklogEntry[];
 };
 
-export type IssueWorklogEntry = {
+type WorklogSummaryData = {
 	issueKey: IssueKey;
 	issueSummary: string;
-	hours: number;
-	// Optional worklog ID - only set when there's exactly one worklog for this issue/date
+	duration: Duration;
 	worklogId?: string;
-	// Optional comment - only set when there's exactly one worklog for this issue/date
 	comment?: string;
 };
+
+type CreateWorklogSummaryOptions = {
+	issueKey: IssueKey;
+	issueSummary: string;
+	duration: Duration;
+	worklogId?: string;
+	comment?: string;
+};
+
+export class WorklogSummary {
+	static create(options: CreateWorklogSummaryOptions): WorklogSummary {
+		return new WorklogSummary({
+			issueKey: options.issueKey,
+			issueSummary: options.issueSummary,
+			duration: options.duration,
+			worklogId: options.worklogId,
+			comment: options.comment,
+		});
+	}
+
+	constructor(private readonly data: WorklogSummaryData) {}
+
+	get issueKey(): IssueKey {
+		return this.data.issueKey;
+	}
+
+	get issueSummary(): string {
+		return this.data.issueSummary;
+	}
+
+	get duration(): Duration {
+		return this.data.duration;
+	}
+
+	get worklogId(): string | undefined {
+		return this.data.worklogId;
+	}
+
+	get comment(): string | undefined {
+		return this.data.comment;
+	}
+
+	get hours(): number {
+		return this.data.duration.toHours();
+	}
+
+	get formattedDuration(): string {
+		return this.data.duration.toString();
+	}
+}
+
+export type IssueWorklogEntry = WorklogSummary;
 
 // Additional interfaces for worklog API responses
 export type WorklogResponse = {
