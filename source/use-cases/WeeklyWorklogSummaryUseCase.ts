@@ -179,8 +179,7 @@ export class WeeklyWorklogSummaryUseCase {
 		// Aggregate worklogs by day
 		const dailySummaries = this.aggregateWorklogsByDay(
 			issuesWithWorklogs,
-			weekStart,
-			weekEnd,
+			weekRange,
 			currentUserEmail,
 		);
 
@@ -247,8 +246,7 @@ export class WeeklyWorklogSummaryUseCase {
 
 	private aggregateWorklogsByDay(
 		issuesWithWorklogs: IssueWithWorklogs[],
-		weekStart: Date,
-		weekEnd: Date,
+		weekRange: WeekRange,
 		currentUserEmail: string,
 	): DailyWorklogSummary[] {
 		const dailyWorklogMap = new Map<string, DailyWorklogSummary>();
@@ -258,9 +256,12 @@ export class WeeklyWorklogSummaryUseCase {
 
 		for (const {issue, worklogs} of issuesWithWorklogs) {
 			const filteredWorklogs = worklogs
-				.filter(worklog =>
-					this.isWorklogInDateRange(worklog.started, weekStart, weekEnd),
-				)
+				.filter(worklog => {
+					const worklogDate = LocalDate.fromString(
+						worklog.started.split('T')[0]!,
+					);
+					return weekRange.contains(worklogDate);
+				})
 				.filter(worklog => worklog.author.emailAddress === currentUserEmail);
 
 			for (const worklog of filteredWorklogs) {
@@ -322,15 +323,6 @@ export class WeeklyWorklogSummaryUseCase {
 		return [...dailyWorklogMap.values()].sort(
 			(a, b) => a.date.toDate().getTime() - b.date.toDate().getTime(),
 		);
-	}
-
-	private isWorklogInDateRange(
-		worklogStarted: string,
-		weekStart: Date,
-		weekEnd: Date,
-	): boolean {
-		const worklogDate = new Date(worklogStarted);
-		return worklogDate >= weekStart && worklogDate <= weekEnd;
 	}
 
 	private addFavoriteIssuesWithoutWorklogs(
