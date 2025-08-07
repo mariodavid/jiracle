@@ -37,6 +37,8 @@ export function useVacationManagement({
 			const promises: Array<Promise<Attendance>> = [];
 
 			for (const date of allDates) {
+				// NOTE: Converting LocalDate to string here because Attendance.date is string
+				// This maintains compatibility with existing CSV storage and attendance system
 				const vacationEntry: Attendance = {
 					date: date.toISOString(),
 					checkIn: 'VACATION',

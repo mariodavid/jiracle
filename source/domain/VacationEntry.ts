@@ -76,6 +76,9 @@ export class VacationEntry {
 	formatDateRange(): string {
 		const startDate = this.startDate.toDate();
 		const endDate = this.endDate.toDate();
+		// NOTE: Month names array kept in domain object for German localization
+		// and consistency with existing vacation display format. This could be
+		// extracted to a separate DateFormatter service if i18n becomes a requirement
 		const monthNames = [
 			'Jan',
 			'Feb',

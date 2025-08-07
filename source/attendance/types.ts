@@ -1,4 +1,6 @@
 export type Attendance = {
+	// NOTE: date remains string (not LocalDate) to avoid system-wide breaking changes
+	// across CSV storage, existing components, and attendance tracking logic
 	date: string; // "2025-07-12"
 	checkIn?: string; // "08:15"
 	checkOut?: string; // "17:00"
