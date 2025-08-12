@@ -12,6 +12,17 @@ export class LocalDate {
 		return new LocalDate(dateKey);
 	}
 
+	/**
+	 * Create LocalDate from Date using UTC components.
+	 * Use this when you need to extract the date portion from a UTC timestamp.
+	 */
+	static fromDateUTC(date: Date): LocalDate {
+		// Extract the date portion from the ISO string (YYYY-MM-DD)
+		const isoString = date.toISOString();
+		const dateKey = isoString.split('T')[0];
+		return new LocalDate(dateKey!);
+	}
+
 	static fromString(dateString: string): LocalDate {
 		if (!LocalDate.isValidDateString(dateString)) {
 			throw new Error(
@@ -39,6 +50,13 @@ export class LocalDate {
 	private constructor(private readonly dateKey: string) {}
 
 	toISOString(): string {
+		return this.dateKey;
+	}
+
+	/**
+	 * Format date for JQL queries (YYYY-MM-DD format)
+	 */
+	formatForJql(): string {
 		return this.dateKey;
 	}
 

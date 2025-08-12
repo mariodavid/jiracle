@@ -1,5 +1,6 @@
 import test from 'ava';
 import {IssueKey} from '../domain/IssueKey.js';
+import {LocalDate} from '../domain/LocalDate.js';
 import {JiraClient} from '../jira-client.js';
 import type {JiraConfig} from '../jira-client.js';
 
@@ -30,10 +31,8 @@ test('hasWorklogForToday method exists and builds correct JQL', async t => {
 	t.truthy(capturedJql);
 
 	// Check JQL format
-	const today = new Date().toISOString().split('T')[0];
-	const expectedJql = `worklogDate = "${
-		today ?? 'unknown'
-	}" AND worklogAuthor = currentUser()`;
+	const today = LocalDate.fromDate(new Date()).formatForJql();
+	const expectedJql = `worklogDate = "${today}" AND worklogAuthor = currentUser()`;
 	t.is(capturedJql ?? '', expectedJql);
 });
 

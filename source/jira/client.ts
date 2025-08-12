@@ -1,6 +1,7 @@
 import process from 'node:process';
 import type winston from 'winston';
 import {IssueKey} from '../domain/IssueKey.js';
+import {LocalDate} from '../domain/LocalDate.js';
 import type {
 	JiraConfig,
 	JiraIssue,
@@ -450,8 +451,7 @@ export class JiraClient {
 
 	async hasWorklogForToday(): Promise<boolean> {
 		const today = new Date();
-		const todayFormatted =
-			today.toISOString().split('T')[0] ?? today.toISOString();
+		const todayFormatted = LocalDate.fromDate(today).formatForJql();
 
 		const jql = `worklogDate = "${todayFormatted}" AND worklogAuthor = currentUser()`;
 
