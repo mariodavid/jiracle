@@ -2,6 +2,7 @@ import {homedir} from 'node:os';
 import {join, dirname} from 'node:path';
 import {readFile, writeFile, mkdir} from 'node:fs/promises';
 import {existsSync} from 'node:fs';
+import process from 'node:process';
 import {LocalDate} from '../domain/LocalDate.js';
 import {uiLogger} from '../utils/logger.js';
 import type {Attendance, AttendanceType} from './types.js';
@@ -10,8 +11,13 @@ export class AttendanceCSVStorage {
 	private readonly csvPath: string;
 
 	constructor(csvPath?: string) {
-		this.csvPath =
-			csvPath ?? join(homedir(), '.config', 'jiracle', 'attendance.csv');
+		if (csvPath) {
+			this.csvPath = csvPath;
+		} else if (process.env['JIRACLE_DEV_MODE'] === 'true') {
+			this.csvPath = join(process.cwd(), '.dev', 'attendance.csv');
+		} else {
+			this.csvPath = join(homedir(), '.config', 'jiracle', 'attendance.csv');
+		}
 	}
 
 	async ensureDirectory(): Promise<void> {

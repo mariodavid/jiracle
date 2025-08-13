@@ -198,13 +198,40 @@ npm run build
 node dist/cli.js
 ```
 
+### Development Environment
+
+For safe development and testing without affecting your production Jira data:
+
+```bash
+# One-time setup
+npm run dev:setup
+
+# Edit .dev/config.json with your Jira credentials
+# This creates an isolated config separate from your main ~/.config/jiracle.json
+
+# Run in development mode
+npm run dev:local
+```
+
+This creates a `.dev/` directory in your project with:
+- `.dev/config.json` - Isolated configuration (copy your production config here)
+- `.dev/attendance.csv` - Separate attendance tracking for development
+
+**Benefits:**
+- Complete isolation from production data
+- Safe testing environment
+- Easy switching between dev and production modes
+- All development data stays local to the project
+
 ### Commands
 
 ```bash
-npm run dev      # Watch mode
-npm test         # Run tests
-npm run build    # Compile TypeScript
-npm start        # Build and run
+npm run dev          # Watch mode (TypeScript compilation)
+npm run dev:setup    # Initialize development environment
+npm run dev:local    # Run in development mode with isolated data
+npm test             # Run tests
+npm run build        # Compile TypeScript
+npm start            # Build and run (production mode)
 ```
 
 ## License
