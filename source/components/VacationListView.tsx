@@ -4,6 +4,7 @@ import {VacationService} from '../domain/VacationService.js';
 // eslint-disable-next-line @typescript-eslint/consistent-type-imports
 import {VacationEntry} from '../domain/VacationEntry.js';
 import type {LocalDate} from '../domain/LocalDate.js';
+import {ContentWrapper} from './ContentWrapper.js';
 
 export type VacationListViewProps = {
 	vacationEntries: VacationEntry[];
@@ -52,7 +53,7 @@ export function VacationListView({
 	const totalDays = VacationService.calculateTotalDays(vacationEntries);
 
 	return (
-		<Box flexDirection="column" paddingX={2}>
+		<ContentWrapper>
 			{/* Title */}
 			<Box justifyContent="center" paddingY={1}>
 				<Text bold color="cyan">
@@ -61,8 +62,8 @@ export function VacationListView({
 			</Box>
 
 			{/* Separator */}
-			<Box paddingY={1}>
-				<Text color="gray">{'═'.repeat(50)}</Text>
+			<Box paddingY={1} justifyContent="center">
+				<Text color="gray">{'═'.repeat(60)}</Text>
 			</Box>
 
 			{/* Table Header */}
@@ -74,13 +75,13 @@ export function VacationListView({
 			</Box>
 
 			{/* Separator */}
-			<Box>
-				<Text color="gray">{'─'.repeat(50)}</Text>
+			<Box justifyContent="center">
+				<Text color="gray">{'─'.repeat(60)}</Text>
 			</Box>
 
 			{/* Vacation Entries */}
 			{vacationEntries.length === 0 ? (
-				<Box paddingY={2}>
+				<Box paddingY={2} justifyContent="center">
 					<Text color="yellow">
 						No vacation days recorded for {currentYear}
 					</Text>
@@ -92,15 +93,15 @@ export function VacationListView({
 							<Box width={35}>
 								<Text>{entry.formatDateRange()}</Text>
 							</Box>
-							<Text>{entry.getDurationDays()}</Text>
+							<Text>{entry.getWeekdayCount()}</Text>
 						</Box>
 					))}
 				</Box>
 			)}
 
 			{/* Separator */}
-			<Box paddingY={1}>
-				<Text color="gray">{'─'.repeat(50)}</Text>
+			<Box paddingY={1} justifyContent="center">
+				<Text color="gray">{'─'.repeat(60)}</Text>
 			</Box>
 
 			{/* Total */}
@@ -111,13 +112,18 @@ export function VacationListView({
 				<Text bold>{totalDays} days</Text>
 			</Box>
 
-			{/* Help Text */}
-			<Box paddingY={2}>
+			{/* Help Text - Footer */}
+			<Box
+				height={7}
+				justifyContent="center"
+				flexDirection="column"
+				alignItems="center"
+			>
 				<Text color="gray">
 					[A]dd vacation {onRemoveVacation ? '[R]emove ' : ''}[Q]uit
 				</Text>
 			</Box>
-		</Box>
+		</ContentWrapper>
 	);
 }
 

@@ -1,4 +1,4 @@
-import React, {useMemo, useCallback, useState} from 'react';
+import React, {useMemo, useCallback, useState, useEffect} from 'react';
 import {Box, Text, useInput} from 'ink';
 import {Alert} from '@inkjs/ui';
 import Gradient from 'ink-gradient';
@@ -13,6 +13,7 @@ import {useActiveAreaResolver} from '../hooks/useActiveAreaResolver.js';
 import {useNotification} from '../hooks/useNotification.js';
 import {useVacationManagement} from '../hooks/useVacationManagement.js';
 import type {LocalDate} from '../domain/LocalDate.js';
+import type {VacationEntry} from '../domain/VacationEntry.js';
 import {JiraClient, type JiraConfig} from '../jira-client.js';
 import {useSAPExport} from '../hooks/useSAPExport.js';
 import type {IssueKey} from '../domain/IssueKey.js';
@@ -200,9 +201,30 @@ export function WeeklyTimetableView({
 	// State for bonus tab availability
 	const [showBonusTab, setShowBonusTab] = useState<boolean>(false);
 
+	// State for vacation entries
+	const [vacationEntries, setVacationEntries] = useState<VacationEntry[]>([]);
+
 	// Always use fresh data from the hook
 	const displayData = data;
 	const displayLoading = isLoading;
+
+	// Load vacation entries when vacation list area is active
+	useEffect(() => {
+		const loadVacationEntries = async () => {
+			if (activeArea === 'vacation-list' && attendanceManager) {
+				try {
+					const allAttendance = await attendanceManager.getAllAttendance();
+					const entries = groupVacationDates(allAttendance);
+					setVacationEntries(entries);
+				} catch (error: unknown) {
+					console.error('Failed to load vacation entries:', error);
+					setVacationEntries([]);
+				}
+			}
+		};
+
+		void loadVacationEntries();
+	}, [activeArea, attendanceManager, attendanceRefreshKey]);
 
 	// Refresh data when component mounts - DISABLED to prevent render loop
 	// useEffect(() => {
@@ -425,12 +447,6 @@ export function WeeklyTimetableView({
 						}
 
 						case 'vacation-list': {
-							const vacationEntries = attendanceManager
-								? groupVacationDates(
-										Object.values(attendanceManager.getWeeklyAttendance()),
-								  )
-								: [];
-
 							return (
 								<VacationListView
 									vacationEntries={vacationEntries}

@@ -8,14 +8,12 @@ test('vacation integration - basic grouping functionality', t => {
 	const inputData: Attendance[] = [
 		{
 			date: '2025-08-01',
-			checkIn: 'VACATION',
-			checkOut: 'VACATION',
+			type: 'VACATION',
 			breakMinutes: 0,
 		},
 		{
 			date: '2025-08-02',
-			checkIn: 'VACATION',
-			checkOut: 'VACATION',
+			type: 'VACATION',
 			breakMinutes: 0,
 		},
 	];

@@ -129,4 +129,13 @@ export class LocalDate {
 	getYear(): number {
 		return this.toDate().getFullYear();
 	}
+
+	/**
+	 * Check if this date is a weekday (Monday-Friday)
+	 */
+	isWeekday(): boolean {
+		const dayOfWeek = this.toDate().getDay();
+		// 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+		return dayOfWeek >= 1 && dayOfWeek <= 5;
+	}
 }

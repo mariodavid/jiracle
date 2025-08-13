@@ -8,20 +8,17 @@ test('groupVacationDates - groups consecutive vacation days', t => {
 	const inputAttendance: Attendance[] = [
 		{
 			date: '2025-08-01',
-			checkIn: 'VACATION',
-			checkOut: 'VACATION',
+			type: 'VACATION',
 			breakMinutes: 0,
 		},
 		{
 			date: '2025-08-02',
-			checkIn: 'VACATION',
-			checkOut: 'VACATION',
+			type: 'VACATION',
 			breakMinutes: 0,
 		},
 		{
 			date: '2025-08-05',
-			checkIn: 'VACATION',
-			checkOut: 'VACATION',
+			type: 'VACATION',
 			breakMinutes: 0,
 		},
 	];
@@ -71,8 +68,7 @@ test('groupVacationDates - handles single vacation day', t => {
 	const inputAttendance: Attendance[] = [
 		{
 			date: '2025-08-15',
-			checkIn: 'VACATION',
-			checkOut: 'VACATION',
+			type: 'VACATION',
 			breakMinutes: 0,
 		},
 	];
@@ -110,8 +106,7 @@ test('groupVacationDates - filters out non-vacation attendance', t => {
 		},
 		{
 			date: '2025-08-02',
-			checkIn: 'VACATION',
-			checkOut: 'VACATION',
+			type: 'VACATION',
 			breakMinutes: 0,
 		},
 		{
@@ -156,26 +151,22 @@ test('groupVacationDates - handles year boundary correctly', t => {
 	const inputAttendance: Attendance[] = [
 		{
 			date: '2024-12-30',
-			checkIn: 'VACATION',
-			checkOut: 'VACATION',
+			type: 'VACATION',
 			breakMinutes: 0,
 		},
 		{
 			date: '2024-12-31',
-			checkIn: 'VACATION',
-			checkOut: 'VACATION',
+			type: 'VACATION',
 			breakMinutes: 0,
 		},
 		{
 			date: '2025-01-01',
-			checkIn: 'VACATION',
-			checkOut: 'VACATION',
+			type: 'VACATION',
 			breakMinutes: 0,
 		},
 		{
 			date: '2025-01-02',
-			checkIn: 'VACATION',
-			checkOut: 'VACATION',
+			type: 'VACATION',
 			breakMinutes: 0,
 		},
 	];

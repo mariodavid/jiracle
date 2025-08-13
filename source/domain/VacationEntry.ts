@@ -33,6 +33,11 @@ export class VacationEntry {
 		return this.period.getDurationDays();
 	}
 
+	getWeekdayCount(): number {
+		const allDates = this.period.getAllDates();
+		return allDates.filter(date => date.isWeekday()).length;
+	}
+
 	isValidRange(): boolean {
 		return this.period.isValidRange();
 	}

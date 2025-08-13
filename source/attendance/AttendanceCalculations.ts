@@ -2,6 +2,15 @@ import {LocalDate} from '../domain/LocalDate.js';
 import type {Attendance, AttendanceStatus, WeeklyAttendance} from './types.js';
 
 function calculateTotalHours(attendance: Attendance): number | undefined {
+	// Handle vacation days - no hours calculation needed
+	if (
+		attendance.type === 'VACATION' ||
+		attendance.type === 'HOLIDAY' ||
+		attendance.type === 'SICK'
+	) {
+		return 0;
+	}
+
 	if (!attendance.checkIn || !attendance.checkOut) {
 		return undefined;
 	}

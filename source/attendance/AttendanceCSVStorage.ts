@@ -4,7 +4,7 @@ import {readFile, writeFile, mkdir} from 'node:fs/promises';
 import {existsSync} from 'node:fs';
 import {LocalDate} from '../domain/LocalDate.js';
 import {uiLogger} from '../utils/logger.js';
-import type {Attendance} from './types.js';
+import type {Attendance, AttendanceType} from './types.js';
 
 export class AttendanceCSVStorage {
 	private readonly csvPath: string;
@@ -73,7 +73,7 @@ export class AttendanceCSVStorage {
 	async write(attendances: Attendance[]): Promise<void> {
 		await this.ensureDirectory();
 
-		const header = 'Date,CheckIn,CheckOut,BreakMinutes,TotalHours,Notes';
+		const header = 'Date,Type,CheckIn,CheckOut,BreakMinutes,TotalHours,Notes';
 		const lines = [header];
 
 		for (const attendance of attendances) {
@@ -158,7 +158,7 @@ export class AttendanceCSVStorage {
 	}
 
 	private parseCSVLine(line: string): Attendance {
-		const [date, checkIn, checkOut, breakMinutes, totalHours, notes] =
+		const [date, type, checkIn, checkOut, breakMinutes, totalHours, notes] =
 			line.split(',');
 
 		if (!date) {
@@ -167,8 +167,24 @@ export class AttendanceCSVStorage {
 
 		const attendance: Attendance = {
 			date,
-			breakMinutes: Number(breakMinutes) || 30,
+			breakMinutes:
+				breakMinutes !== undefined && breakMinutes !== ''
+					? Number(breakMinutes)
+					: 30,
 		};
+
+		if (type && type !== '') {
+			// Validate type is one of the allowed values
+			const validTypes: AttendanceType[] = [
+				'WORK',
+				'VACATION',
+				'HOLIDAY',
+				'SICK',
+			];
+			if (validTypes.includes(type as AttendanceType)) {
+				attendance.type = type as AttendanceType;
+			}
+		}
 
 		if (checkIn && checkIn !== '') {
 			attendance.checkIn = checkIn;
@@ -192,6 +208,7 @@ export class AttendanceCSVStorage {
 	private toCSVLine(attendance: Attendance): string {
 		const fields = [
 			attendance.date,
+			attendance.type ?? '',
 			attendance.checkIn ?? '',
 			attendance.checkOut ?? '',
 			attendance.breakMinutes.toString(),

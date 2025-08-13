@@ -34,24 +34,28 @@ export function useVacationManagement({
 			// Create vacation entries using VacationPeriod domain methods
 			const vacationPeriod = VacationPeriod.create(startDate, endDate);
 			const allDates = vacationPeriod.getAllDates();
-			const promises: Array<Promise<Attendance>> = [];
 
+			// Save entries sequentially to avoid race conditions in CSV storage
+			// Only save weekdays (Mo-Fr), skip weekends
 			for (const date of allDates) {
+				// Skip weekends
+				if (!date.isWeekday()) {
+					continue;
+				}
+
 				// NOTE: Converting LocalDate to string here because Attendance.date is string
 				// This maintains compatibility with existing CSV storage and attendance system
 				const vacationEntry: Attendance = {
 					date: date.toISOString(),
-					checkIn: 'VACATION',
-					checkOut: 'VACATION',
+					type: 'VACATION',
 					breakMinutes: 0,
 					totalHours: 0,
 					notes: 'Vacation day',
 				};
 
-				promises.push(attendanceManager.updateAttendance(vacationEntry));
+				// eslint-disable-next-line no-await-in-loop
+				await attendanceManager.updateAttendance(vacationEntry);
 			}
-
-			await Promise.all(promises);
 		},
 		[attendanceManager],
 	);

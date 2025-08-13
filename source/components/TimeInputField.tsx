@@ -8,6 +8,7 @@ type TimeInputFieldProps = {
 	compact?: boolean;
 	label?: string;
 	incrementMinutes?: number;
+	isActive?: boolean;
 };
 
 export default function TimeInputField({
@@ -17,6 +18,7 @@ export default function TimeInputField({
 	compact = false,
 	label,
 	incrementMinutes = 15,
+	isActive = true,
 }: TimeInputFieldProps) {
 	const initialValue = value ?? '08:00';
 	const [timeInputValue, setTimeInputValue] = useState(initialValue);
@@ -194,58 +196,68 @@ export default function TimeInputField({
 		isSelectedRef.current = true;
 	};
 
-	useInput((input, key) => {
-		if (key.upArrow) {
-			// Shift+Up for hour increments, regular Up for 15-minute increments
-			adjustTime('up', key.shift ? 'hour' : 'minute');
-		} else if (key.downArrow) {
-			adjustTime('down', key.shift ? 'hour' : 'minute');
-		} else if (key.return) {
-			const normalizedValue = normalizeTimeOnSubmit(timeInputValueRef.current);
-			onSubmit(normalizedValue);
-		} else if (key.tab) {
-			// Also normalize on Tab (like Enter)
-			const normalizedValue = normalizeTimeOnSubmit(timeInputValueRef.current);
-			onSubmit(normalizedValue);
-		} else if (key.backspace || key.delete) {
-			if (isSelected) {
-				// If text is selected, clear everything
-				setTimeInputValue('');
-				timeInputValueRef.current = '';
-				setCursorPosition(0);
-				handleTimeInputChange('');
-				setIsSelected(false);
-				isSelectedRef.current = false;
-			} else if (timeInputValueRef.current.length > 0) {
-				const newValue = timeInputValueRef.current.slice(0, -1);
-				setTimeInputValue(newValue);
-				timeInputValueRef.current = newValue;
-				setCursorPosition(Math.max(0, cursorPosition - 1));
-				handleTimeInputChange(newValue);
-			}
-		} else if (input && input.length === 1) {
-			// Validate input character
-			if (isSelectedRef.current) {
-				// If text is selected, replace everything with first character
-				if (/[\d:]/.test(input)) {
-					setTimeInputValue(input);
-					timeInputValueRef.current = input;
-					setCursorPosition(1);
-					handleTimeInputChange(input);
+	useInput(
+		(input, key) => {
+			// Only handle input when this component is active
+			if (!isActive) return;
+
+			if (key.upArrow) {
+				// Shift+Up for hour increments, regular Up for 15-minute increments
+				adjustTime('up', key.shift ? 'hour' : 'minute');
+			} else if (key.downArrow) {
+				adjustTime('down', key.shift ? 'hour' : 'minute');
+			} else if (key.return) {
+				const normalizedValue = normalizeTimeOnSubmit(
+					timeInputValueRef.current,
+				);
+				onSubmit(normalizedValue);
+			} else if (key.tab) {
+				// Also normalize on Tab (like Enter)
+				const normalizedValue = normalizeTimeOnSubmit(
+					timeInputValueRef.current,
+				);
+				onSubmit(normalizedValue);
+			} else if (key.backspace || key.delete) {
+				if (isSelected) {
+					// If text is selected, clear everything
+					setTimeInputValue('');
+					timeInputValueRef.current = '';
+					setCursorPosition(0);
+					handleTimeInputChange('');
 					setIsSelected(false);
 					isSelectedRef.current = false;
+				} else if (timeInputValueRef.current.length > 0) {
+					const newValue = timeInputValueRef.current.slice(0, -1);
+					setTimeInputValue(newValue);
+					timeInputValueRef.current = newValue;
+					setCursorPosition(Math.max(0, cursorPosition - 1));
+					handleTimeInputChange(newValue);
 				}
-			} else if (isValidInputChar(input, timeInputValueRef.current)) {
-				// Normal typing - append to existing text if valid
-				const newValue = timeInputValueRef.current + input;
-				setTimeInputValue(newValue);
-				timeInputValueRef.current = newValue;
-				setCursorPosition(newValue.length);
-				handleTimeInputChange(newValue);
-				// If invalid, ignore the character (no feedback, just don't add it)
+			} else if (input && input.length === 1) {
+				// Validate input character
+				if (isSelectedRef.current) {
+					// If text is selected, replace everything with first character
+					if (/[\d:]/.test(input)) {
+						setTimeInputValue(input);
+						timeInputValueRef.current = input;
+						setCursorPosition(1);
+						handleTimeInputChange(input);
+						setIsSelected(false);
+						isSelectedRef.current = false;
+					}
+				} else if (isValidInputChar(input, timeInputValueRef.current)) {
+					// Normal typing - append to existing text if valid
+					const newValue = timeInputValueRef.current + input;
+					setTimeInputValue(newValue);
+					timeInputValueRef.current = newValue;
+					setCursorPosition(newValue.length);
+					handleTimeInputChange(newValue);
+					// If invalid, ignore the character (no feedback, just don't add it)
+				}
 			}
-		}
-	});
+		},
+		{isActive},
+	);
 
 	const renderInput = () => {
 		return (
