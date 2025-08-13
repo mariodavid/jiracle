@@ -11,6 +11,8 @@
 		"build": "tsc",
 		"dev": "tsc --watch",
 		"dev:watch": "nodemon --watch dist --exec \"node dist/cli.js\"",
+		"dev:local": "JIRACLE_DEV_MODE=true npm start",
+		"dev:setup": "node scripts/setup-dev-env.js",
 		"start": "npm run build && node dist/cli.js",
 		"test": "npm run build && prettier --write . && ava",
 		"test:ci": "npm run build && prettier --check . && c8 ava",

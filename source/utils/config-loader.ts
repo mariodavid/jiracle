@@ -1,6 +1,7 @@
 import {readFileSync} from 'node:fs';
 import {homedir} from 'node:os';
 import {join} from 'node:path';
+import process from 'node:process';
 import {IssueKey} from '../domain/IssueKey.js';
 import type {JiraConfig} from '../jira/types.js';
 import {loadConfigWithEnvVars} from '../jira-client.js';
@@ -67,12 +68,33 @@ export function loadJiraConfig(
 	configPath?: string,
 	includeEnvVars = false,
 ): JiraConfig {
-	const configFilePath =
-		configPath ?? join(homedir(), '.config', 'jiracle.json');
+	let configFilePath: string;
 
-	const configData = readFileSync(configFilePath, 'utf8');
-	const rawConfig = JSON.parse(configData) as Record<string, unknown>;
-	const baseConfig = transformConfig(rawConfig);
+	if (configPath) {
+		configFilePath = configPath;
+	} else if (process.env['JIRACLE_DEV_MODE'] === 'true') {
+		configFilePath = join(process.cwd(), '.dev', 'config.json');
+	} else {
+		configFilePath = join(homedir(), '.config', 'jiracle.json');
+	}
 
-	return includeEnvVars ? loadConfigWithEnvVars(baseConfig) : baseConfig;
+	try {
+		const configData = readFileSync(configFilePath, 'utf8');
+		const rawConfig = JSON.parse(configData) as Record<string, unknown>;
+		const baseConfig = transformConfig(rawConfig);
+
+		return includeEnvVars ? loadConfigWithEnvVars(baseConfig) : baseConfig;
+	} catch (error: unknown) {
+		if (
+			process.env['JIRACLE_DEV_MODE'] === 'true' &&
+			configFilePath.includes('.dev')
+		) {
+			throw new Error(
+				`Development mode config not found at ${configFilePath}\n` +
+					'Run "npm run dev:setup" to initialize development environment.',
+			);
+		}
+
+		throw error;
+	}
 }
