@@ -38,10 +38,7 @@ export class VacationPeriod {
 		let currentDate = this.startDate;
 
 		while (currentDate.isBeforeOrEqual(this.endDate)) {
-			const dayOfWeek = currentDate.toDate().getDay();
-
-			if (dayOfWeek === 0 || dayOfWeek === 6) {
-				// Sunday or Saturday
+			if (currentDate.isWeekend()) {
 				return true;
 			}
 

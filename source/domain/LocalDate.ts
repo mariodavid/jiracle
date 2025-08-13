@@ -138,4 +138,11 @@ export class LocalDate {
 		// 0 = Sunday, 1 = Monday, ..., 6 = Saturday
 		return dayOfWeek >= 1 && dayOfWeek <= 5;
 	}
+
+	/**
+	 * Check if this date is a weekend (Saturday-Sunday)
+	 */
+	isWeekend(): boolean {
+		return !this.isWeekday();
+	}
 }
