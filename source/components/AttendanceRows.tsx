@@ -31,8 +31,18 @@ export function AttendanceRows({
 		const getTimeRangeCellValue = (date: string): string => {
 			const attendance = weeklyAttendance[date];
 
-			if (!attendance || (!attendance.checkIn && !attendance.checkOut)) {
+			if (!attendance) {
 				return '-'; // Show dash when no data exists
+			}
+
+			// Show attendance type if it's not a regular work day
+			if (attendance.type && attendance.type !== 'WORK') {
+				return attendance.type;
+			}
+
+			// Regular work day - show time range
+			if (!attendance.checkIn && !attendance.checkOut) {
+				return '-'; // Show dash when no work times exist
 			}
 
 			// Format times to compact format (remove leading zeros and :00)

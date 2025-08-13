@@ -1,4 +1,4 @@
-import React, {useMemo, useCallback, useState} from 'react';
+import React, {useMemo, useCallback, useState, useEffect} from 'react';
 import {Box, Text, useInput} from 'ink';
 import {Alert} from '@inkjs/ui';
 import Gradient from 'ink-gradient';
@@ -8,10 +8,12 @@ import {useWorklogForm} from '../hooks/useWorklogForm.js';
 import {useDeleteOperations} from '../hooks/useDeleteOperations.js';
 import {useAttendanceManagement} from '../hooks/useAttendanceManagement.js';
 import {useNavigationState} from '../hooks/useNavigationState.js';
-import type {LocalDate} from '../domain/LocalDate.js';
 import {useTitleResolver} from '../hooks/useTitleResolver.js';
 import {useActiveAreaResolver} from '../hooks/useActiveAreaResolver.js';
 import {useNotification} from '../hooks/useNotification.js';
+import {useVacationManagement} from '../hooks/useVacationManagement.js';
+import type {LocalDate} from '../domain/LocalDate.js';
+import type {VacationEntry} from '../domain/VacationEntry.js';
 import {JiraClient, type JiraConfig} from '../jira-client.js';
 import {useSAPExport} from '../hooks/useSAPExport.js';
 import type {IssueKey} from '../domain/IssueKey.js';
@@ -30,6 +32,8 @@ import {TimetableGrid} from './TimetableGrid.js';
 import {StatisticsView} from './StatisticsView.js';
 import {SAPExportView} from './SAPExportView.js';
 import {HelpText} from './HelpText.js';
+import {VacationListView, groupVacationDates} from './VacationListView.js';
+import {VacationEntryForm} from './VacationEntryForm.js';
 
 export type WeeklyTimetableViewProps = {
 	onBack: () => void;
@@ -147,6 +151,11 @@ export function WeeklyTimetableView({
 		onActiveAreaChange: handleActiveAreaChange,
 	});
 
+	// Vacation management state
+	const {addVacationDays, removeVacationDays} = useVacationManagement({
+		attendanceManager,
+	});
+
 	// Delete operations state management
 	const {
 		deleteCandidate,
@@ -192,9 +201,30 @@ export function WeeklyTimetableView({
 	// State for bonus tab availability
 	const [showBonusTab, setShowBonusTab] = useState<boolean>(false);
 
+	// State for vacation entries
+	const [vacationEntries, setVacationEntries] = useState<VacationEntry[]>([]);
+
 	// Always use fresh data from the hook
 	const displayData = data;
 	const displayLoading = isLoading;
+
+	// Load vacation entries when vacation list area is active
+	useEffect(() => {
+		const loadVacationEntries = async () => {
+			if (activeArea === 'vacation-list' && attendanceManager) {
+				try {
+					const allAttendance = await attendanceManager.getAllAttendance();
+					const entries = groupVacationDates(allAttendance);
+					setVacationEntries(entries);
+				} catch (error: unknown) {
+					console.error('Failed to load vacation entries:', error);
+					setVacationEntries([]);
+				}
+			}
+		};
+
+		void loadVacationEntries();
+	}, [activeArea, attendanceManager, attendanceRefreshKey]);
 
 	// Refresh data when component mounts - DISABLED to prevent render loop
 	// useEffect(() => {
@@ -218,6 +248,16 @@ export function WeeklyTimetableView({
 		}
 	};
 
+	const handleVacationDay = async (data: {date: LocalDate}) => {
+		try {
+			// Add a single vacation day
+			await addVacationDays(data.date, data.date);
+			refreshAttendance();
+		} catch (error: unknown) {
+			console.error('Failed to add vacation day:', error);
+		}
+	};
+
 	useInput(input => {
 		// Don't handle input if forms are visible or delete confirmation is active
 		if (
@@ -228,7 +268,9 @@ export function WeeklyTimetableView({
 			activeArea === 'checkin-confirmation' ||
 			activeArea === 'checkout-confirmation' ||
 			activeArea === 'statistics' ||
-			activeArea === 'sap-export'
+			activeArea === 'sap-export' ||
+			activeArea === 'vacation-list' ||
+			activeArea === 'vacation-form'
 		) {
 			return;
 		}
@@ -285,6 +327,12 @@ export function WeeklyTimetableView({
 			case 'e': {
 				// Export to SAP S/4HANA
 				setActiveArea('sap-export');
+				break;
+			}
+
+			case 'h': {
+				// Show vacation list (holiday)
+				setActiveArea('vacation-list');
 				break;
 			}
 
@@ -408,6 +456,48 @@ export function WeeklyTimetableView({
 							);
 						}
 
+						case 'vacation-list': {
+							return (
+								<VacationListView
+									vacationEntries={vacationEntries}
+									currentYear={new Date().getFullYear()}
+									onAddVacation={() => {
+										setActiveArea('vacation-form');
+									}}
+									onRemoveVacation={async startDate => {
+										try {
+											await removeVacationDays(startDate);
+											refreshAttendance();
+										} catch (error: unknown) {
+											console.error('Failed to remove vacation:', error);
+										}
+									}}
+									onBack={() => {
+										setActiveArea('timetable');
+									}}
+								/>
+							);
+						}
+
+						case 'vacation-form': {
+							return (
+								<VacationEntryForm
+									onSave={async (startDate, endDate) => {
+										try {
+											await addVacationDays(startDate, endDate);
+											refreshAttendance();
+											setActiveArea('vacation-list');
+										} catch (error: unknown) {
+											console.error('Failed to save vacation:', error);
+										}
+									}}
+									onCancel={() => {
+										setActiveArea('vacation-list');
+									}}
+								/>
+							);
+						}
+
 						default: {
 							return (
 								<TimetableGrid
@@ -429,6 +519,7 @@ export function WeeklyTimetableView({
 									onCellDelete={handleCellDelete}
 									onAttendanceEdit={handleAttendanceEdit}
 									onAttendanceDelete={handleDeleteAttendance}
+									onVacationDay={handleVacationDay}
 									onOpenInBrowser={handleOpenInBrowser}
 								/>
 							);

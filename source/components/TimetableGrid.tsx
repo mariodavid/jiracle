@@ -34,6 +34,7 @@ export type TimetableGridProps = {
 	onCellDelete?: (data: {issueKey: IssueKey; date: LocalDate}) => void;
 	onAttendanceEdit?: (data: {date: LocalDate}) => void;
 	onAttendanceDelete?: (data: {date: LocalDate}) => void;
+	onVacationDay?: (data: {date: LocalDate}) => void;
 	onOpenInBrowser?: (issueKey: IssueKey) => void;
 	isActive?: boolean;
 	favoriteIssues?: FavoriteIssue[];
@@ -52,6 +53,7 @@ export function TimetableGrid({
 	onCellDelete,
 	onAttendanceEdit,
 	onAttendanceDelete,
+	onVacationDay,
 	onOpenInBrowser,
 	isActive = true,
 	favoriteIssues = [],
@@ -154,6 +156,7 @@ export function TimetableGrid({
 		onCellDelete,
 		onAttendanceEdit,
 		onAttendanceDelete,
+		onVacationDay,
 		onOpenInBrowser,
 	});
 

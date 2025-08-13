@@ -50,6 +50,22 @@ export class LocalDate {
 		return this.dateKey === other.dateKey;
 	}
 
+	isAfter(other: LocalDate): boolean {
+		return this.dateKey > other.dateKey;
+	}
+
+	isBefore(other: LocalDate): boolean {
+		return this.dateKey < other.dateKey;
+	}
+
+	isAfterOrEqual(other: LocalDate): boolean {
+		return this.dateKey >= other.dateKey;
+	}
+
+	isBeforeOrEqual(other: LocalDate): boolean {
+		return this.dateKey <= other.dateKey;
+	}
+
 	addDays(days: number): LocalDate {
 		const date = new Date(this.dateKey + 'T00:00:00.000Z');
 		date.setUTCDate(date.getUTCDate() + days);
@@ -112,5 +128,21 @@ export class LocalDate {
 	 */
 	getYear(): number {
 		return this.toDate().getFullYear();
+	}
+
+	/**
+	 * Check if this date is a weekday (Monday-Friday)
+	 */
+	isWeekday(): boolean {
+		const dayOfWeek = this.toDate().getDay();
+		// 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+		return dayOfWeek >= 1 && dayOfWeek <= 5;
+	}
+
+	/**
+	 * Check if this date is a weekend (Saturday-Sunday)
+	 */
+	isWeekend(): boolean {
+		return !this.isWeekday();
 	}
 }

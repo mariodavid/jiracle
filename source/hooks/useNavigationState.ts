@@ -11,7 +11,9 @@ export type ActiveArea =
 	| 'checkout-confirmation'
 	| 'align-time-confirmation'
 	| 'statistics'
-	| 'sap-export';
+	| 'sap-export'
+	| 'vacation-list'
+	| 'vacation-form';
 
 export type UseNavigationStateOptions = {
 	initialWeek?: WeekRange;

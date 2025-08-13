@@ -118,111 +118,132 @@ export function AttendanceEditForm({
 
 		const attendanceData: Attendance = {
 			date: localDateString,
-			checkIn: checkIn ?? undefined,
-			checkOut: checkOut ?? undefined,
+			type: 'WORK',
+			checkIn,
+			checkOut,
 			breakMinutes: parseBreakMinutes(breakMinutes),
+			totalHours: undefined,
+			notes: undefined,
 		};
 		onSubmit(attendanceData);
 	};
 
-	useInput(
-		(_, key) => {
-			// Escape to cancel - always allow regardless of focus state for better reliability
-			if (key.escape) {
+	const handleKeyInput = (_input: string, key: any) => {
+		// Escape to cancel - always allow regardless of focus state for better reliability
+		if (key.escape) {
+			onCancel();
+			return;
+		}
+
+		// Other inputs require focus
+		if (!isFocused) return;
+
+		// Ignore arrow keys when TimeInputField, DurationInput, or buttons are focused
+		// Let these components handle arrow keys themselves, or prevent interference
+		if (
+			(key.upArrow || key.downArrow) &&
+			(focusArea === 'checkIn' ||
+				focusArea === 'checkOut' ||
+				focusArea === 'break' ||
+				focusArea === 'submit' ||
+				focusArea === 'cancel')
+		) {
+			return;
+		}
+
+		// Tab navigation between areas
+		if (key.tab) {
+			if (key.shift) {
+				handleShiftTabNavigation();
+			} else {
+				handleTabNavigation();
+			}
+
+			return;
+		}
+
+		// Handle enter in specific areas
+		if (key.return) {
+			if (focusArea === 'submit') {
+				handleSubmit();
+			} else if (focusArea === 'cancel') {
 				onCancel();
-				return;
+			} else {
+				// From time fields, move to submit
+				setFocusArea('submit');
+			}
+		}
+
+		// Break field input is handled by CustomTimeInput
+	};
+
+	const handleShiftTabNavigation = () => {
+		switch (focusArea) {
+			case 'checkIn': {
+				setFocusArea('cancel');
+				break;
 			}
 
-			// Other inputs require focus
-			if (!isFocused) return;
-
-			// Tab navigation between areas
-			if (key.tab) {
-				if (key.shift) {
-					// Shift+Tab for reverse navigation
-					switch (focusArea) {
-						case 'checkIn': {
-							setFocusArea('cancel');
-							break;
-						}
-
-						case 'checkOut': {
-							setFocusArea('checkIn');
-							break;
-						}
-
-						case 'break': {
-							setFocusArea('checkOut');
-							break;
-						}
-
-						case 'submit': {
-							setFocusArea('break');
-							break;
-						}
-
-						case 'cancel': {
-							setFocusArea('submit');
-							break;
-						}
-
-						default: {
-							break;
-						}
-					}
-				} else {
-					// Regular Tab for forward navigation
-					switch (focusArea) {
-						case 'checkIn': {
-							setFocusArea('checkOut');
-							break;
-						}
-
-						case 'checkOut': {
-							setFocusArea('break');
-							break;
-						}
-
-						case 'break': {
-							setFocusArea('submit');
-							break;
-						}
-
-						case 'submit': {
-							setFocusArea('cancel');
-							break;
-						}
-
-						case 'cancel': {
-							setFocusArea('checkIn');
-							break;
-						}
-
-						default: {
-							break;
-						}
-					}
-				}
-
-				return;
+			case 'submit': {
+				setFocusArea('break');
+				break;
 			}
 
-			// Handle enter in specific areas
-			if (key.return) {
-				if (focusArea === 'submit') {
-					handleSubmit();
-				} else if (focusArea === 'cancel') {
-					onCancel();
-				} else {
-					// From time fields, move to submit
-					setFocusArea('submit');
-				}
+			case 'checkOut': {
+				setFocusArea('checkIn');
+				break;
 			}
 
-			// Break field input is handled by CustomTimeInput
-		},
-		{isActive: isFocused},
-	);
+			case 'break': {
+				setFocusArea('checkOut');
+				break;
+			}
+
+			case 'cancel': {
+				setFocusArea('submit');
+				break;
+			}
+
+			default: {
+				break;
+			}
+		}
+	};
+
+	const handleTabNavigation = () => {
+		switch (focusArea) {
+			case 'checkIn': {
+				setFocusArea('checkOut');
+				break;
+			}
+
+			case 'checkOut': {
+				setFocusArea('break');
+				break;
+			}
+
+			case 'break': {
+				setFocusArea('submit');
+				break;
+			}
+
+			case 'submit': {
+				setFocusArea('cancel');
+				break;
+			}
+
+			case 'cancel': {
+				setFocusArea('checkIn');
+				break;
+			}
+
+			default: {
+				break;
+			}
+		}
+	};
+
+	useInput(handleKeyInput, {isActive: isFocused});
 
 	return (
 		<Box flexDirection="column" padding={1}>
@@ -241,6 +262,7 @@ export function AttendanceEditForm({
 							label=""
 							value={checkIn}
 							compact={true}
+							isActive={focusArea === 'checkIn'}
 							onChange={setCheckIn}
 							onSubmit={() => {
 								setFocusArea('checkOut');
@@ -259,6 +281,7 @@ export function AttendanceEditForm({
 							label=""
 							value={checkOut}
 							compact={true}
+							isActive={focusArea === 'checkOut'}
 							onChange={setCheckOut}
 							onSubmit={() => {
 								setFocusArea('break');
@@ -278,6 +301,7 @@ export function AttendanceEditForm({
 							compact={true}
 							allowedUnits={['h', 'm']}
 							incrementMinutes={15}
+							isActive={focusArea === 'break'}
 							onChange={setBreakMinutes}
 							onSubmit={() => {
 								setFocusArea('submit');
@@ -287,7 +311,6 @@ export function AttendanceEditForm({
 						<Text color="gray">{breakMinutes}</Text>
 					)}
 				</Box>
-
 				{/* Buttons */}
 				<Box justifyContent="flex-end">
 					<Box gap={2}>
