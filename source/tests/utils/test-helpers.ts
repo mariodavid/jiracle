@@ -295,23 +295,23 @@ export const CSVHelpers = {
 	},
 
 	createMissingColumnsCSV(): string {
-		return 'date,checkIn,checkOut,breakMinutes,totalHours\n2025-07-11,08:00\n';
+		return 'Date,Type,CheckIn,CheckOut,BreakMinutes,TotalHours,Notes\n2025-07-11,08:00\n';
 	},
 
 	createExtraColumnsCSV(): string {
-		return 'date,checkIn,checkOut,breakMinutes,totalHours,extra1,extra2\n2025-07-11,08:00,17:00,30,8.5,extra,data\n';
+		return 'Date,Type,CheckIn,CheckOut,BreakMinutes,TotalHours,Notes,extra1,extra2\n2025-07-11,WORK,08:00,17:00,30,8.5,,extra,data\n';
 	},
 
 	createSpecialCharactersCSV(): string {
-		return 'date,checkIn,checkOut,breakMinutes,totalHours\n2025-07-11,08:00,17:00,30,8.5\n2025-07-12,"08:00","17:00",30,8.5\n';
+		return 'Date,Type,CheckIn,CheckOut,BreakMinutes,TotalHours,Notes\n2025-07-11,WORK,08:00,17:00,30,8.5,\n2025-07-12,WORK,"08:00","17:00",30,8.5,\n';
 	},
 
 	createInjectionAttemptCSV(): string {
-		return 'date,checkIn,checkOut,breakMinutes,totalHours\n2025-07-11,=1+1+cmd|/C calc|!A0,17:00,30,8.5\n';
+		return 'Date,Type,CheckIn,CheckOut,BreakMinutes,TotalHours,Notes\n2025-07-11,WORK,=1+1+cmd|/C calc|!A0,17:00,30,8.5,\n';
 	},
 
 	createInvalidDatesCSV(): string {
-		return 'date,checkIn,checkOut,breakMinutes,totalHours\ninvalid-date,08:00,17:00,30,8.5\n2025-13-45,08:00,17:00,30,8.5\n2025-07-11,08:00,17:00,30,8.5\n';
+		return 'Date,Type,CheckIn,CheckOut,BreakMinutes,TotalHours,Notes\ninvalid-date,WORK,08:00,17:00,30,8.5,\n2025-13-45,WORK,08:00,17:00,30,8.5,\n2025-07-11,WORK,08:00,17:00,30,8.5,\n';
 	},
 };
 

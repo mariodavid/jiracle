@@ -17,7 +17,7 @@ test('groupVacationDates - groups consecutive vacation days', t => {
 			breakMinutes: 0,
 		},
 		{
-			date: '2025-08-05',
+			date: '2025-08-07',
 			type: 'VACATION',
 			breakMinutes: 0,
 		},
@@ -30,8 +30,8 @@ test('groupVacationDates - groups consecutive vacation days', t => {
 			days: 2,
 		},
 		{
-			startDate: LocalDate.fromString('2025-08-05'),
-			endDate: LocalDate.fromString('2025-08-05'),
+			startDate: LocalDate.fromString('2025-08-07'),
+			endDate: LocalDate.fromString('2025-08-07'),
 			days: 1,
 		},
 	];

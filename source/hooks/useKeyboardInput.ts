@@ -11,6 +11,7 @@ export type KeyboardInputHandlers = {
 	onCellDelete?: (data: {issueKey: IssueKey; date: LocalDate}) => void;
 	onAttendanceEdit?: (data: {date: LocalDate}) => void;
 	onAttendanceDelete?: (data: {date: LocalDate}) => void;
+	onVacationDay?: (data: {date: LocalDate}) => void;
 	onOpenInBrowser?: (issueKey: IssueKey) => void;
 };
 
@@ -145,6 +146,30 @@ function handleOpenInBrowser(
 	return false;
 }
 
+function handleVacationKey(
+	input: string,
+	focusedCell: FocusedCell | undefined,
+	weekDates: Date[],
+	onVacationDay?: KeyboardInputHandlers['onVacationDay'],
+): boolean {
+	if ((input !== 'v' && input !== 'V') || !focusedCell) {
+		return false;
+	}
+
+	const date = weekDates[focusedCell.columnIndex];
+	if (!date) {
+		return false;
+	}
+
+	// V key works for any cell - creates vacation entry for that date
+	if (onVacationDay) {
+		onVacationDay({date: LocalDate.fromDate(date)});
+		return true;
+	}
+
+	return false;
+}
+
 export function useKeyboardInput({
 	isActive,
 	focusedCell,
@@ -159,6 +184,7 @@ export function useKeyboardInput({
 		onCellDelete,
 		onAttendanceEdit,
 		onAttendanceDelete,
+		onVacationDay,
 		onOpenInBrowser,
 	} = handlers;
 
@@ -207,6 +233,11 @@ export function useKeyboardInput({
 		}
 
 		// Handle open in browser
-		handleOpenInBrowser(input, currentFocusedCell, onOpenInBrowser);
+		if (handleOpenInBrowser(input, currentFocusedCell, onOpenInBrowser)) {
+			return;
+		}
+
+		// Handle vacation key
+		handleVacationKey(input, currentFocusedCell, weekDates, onVacationDay);
 	});
 }

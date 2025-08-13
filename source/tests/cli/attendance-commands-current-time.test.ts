@@ -59,10 +59,10 @@ testWithContext('checkin uses current time when no time specified', async t => {
 	const csvContent = await readFile(csvPath, 'utf8');
 	const lines = csvContent.trim().split('\n');
 	t.is(lines.length, 2); // Header + 1 data line
-	t.is(lines[0], 'Date,CheckIn,CheckOut,BreakMinutes,TotalHours,Notes');
+	t.is(lines[0], 'Date,Type,CheckIn,CheckOut,BreakMinutes,TotalHours,Notes');
 
 	const dataLine = lines[1]!;
-	const [date, checkIn, checkOut, breakMinutes] = dataLine.split(',');
+	const [date, , checkIn, checkOut, breakMinutes] = dataLine.split(',');
 
 	t.is(date, testDate);
 	t.regex(checkIn!, /^\d{2}:\d{2}$/);
@@ -117,7 +117,7 @@ testWithContext(
 		t.is(lines.length, 2); // Header + 1 data line
 
 		const dataLine = lines[1]!;
-		const [date, checkIn, checkOut, breakMinutes, totalHours] =
+		const [date, , checkIn, checkOut, breakMinutes, totalHours] =
 			dataLine.split(',');
 
 		t.is(date, testDate);
@@ -159,7 +159,7 @@ testWithContext('explicit time overrides current time', async t => {
 	const csvContent = await readFile(csvPath, 'utf8');
 	const lines = csvContent.trim().split('\n');
 	const dataLine = lines[1]!;
-	const [date, checkIn] = dataLine.split(',');
+	const [date, , checkIn] = dataLine.split(',');
 
 	t.is(date, testDate);
 	t.is(checkIn, explicitTime);
@@ -194,7 +194,7 @@ testWithContext('status shows attendance with current times', async t => {
 	t.is(lines.length, 2); // Header + 1 data line
 
 	const dataLine = lines[1]!;
-	const [date, checkIn, checkOut, breakMinutes, totalHours] =
+	const [date, , checkIn, checkOut, breakMinutes, totalHours] =
 		dataLine.split(',');
 
 	t.is(date, testDate);
@@ -239,7 +239,7 @@ testWithContext(
 		t.is(lines.length, 2); // Header + 1 data line
 
 		const dataLine = lines[1]!;
-		const [date, checkIn, checkOut, breakMinutes, totalHours] =
+		const [date, , checkIn, checkOut, breakMinutes, totalHours] =
 			dataLine.split(',');
 
 		t.is(date, testDate);

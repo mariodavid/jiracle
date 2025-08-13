@@ -248,6 +248,16 @@ export function WeeklyTimetableView({
 		}
 	};
 
+	const handleVacationDay = async (data: {date: LocalDate}) => {
+		try {
+			// Add a single vacation day
+			await addVacationDays(data.date, data.date);
+			refreshAttendance();
+		} catch (error: unknown) {
+			console.error('Failed to add vacation day:', error);
+		}
+	};
+
 	useInput(input => {
 		// Don't handle input if forms are visible or delete confirmation is active
 		if (
@@ -509,6 +519,7 @@ export function WeeklyTimetableView({
 									onCellDelete={handleCellDelete}
 									onAttendanceEdit={handleAttendanceEdit}
 									onAttendanceDelete={handleDeleteAttendance}
+									onVacationDay={handleVacationDay}
 									onOpenInBrowser={handleOpenInBrowser}
 								/>
 							);

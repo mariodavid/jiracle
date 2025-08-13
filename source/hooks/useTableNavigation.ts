@@ -28,6 +28,7 @@ export type TableNavigationProps = {
 	onCellDelete?: (data: {issueKey: IssueKey; date: LocalDate}) => void;
 	onAttendanceEdit?: (data: {date: LocalDate}) => void;
 	onAttendanceDelete?: (data: {date: LocalDate}) => void;
+	onVacationDay?: (data: {date: LocalDate}) => void;
 	onOpenInBrowser?: (issueKey: IssueKey) => void;
 };
 
@@ -53,6 +54,7 @@ export function useTableNavigation({
 	onCellDelete,
 	onAttendanceEdit,
 	onAttendanceDelete,
+	onVacationDay,
 	onOpenInBrowser,
 }: TableNavigationProps): TableNavigationResult {
 	// Core focus management
@@ -117,6 +119,7 @@ export function useTableNavigation({
 		onCellDelete,
 		onAttendanceEdit,
 		onAttendanceDelete,
+		onVacationDay,
 		onOpenInBrowser,
 	};
 

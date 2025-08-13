@@ -1,9 +1,8 @@
 import React, {useState} from 'react';
 import {Box, Text, useInput, useFocus} from 'ink';
-import {Select} from '@inkjs/ui';
 import {Duration} from '../domain/Duration.js';
 import type {LocalDate} from '../domain/LocalDate.js';
-import type {Attendance, AttendanceType} from '../attendance/types.js';
+import type {Attendance} from '../attendance/types.js';
 import type {WeeklyWorklogSummary} from '../domain/WeeklyWorklogSummary.js';
 import TimeInputField from './TimeInputField.js';
 import DurationInput from './WorklogForm/DurationInput.js';
@@ -74,18 +73,14 @@ export function AttendanceEditForm({
 		return formattedCheckOut;
 	};
 
-	const [attendanceType, setAttendanceType] = useState<AttendanceType>(
-		initialData?.type ?? 'WORK',
-	);
 	const [checkIn, setCheckIn] = useState(getDefaultCheckIn());
 	const [checkOut, setCheckOut] = useState(getDefaultCheckOut());
 	const [breakMinutes, setBreakMinutes] = useState(
 		initialData?.breakMinutes ? `${initialData.breakMinutes}m` : '30m',
 	);
-	const [step, setStep] = useState<'type' | 'details'>('type');
 	const [focusArea, setFocusArea] = useState<
-		'type' | 'checkIn' | 'checkOut' | 'break' | 'submit' | 'cancel'
-	>('type');
+		'checkIn' | 'checkOut' | 'break' | 'submit' | 'cancel'
+	>('checkIn');
 
 	const {isFocused} = useFocus({autoFocus: true});
 
@@ -123,151 +118,132 @@ export function AttendanceEditForm({
 
 		const attendanceData: Attendance = {
 			date: localDateString,
-			type: attendanceType,
-			checkIn: attendanceType === 'WORK' ? checkIn ?? undefined : undefined,
-			checkOut: attendanceType === 'WORK' ? checkOut ?? undefined : undefined,
-			breakMinutes:
-				attendanceType === 'WORK' ? parseBreakMinutes(breakMinutes) : 0,
-			totalHours: attendanceType === 'WORK' ? undefined : 0,
-			notes:
-				attendanceType === 'WORK'
-					? undefined
-					: `${attendanceType.toLowerCase()} day`,
+			type: 'WORK',
+			checkIn,
+			checkOut,
+			breakMinutes: parseBreakMinutes(breakMinutes),
+			totalHours: undefined,
+			notes: undefined,
 		};
 		onSubmit(attendanceData);
 	};
 
-	useInput(
-		(_, key) => {
-			// Escape to cancel - always allow regardless of focus state for better reliability
-			if (key.escape) {
+	const handleKeyInput = (_input: string, key: any) => {
+		// Escape to cancel - always allow regardless of focus state for better reliability
+		if (key.escape) {
+			onCancel();
+			return;
+		}
+
+		// Other inputs require focus
+		if (!isFocused) return;
+
+		// Ignore arrow keys when TimeInputField, DurationInput, or buttons are focused
+		// Let these components handle arrow keys themselves, or prevent interference
+		if (
+			(key.upArrow || key.downArrow) &&
+			(focusArea === 'checkIn' ||
+				focusArea === 'checkOut' ||
+				focusArea === 'break' ||
+				focusArea === 'submit' ||
+				focusArea === 'cancel')
+		) {
+			return;
+		}
+
+		// Tab navigation between areas
+		if (key.tab) {
+			if (key.shift) {
+				handleShiftTabNavigation();
+			} else {
+				handleTabNavigation();
+			}
+
+			return;
+		}
+
+		// Handle enter in specific areas
+		if (key.return) {
+			if (focusArea === 'submit') {
+				handleSubmit();
+			} else if (focusArea === 'cancel') {
 				onCancel();
-				return;
+			} else {
+				// From time fields, move to submit
+				setFocusArea('submit');
+			}
+		}
+
+		// Break field input is handled by CustomTimeInput
+	};
+
+	const handleShiftTabNavigation = () => {
+		switch (focusArea) {
+			case 'checkIn': {
+				setFocusArea('cancel');
+				break;
 			}
 
-			// Other inputs require focus
-			if (!isFocused) return;
-
-			// Ignore arrow keys when TimeInputField, DurationInput, or buttons are focused
-			// Let these components handle arrow keys themselves, or prevent interference
-			if (
-				(key.upArrow || key.downArrow) &&
-				(focusArea === 'checkIn' ||
-					focusArea === 'checkOut' ||
-					focusArea === 'break' ||
-					focusArea === 'submit' ||
-					focusArea === 'cancel')
-			) {
-				return;
+			case 'submit': {
+				setFocusArea('break');
+				break;
 			}
 
-			// Tab navigation between areas
-			if (key.tab) {
-				if (key.shift) {
-					// Shift+Tab for reverse navigation
-					switch (focusArea) {
-						case 'type': {
-							setFocusArea('cancel');
-							break;
-						}
-
-						case 'checkIn': {
-							setFocusArea('type');
-							break;
-						}
-
-						case 'submit': {
-							if (attendanceType === 'WORK') {
-								setFocusArea('break');
-							} else {
-								setFocusArea('type');
-							}
-
-							break;
-						}
-
-						case 'checkOut': {
-							setFocusArea('checkIn');
-							break;
-						}
-
-						case 'break': {
-							setFocusArea('checkOut');
-							break;
-						}
-
-						case 'cancel': {
-							setFocusArea('submit');
-							break;
-						}
-
-						default: {
-							break;
-						}
-					}
-				} else {
-					// Regular Tab for forward navigation
-					switch (focusArea) {
-						case 'type': {
-							if (attendanceType === 'WORK') {
-								setFocusArea('checkIn');
-							} else {
-								setFocusArea('submit');
-							}
-
-							break;
-						}
-
-						case 'checkIn': {
-							setFocusArea('checkOut');
-							break;
-						}
-
-						case 'checkOut': {
-							setFocusArea('break');
-							break;
-						}
-
-						case 'break': {
-							setFocusArea('submit');
-							break;
-						}
-
-						case 'submit': {
-							setFocusArea('cancel');
-							break;
-						}
-
-						case 'cancel': {
-							setFocusArea('type');
-							break;
-						}
-
-						default: {
-							break;
-						}
-					}
-				}
-
-				return;
+			case 'checkOut': {
+				setFocusArea('checkIn');
+				break;
 			}
 
-			// Handle enter in specific areas
-			if (key.return) {
-				if (focusArea === 'submit') {
-					handleSubmit();
-				} else if (focusArea === 'cancel') {
-					onCancel();
-				} else {
-					// From time fields, move to submit
-					setFocusArea('submit');
-				}
+			case 'break': {
+				setFocusArea('checkOut');
+				break;
 			}
 
-			// Break field input is handled by CustomTimeInput
-		},
-		{isActive: isFocused},
-	);
+			case 'cancel': {
+				setFocusArea('submit');
+				break;
+			}
+
+			default: {
+				break;
+			}
+		}
+	};
+
+	const handleTabNavigation = () => {
+		switch (focusArea) {
+			case 'checkIn': {
+				setFocusArea('checkOut');
+				break;
+			}
+
+			case 'checkOut': {
+				setFocusArea('break');
+				break;
+			}
+
+			case 'break': {
+				setFocusArea('submit');
+				break;
+			}
+
+			case 'submit': {
+				setFocusArea('cancel');
+				break;
+			}
+
+			case 'cancel': {
+				setFocusArea('checkIn');
+				break;
+			}
+
+			default: {
+				break;
+			}
+		}
+	};
+
+	useInput(handleKeyInput, {isActive: isFocused});
 
 	return (
 		<Box flexDirection="column" padding={1}>
@@ -278,124 +254,80 @@ export function AttendanceEditForm({
 			</Box>
 
 			<Box flexDirection="column">
-				{step === 'type' ? (
-					// Step 1: Type Selection
-					<Box marginBottom={1} flexDirection="column">
-						<Text color="yellow">Type:</Text>
-						<Select
-							options={[
-								{label: 'Work', value: 'WORK'},
-								{label: 'Vacation', value: 'VACATION'},
-								{label: 'Sick', value: 'SICK'},
-								{label: 'Public Holiday', value: 'HOLIDAY'},
-							]}
-							defaultValue={attendanceType}
-							onChange={value => {
-								setAttendanceType(value as AttendanceType);
-								if (value === 'WORK') {
-									setStep('details');
-									setFocusArea('checkIn');
-								} else {
-									// For non-work types, submit immediately
-									const attendanceData: Attendance = {
-										date: date.toISOString(),
-										type: value as AttendanceType,
-										checkIn: undefined,
-										checkOut: undefined,
-										breakMinutes: 0,
-										totalHours: 0,
-										notes: `${value.toLowerCase()} day`,
-									};
-									onSubmit(attendanceData);
-								}
+				{/* Beginn Field */}
+				<Box marginBottom={1} flexDirection="column">
+					<Text color="yellow">Beginn:</Text>
+					{focusArea === 'checkIn' ? (
+						<TimeInputField
+							label=""
+							value={checkIn}
+							compact={true}
+							isActive={focusArea === 'checkIn'}
+							onChange={setCheckIn}
+							onSubmit={() => {
+								setFocusArea('checkOut');
 							}}
 						/>
+					) : (
+						<Text color="gray">{checkIn}</Text>
+					)}
+				</Box>
+
+				{/* Ende Field */}
+				<Box marginBottom={1} flexDirection="column">
+					<Text color="yellow">Ende:</Text>
+					{focusArea === 'checkOut' ? (
+						<TimeInputField
+							label=""
+							value={checkOut}
+							compact={true}
+							isActive={focusArea === 'checkOut'}
+							onChange={setCheckOut}
+							onSubmit={() => {
+								setFocusArea('break');
+							}}
+						/>
+					) : (
+						<Text color="gray">{checkOut}</Text>
+					)}
+				</Box>
+
+				{/* Pause Field */}
+				<Box marginBottom={2} flexDirection="column">
+					<Text color="yellow">Pause:</Text>
+					{focusArea === 'break' ? (
+						<DurationInput
+							value={breakMinutes}
+							compact={true}
+							allowedUnits={['h', 'm']}
+							incrementMinutes={15}
+							isActive={focusArea === 'break'}
+							onChange={setBreakMinutes}
+							onSubmit={() => {
+								setFocusArea('submit');
+							}}
+						/>
+					) : (
+						<Text color="gray">{breakMinutes}</Text>
+					)}
+				</Box>
+				{/* Buttons */}
+				<Box justifyContent="flex-end">
+					<Box gap={2}>
+						<Text
+							color={focusArea === 'submit' ? 'black' : 'blue'}
+							{...(focusArea === 'submit' ? {backgroundColor: 'blue'} : {})}
+						>
+							{' [Speichern] '}
+						</Text>
+						<Text
+							color={focusArea === 'cancel' ? 'black' : 'blue'}
+							{...(focusArea === 'cancel' ? {backgroundColor: 'blue'} : {})}
+						>
+							{' [Abbrechen] '}
+						</Text>
 					</Box>
-				) : (
-					// Step 2: Work Details (only for WORK type)
-					<>
-						{/* Show selected type */}
-						<Box marginBottom={1} flexDirection="column">
-							<Text color="yellow">Type: Work</Text>
-						</Box>
-
-						{/* Time fields for WORK type */}
-						{/* Beginn Field */}
-						<Box marginBottom={1} flexDirection="column">
-							<Text color="yellow">Beginn:</Text>
-							{focusArea === 'checkIn' ? (
-								<TimeInputField
-									label=""
-									value={checkIn}
-									compact={true}
-									isActive={focusArea === 'checkIn'}
-									onChange={setCheckIn}
-									onSubmit={() => {
-										setFocusArea('checkOut');
-									}}
-								/>
-							) : (
-								<Text color="gray">{checkIn}</Text>
-							)}
-						</Box>
-
-						{/* Ende Field */}
-						<Box marginBottom={1} flexDirection="column">
-							<Text color="yellow">Ende:</Text>
-							{focusArea === 'checkOut' ? (
-								<TimeInputField
-									label=""
-									value={checkOut}
-									compact={true}
-									isActive={focusArea === 'checkOut'}
-									onChange={setCheckOut}
-									onSubmit={() => {
-										setFocusArea('break');
-									}}
-								/>
-							) : (
-								<Text color="gray">{checkOut}</Text>
-							)}
-						</Box>
-
-						{/* Pause Field */}
-						<Box marginBottom={2} flexDirection="column">
-							<Text color="yellow">Pause:</Text>
-							{focusArea === 'break' ? (
-								<DurationInput
-									value={breakMinutes}
-									compact={true}
-									allowedUnits={['h', 'm']}
-									incrementMinutes={15}
-									isActive={focusArea === 'break'}
-									onChange={setBreakMinutes}
-									onSubmit={() => {
-										setFocusArea('submit');
-									}}
-								/>
-							) : (
-								<Text color="gray">{breakMinutes}</Text>
-							)}
-						</Box>
-						{/* Buttons */}
-						<Box justifyContent="flex-end">
-							<Box gap={2}>
-								<Text
-									color={focusArea === 'submit' ? 'black' : 'blue'}
-									{...(focusArea === 'submit' ? {backgroundColor: 'blue'} : {})}
-								>
-									{' [Speichern] '}
-								</Text>
-								<Text
-									color={focusArea === 'cancel' ? 'black' : 'blue'}
-									{...(focusArea === 'cancel' ? {backgroundColor: 'blue'} : {})}
-								>
-									{' [Abbrechen] '}
-								</Text>
-							</Box>
-						</Box>
-					</>
-				)}
+				</Box>
 			</Box>
 
 			<Box marginTop={1}>
