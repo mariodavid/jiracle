@@ -214,10 +214,12 @@ npm run dev:local
 ```
 
 This creates a `.dev/` directory in your project with:
+
 - `.dev/config.json` - Isolated configuration (copy your production config here)
 - `.dev/attendance.csv` - Separate attendance tracking for development
 
 **Benefits:**
+
 - Complete isolation from production data
 - Safe testing environment
 - Easy switching between dev and production modes
