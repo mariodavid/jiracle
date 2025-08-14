@@ -127,3 +127,4 @@ Key configuration options:
 - `slidingWindowDays` - Show recent issues across weeks
 
 Priority: Issue-specific > Group-specific > Project-specific > Global defaults
+- wenn du die anwendung starten sollst, benutze bitte das tool terminalcp und dann npm run dev:local bzw. npm start, damit kannst du die ausgaben der echten anwendung sehen und diese auch bedienen.

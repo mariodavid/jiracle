@@ -52,6 +52,7 @@ type MonthRowProps = {
 		businessDays?: number;
 		bonusDays?: number;
 		efficiency?: number;
+		vacationDays?: number;
 	};
 	showBonus: boolean | undefined;
 	bonusConfig?: BonusConfig;
@@ -92,6 +93,9 @@ function MonthRow({month, showBonus, bonusConfig}: MonthRowProps) {
 								  ).toFixed(1)}`
 								: '-'}
 						</Text>
+					</Box>
+					<Box width={10} justifyContent="flex-end">
+						<Text color="magenta">{month.vacationDays ?? '-'}</Text>
 					</Box>
 					<Box width={10} justifyContent="flex-end">
 						<Text color={getEfficiencyColor(month.efficiency)}>
@@ -159,9 +163,9 @@ export function StatisticsGrid({statistics, bonusConfig}: StatisticsGridProps) {
 	const monthData = statistics.monthlyStats;
 	const showBonus = bonusConfig?.enabled && statistics.totalHours !== undefined;
 
-	// New layout: Month + Work Days + Billable + Non-Bill + % + Target
+	// New layout: Month + Work Days + Billable + Non-Bill + Vacation + % + Target
 	const baseWidth = 2 + 12; // Margin + Month
-	const bonusWidth = showBonus ? 12 + 12 + 14 + 10 + 8 : 0; // Work Days + Billable + Non-Bill + % + Target
+	const bonusWidth = showBonus ? 12 + 12 + 14 + 10 + 10 + 8 : 0; // Work Days + Billable + Non-Bill + Vacation + % + Target
 	const tableWidth = baseWidth + bonusWidth + 8;
 
 	return (
@@ -193,6 +197,11 @@ export function StatisticsGrid({statistics, bonusConfig}: StatisticsGridProps) {
 						<Box width={14} justifyContent="flex-end">
 							<Text bold color="white">
 								Non-Bill
+							</Text>
+						</Box>
+						<Box width={10} justifyContent="flex-end">
+							<Text bold color="white">
+								Vacation
 							</Text>
 						</Box>
 						<Box width={10} justifyContent="flex-end">
@@ -266,7 +275,7 @@ export function StatisticsGrid({statistics, bonusConfig}: StatisticsGridProps) {
 									: '-'}
 							</Text>
 						</Box>
-						<Box width={12} justifyContent="flex-end">
+						<Box width={14} justifyContent="flex-end">
 							<Text bold color="red">
 								{bonusConfig?.hoursPerBonusDay
 									? (
@@ -276,6 +285,11 @@ export function StatisticsGrid({statistics, bonusConfig}: StatisticsGridProps) {
 											) / bonusConfig.hoursPerBonusDay
 									  ).toFixed(1)
 									: '-'}
+							</Text>
+						</Box>
+						<Box width={10} justifyContent="flex-end">
+							<Text bold color="magenta">
+								{statistics.totalVacationDays ?? '-'}
 							</Text>
 						</Box>
 						<Box width={10} justifyContent="flex-end">

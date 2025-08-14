@@ -20,6 +20,7 @@ export type MonthlyStatistics = {
 	potentialHours?: number;
 	bonusDays?: number;
 	efficiency?: number;
+	vacationDays?: number;
 };
 
 export class YearlyStatistics {
@@ -33,6 +34,7 @@ export class YearlyStatistics {
 		totalNonBillableHours?: number;
 		totalBonusDays?: number;
 		yearToDateEfficiency?: number;
+		totalVacationDays?: number;
 	}): YearlyStatistics {
 		return new YearlyStatistics(data);
 	}
@@ -48,6 +50,7 @@ export class YearlyStatistics {
 			totalNonBillableHours?: number;
 			totalBonusDays?: number;
 			yearToDateEfficiency?: number;
+			totalVacationDays?: number;
 		},
 	) {}
 
@@ -87,6 +90,10 @@ export class YearlyStatistics {
 		return this.data.yearToDateEfficiency;
 	}
 
+	get totalVacationDays(): number | undefined {
+		return this.data.totalVacationDays;
+	}
+
 	getBillableHoursDuration(): Duration | undefined {
 		return this.data.totalBillableHours
 			? Duration.fromHours(this.data.totalBillableHours)
@@ -122,12 +129,17 @@ export class StatisticsUseCase {
 			(sum, month) => sum + month.attendanceDays,
 			0,
 		);
+		const totalVacationDays = monthlyStats.reduce(
+			(sum, month) => sum + (month.vacationDays ?? 0),
+			0,
+		);
 
 		const resultData = {
 			year: targetYear,
 			monthlyStats,
 			totalWorklogDays,
 			totalAttendanceDays,
+			totalVacationDays,
 		};
 
 		if (this.bonusConfig?.enabled) {
@@ -199,10 +211,13 @@ export class StatisticsUseCase {
 		month: number,
 		monthName: string,
 	): Promise<MonthlyStatistics> {
-		const [worklogDaysResult, attendanceDays] = await Promise.all([
-			this.calculateWorklogDaysAndHoursForMonth(year, month),
-			this.calculateAttendanceDaysForMonth(year, month),
-		]);
+		const [worklogDaysResult, attendanceDays, vacationDays] = await Promise.all(
+			[
+				this.calculateWorklogDaysAndHoursForMonth(year, month),
+				this.calculateAttendanceDaysForMonth(year, month),
+				this.calculateVacationDaysForMonth(year, month),
+			],
+		);
 
 		const result: MonthlyStatistics = {
 			month: monthName,
@@ -210,6 +225,7 @@ export class StatisticsUseCase {
 			attendanceDays,
 			billableHours: worklogDaysResult.billableHours,
 			nonBillableHours: worklogDaysResult.nonBillableHours,
+			vacationDays,
 		};
 
 		if (this.bonusConfig?.enabled) {
@@ -363,6 +379,34 @@ export class StatisticsUseCase {
 			return attendanceDates.length;
 		} catch (error: unknown) {
 			uiLogger.error('Error calculating attendance days', {
+				year,
+				month,
+				error: error instanceof Error ? error.message : String(error),
+			});
+			return 0;
+		}
+	}
+
+	private async calculateVacationDaysForMonth(
+		year: number,
+		month: number,
+	): Promise<number> {
+		const startDate = this.getMonthStart(year, month);
+		const endDate = this.getMonthEnd(year, month);
+
+		try {
+			const attendanceRecords = await this.attendanceManager.getAttendanceRange(
+				startDate,
+				endDate,
+			);
+
+			const vacationDates = attendanceRecords.filter(
+				record => record.type === 'VACATION',
+			);
+
+			return vacationDates.length;
+		} catch (error: unknown) {
+			uiLogger.error('Error calculating vacation days', {
 				year,
 				month,
 				error: error instanceof Error ? error.message : String(error),
