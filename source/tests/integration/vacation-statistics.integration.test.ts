@@ -112,7 +112,6 @@ test('vacation statistics integration: StatisticsUseCase calculates vacation day
 
 	// Integration works: StatisticsUseCase properly integrates with AttendanceManager
 	// to fetch and calculate vacation statistics from vacation attendance records
-	t.pass();
 });
 
 test('vacation statistics integration: StatisticsUseCase handles no vacation data correctly', async t => {
@@ -139,7 +138,6 @@ test('vacation statistics integration: StatisticsUseCase handles no vacation dat
 	}
 
 	// Integration works: StatisticsUseCase handles empty vacation data gracefully
-	t.pass();
 });
 
 test('vacation statistics integration: should calculate vacation days across multiple months correctly', async t => {
@@ -190,5 +188,4 @@ test('vacation statistics integration: should calculate vacation days across mul
 
 	// Integration works: StatisticsUseCase correctly calculates vacation days
 	// across multiple months from AttendanceManager vacation records
-	t.pass();
 });
