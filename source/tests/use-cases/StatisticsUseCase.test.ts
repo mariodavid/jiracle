@@ -14,6 +14,9 @@ const EXPECTED_FEBRUARY_WORKLOG_DAYS = 2;
 const EXPECTED_FEBRUARY_ATTENDANCE_DAYS = 4;
 const EXPECTED_TOTAL_WORKLOG_DAYS = 5;
 const EXPECTED_TOTAL_ATTENDANCE_DAYS = 9;
+const EXPECTED_JANUARY_VACATION_DAYS = 2;
+const EXPECTED_FEBRUARY_VACATION_DAYS = 1;
+const EXPECTED_TOTAL_VACATION_DAYS = 3;
 
 const MOCK_WORKLOG_DATES = [
 	'2025-01-15',
@@ -34,6 +37,8 @@ const MOCK_ATTENDANCE_DATES = [
 	'2025-02-12',
 	'2025-02-13',
 ];
+
+const MOCK_VACATION_DATES = ['2025-01-20', '2025-01-21', '2025-02-14'];
 
 // OPERATIONS
 function createMockJiraClient(): JiraClient {
@@ -77,9 +82,17 @@ function createMockAttendanceManager(): AttendanceManager {
 		checkOut: '17:00',
 	}));
 
+	const mockVacationRecords = MOCK_VACATION_DATES.map(date => ({
+		date: LocalDate.fromString(date),
+		type: 'VACATION' as const,
+		breakMinutes: 30,
+	}));
+
+	const allRecords = [...mockAttendanceRecords, ...mockVacationRecords];
+
 	return {
 		async getAttendanceRange(startDate: LocalDate, endDate: LocalDate) {
-			return mockAttendanceRecords.filter(record => {
+			return allRecords.filter(record => {
 				const recordDateString = record.date.toISOString();
 				const startString = startDate.toISOString();
 				const endString = endDate.toISOString();
@@ -119,6 +132,14 @@ test('should calculate yearly statistics with all monthly data', async t => {
 	t.is(marchStats.month, 'March');
 	t.is(marchStats.worklogDays, 0);
 	t.is(marchStats.attendanceDays, 0);
+
+	// Verify vacation data
+	t.is(januaryStats.vacationDays, EXPECTED_JANUARY_VACATION_DAYS);
+	t.is(februaryStats.vacationDays, EXPECTED_FEBRUARY_VACATION_DAYS);
+	t.is(marchStats.vacationDays, 0);
+
+	// Verify total vacation days
+	t.is(result.totalVacationDays, EXPECTED_TOTAL_VACATION_DAYS);
 });
 
 test('should use current year when no year specified', async t => {

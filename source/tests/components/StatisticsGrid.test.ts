@@ -5,6 +5,10 @@ import {StatisticsGrid} from '../../components/StatisticsGrid.js';
 import {YearlyStatistics} from '../../use-cases/StatisticsUseCase.js';
 
 // TEST DATA
+const EXPECTED_VACATION_DAYS_JANUARY = 2;
+const EXPECTED_VACATION_DAYS_FEBRUARY = 1;
+const EXPECTED_TOTAL_VACATION_DAYS = 3;
+
 const EXPECTED_YEARLY_STATISTICS = YearlyStatistics.create({
 	year: 2025,
 	monthlyStats: [
@@ -18,6 +22,7 @@ const EXPECTED_YEARLY_STATISTICS = YearlyStatistics.create({
 			nonBillableHours: 0,
 			bonusDays: 23,
 			efficiency: 100,
+			vacationDays: EXPECTED_VACATION_DAYS_JANUARY,
 		},
 		{
 			month: 'February',
@@ -29,6 +34,7 @@ const EXPECTED_YEARLY_STATISTICS = YearlyStatistics.create({
 			nonBillableHours: 0,
 			bonusDays: 20,
 			efficiency: 100,
+			vacationDays: EXPECTED_VACATION_DAYS_FEBRUARY,
 		},
 		{
 			month: 'March',
@@ -40,12 +46,14 @@ const EXPECTED_YEARLY_STATISTICS = YearlyStatistics.create({
 			nonBillableHours: 0,
 			bonusDays: 0,
 			efficiency: 0,
+			vacationDays: 0,
 		},
 	],
 	totalWorklogDays: 27,
 	totalAttendanceDays: 38,
 	totalHours: 344,
 	totalBonusDays: 43,
+	totalVacationDays: EXPECTED_TOTAL_VACATION_DAYS,
 	yearToDateEfficiency: 16.48,
 });
 
@@ -90,6 +98,7 @@ test('should render statistics table with proper headers', t => {
 	t.true(output.includes('Work Days'));
 	t.true(output.includes('Billable'));
 	t.true(output.includes('Non-Bill'));
+	t.true(output.includes('Vacation'));
 	t.true(output.includes('%'));
 	t.true(output.includes('Target'));
 });
@@ -125,6 +134,7 @@ test('should render total row with correct calculations', t => {
 	t.true(output.includes('64')); // Total business days (23+20+21)
 	t.true(output.includes('43.0')); // Total billable days (344 hours / 8 hours per day)
 	t.true(output.includes('0.0')); // Total non-billable days
+	t.true(output.includes('3')); // Total vacation days
 	t.true(output.includes('16.5%')); // Year-to-date efficiency (rounded)
 });
 
@@ -201,4 +211,56 @@ test('should use proper color formatting in output', t => {
 	// Should include efficiency indicators
 	t.true(output.includes('100.0%')); // High efficiency
 	t.true(output.includes('0.0%')); // Low efficiency
+});
+
+test('should render vacation column with correct data', t => {
+	const output = renderStatisticsGrid(EXPECTED_YEARLY_STATISTICS);
+
+	// January vacation days
+	t.true(output.includes(String(EXPECTED_VACATION_DAYS_JANUARY)));
+
+	// February vacation days
+	t.true(output.includes(String(EXPECTED_VACATION_DAYS_FEBRUARY)));
+
+	// March vacation days (zero)
+	const marchVacationPattern = /March(?:[\s\S]*?0){2}\.0%/;
+	t.regex(output, marchVacationPattern);
+
+	// Total vacation days in YTD Total row
+	t.true(output.includes(String(EXPECTED_TOTAL_VACATION_DAYS)));
+});
+
+test('should handle vacation data correctly when no vacation days exist', t => {
+	const noVacationStats = YearlyStatistics.create({
+		year: 2025,
+		monthlyStats: [
+			{
+				month: 'January',
+				worklogDays: 15,
+				attendanceDays: 20,
+				businessDays: 23,
+				totalHours: 184,
+				billableHours: 184,
+				nonBillableHours: 0,
+				bonusDays: 23,
+				efficiency: 100,
+				vacationDays: 0,
+			},
+		],
+		totalWorklogDays: 15,
+		totalAttendanceDays: 20,
+		totalHours: 184,
+		totalBonusDays: 23,
+		totalVacationDays: 0,
+		yearToDateEfficiency: 8.8,
+	});
+
+	const output = renderStatisticsGrid(noVacationStats);
+
+	// Should show 0 vacation days for January
+	t.true(output.includes('0')); // Vacation days column
+
+	// Should show 0 total vacation days in YTD row
+	const ytdVacationPattern = /YTD Total[\s\S]*?0[\s\S]*?8\.8%/;
+	t.regex(output, ytdVacationPattern);
 });
