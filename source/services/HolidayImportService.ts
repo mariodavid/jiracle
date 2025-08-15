@@ -77,11 +77,8 @@ export class HolidayImportService {
 				notes: 'Public Holiday',
 			}));
 
-			await Promise.all(
-				holidayAttendances.map(async attendance =>
-					this.attendanceManager.updateAttendance(attendance),
-				),
-			);
+			// Import holidays serially to avoid race conditions in CSV storage
+			await this.importHolidaysSequentially(holidayAttendances);
 
 			return holidayAttendances.length;
 		} catch (error: unknown) {
@@ -107,5 +104,15 @@ export class HolidayImportService {
 	 */
 	getConfiguredLand(): string | undefined {
 		return this.attendanceConfig.holidays?.land;
+	}
+
+	private async importHolidaysSequentially(
+		holidayAttendances: Attendance[],
+	): Promise<void> {
+		// Import holidays one by one to avoid race conditions in CSV storage
+		for (const attendance of holidayAttendances) {
+			// eslint-disable-next-line no-await-in-loop
+			await this.attendanceManager.updateAttendance(attendance);
+		}
 	}
 }
