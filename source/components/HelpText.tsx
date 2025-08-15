@@ -64,7 +64,8 @@ export function HelpText({
 						</Text>
 						<Text color="gray">
 							[T] Today [R] Refresh [S] Statistics{' '}
-							{config.sap?.enabled ? '[E] SAP Export' : '[E] Export'} [Q] Quit
+							{config.sap?.enabled ? '[E] SAP Export' : '[E] Export'} [C] Config
+							[Q] Quit
 						</Text>
 					</>
 				);

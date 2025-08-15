@@ -18,6 +18,7 @@ import {JiraClient, type JiraConfig} from '../jira-client.js';
 import {useSAPExport} from '../hooks/useSAPExport.js';
 import type {IssueKey} from '../domain/IssueKey.js';
 import {openInBrowser, generateJiraIssueUrl} from '../utils/browser.js';
+import {openConfigInEditor} from '../utils/open-config-editor.js';
 import {NotificationBar} from './NotificationBar.js';
 import {
 	DeleteWorklogConfirmationArea,
@@ -196,7 +197,26 @@ export function WeeklyTimetableView({
 	});
 
 	// Notification system
-	const {notifications} = useNotification();
+	const {notifications, showNotification} = useNotification();
+
+	// Handle opening config in editor
+	const handleOpenConfig = useCallback(async () => {
+		try {
+			const result = await openConfigInEditor(config);
+			if (result.success) {
+				showNotification(result.message, 'success');
+			} else {
+				showNotification(result.message, 'error');
+			}
+		} catch (error: unknown) {
+			showNotification(
+				`Failed to open config editor: ${
+					error instanceof Error ? error.message : 'Unknown error'
+				}`,
+				'error',
+			);
+		}
+	}, [config, showNotification]);
 
 	// State for bonus tab availability
 	const [showBonusTab, setShowBonusTab] = useState<boolean>(false);
@@ -333,6 +353,12 @@ export function WeeklyTimetableView({
 			case 'h': {
 				// Show vacation list (holiday)
 				setActiveArea('vacation-list');
+				break;
+			}
+
+			case 'c': {
+				// Open config file in editor
+				void handleOpenConfig();
 				break;
 			}
 

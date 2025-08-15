@@ -88,6 +88,7 @@ export type JiraConfig = {
 	commentPrefillDays?: number;
 	bonus?: BonusConfig;
 	sap?: SAPConfig;
+	editor?: string; // Command to open config file (e.g., "code", "vim", "nano")
 };
 
 export type JiraIssueField = {
