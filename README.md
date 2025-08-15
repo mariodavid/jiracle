@@ -12,6 +12,7 @@ Terminal-based Jira time tracking with a keyboard-driven weekly timetable interf
 - **Keyboard navigation** with arrow keys and shortcuts
 - **Quick time entry** directly in grid cells
 - **Attendance tracking** with check-in/check-out
+- **Holiday import** from German public holiday API
 - **Bonus progress tracking** with financial projections
 - **Smart defaults** and comment auto-fill
 - **Offline-capable** with Jira sync
@@ -94,6 +95,45 @@ Enable bonus progress tracking with financial projections and target milestones:
 
 Access via: `jiracle` → Statistics → Tab 2 (Bonus Overview)
 
+#### Holiday Import
+
+Automatically import German public holidays into your attendance system:
+
+```json
+{
+	"attendance": {
+		"enabled": true,
+		"holidays": {
+			"land": "sh"
+		}
+	}
+}
+```
+
+**Configuration Options:**
+
+- `land`: German state code for state-specific holidays (e.g., "sh", "by", "nw", "bw")
+
+**Usage:**
+
+```bash
+# Import all public holidays for 2025
+jiracle import-holidays --year 2025
+
+# Import with custom config file
+jiracle import-holidays --year 2025 --config /path/to/config.json
+```
+
+**Features:**
+
+- **Automatic Detection**: Fetches official German public holidays from feiertage-api.de
+- **State-Specific**: Configurable for different German states (Bayern, NRW, etc.)
+- **Conflict Prevention**: Won't overwrite existing attendance entries
+- **Integration**: Holidays appear as "HOLIDAY" entries in your weekly timetable
+
+**Supported German States:**
+`bw`, `by`, `be`, `bb`, `hb`, `hh`, `he`, `mv`, `ni`, `nw`, `rp`, `sl`, `sn`, `st`, `sh`, `th`
+
 #### Sliding Window
 
 The `slidingWindowDays` option controls which recently worked issues appear in new weeks:
@@ -117,6 +157,9 @@ jiracle
 jiracle checkin          # Check in for work
 jiracle checkout         # Check out from work
 jiracle status           # Show today's status
+
+# Holiday import (German public holidays)
+jiracle import-holidays --year 2025  # Import public holidays for specified year
 
 # CSV import
 jiracle import timesheet.csv  # Import timesheet from CSV file
