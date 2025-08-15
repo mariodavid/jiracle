@@ -88,6 +88,7 @@ export type JiraConfig = {
 	commentPrefillDays?: number;
 	bonus?: BonusConfig;
 	sap?: SAPConfig;
+	openConfigCommand?: string; // Command to execute when opening config (e.g., "code ~/.config/jiracle.json", "vim ~/.config/jiracle.json")
 };
 
 export type JiraIssueField = {

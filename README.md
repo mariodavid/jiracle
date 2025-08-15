@@ -42,6 +42,7 @@ Create `~/.config/jiracle.json`:
 	"apiToken": "your-jira-api-token",
 	"defaultTime": "4h",
 	"defaultComment": "Development work",
+	"openConfigCommand": "code ~/.config/jiracle.json",
 	"favorites": [{"key": "PROJ-123", "alias": "Main Feature"}],
 	"slidingWindowDays": {
 		"past": 7,
@@ -49,6 +50,27 @@ Create `~/.config/jiracle.json`:
 	}
 }
 ```
+
+#### Quick Config Access
+
+Press `C` in the main interface to instantly open your configuration file for editing. Configure the command used to open the config file:
+
+```json
+{
+	"openConfigCommand": "code ~/.config/jiracle.json"
+}
+```
+
+**Examples:**
+
+- **VS Code**: `"code ~/.config/jiracle.json"`
+- **VS Code (wait for close)**: `"code --wait ~/.config/jiracle.json"`
+- **Vim**: `"vim ~/.config/jiracle.json"`
+- **TextEdit (macOS)**: `"open -a TextEdit ~/.config/jiracle.json"`
+- **Notepad (Windows)**: `"notepad ~/.config/jiracle.json"`
+- **Sublime Text**: `"subl ~/.config/jiracle.json"`
+
+The placeholder `~/.config/jiracle.json` is automatically replaced with your actual config file path. If not configured, Jiracle will attempt to detect a suitable editor automatically.
 
 ### Configuration Options
 
@@ -135,6 +157,7 @@ jiracle --version
 - `I` / `O` - Check in / Check out
 - `T` - Go to current week
 - `R` - Refresh data
+- `C` - Open configuration file
 - `Q` - Quit
 
 ### Time Entry

@@ -108,7 +108,7 @@ function cleanupTestFile(filePath: string) {
 test('Integration: Statistics navigation (s-key) from timetable', async t => {
 	// EXPLICIT TEST DATA
 	const expectedTimetableHelp =
-		'[T] Today [R] Refresh [S] Statistics [E] Export [Q] Quit';
+		'[T] Today [R] Refresh [S] Statistics [E] Export [C] Config [Q] Quit';
 	const expectedStatisticsTitle = 'Statistics 2025';
 	const expectedTabNavigation = '1. Monthly Stats';
 
@@ -198,7 +198,7 @@ test.serial(
 		// Should not show the main timetable help when in statistics view
 		t.false(
 			output.includes(
-				'[T] Today [R] Refresh [S] Statistics [E] Export [Q] Quit',
+				'[T] Today [R] Refresh [S] Statistics [E] Export [C] Config [Q] Quit',
 			),
 			'Should not show timetable help in statistics view',
 		);
@@ -252,7 +252,7 @@ test.serial(
 		// Should not show the main timetable help when in statistics view
 		t.false(
 			output.includes(
-				'[T] Today [R] Refresh [S] Statistics [E] Export [Q] Quit',
+				'[T] Today [R] Refresh [S] Statistics [E] Export [C] Config [Q] Quit',
 			),
 			'Should not show timetable help in statistics view',
 		);
@@ -327,7 +327,7 @@ test.serial('Integration: Tab switching between Monthly and Bonus', async t => {
 	// Should not show timetable help during any of these states
 	t.false(
 		backToMonthlyOutput.includes(
-			'[T] Today [R] Refresh [S] Statistics [E] Export [Q] Quit',
+			'[T] Today [R] Refresh [S] Statistics [E] Export [C] Config [Q] Quit',
 		),
 		'Should not show timetable help after tab switching',
 	);
@@ -397,7 +397,7 @@ test.serial('Integration: Tab switching with Tab key', async t => {
 test.serial('Integration: Back navigation from Statistics (q-key)', async t => {
 	// EXPLICIT TEST DATA
 	const expectedTimetableHelp =
-		'[T] Today [R] Refresh [S] Statistics [E] Export [Q] Quit';
+		'[T] Today [R] Refresh [S] Statistics [E] Export [C] Config [Q] Quit';
 	const expectedStatisticsTitle = 'Statistics 2025';
 
 	// OPERATIONS - Create real test files
