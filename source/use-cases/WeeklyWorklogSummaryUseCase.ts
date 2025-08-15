@@ -62,10 +62,10 @@ export class WeeklyWorklogSummaryUseCase {
 			uiLogger.debug('Sliding window configured', {
 				pastDays,
 				futureDays,
-				windowStart: windowStart.toISOString().split('T')[0],
-				windowEnd: windowEnd.toISOString().split('T')[0],
-				weekStart: weekStart.toISOString().split('T')[0],
-				weekEnd: weekEnd.toISOString().split('T')[0],
+				windowStart: LocalDate.fromDateUTC(windowStart).toISOString(),
+				windowEnd: LocalDate.fromDateUTC(windowEnd).toISOString(),
+				weekStart: LocalDate.fromDateUTC(weekStart).toISOString(),
+				weekEnd: LocalDate.fromDateUTC(weekEnd).toISOString(),
 			});
 
 			// Search for issues in the extended sliding window, excluding the current week
@@ -226,7 +226,7 @@ export class WeeklyWorklogSummaryUseCase {
 	}
 
 	private formatDateForJql(date: Date): string {
-		return date.toISOString().split('T')[0]!; // YYYY-MM-DD format
+		return LocalDate.fromDateUTC(date).formatForJql();
 	}
 
 	private async fetchSlidingWindowIssues(
@@ -234,8 +234,8 @@ export class WeeklyWorklogSummaryUseCase {
 		endDate: Date,
 	): Promise<{issues: JiraIssue[]}> {
 		const dateRange = {
-			from: startDate.toISOString().split('T')[0],
-			to: endDate.toISOString().split('T')[0],
+			from: LocalDate.fromDateUTC(startDate).toISOString(),
+			to: LocalDate.fromDateUTC(endDate).toISOString(),
 		};
 
 		uiLogger.debug('Searching for sliding window issues', {dateRange});

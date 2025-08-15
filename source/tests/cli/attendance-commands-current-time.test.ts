@@ -4,6 +4,7 @@ import {join} from 'node:path';
 import {tmpdir} from 'node:os';
 import process from 'node:process';
 import test, {type TestFn} from 'ava';
+import {LocalDate} from '../../domain/LocalDate.js';
 import {
 	executeCheckIn,
 	executeCheckOut,
@@ -167,7 +168,7 @@ testWithContext('explicit time overrides current time', async t => {
 
 testWithContext('status shows attendance with current times', async t => {
 	const configPath = 'source/tests/fixtures/test-config-attendance.json';
-	const testDate = new Date().toISOString().split('T')[0]!; // Today
+	const testDate = LocalDate.today().toISOString(); // Today
 
 	// Check in and out with current times
 	await executeCheckIn({date: testDate}, configPath, t.context.testCsvPath);

@@ -1,5 +1,6 @@
 import test from 'ava';
 import {AttendanceCSVStorage} from '../../attendance/AttendanceCSVStorage.js';
+import {LocalDate} from '../../domain/LocalDate.js';
 import {TestPatterns, CSVHelpers, TestData} from '../utils/test-helpers.js';
 
 test('should handle corrupted CSV file - invalid headers', async t => {
@@ -87,7 +88,7 @@ test('should handle very large CSV file', async t => {
 		for (let i = 0; i < 50; i++) {
 			const date = new Date('2025-01-01');
 			date.setDate(date.getDate() + i);
-			const dateString = date.toISOString().split('T')[0]!;
+			const dateString = LocalDate.fromDate(date).toISOString();
 
 			attendances.push(
 				TestData.createAttendance({

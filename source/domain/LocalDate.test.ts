@@ -172,3 +172,29 @@ test('immutability: getWeekStart does not modify original instance', t => {
 	t.is(weekStart.toISOString(), expectedWeekBoundaries.jan16Week.start);
 	t.false(original.equals(weekStart));
 });
+
+test('formatForJql returns date in YYYY-MM-DD format for JQL queries', t => {
+	// EXPLICIT TEST DATA
+	const expectedJqlFormat = '2024-01-15';
+
+	// OPERATIONS
+	const date = LocalDate.fromString(testDates.mondayJan15);
+	const jqlFormat = date.formatForJql();
+
+	// SPECIFIC VALUE COMPARISONS
+	t.is(jqlFormat, expectedJqlFormat);
+	t.is(jqlFormat, date.toISOString()); // Should be same as toISOString
+});
+
+test('fromDateUTC extracts UTC date from Date with time', t => {
+	// EXPLICIT TEST DATA
+	const inputDate = new Date('2024-01-15T23:59:59.999Z');
+	const expectedDateString = '2024-01-15';
+
+	// OPERATIONS
+	const localDate = LocalDate.fromDateUTC(inputDate);
+
+	// SPECIFIC VALUE COMPARISONS
+	t.is(localDate.toISOString(), expectedDateString);
+	t.is(localDate.formatForJql(), expectedDateString);
+});
