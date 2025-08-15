@@ -2,6 +2,7 @@ import {AttendanceManager} from '../attendance/AttendanceManager.js';
 import type {JiraConfig} from '../jira-client.js';
 import {loadJiraConfig} from '../utils/config-loader.js';
 import {LocalDate} from '../domain/LocalDate.js';
+import {HolidayImportService} from '../services/HolidayImportService.js';
 
 export type AttendanceCommandResult = {
 	success: boolean;
@@ -20,6 +21,12 @@ export type CheckOutParameters = {
 
 export type StatusParameters = {
 	date?: string;
+};
+
+export type ImportHolidaysParameters = {
+	year: number;
+	configPath?: string;
+	csvPath?: string;
 };
 
 function getAttendanceManager(
@@ -153,6 +160,49 @@ export async function executeStatus(
 		return {
 			success: true,
 			message: `${dateLabel}: ${String(statusMessage)}`,
+		};
+	} catch (error: unknown) {
+		return {
+			success: false,
+			message:
+				error instanceof Error ? error.message : 'Unknown error occurred',
+		};
+	}
+}
+
+export async function executeImportHolidays(
+	parameters: ImportHolidaysParameters,
+): Promise<AttendanceCommandResult> {
+	try {
+		const config: JiraConfig = loadJiraConfig(parameters.configPath);
+
+		if (!config.attendance?.enabled) {
+			return {
+				success: false,
+				message:
+					'Attendance tracking is not enabled. Please configure it in your jiracle.json',
+			};
+		}
+
+		if (!config.attendance.holidays?.land) {
+			return {
+				success: false,
+				message:
+					'Holiday land configuration is missing. Please add attendance.holidays.land to your config.',
+			};
+		}
+
+		const manager = new AttendanceManager(
+			config.attendance,
+			parameters.csvPath,
+		);
+		const holidayService = new HolidayImportService(manager, config.attendance);
+
+		const importedCount = await holidayService.importHolidays(parameters.year);
+
+		return {
+			success: true,
+			message: `Successfully imported ${importedCount} holidays for ${parameters.year} (${config.attendance.holidays.land})`,
 		};
 	} catch (error: unknown) {
 		return {

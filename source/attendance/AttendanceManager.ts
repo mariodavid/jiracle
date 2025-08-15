@@ -120,6 +120,13 @@ export class AttendanceManager {
 		return attendance;
 	}
 
+	async hasAttendanceForDate(date: LocalDate | string): Promise<boolean> {
+		const localDate =
+			date instanceof LocalDate ? date : LocalDate.fromString(date);
+		const attendance = await this.storage.getByDate(localDate);
+		return attendance !== undefined;
+	}
+
 	async getWeeklyAttendance(startDate?: Date): Promise<WeeklyAttendance> {
 		const baseDate = startDate ?? new Date();
 		const weekDates = AttendanceCalculations.getWeekDates(baseDate);

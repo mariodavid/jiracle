@@ -46,11 +46,14 @@ test('loadJiraConfig - loads valid config from custom path', t => {
 test('loadJiraConfig - loads config from default path when no path provided', t => {
 	const defaultConfigPath = join(homedir(), '.config', 'jiracle.json');
 
-	// Skip test if default config doesn't exist
+	// Skip test if default config doesn't exist or is invalid
 	try {
-		readFileSync(defaultConfigPath, 'utf8');
+		const configContent = readFileSync(defaultConfigPath, 'utf8');
+		JSON.parse(configContent); // Validate JSON
 	} catch {
-		t.pass('Default config file does not exist, skipping test');
+		t.pass(
+			'Default config file does not exist or contains invalid JSON, skipping test',
+		);
 		return;
 	}
 

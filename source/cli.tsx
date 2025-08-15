@@ -14,9 +14,11 @@ import {
 	executeCheckIn,
 	executeCheckOut,
 	executeStatus,
+	executeImportHolidays,
 	type CheckInParameters,
 	type CheckOutParameters,
 	type StatusParameters,
+	type ImportHolidaysParameters,
 } from './cli/attendance-commands.js';
 import {executeImport, type ImportParameters} from './cli/import-commands.js';
 
@@ -29,12 +31,14 @@ const cli = meow(
 	  $ jiracle checkin [--date <YYYY-MM-DD>] [--time <HH:MM>]
 	  $ jiracle checkout [--date <YYYY-MM-DD>] [--time <HH:MM>]
 	  $ jiracle status [--date <YYYY-MM-DD>]
+	  $ jiracle import-holidays --year <YYYY>
 	Commands
 	  worklog add    Add a worklog entry to an issue
 	  import         Import timesheet data from CSV file
 	  checkin        Check in for attendance tracking
 	  checkout       Check out for attendance tracking  
 	  status         Show attendance status
+	  import-holidays Import public holidays for a year
 
 	Options for worklog add
 	  --issue      Issue key (e.g., DEF-2398)
@@ -47,6 +51,9 @@ const cli = meow(
 	  --date       Date in YYYY-MM-DD format (defaults to today)
 	  --time       Time in HH:MM format (uses config defaults if not provided)
 
+	Options for import-holidays
+	  --year       Year to import holidays for (e.g., 2025)
+
 	Examples
 	  $ jiracle
 	  $ jiracle worklog add --issue DEF-2398 --date 2025-08-01 --time 5h --comment "Did some work"
@@ -55,6 +62,7 @@ const cli = meow(
 	  $ jiracle checkin --time 08:30
 	  $ jiracle checkout
 	  $ jiracle checkout --date 2025-07-11 --time 17:30
+	  $ jiracle import-holidays --year 2025
 	  $ jiracle status
 	  $ jiracle status --date 2025-07-11
 `,
@@ -326,6 +334,50 @@ async function handleStatus() {
 	}
 }
 
+async function handleImportHolidays() {
+	const {year} = cli.flags;
+
+	if (!year || (typeof year !== 'string' && typeof year !== 'number')) {
+		console.error(
+			'Error: --year flag is required and must be a valid year (e.g., 2025)',
+		);
+		process.exit(1);
+	}
+
+	const yearNumber =
+		typeof year === 'number' ? year : Number.parseInt(year, 10);
+	if (Number.isNaN(yearNumber) || yearNumber < 1900 || yearNumber > 2100) {
+		console.error('Error: Year must be a valid number between 1900 and 2100');
+		process.exit(1);
+	}
+
+	const parameters: ImportHolidaysParameters = {
+		year: yearNumber,
+		configPath:
+			typeof cli.flags['config'] === 'string' ? cli.flags['config'] : undefined,
+		csvPath:
+			typeof cli.flags['csvPath'] === 'string'
+				? cli.flags['csvPath']
+				: undefined,
+	};
+
+	try {
+		const result = await executeImportHolidays(parameters);
+		if (result.success) {
+			console.log(result.message);
+			process.exit(0);
+		} else {
+			console.error(`Error: ${result.message}`);
+			process.exit(1);
+		}
+	} catch (error: unknown) {
+		console.error(
+			`Error: ${error instanceof Error ? error.message : String(error)}`,
+		);
+		process.exit(1);
+	}
+}
+
 async function handleImport() {
 	const {skipExisting, updateExisting} = cli.flags;
 
@@ -384,6 +436,11 @@ if (cli.input.length > 0) {
 
 			case 'status': {
 				await handleStatus();
+				break;
+			}
+
+			case 'import-holidays': {
+				await handleImportHolidays();
 				break;
 			}
 
