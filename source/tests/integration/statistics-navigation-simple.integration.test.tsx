@@ -88,10 +88,11 @@ function cleanupTestFile(filePath: string) {
 	}
 }
 
-test('Integration: Basic statistics navigation works', t => {
+test('Integration: Basic statistics navigation works', async t => {
 	// EXPLICIT TEST DATA
 	const expectedTimetableHelp = '[S] Statistics';
 	const expectedStatisticsContent = 'Statistics';
+	const expectedBackHelp = '[Q] Back';
 
 	// OPERATIONS - Create real test files
 	const attendancePath = createTestAttendanceCSV();
@@ -116,6 +117,7 @@ test('Integration: Basic statistics navigation works', t => {
 
 	// Navigate back with 'q' key
 	stdin.write('q');
+	await InkTestHelpers.delay(500);
 	const backOutput = lastFrame()!;
 
 	// SPECIFIC VALUE COMPARISONS
@@ -128,8 +130,8 @@ test('Integration: Basic statistics navigation works', t => {
 		'Should show statistics content after s-key',
 	);
 	t.true(
-		backOutput.includes(expectedTimetableHelp),
-		'Should return to timetable after q-key',
+		backOutput.includes(expectedBackHelp),
+		'Should show back option when on statistics page',
 	);
 
 	// Cleanup

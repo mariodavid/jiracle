@@ -20,6 +20,9 @@ export type AttendanceConfig = {
 	defaultCheckOut: string;
 	defaultBreakMinutes: number;
 	csvPath?: string;
+	holidays?: {
+		land: string; // German state code (e.g., 'sh', 'by', 'nw')
+	};
 };
 
 export type AttendanceStatus = {
