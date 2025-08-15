@@ -203,9 +203,8 @@ export function WeeklyTimetableView({
 	const handleOpenConfig = useCallback(async () => {
 		try {
 			const result = await openConfigInEditor(config);
-			if (result.success) {
-				showNotification(result.message, 'success');
-			} else {
+			// Only show notification on error, success is silent
+			if (!result.success) {
 				showNotification(result.message, 'error');
 			}
 		} catch (error: unknown) {
