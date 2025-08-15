@@ -337,14 +337,15 @@ async function handleStatus() {
 async function handleImportHolidays() {
 	const {year} = cli.flags;
 
-	if (!year || typeof year !== 'string') {
+	if (!year || (typeof year !== 'string' && typeof year !== 'number')) {
 		console.error(
 			'Error: --year flag is required and must be a valid year (e.g., 2025)',
 		);
 		process.exit(1);
 	}
 
-	const yearNumber = Number.parseInt(year, 10);
+	const yearNumber =
+		typeof year === 'number' ? year : Number.parseInt(year, 10);
 	if (Number.isNaN(yearNumber) || yearNumber < 1900 || yearNumber > 2100) {
 		console.error('Error: Year must be a valid number between 1900 and 2100');
 		process.exit(1);
