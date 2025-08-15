@@ -50,7 +50,7 @@ function detectEditor(): string | undefined {
 }
 
 /**
- * Open the configuration file in the configured editor
+ * Open the configuration file using the configured command
  */
 export async function openConfigInEditor(
 	config?: JiraConfig,
@@ -65,46 +65,57 @@ export async function openConfigInEditor(
 		};
 	}
 
-	// Determine which editor to use
-	const editor = config?.editor ?? detectEditor();
+	// Use configured command or build default editor command
+	let command: string;
+	if (config?.openConfigCommand) {
+		// Replace placeholder with actual config path if present
+		command = config.openConfigCommand.replace(
+			'~/.config/jiracle.json',
+			configPath,
+		);
+	} else {
+		// Fallback to default editor behavior
+		const editor = detectEditor();
+		if (!editor) {
+			return {
+				success: false,
+				message:
+					'No command configured. Please set the "openConfigCommand" field in your config or set the EDITOR environment variable.',
+			};
+		}
 
-	if (!editor) {
-		return {
-			success: false,
-			message:
-				'No editor configured. Please set the "editor" field in your config or set the EDITOR environment variable.',
-		};
+		command = `${editor} "${configPath}"`;
 	}
 
 	return new Promise(resolve => {
-		// Parse editor command in case it has arguments
-		const editorParts = editor.split(' ');
-		const editorCommand = editorParts[0]!;
-		const editorArgs = [...editorParts.slice(1), configPath];
+		// Parse command in case it has arguments
+		const commandParts = command.split(' ');
+		const executable = commandParts[0]!;
+		const args = commandParts.slice(1);
 
-		// Spawn the editor process
-		const editorProcess = spawn(editorCommand, editorArgs, {
+		// Spawn the process
+		const childProcess = spawn(executable, args, {
 			stdio: 'inherit',
 			shell: process.platform === 'win32',
 		});
 
-		editorProcess.on('error', error => {
+		childProcess.on('error', error => {
 			resolve({
 				success: false,
-				message: `Failed to open editor: ${error.message}. Make sure "${editorCommand}" is installed and in your PATH.`,
+				message: `Failed to execute command: ${error.message}. Make sure "${executable}" is installed and in your PATH.`,
 			});
 		});
 
-		editorProcess.on('exit', code => {
+		childProcess.on('exit', code => {
 			if (code === 0) {
 				resolve({
 					success: true,
-					message: `Configuration file opened in ${editorCommand}`,
+					message: `Configuration command executed successfully`,
 				});
 			} else {
 				resolve({
 					success: false,
-					message: `Editor exited with code ${code ?? 'unknown'}`,
+					message: `Command exited with code ${code ?? 'unknown'}`,
 				});
 			}
 		});

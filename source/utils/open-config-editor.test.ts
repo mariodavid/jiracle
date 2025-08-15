@@ -11,10 +11,10 @@ const testConfig: JiraConfig = {
 	jiraUrl: 'https://test.atlassian.net',
 	username: 'test@example.com',
 	apiToken: 'test-token',
-	editor: 'echo', // Use 'echo' command for testing (available on all platforms)
+	openConfigCommand: 'echo ~/.config/jiracle.json', // Use 'echo' command for testing (available on all platforms)
 };
 
-const testConfigWithoutEditor: JiraConfig = {
+const testConfigWithoutCommand: JiraConfig = {
 	jiraUrl: 'https://test.atlassian.net',
 	username: 'test@example.com',
 	apiToken: 'test-token',
@@ -74,7 +74,7 @@ test('openConfigInEditor returns error when config file does not exist', async t
 	t.true(result.message.includes(nonExistentPath));
 });
 
-test('openConfigInEditor returns error when no editor is configured or detected', async t => {
+test('openConfigInEditor returns error when no command is configured or detected', async t => {
 	// EXPLICIT TEST DATA
 	const configPath = getConfigPath();
 
@@ -98,7 +98,7 @@ test('openConfigInEditor returns error when no editor is configured or detected'
 		configurable: true,
 	});
 
-	const result = await openConfigInEditor(testConfigWithoutEditor);
+	const result = await openConfigInEditor(testConfigWithoutCommand);
 
 	// Cleanup
 	if (originalEditor) {
@@ -116,10 +116,10 @@ test('openConfigInEditor returns error when no editor is configured or detected'
 
 	// SPECIFIC VALUE COMPARISONS
 	t.false(result.success);
-	t.true(result.message.includes('No editor configured'));
+	t.true(result.message.includes('No command configured'));
 });
 
-test('openConfigInEditor uses configured editor from config', async t => {
+test('openConfigInEditor uses configured command from config', async t => {
 	// EXPLICIT TEST DATA
 	const configPath = getConfigPath();
 
@@ -134,14 +134,16 @@ test('openConfigInEditor uses configured editor from config', async t => {
 
 	// SPECIFIC VALUE COMPARISONS
 	t.true(result.success);
-	t.true(result.message.includes('Configuration file opened in echo'));
+	t.true(
+		result.message.includes('Configuration command executed successfully'),
+	);
 });
 
-test('openConfigInEditor handles editor command with arguments', async t => {
+test('openConfigInEditor handles command with arguments', async t => {
 	// EXPLICIT TEST DATA
-	const configWithEditorArgs: JiraConfig = {
+	const configWithCommandArgs: JiraConfig = {
 		...testConfig,
-		editor: 'echo --version', // Command with arguments
+		openConfigCommand: 'echo --version ~/.config/jiracle.json', // Command with arguments
 	};
 	const configPath = getConfigPath();
 
@@ -152,11 +154,13 @@ test('openConfigInEditor handles editor command with arguments', async t => {
 		return;
 	}
 
-	const result = await openConfigInEditor(configWithEditorArgs);
+	const result = await openConfigInEditor(configWithCommandArgs);
 
 	// SPECIFIC VALUE COMPARISONS
 	t.true(result.success);
-	t.true(result.message.includes('Configuration file opened in echo'));
+	t.true(
+		result.message.includes('Configuration command executed successfully'),
+	);
 });
 
 test('openConfigInEditor falls back to environment variables', async t => {
@@ -174,12 +178,14 @@ test('openConfigInEditor falls back to environment variables', async t => {
 	const originalEditor = process.env['EDITOR'];
 	process.env['EDITOR'] = 'echo';
 
-	const result = await openConfigInEditor(testConfigWithoutEditor);
+	const result = await openConfigInEditor(testConfigWithoutCommand);
 
 	// Cleanup
 	process.env['EDITOR'] = originalEditor ?? undefined;
 
 	// SPECIFIC VALUE COMPARISONS
 	t.true(result.success);
-	t.true(result.message.includes('Configuration file opened in echo'));
+	t.true(
+		result.message.includes('Configuration command executed successfully'),
+	);
 });
