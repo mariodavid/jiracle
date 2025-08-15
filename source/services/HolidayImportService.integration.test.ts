@@ -155,10 +155,10 @@ test('HolidayImportService integration - imports all holidays correctly with rea
 			'0',
 			`Entry for ${date ?? 'unknown'} should have 0 total hours`,
 		);
-		t.is(
-			notes,
-			'Public Holiday',
-			`Entry for ${date ?? 'unknown'} should have correct notes`,
+		t.regex(
+			notes ?? '',
+			/^Public Holiday:/,
+			`Entry for ${date ?? 'unknown'} should have holiday note format`,
 		);
 	}
 

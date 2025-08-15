@@ -120,8 +120,9 @@ export class AttendanceManager {
 		return attendance;
 	}
 
-	async hasAttendanceForDate(date: string): Promise<boolean> {
-		const localDate = LocalDate.fromString(date);
+	async hasAttendanceForDate(date: LocalDate | string): Promise<boolean> {
+		const localDate =
+			date instanceof LocalDate ? date : LocalDate.fromString(date);
 		const attendance = await this.storage.getByDate(localDate);
 		return attendance !== undefined;
 	}

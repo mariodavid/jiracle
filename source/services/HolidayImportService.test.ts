@@ -1,5 +1,6 @@
 import test from 'ava';
 import type {Attendance, AttendanceConfig} from '../attendance/types.js';
+import {LocalDate} from '../domain/LocalDate.js';
 import {HolidayImportService} from './HolidayImportService.js';
 
 // Test Data
@@ -49,8 +50,9 @@ class MockAttendanceManager {
 		return attendance;
 	}
 
-	async hasAttendanceForDate(date: string): Promise<boolean> {
-		return this.existingDates.has(date);
+	async hasAttendanceForDate(date: LocalDate | string): Promise<boolean> {
+		const dateString = date instanceof LocalDate ? date.toISOString() : date;
+		return this.existingDates.has(dateString);
 	}
 
 	setExistingDate(date: string): void {
@@ -81,123 +83,178 @@ test.afterEach(() => {
 
 // Operations and Tests
 test('HolidayImportService - isConfigured returns true when holidays config exists', t => {
-	const mockManager = new MockAttendanceManager();
-	const service = new HolidayImportService(mockManager, testConfig);
+	// EXPLICIT TEST DATA
+	const configWithHolidays = testConfig;
+	const expectedResult = true;
 
+	// OPERATIONS
+	const mockManager = new MockAttendanceManager();
+	const service = new HolidayImportService(mockManager, configWithHolidays);
 	const result = service.isConfigured();
 
-	t.true(result);
+	// SPECIFIC VALUE COMPARISONS
+	t.is(
+		result,
+		expectedResult,
+		'Should return true when holidays config exists',
+	);
 });
 
 test('HolidayImportService - isConfigured returns false when holidays config missing', t => {
-	const mockManager = new MockAttendanceManager();
-	const service = new HolidayImportService(mockManager, testConfigNoHolidays);
+	// EXPLICIT TEST DATA
+	const configWithoutHolidays = testConfigNoHolidays;
+	const expectedResult = false;
 
+	// OPERATIONS
+	const mockManager = new MockAttendanceManager();
+	const service = new HolidayImportService(mockManager, configWithoutHolidays);
 	const result = service.isConfigured();
 
-	t.false(result);
+	// SPECIFIC VALUE COMPARISONS
+	t.is(
+		result,
+		expectedResult,
+		'Should return false when holidays config missing',
+	);
 });
 
 test('HolidayImportService - getConfiguredLand returns correct land code', t => {
-	const mockManager = new MockAttendanceManager();
-	const service = new HolidayImportService(mockManager, testConfig);
+	// EXPLICIT TEST DATA
+	const configWithLand = testConfig; // Contains land: 'sh'
+	const expectedLandCode = 'sh';
 
+	// OPERATIONS
+	const mockManager = new MockAttendanceManager();
+	const service = new HolidayImportService(mockManager, configWithLand);
 	const result = service.getConfiguredLand();
 
-	t.is(result, 'sh');
+	// SPECIFIC VALUE COMPARISONS
+	t.is(result, expectedLandCode, 'Should return configured land code');
 });
 
 test('HolidayImportService - getConfiguredLand returns undefined when not configured', t => {
-	const mockManager = new MockAttendanceManager();
-	const service = new HolidayImportService(mockManager, testConfigNoHolidays);
+	// EXPLICIT TEST DATA
+	const configWithoutHolidays = testConfigNoHolidays;
+	const expectedResult = undefined;
 
+	// OPERATIONS
+	const mockManager = new MockAttendanceManager();
+	const service = new HolidayImportService(mockManager, configWithoutHolidays);
 	const result = service.getConfiguredLand();
 
-	t.is(result, undefined);
+	// SPECIFIC VALUE COMPARISONS
+	t.is(result, expectedResult, 'Should return undefined when not configured');
 });
 
 test('HolidayImportService - importHolidays throws when land not configured', async t => {
-	const mockManager = new MockAttendanceManager();
-	const service = new HolidayImportService(mockManager, testConfigNoHolidays);
+	// EXPLICIT TEST DATA
+	const configWithoutHolidays = testConfigNoHolidays;
+	const testYear = 2025;
+	const expectedErrorMessage =
+		'Holiday land configuration is missing in attendance config';
 
-	await t.throwsAsync(async () => service.importHolidays(2025), {
-		message: 'Holiday land configuration is missing in attendance config',
+	// OPERATIONS
+	const mockManager = new MockAttendanceManager();
+	const service = new HolidayImportService(mockManager, configWithoutHolidays);
+
+	// SPECIFIC VALUE COMPARISONS
+	await t.throwsAsync(async () => service.importHolidays(testYear), {
+		message: expectedErrorMessage,
 	});
 });
 
 test('HolidayImportService - importHolidays successfully imports holidays', async t => {
-	const mockManager = new MockAttendanceManager();
-	const service = new HolidayImportService(mockManager, testConfig);
-
-	const result = await service.importHolidays(2025);
-
-	t.is(result, 3);
-	t.is(mockManager.updatedAttendances.length, 3);
-
+	// EXPLICIT TEST DATA
+	const testYear = 2025;
+	const expectedImportCount = 3;
 	const expectedAttendances = [
 		{
 			date: '2025-01-01',
 			type: 'HOLIDAY',
 			breakMinutes: 0,
-			notes: 'Public Holiday',
+			totalHours: 0,
+			notes: 'Public Holiday: Neujahrstag',
 		},
 		{
 			date: '2025-04-18',
 			type: 'HOLIDAY',
 			breakMinutes: 0,
-			notes: 'Public Holiday',
+			totalHours: 0,
+			notes: 'Public Holiday: Karfreitag',
 		},
 		{
 			date: '2025-04-21',
 			type: 'HOLIDAY',
 			breakMinutes: 0,
-			notes: 'Public Holiday',
+			totalHours: 0,
+			notes: 'Public Holiday: Ostermontag',
 		},
 	];
 
-	for (const [index, expected] of expectedAttendances.entries()) {
-		const actual = mockManager.updatedAttendances[index];
-		t.truthy(actual, `Attendance at index ${index} should exist`);
-		if (actual) {
-			t.is(actual.date, expected.date);
-			t.is(actual.type, expected.type as 'HOLIDAY');
-			t.is(actual.breakMinutes, expected.breakMinutes);
-			t.is(actual.notes, expected.notes);
-		}
-	}
+	// OPERATIONS
+	const mockManager = new MockAttendanceManager();
+	const service = new HolidayImportService(mockManager, testConfig);
+	const result = await service.importHolidays(testYear);
+
+	// SPECIFIC VALUE COMPARISONS
+	t.is(result, expectedImportCount, 'Should return correct import count');
+	t.deepEqual(
+		mockManager.updatedAttendances,
+		expectedAttendances,
+		'Should import all holidays with correct data',
+	);
 });
 
 test('HolidayImportService - importHolidays handles API errors', async t => {
-	globalThis.fetch = async () =>
-		({
-			ok: false,
-			status: 404,
-			statusText: 'Not Found',
-		} as Response);
+	// EXPLICIT TEST DATA
+	const testYear = 2025;
+	const expectedErrorPattern = /Holiday API request failed: 404 Not Found/;
+	const mockApiResponse = {
+		ok: false,
+		status: 404,
+		statusText: 'Not Found',
+	} as Response;
 
+	// OPERATIONS
+	globalThis.fetch = async () => mockApiResponse;
 	const mockManager = new MockAttendanceManager();
 	const service = new HolidayImportService(mockManager, testConfig);
 
-	await t.throwsAsync(async () => service.importHolidays(2025), {
-		message: /Holiday API request failed: 404 Not Found/,
+	// SPECIFIC VALUE COMPARISONS
+	await t.throwsAsync(async () => service.importHolidays(testYear), {
+		message: expectedErrorPattern,
 	});
 });
 
 test('HolidayImportService - importHolidays handles network errors', async t => {
+	// EXPLICIT TEST DATA
+	const testYear = 2025;
+	const networkError = new Error('Network error');
+	const expectedErrorPattern = /Failed to import holidays: Network error/;
+
+	// OPERATIONS
 	globalThis.fetch = async () => {
-		throw new Error('Network error');
+		throw networkError;
 	};
 
 	const mockManager = new MockAttendanceManager();
 	const service = new HolidayImportService(mockManager, testConfig);
 
-	await t.throwsAsync(async () => service.importHolidays(2025), {
-		message: /Failed to import holidays: Network error/,
+	// SPECIFIC VALUE COMPARISONS
+	await t.throwsAsync(async () => service.importHolidays(testYear), {
+		message: expectedErrorPattern,
 	});
 });
 
 test('HolidayImportService - importHolidays throws when dates already exist', async t => {
-	// Setup fetch mock for this test
+	// EXPLICIT TEST DATA
+	const testYear = 2025;
+	const existingDate = '2025-01-01';
+	const expectedErrorPattern =
+		/Cannot import holidays: The following dates already have attendance entries: 2025-01-01/;
+	const expectedImportCount = 0;
+
+	// OPERATIONS
 	globalThis.fetch = async (input: RequestInfo | URL) => {
 		const url = typeof input === 'string' ? input : (input as URL).href;
 		if (url.includes('feiertage-api.de')) {
@@ -211,21 +268,29 @@ test('HolidayImportService - importHolidays throws when dates already exist', as
 	};
 
 	const mockManager = new MockAttendanceManager();
-	// Set existing attendance for one of the holiday dates
-	mockManager.setExistingDate('2025-01-01');
+	mockManager.setExistingDate(existingDate);
 	const service = new HolidayImportService(mockManager, testConfig);
 
-	await t.throwsAsync(async () => service.importHolidays(2025), {
-		message:
-			/Cannot import holidays: The following dates already have attendance entries: 2025-01-01/,
+	// SPECIFIC VALUE COMPARISONS
+	await t.throwsAsync(async () => service.importHolidays(testYear), {
+		message: expectedErrorPattern,
 	});
-
-	// Should not have imported any holidays
-	t.is(mockManager.updatedAttendances.length, 0);
+	t.is(
+		mockManager.updatedAttendances.length,
+		expectedImportCount,
+		'Should not import any holidays when conflicts exist',
+	);
 });
 
 test('HolidayImportService - importHolidays throws when multiple dates already exist', async t => {
-	// Setup fetch mock for this test
+	// EXPLICIT TEST DATA
+	const testYear = 2025;
+	const existingDates = ['2025-01-01', '2025-04-18'];
+	const expectedErrorPattern =
+		/Cannot import holidays: The following dates already have attendance entries: 2025-01-01, 2025-04-18/;
+	const expectedImportCount = 0;
+
+	// OPERATIONS
 	globalThis.fetch = async (input: RequestInfo | URL) => {
 		const url = typeof input === 'string' ? input : (input as URL).href;
 		if (url.includes('feiertage-api.de')) {
@@ -239,16 +304,19 @@ test('HolidayImportService - importHolidays throws when multiple dates already e
 	};
 
 	const mockManager = new MockAttendanceManager();
-	// Set existing attendance for multiple holiday dates
-	mockManager.setExistingDate('2025-01-01');
-	mockManager.setExistingDate('2025-04-18');
+	for (const date of existingDates) {
+		mockManager.setExistingDate(date);
+	}
+
 	const service = new HolidayImportService(mockManager, testConfig);
 
-	await t.throwsAsync(async () => service.importHolidays(2025), {
-		message:
-			/Cannot import holidays: The following dates already have attendance entries: 2025-01-01, 2025-04-18/,
+	// SPECIFIC VALUE COMPARISONS
+	await t.throwsAsync(async () => service.importHolidays(testYear), {
+		message: expectedErrorPattern,
 	});
-
-	// Should not have imported any holidays
-	t.is(mockManager.updatedAttendances.length, 0);
+	t.is(
+		mockManager.updatedAttendances.length,
+		expectedImportCount,
+		'Should not import any holidays when multiple conflicts exist',
+	);
 });

@@ -132,6 +132,18 @@
 					"skipBlankLines": true
 				}
 			],
+			"prettier/prettier": [
+				"error",
+				{
+					"endOfLine": "auto"
+				},
+				{
+					"usePrettierrc": true,
+					"fileInfoOptions": {
+						"withNodeModules": true
+					}
+				}
+			],
 			"unicorn/expiring-todo-comments": "off",
 			"unicorn/filename-case": "off",
 			"@typescript-eslint/naming-convention": "off",

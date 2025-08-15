@@ -1,4 +1,7 @@
 import type {Attendance, AttendanceConfig} from '../attendance/types.js';
+import type {LocalDate} from '../domain/LocalDate.js';
+import {Holiday as HolidayClass} from '../domain/Holiday.js';
+import {Year as YearClass} from '../domain/Year.js';
 
 type HolidayApiResponse = Record<
 	string,
@@ -10,7 +13,7 @@ type HolidayApiResponse = Record<
 
 type AttendanceUpdater = {
 	updateAttendance(attendance: Attendance): Promise<Attendance>;
-	hasAttendanceForDate(date: string): Promise<boolean>;
+	hasAttendanceForDate(date: LocalDate | string): Promise<boolean>;
 };
 
 export class HolidayImportService {
@@ -24,7 +27,8 @@ export class HolidayImportService {
 	 * @param year - Year to import holidays for (e.g., 2025)
 	 * @returns Number of holidays imported
 	 */
-	async importHolidays(year: number): Promise<number> {
+	async importHolidays(year: YearClass | number): Promise<number> {
+		const yearObject = year instanceof YearClass ? year : new YearClass(year);
 		if (!this.attendanceConfig.holidays?.land) {
 			throw new Error(
 				'Holiday land configuration is missing in attendance config',
@@ -32,7 +36,7 @@ export class HolidayImportService {
 		}
 
 		const {land} = this.attendanceConfig.holidays;
-		const url = `https://feiertage-api.de/api/?jahr=${year}&nur_land=${land}`;
+		const url = `https://feiertage-api.de/api/?jahr=${yearObject.getValue()}&nur_land=${land}`;
 
 		try {
 			const response = await fetch(url);
@@ -43,39 +47,38 @@ export class HolidayImportService {
 			}
 
 			const holidaysData = (await response.json()) as HolidayApiResponse;
-			const holidayDates = Object.values(holidaysData).map(
-				holiday => holiday.datum,
+			const holidays = Object.entries(holidaysData).map(([name, data]) =>
+				HolidayClass.fromApiData(name, data.datum, data.hinweis),
 			);
 
 			// Check for existing attendance entries
-			const conflictingDates: string[] = [];
+			const conflictingDates: LocalDate[] = [];
 			const existenceChecks = await Promise.all(
-				holidayDates.map(async date => ({
-					date,
-					hasExisting: await this.attendanceManager.hasAttendanceForDate(date),
+				holidays.map(async holiday => ({
+					holiday,
+					hasExisting: await this.attendanceManager.hasAttendanceForDate(
+						holiday.getDate(),
+					),
 				})),
 			);
 
-			for (const {date, hasExisting} of existenceChecks) {
+			for (const {holiday, hasExisting} of existenceChecks) {
 				if (hasExisting) {
-					conflictingDates.push(date);
+					conflictingDates.push(holiday.getDate());
 				}
 			}
 
 			if (conflictingDates.length > 0) {
 				throw new TypeError(
-					`Cannot import holidays: The following dates already have attendance entries: ${conflictingDates.join(
-						', ',
-					)}`,
+					`Cannot import holidays: The following dates already have attendance entries: ${conflictingDates
+						.map(date => date.toISOString())
+						.join(', ')}`,
 				);
 			}
 
-			const holidayAttendances: Attendance[] = holidayDates.map(date => ({
-				date,
-				type: 'HOLIDAY',
-				breakMinutes: 0,
-				notes: 'Public Holiday',
-			}));
+			const holidayAttendances: Attendance[] = holidays.map(holiday =>
+				holiday.toAttendance(),
+			);
 
 			// Import holidays serially to avoid race conditions in CSV storage
 			await this.importHolidaysSequentially(holidayAttendances);
