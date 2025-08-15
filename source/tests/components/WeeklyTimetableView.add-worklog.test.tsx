@@ -54,7 +54,9 @@ test('WeeklyTimetableView shows comprehensive keyboard shortcuts', t => {
 	);
 	t.true(output.includes('[D] Delete Worklogs [I] Check In [O] Check Out'));
 	t.true(
-		output.includes('[T] Today [R] Refresh [S] Statistics [E] Export [Q] Quit'),
+		output.includes(
+			'[T] Today [R] Refresh [S] Statistics [E] Export [C] Config [Q] Quit',
+		),
 	);
 });
 

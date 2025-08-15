@@ -62,6 +62,7 @@ Press `C` in the main interface to instantly open your configuration file for ed
 ```
 
 **Examples:**
+
 - **VS Code**: `"code ~/.config/jiracle.json"`
 - **VS Code (wait for close)**: `"code --wait ~/.config/jiracle.json"`
 - **Vim**: `"vim ~/.config/jiracle.json"`
