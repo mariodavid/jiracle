@@ -27,6 +27,15 @@ export function AttendanceFooterRows({
 			return '-'; // Show dash when no data exists
 		}
 
+		// Handle vacation days - no working hours for vacation
+		if (
+			attendance.type === 'VACATION' ||
+			attendance.type === 'HOLIDAY' ||
+			attendance.type === 'SICK'
+		) {
+			return '-';
+		}
+
 		// Calculate working hours using Duration class
 		const calculateWorkingHours = (
 			checkIn: string,
