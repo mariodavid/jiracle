@@ -14,6 +14,14 @@ export class Duration {
 		const timeString = input.trim().toLowerCase();
 		if (!timeString) return 0;
 
+		// Handle HH:MM format (e.g. 4:30, 04:30) with optional "h" or "m" suffix
+		const colonMatch = /^(\d+):(\d+)[hm]?$/i.exec(timeString);
+		if (colonMatch) {
+			const hours = Number.parseFloat(colonMatch[1]!);
+			const minutes = Number.parseFloat(colonMatch[2]!);
+			return Math.round(hours * 60 + minutes);
+		}
+
 		// Handle English words (2 hours, 45 minutes, etc.)
 		const englishWordsMatch = /^(\d+(?:[.,]\d+)?)\s+(hours?|h)$/i.exec(
 			timeString,

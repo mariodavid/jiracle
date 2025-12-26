@@ -26,19 +26,20 @@ export class InputValidation {
 
 	private validateBasicCharacter(char: string): boolean {
 		const unitsPattern = this.allowedUnits.join('');
-		const unitRegex = new RegExp(`[\\d.,${unitsPattern}]`);
+		const unitRegex = new RegExp(`[\\d.,:${unitsPattern}]`);
 		return unitRegex.test(char);
 	}
 
 	private validateBasicFormat(newValue: string): boolean {
-		// Don't allow starting with dot or comma
-		if (/^[.,]/.test(newValue)) return false;
+		// Don't allow starting with dot, comma or colon
+		if (/^[.,:]/.test(newValue)) return false;
 
 		// Check for invalid patterns
 		if (newValue.includes('..')) return false; // Multiple dots
 		if (newValue.includes(',,')) return false; // Multiple commas
+		if (newValue.includes('::')) return false; // Multiple colons
 		if (newValue.includes('.,') || newValue.includes(',.')) return false; // Mixed separators
-		if (/(?:\d+[.,]){2}/.test(newValue)) return false; // Multiple decimal separators
+		if (/(?:\d+[.,:]){2}/.test(newValue)) return false; // Multiple decimal/time separators
 
 		// Don't allow units at the beginning
 		if (/^[hdm]/.test(newValue)) return false;

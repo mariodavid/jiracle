@@ -7,8 +7,9 @@ import {getCommentWithPrefill} from '../jira/utils.js';
 import {uiLogger} from '../utils/logger.js';
 import {LocalDate} from '../domain/LocalDate.js';
 import {Duration} from '../domain/Duration.js';
-import {IssueKey} from '../domain/IssueKey.js';
+import {type IssueKey} from '../domain/IssueKey.js';
 import DurationInput from './WorklogForm/DurationInput.js';
+import {IssueKeyInput} from './WorklogForm/IssueKeyInput.js';
 
 type InlineWorklogFormProps = {
 	issueKey?: IssueKey;
@@ -37,6 +38,8 @@ type InlineWorklogFormProps = {
 
 type FocusArea = 'issueKey' | 'date' | 'time' | 'comment' | 'submit' | 'cancel';
 
+const EMPTY_ARRAY: WorklogEntry[] = [];
+
 export function InlineWorklogForm({
 	issueKey,
 	date,
@@ -51,8 +54,9 @@ export function InlineWorklogForm({
 	isIssueKeyEditable = false,
 	isEditMode = false,
 	worklogId,
-	recentWorklogs = [],
+	recentWorklogs = EMPTY_ARRAY,
 }: InlineWorklogFormProps) {
+	// Determine default time based on configuration
 	// Determine default time based on configuration
 	const getDefaultTime = () => {
 		if (defaultTimeSpent) return defaultTimeSpent;
@@ -83,6 +87,8 @@ export function InlineWorklogForm({
 	};
 
 	const [currentIssueKey, setCurrentIssueKey] = useState(issueKey);
+	// State for the text input value to support controlled input and immediate parsing effects
+
 	const [currentDate, setCurrentDate] = useState(date);
 	const [dateInputValue, setDateInputValue] = useState(
 		date.toISOString(), // YYYY-MM-DD format
@@ -98,7 +104,27 @@ export function InlineWorklogForm({
 	});
 
 	// Update comment when recent worklogs arrive (for comment prefilling)
+	// Update comment when recent worklogs arrive (for comment prefilling)
+	// Update comment when recent worklogs arrive (for comment prefilling)
+	const previousDepsRef = useRef({
+		recentWorklogs,
+		isEditMode,
+		defaultComment,
+		config,
+		issueKey,
+		currentDate,
+	});
+
 	useEffect(() => {
+		previousDepsRef.current = {
+			recentWorklogs,
+			isEditMode,
+			defaultComment,
+			config,
+			issueKey,
+			currentDate,
+		};
+
 		// Only update if we're not in edit mode and have config
 		if (!isEditMode && recentWorklogs.length > 0 && config && issueKey) {
 			const newComment = getCommentWithPrefill(
@@ -112,7 +138,9 @@ export function InlineWorklogForm({
 				},
 			);
 
-			setComment(newComment);
+			if (newComment !== comment) {
+				setComment(newComment);
+			}
 		}
 	}, [
 		recentWorklogs,
@@ -121,6 +149,7 @@ export function InlineWorklogForm({
 		config,
 		issueKey,
 		currentDate,
+		comment, // Added comment to deps to allow check against current state, though strictly not needed if we trust the closure, but good for debug
 	]);
 	const [focusArea, setFocusArea] = useState<FocusArea>(
 		isIssueKeyEditable ? 'issueKey' : 'time',
@@ -462,24 +491,22 @@ export function InlineWorklogForm({
 				<Box marginTop={1} flexDirection="column">
 					<Text color="yellow">Issue Key:</Text>
 					<Box marginTop={1}>
-						<TextInput
-							defaultValue={currentIssueKey?.toString() ?? ''}
-							placeholder="e.g. DEF-123, AD-456..."
-							isDisabled={focusArea !== 'issueKey'}
-							onChange={value => {
-								try {
-									setCurrentIssueKey(IssueKey.fromString(value));
-								} catch {
-									// Invalid issue key, ignore for now
+						<IssueKeyInput
+							issueKey={currentIssueKey}
+							isActive={focusArea === 'issueKey'}
+							onChange={newKey => {
+								if (newKey) {
+									setCurrentIssueKey(previous => {
+										if (previous?.equals(newKey)) {
+											return previous;
+										}
+
+										return newKey;
+									});
 								}
 							}}
-							onSubmit={value => {
-								try {
-									setCurrentIssueKey(IssueKey.fromString(value));
-									setFocusArea('date');
-								} catch {
-									// Invalid issue key, stay in this field
-								}
+							onSubmit={() => {
+								setFocusArea('date');
 							}}
 						/>
 					</Box>

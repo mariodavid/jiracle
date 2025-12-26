@@ -130,8 +130,8 @@ export default function DurationInput({
 				}
 
 				onSubmit(normalizedValue);
-			} else if (key.backspace ?? key.delete) {
-				if (isSelected) {
+			} else if (key.backspace || key.delete) {
+				if (isSelectedRef.current) {
 					// If text is selected, clear everything
 					setTimeInputValue('');
 					timeInputValueRef.current = '';
