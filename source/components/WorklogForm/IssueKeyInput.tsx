@@ -1,7 +1,7 @@
-import React, {useState, useEffect} from 'react';
-import {Box, Text} from 'ink';
-import {TextInput} from '@inkjs/ui';
-import {IssueKey} from '../../domain/IssueKey.js';
+import React, { useState, useEffect } from 'react';
+import { Box, Text } from 'ink';
+import { TextInput } from '@inkjs/ui';
+import { IssueKey } from '../../domain/IssueKey.js';
 
 type IssueKeyInputProps = {
 	issueKey?: IssueKey;
@@ -34,7 +34,7 @@ export const IssueKeyInput = ({
 				if (currentParsed.equals(issueKey!)) {
 					return;
 				}
-			} catch {}
+			} catch { }
 
 			setInputValue(issueKey?.toString() ?? '');
 		}
@@ -66,7 +66,7 @@ export const IssueKeyInput = ({
 					const newKey = IssueKey.fromString(nextValue);
 					// Notify parent immediately
 					onChange(newKey);
-				} catch {}
+				} catch { }
 
 				return;
 			}
@@ -90,31 +90,26 @@ export const IssueKeyInput = ({
 	};
 
 	return (
-		<Box marginTop={1} flexDirection="column">
-			<Text color="yellow">Issue Key:</Text>
-			<Box marginTop={1}>
-				<TextInput
-					key={`issue-key-input-${inputValue}`} // Force re-render on programmatic update (paste)
-					defaultValue={inputValue}
-					placeholder="e.g. DEF-123, AD-456..."
-					isDisabled={!isActive}
-					onChange={handleInput}
-					onSubmit={value => {
-						// Final parse check
-						const issueKeyRegex = /([a-zA-Z]+-\d+)/;
-						const match = issueKeyRegex.exec(value);
-						const keyToParse = match ? match[0] : value;
+		<TextInput
+			key={`issue-key-input-${inputValue}`} // Force re-render on programmatic update (paste)
+			defaultValue={inputValue}
+			placeholder="e.g. DEF-123, AD-456..."
+			isDisabled={!isActive}
+			onChange={handleInput}
+			onSubmit={value => {
+				// Final parse check
+				const issueKeyRegex = /([a-zA-Z]+-\d+)/;
+				const match = issueKeyRegex.exec(value);
+				const keyToParse = match ? match[0] : value;
 
-						try {
-							const newKey = IssueKey.fromString(keyToParse);
-							onChange(newKey);
-							onSubmit();
-						} catch {
-							// Stay in field if invalid
-						}
-					}}
-				/>
-			</Box>
-		</Box>
+				try {
+					const newKey = IssueKey.fromString(keyToParse);
+					onChange(newKey);
+					onSubmit();
+				} catch {
+					// Stay in field if invalid
+				}
+			}}
+		/>
 	);
 };
