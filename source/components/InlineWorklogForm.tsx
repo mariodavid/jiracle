@@ -7,8 +7,9 @@ import {getCommentWithPrefill} from '../jira/utils.js';
 import {uiLogger} from '../utils/logger.js';
 import {LocalDate} from '../domain/LocalDate.js';
 import {Duration} from '../domain/Duration.js';
-import {IssueKey} from '../domain/IssueKey.js';
+import {type IssueKey} from '../domain/IssueKey.js';
 import DurationInput from './WorklogForm/DurationInput.js';
+import {IssueKeyInput} from './WorklogForm/IssueKeyInput.js';
 
 type InlineWorklogFormProps = {
 	issueKey?: IssueKey;
@@ -87,9 +88,6 @@ export function InlineWorklogForm({
 
 	const [currentIssueKey, setCurrentIssueKey] = useState(issueKey);
 	// State for the text input value to support controlled input and immediate parsing effects
-	const [issueKeyInputValue, setIssueKeyInputValue] = useState(
-		issueKey?.toString() ?? '',
-	);
 
 	const [currentDate, setCurrentDate] = useState(date);
 	const [dateInputValue, setDateInputValue] = useState(
@@ -107,7 +105,8 @@ export function InlineWorklogForm({
 
 	// Update comment when recent worklogs arrive (for comment prefilling)
 	// Update comment when recent worklogs arrive (for comment prefilling)
-	const prevDepsRef = useRef({
+	// Update comment when recent worklogs arrive (for comment prefilling)
+	const previousDepsRef = useRef({
 		recentWorklogs,
 		isEditMode,
 		defaultComment,
@@ -117,7 +116,7 @@ export function InlineWorklogForm({
 	});
 
 	useEffect(() => {
-		prevDepsRef.current = {
+		previousDepsRef.current = {
 			recentWorklogs,
 			isEditMode,
 			defaultComment,
@@ -492,68 +491,22 @@ export function InlineWorklogForm({
 				<Box marginTop={1} flexDirection="column">
 					<Text color="yellow">Issue Key:</Text>
 					<Box marginTop={1}>
-						<TextInput
-							key={`issue-key-${issueKeyInputValue}`} // Force re-render when we programmatically change the value
-							defaultValue={issueKeyInputValue}
-							placeholder="e.g. DEF-123, AD-456..."
-							isDisabled={focusArea !== 'issueKey'}
-							onChange={value => {
-								// We don't update issueKeyInputValue on every keystroke to avoid losing focus/cursor due to re-render
-								// We only update it when we detect a paste/match that changes the content
-
-								// Try to extract key from text if it looks like a URL or sentence
-								const match = value.match(/([a-zA-Z]+-\d+)/);
-
-								if (match) {
-									const extractedKey = match[0];
-									// If the input contains more than just the key (e.g. a URL),
-									// immediately replace with the extracted key
-									if (extractedKey.length < value.length) {
-										// This will trigger a re-render because the key below depends on this state
-										setIssueKeyInputValue(extractedKey);
-
-										// Also update the domain object immediately
-										try {
-											const newKey = IssueKey.fromString(extractedKey);
-											setCurrentIssueKey(prev => {
-												if (prev && prev.equals(newKey)) return prev;
-												return newKey;
-											});
-										} catch {}
-										return;
-									}
-								}
-
-								// Normal typing: just try to parse but don't force re-render
-								try {
-									const newKey = IssueKey.fromString(value);
-									setCurrentIssueKey(prev => {
-										if (prev && prev.equals(newKey)) {
-											return prev;
+						<IssueKeyInput
+							issueKey={currentIssueKey}
+							isActive={focusArea === 'issueKey'}
+							onChange={newKey => {
+								if (newKey) {
+									setCurrentIssueKey(previous => {
+										if (previous?.equals(newKey)) {
+											return previous;
 										}
+
 										return newKey;
 									});
-								} catch {
-									// Invalid issue key, ignore for now
 								}
 							}}
-							onSubmit={value => {
-								try {
-									const match = value.match(/([a-zA-Z]+-\d+)/);
-									const keyToParse = match ? match[0] : value;
-
-									const newKey = IssueKey.fromString(keyToParse);
-									setCurrentIssueKey(prev => {
-										if (prev && prev.equals(newKey)) {
-											return prev;
-										}
-
-										return newKey;
-									});
-									setFocusArea('date');
-								} catch {
-									// Invalid issue key, stay in this field
-								}
+							onSubmit={() => {
+								setFocusArea('date');
 							}}
 						/>
 					</Box>

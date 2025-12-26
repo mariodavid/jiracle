@@ -15,7 +15,7 @@ export class Duration {
 		if (!timeString) return 0;
 
 		// Handle HH:MM format (e.g. 4:30, 04:30) with optional "h" or "m" suffix
-		const colonMatch = /^(\d+):(\d+)(?:h|m)?$/i.exec(timeString);
+		const colonMatch = /^(\d+):(\d+)[hm]?$/i.exec(timeString);
 		if (colonMatch) {
 			const hours = Number.parseFloat(colonMatch[1]!);
 			const minutes = Number.parseFloat(colonMatch[2]!);
