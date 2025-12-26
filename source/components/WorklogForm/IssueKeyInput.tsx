@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { Box, Text } from 'ink';
-import { TextInput } from '@inkjs/ui';
-import { IssueKey } from '../../domain/IssueKey.js';
+import React, {useState, useEffect} from 'react';
+
+import {TextInput} from '@inkjs/ui';
+import {IssueKey} from '../../domain/IssueKey.js';
 
 type IssueKeyInputProps = {
 	issueKey?: IssueKey;
@@ -34,7 +34,7 @@ export const IssueKeyInput = ({
 				if (currentParsed.equals(issueKey!)) {
 					return;
 				}
-			} catch { }
+			} catch {}
 
 			setInputValue(issueKey?.toString() ?? '');
 		}
@@ -66,7 +66,7 @@ export const IssueKeyInput = ({
 					const newKey = IssueKey.fromString(nextValue);
 					// Notify parent immediately
 					onChange(newKey);
-				} catch { }
+				} catch {}
 
 				return;
 			}
