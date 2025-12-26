@@ -37,6 +37,8 @@ type InlineWorklogFormProps = {
 
 type FocusArea = 'issueKey' | 'date' | 'time' | 'comment' | 'submit' | 'cancel';
 
+const EMPTY_ARRAY: WorklogEntry[] = [];
+
 export function InlineWorklogForm({
 	issueKey,
 	date,
@@ -51,8 +53,9 @@ export function InlineWorklogForm({
 	isIssueKeyEditable = false,
 	isEditMode = false,
 	worklogId,
-	recentWorklogs = [],
+	recentWorklogs = EMPTY_ARRAY,
 }: InlineWorklogFormProps) {
+	// Determine default time based on configuration
 	// Determine default time based on configuration
 	const getDefaultTime = () => {
 		if (defaultTimeSpent) return defaultTimeSpent;
@@ -83,6 +86,11 @@ export function InlineWorklogForm({
 	};
 
 	const [currentIssueKey, setCurrentIssueKey] = useState(issueKey);
+	// State for the text input value to support controlled input and immediate parsing effects
+	const [issueKeyInputValue, setIssueKeyInputValue] = useState(
+		issueKey?.toString() ?? '',
+	);
+
 	const [currentDate, setCurrentDate] = useState(date);
 	const [dateInputValue, setDateInputValue] = useState(
 		date.toISOString(), // YYYY-MM-DD format
@@ -98,7 +106,26 @@ export function InlineWorklogForm({
 	});
 
 	// Update comment when recent worklogs arrive (for comment prefilling)
+	// Update comment when recent worklogs arrive (for comment prefilling)
+	const prevDepsRef = useRef({
+		recentWorklogs,
+		isEditMode,
+		defaultComment,
+		config,
+		issueKey,
+		currentDate,
+	});
+
 	useEffect(() => {
+		prevDepsRef.current = {
+			recentWorklogs,
+			isEditMode,
+			defaultComment,
+			config,
+			issueKey,
+			currentDate,
+		};
+
 		// Only update if we're not in edit mode and have config
 		if (!isEditMode && recentWorklogs.length > 0 && config && issueKey) {
 			const newComment = getCommentWithPrefill(
@@ -112,7 +139,9 @@ export function InlineWorklogForm({
 				},
 			);
 
-			setComment(newComment);
+			if (newComment !== comment) {
+				setComment(newComment);
+			}
 		}
 	}, [
 		recentWorklogs,
@@ -121,6 +150,7 @@ export function InlineWorklogForm({
 		config,
 		issueKey,
 		currentDate,
+		comment, // Added comment to deps to allow check against current state, though strictly not needed if we trust the closure, but good for debug
 	]);
 	const [focusArea, setFocusArea] = useState<FocusArea>(
 		isIssueKeyEditable ? 'issueKey' : 'time',
@@ -463,19 +493,63 @@ export function InlineWorklogForm({
 					<Text color="yellow">Issue Key:</Text>
 					<Box marginTop={1}>
 						<TextInput
-							defaultValue={currentIssueKey?.toString() ?? ''}
+							key={`issue-key-${issueKeyInputValue}`} // Force re-render when we programmatically change the value
+							defaultValue={issueKeyInputValue}
 							placeholder="e.g. DEF-123, AD-456..."
 							isDisabled={focusArea !== 'issueKey'}
 							onChange={value => {
+								// We don't update issueKeyInputValue on every keystroke to avoid losing focus/cursor due to re-render
+								// We only update it when we detect a paste/match that changes the content
+
+								// Try to extract key from text if it looks like a URL or sentence
+								const match = value.match(/([a-zA-Z]+-\d+)/);
+
+								if (match) {
+									const extractedKey = match[0];
+									// If the input contains more than just the key (e.g. a URL),
+									// immediately replace with the extracted key
+									if (extractedKey.length < value.length) {
+										// This will trigger a re-render because the key below depends on this state
+										setIssueKeyInputValue(extractedKey);
+
+										// Also update the domain object immediately
+										try {
+											const newKey = IssueKey.fromString(extractedKey);
+											setCurrentIssueKey(prev => {
+												if (prev && prev.equals(newKey)) return prev;
+												return newKey;
+											});
+										} catch {}
+										return;
+									}
+								}
+
+								// Normal typing: just try to parse but don't force re-render
 								try {
-									setCurrentIssueKey(IssueKey.fromString(value));
+									const newKey = IssueKey.fromString(value);
+									setCurrentIssueKey(prev => {
+										if (prev && prev.equals(newKey)) {
+											return prev;
+										}
+										return newKey;
+									});
 								} catch {
 									// Invalid issue key, ignore for now
 								}
 							}}
 							onSubmit={value => {
 								try {
-									setCurrentIssueKey(IssueKey.fromString(value));
+									const match = value.match(/([a-zA-Z]+-\d+)/);
+									const keyToParse = match ? match[0] : value;
+
+									const newKey = IssueKey.fromString(keyToParse);
+									setCurrentIssueKey(prev => {
+										if (prev && prev.equals(newKey)) {
+											return prev;
+										}
+
+										return newKey;
+									});
 									setFocusArea('date');
 								} catch {
 									// Invalid issue key, stay in this field
