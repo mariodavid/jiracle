@@ -21,24 +21,30 @@ import {
 	type ImportHolidaysParameters,
 } from './cli/attendance-commands.js';
 import {executeImport, type ImportParameters} from './cli/import-commands.js';
+import {
+	executeTransferWorklogs,
+	type TransferWorklogsParameters,
+} from './cli/transfer-commands.js';
 
 const cli = meow(
 	`
 	Usage
 	  $ jiracle
 	  $ jiracle worklog add --issue <issue-key> --date <YYYY-MM-DD> --time <time> --comment <comment>
+	  $ jiracle worklog transfer --source <source-issue> --target <target-issue> [--dry-run]
 	  $ jiracle import <csv-file>
 	  $ jiracle checkin [--date <YYYY-MM-DD>] [--time <HH:MM>]
 	  $ jiracle checkout [--date <YYYY-MM-DD>] [--time <HH:MM>]
 	  $ jiracle status [--date <YYYY-MM-DD>]
 	  $ jiracle import-holidays --year <YYYY>
 	Commands
-	  worklog add    Add a worklog entry to an issue
-	  import         Import timesheet data from CSV file
-	  checkin        Check in for attendance tracking
-	  checkout       Check out for attendance tracking  
-	  status         Show attendance status
-	  import-holidays Import public holidays for a year
+	  worklog add       Add a worklog entry to an issue
+	  worklog transfer  Transfer all worklogs from source to target issue
+	  import            Import timesheet data from CSV file
+	  checkin           Check in for attendance tracking
+	  checkout          Check out for attendance tracking
+	  status            Show attendance status
+	  import-holidays   Import public holidays for a year
 
 	Options for worklog add
 	  --issue      Issue key (e.g., DEF-2398)
@@ -46,6 +52,10 @@ const cli = meow(
 	  --time       Time spent (e.g., 5h, 30m, 2.5h)
 	  --comment    Worklog comment
 
+	Options for worklog transfer
+	  --source     Source issue key (e.g., GVV-5757)
+	  --target     Target issue key (e.g., GVV-5746)
+	  --dry-run    Preview transfer without making changes
 
 	Options for attendance commands
 	  --date       Date in YYYY-MM-DD format (defaults to today)
@@ -57,6 +67,8 @@ const cli = meow(
 	Examples
 	  $ jiracle
 	  $ jiracle worklog add --issue DEF-2398 --date 2025-08-01 --time 5h --comment "Did some work"
+	  $ jiracle worklog transfer --source GVV-5757 --target GVV-5746 --dry-run
+	  $ jiracle worklog transfer --source GVV-5757 --target GVV-5746
 	  $ jiracle import timesheet.csv
 	  $ jiracle checkin
 	  $ jiracle checkin --time 08:30
@@ -84,6 +96,17 @@ const cli = meow(
 			comment: {
 				type: 'string',
 				alias: 'c',
+			},
+			source: {
+				type: 'string',
+				alias: 's',
+			},
+			target: {
+				type: 'string',
+			},
+			dryRun: {
+				type: 'boolean',
+				alias: 'dry-run',
 			},
 		},
 	},
@@ -240,6 +263,34 @@ async function handleWorklogAdd() {
 		const result = await executeWorklogAdd({issue, date, time, comment});
 		console.log(result.message);
 		process.exit(0);
+	} catch (error: unknown) {
+		console.error(
+			`Error: ${error instanceof Error ? error.message : String(error)}`,
+		);
+		process.exit(1);
+	}
+}
+
+async function handleWorklogTransfer() {
+	const {source, target, dryRun} = cli.flags;
+
+	// Type guards to ensure required flags are strings
+	if (typeof source !== 'string' || typeof target !== 'string') {
+		console.error('Error: Both --source and --target flags are required');
+		process.exit(1);
+	}
+
+	const parameters: TransferWorklogsParameters = {
+		sourceIssue: source,
+		targetIssue: target,
+		dryRun: Boolean(dryRun),
+		currentUserOnly: true,
+	};
+
+	try {
+		const result = await executeTransferWorklogs(parameters);
+		console.log(result.message);
+		process.exit(result.success ? 0 : 1);
 	} catch (error: unknown) {
 		console.error(
 			`Error: ${error instanceof Error ? error.message : String(error)}`,
@@ -417,6 +468,8 @@ if (cli.input.length > 0) {
 
 	if (command === 'worklog' && subcommand === 'add') {
 		await handleWorklogAdd();
+	} else if (command === 'worklog' && subcommand === 'transfer') {
+		await handleWorklogTransfer();
 	} else {
 		switch (command) {
 			case 'import': {
