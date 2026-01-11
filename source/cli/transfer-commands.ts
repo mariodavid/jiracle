@@ -2,12 +2,15 @@ import {loadJiraConfig} from '../utils/config-loader.js';
 import {JiraClient} from '../jira/client.js';
 import {WorklogTransferService} from '../services/WorklogTransferService.js';
 import {IssueKey} from '../domain/IssueKey.js';
+import {LocalDate} from '../domain/LocalDate.js';
 
 export type TransferWorklogsParameters = {
 	sourceIssue: string;
 	targetIssue: string;
 	dryRun?: boolean;
 	currentUserOnly?: boolean;
+	fromDate?: string;
+	toDate?: string;
 };
 
 export type TransferWorklogsResult = {
@@ -30,6 +33,8 @@ export async function executeTransferWorklogs(
 		targetIssue,
 		dryRun = false,
 		currentUserOnly = true,
+		fromDate,
+		toDate,
 	} = parameters;
 
 	try {
@@ -62,6 +67,8 @@ export async function executeTransferWorklogs(
 			{
 				dryRun,
 				currentUserOnly,
+				fromDate: fromDate ? LocalDate.fromString(fromDate) : undefined,
+				toDate: toDate ? LocalDate.fromString(toDate) : undefined,
 			},
 		);
 

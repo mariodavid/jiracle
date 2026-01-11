@@ -1,6 +1,7 @@
 import type {JiraClient} from '../jira/client.js';
 import {WorklogEntry} from '../domain/WorklogEntry.js';
 import {IssueKey} from '../domain/IssueKey.js';
+import type {LocalDate} from '../domain/LocalDate.js';
 
 export type TransferOptions = {
 	/**
@@ -12,6 +13,16 @@ export type TransferOptions = {
 	 * If true, only transfer worklogs created by the current user
 	 */
 	currentUserOnly?: boolean;
+
+	/**
+	 * If provided, only transfer worklogs from this date onwards
+	 */
+	fromDate?: LocalDate;
+
+	/**
+	 * If provided, only transfer worklogs up to this date
+	 */
+	toDate?: LocalDate;
 };
 
 export type TransferredWorklog = {
@@ -162,6 +173,25 @@ export class WorklogTransferService {
 		filteredWorklogs = filteredWorklogs.filter(worklog =>
 			worklog.canBeDeletedBy(this.currentUserEmail),
 		);
+
+		// Filter by date range if provided
+		if (options.fromDate ?? options.toDate) {
+			filteredWorklogs = filteredWorklogs.filter(worklog => {
+				const worklogDate = worklog.date;
+
+				// Check from date
+				if (options.fromDate && worklogDate.isBefore(options.fromDate)) {
+					return false;
+				}
+
+				// Check to date
+				if (options.toDate && worklogDate.isAfter(options.toDate)) {
+					return false;
+				}
+
+				return true;
+			});
+		}
 
 		return filteredWorklogs;
 	}

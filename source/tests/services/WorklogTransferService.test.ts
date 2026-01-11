@@ -374,3 +374,240 @@ test('WorklogTransferService - handles empty worklog list', async t => {
 	t.is(result.stats.errors.length, expectedStats.errors.length);
 	t.is(result.transferredWorklogs.length, 0);
 });
+
+test('WorklogTransferService - filters worklogs by from date', async t => {
+	// EXPLICIT TEST DATA
+	const sourceIssueKey = 'PROJ-123';
+	const targetIssueKey = 'PROJ-456';
+	const currentUserEmail = 'test@example.com';
+
+	const worklogBefore = WorklogEntry.create({
+		issueKey: IssueKey.fromString(sourceIssueKey),
+		duration: 3600, // 1 hour
+		comment: 'Worklog before from date',
+		date: LocalDate.fromString('2026-01-08'),
+		author: {displayName: 'Test User', emailAddress: currentUserEmail},
+	});
+
+	const worklogOnFromDate = WorklogEntry.create({
+		issueKey: IssueKey.fromString(sourceIssueKey),
+		duration: 7200, // 2 hours
+		comment: 'Worklog on from date',
+		date: LocalDate.fromString('2026-01-09'),
+		author: {displayName: 'Test User', emailAddress: currentUserEmail},
+	});
+
+	const worklogAfter = WorklogEntry.create({
+		issueKey: IssueKey.fromString(sourceIssueKey),
+		duration: 5400, // 1.5 hours
+		comment: 'Worklog after from date',
+		date: LocalDate.fromString('2026-01-10'),
+		author: {displayName: 'Test User', emailAddress: currentUserEmail},
+	});
+
+	const fromDate = LocalDate.fromString('2026-01-09');
+	const expectedStats = {
+		sourceWorklogsFound: 3,
+		worklogsToTransfer: 2, // Only worklogsOnFromDate and worklogAfter should be transferred
+		worklogsTransferred: 2,
+		worklogsDeleted: 2,
+		errors: [],
+	};
+
+	// OPERATIONS
+	const mockClient = new MockJiraClient();
+	mockClient.setMockWorklogs([worklogBefore, worklogOnFromDate, worklogAfter]);
+	mockClient.setMockIssueExists(sourceIssueKey);
+	mockClient.setMockIssueExists(targetIssueKey);
+
+	const service = new WorklogTransferService(
+		mockClient as unknown as JiraClient,
+		currentUserEmail,
+	);
+
+	const result = await service.transferWorklogs(
+		sourceIssueKey,
+		targetIssueKey,
+		{
+			fromDate,
+		},
+	);
+
+	// SPECIFIC VALUE COMPARISONS
+	t.is(result.stats.sourceWorklogsFound, expectedStats.sourceWorklogsFound);
+	t.is(result.stats.worklogsToTransfer, expectedStats.worklogsToTransfer);
+	t.is(result.stats.worklogsTransferred, expectedStats.worklogsTransferred);
+	t.is(result.stats.worklogsDeleted, expectedStats.worklogsDeleted);
+	t.is(result.stats.errors.length, expectedStats.errors.length);
+	t.is(result.transferredWorklogs.length, 2);
+
+	// Verify the correct worklogs were transferred
+	const transferredDates = result.transferredWorklogs.map(w => w.date).sort();
+	t.deepEqual(transferredDates, ['2026-01-09', '2026-01-10']);
+});
+
+test('WorklogTransferService - filters worklogs by to date', async t => {
+	// EXPLICIT TEST DATA
+	const sourceIssueKey = 'PROJ-123';
+	const targetIssueKey = 'PROJ-456';
+	const currentUserEmail = 'test@example.com';
+
+	const worklogBefore = WorklogEntry.create({
+		issueKey: IssueKey.fromString(sourceIssueKey),
+		duration: 3600, // 1 hour
+		comment: 'Worklog before to date',
+		date: LocalDate.fromString('2026-01-08'),
+		author: {displayName: 'Test User', emailAddress: currentUserEmail},
+	});
+
+	const worklogOnToDate = WorklogEntry.create({
+		issueKey: IssueKey.fromString(sourceIssueKey),
+		duration: 7200, // 2 hours
+		comment: 'Worklog on to date',
+		date: LocalDate.fromString('2026-01-09'),
+		author: {displayName: 'Test User', emailAddress: currentUserEmail},
+	});
+
+	const worklogAfter = WorklogEntry.create({
+		issueKey: IssueKey.fromString(sourceIssueKey),
+		duration: 5400, // 1.5 hours
+		comment: 'Worklog after to date',
+		date: LocalDate.fromString('2026-01-10'),
+		author: {displayName: 'Test User', emailAddress: currentUserEmail},
+	});
+
+	const toDate = LocalDate.fromString('2026-01-09');
+	const expectedStats = {
+		sourceWorklogsFound: 3,
+		worklogsToTransfer: 2, // Only worklogBefore and worklogOnToDate should be transferred
+		worklogsTransferred: 2,
+		worklogsDeleted: 2,
+		errors: [],
+	};
+
+	// OPERATIONS
+	const mockClient = new MockJiraClient();
+	mockClient.setMockWorklogs([worklogBefore, worklogOnToDate, worklogAfter]);
+	mockClient.setMockIssueExists(sourceIssueKey);
+	mockClient.setMockIssueExists(targetIssueKey);
+
+	const service = new WorklogTransferService(
+		mockClient as unknown as JiraClient,
+		currentUserEmail,
+	);
+
+	const result = await service.transferWorklogs(
+		sourceIssueKey,
+		targetIssueKey,
+		{
+			toDate,
+		},
+	);
+
+	// SPECIFIC VALUE COMPARISONS
+	t.is(result.stats.sourceWorklogsFound, expectedStats.sourceWorklogsFound);
+	t.is(result.stats.worklogsToTransfer, expectedStats.worklogsToTransfer);
+	t.is(result.stats.worklogsTransferred, expectedStats.worklogsTransferred);
+	t.is(result.stats.worklogsDeleted, expectedStats.worklogsDeleted);
+	t.is(result.stats.errors.length, expectedStats.errors.length);
+	t.is(result.transferredWorklogs.length, 2);
+
+	// Verify the correct worklogs were transferred
+	const transferredDates = result.transferredWorklogs.map(w => w.date).sort();
+	t.deepEqual(transferredDates, ['2026-01-08', '2026-01-09']);
+});
+
+test('WorklogTransferService - filters worklogs by from and to date range', async t => {
+	// EXPLICIT TEST DATA
+	const sourceIssueKey = 'PROJ-123';
+	const targetIssueKey = 'PROJ-456';
+	const currentUserEmail = 'test@example.com';
+
+	const worklogBeforeRange = WorklogEntry.create({
+		issueKey: IssueKey.fromString(sourceIssueKey),
+		duration: 3600, // 1 hour
+		comment: 'Worklog before range',
+		date: LocalDate.fromString('2026-01-07'),
+		author: {displayName: 'Test User', emailAddress: currentUserEmail},
+	});
+
+	const worklogOnFromDate = WorklogEntry.create({
+		issueKey: IssueKey.fromString(sourceIssueKey),
+		duration: 7200, // 2 hours
+		comment: 'Worklog on from date',
+		date: LocalDate.fromString('2026-01-08'),
+		author: {displayName: 'Test User', emailAddress: currentUserEmail},
+	});
+
+	const worklogInRange = WorklogEntry.create({
+		issueKey: IssueKey.fromString(sourceIssueKey),
+		duration: 5400, // 1.5 hours
+		comment: 'Worklog in range',
+		date: LocalDate.fromString('2026-01-09'),
+		author: {displayName: 'Test User', emailAddress: currentUserEmail},
+	});
+
+	const worklogOnToDate = WorklogEntry.create({
+		issueKey: IssueKey.fromString(sourceIssueKey),
+		duration: 9000, // 2.5 hours
+		comment: 'Worklog on to date',
+		date: LocalDate.fromString('2026-01-10'),
+		author: {displayName: 'Test User', emailAddress: currentUserEmail},
+	});
+
+	const worklogAfterRange = WorklogEntry.create({
+		issueKey: IssueKey.fromString(sourceIssueKey),
+		duration: 1800, // 0.5 hours
+		comment: 'Worklog after range',
+		date: LocalDate.fromString('2026-01-11'),
+		author: {displayName: 'Test User', emailAddress: currentUserEmail},
+	});
+
+	const fromDate = LocalDate.fromString('2026-01-08');
+	const toDate = LocalDate.fromString('2026-01-10');
+	const expectedStats = {
+		sourceWorklogsFound: 5,
+		worklogsToTransfer: 3, // Only worklogOnFromDate, worklogInRange, and worklogOnToDate
+		worklogsTransferred: 3,
+		worklogsDeleted: 3,
+		errors: [],
+	};
+
+	// OPERATIONS
+	const mockClient = new MockJiraClient();
+	mockClient.setMockWorklogs([
+		worklogBeforeRange,
+		worklogOnFromDate,
+		worklogInRange,
+		worklogOnToDate,
+		worklogAfterRange,
+	]);
+	mockClient.setMockIssueExists(sourceIssueKey);
+	mockClient.setMockIssueExists(targetIssueKey);
+
+	const service = new WorklogTransferService(
+		mockClient as unknown as JiraClient,
+		currentUserEmail,
+	);
+
+	const result = await service.transferWorklogs(
+		sourceIssueKey,
+		targetIssueKey,
+		{
+			fromDate,
+			toDate,
+		},
+	);
+
+	// SPECIFIC VALUE COMPARISONS
+	t.is(result.stats.sourceWorklogsFound, expectedStats.sourceWorklogsFound);
+	t.is(result.stats.worklogsToTransfer, expectedStats.worklogsToTransfer);
+	t.is(result.stats.worklogsTransferred, expectedStats.worklogsTransferred);
+	t.is(result.stats.worklogsDeleted, expectedStats.worklogsDeleted);
+	t.is(result.stats.errors.length, expectedStats.errors.length);
+	t.is(result.transferredWorklogs.length, 3);
+
+	// Verify the correct worklogs were transferred
+	const transferredDates = result.transferredWorklogs.map(w => w.date).sort();
+	t.deepEqual(transferredDates, ['2026-01-08', '2026-01-09', '2026-01-10']);
+});

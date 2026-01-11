@@ -31,7 +31,7 @@ const cli = meow(
 	Usage
 	  $ jiracle
 	  $ jiracle worklog add --issue <issue-key> --date <YYYY-MM-DD> --time <time> --comment <comment>
-	  $ jiracle worklog transfer --source <source-issue> --target <target-issue> [--dry-run]
+	  $ jiracle worklog transfer --source <source-issue> --target <target-issue> [--dry-run] [--from <YYYY-MM-DD>] [--to <YYYY-MM-DD>]
 	  $ jiracle import <csv-file>
 	  $ jiracle checkin [--date <YYYY-MM-DD>] [--time <HH:MM>]
 	  $ jiracle checkout [--date <YYYY-MM-DD>] [--time <HH:MM>]
@@ -56,6 +56,8 @@ const cli = meow(
 	  --source     Source issue key (e.g., GVV-5757)
 	  --target     Target issue key (e.g., GVV-5746)
 	  --dry-run    Preview transfer without making changes
+	  --from       Transfer worklogs from this date onwards (YYYY-MM-DD)
+	  --to         Transfer worklogs up to this date (YYYY-MM-DD)
 
 	Options for attendance commands
 	  --date       Date in YYYY-MM-DD format (defaults to today)
@@ -69,6 +71,7 @@ const cli = meow(
 	  $ jiracle worklog add --issue DEF-2398 --date 2025-08-01 --time 5h --comment "Did some work"
 	  $ jiracle worklog transfer --source GVV-5757 --target GVV-5746 --dry-run
 	  $ jiracle worklog transfer --source GVV-5757 --target GVV-5746
+	  $ jiracle worklog transfer --source GVV-5757 --target GVV-5746 --from 2025-01-01 --to 2025-01-31
 	  $ jiracle import timesheet.csv
 	  $ jiracle checkin
 	  $ jiracle checkin --time 08:30
@@ -107,6 +110,12 @@ const cli = meow(
 			dryRun: {
 				type: 'boolean',
 				alias: 'dry-run',
+			},
+			from: {
+				type: 'string',
+			},
+			to: {
+				type: 'string',
 			},
 		},
 	},
@@ -272,7 +281,7 @@ async function handleWorklogAdd() {
 }
 
 async function handleWorklogTransfer() {
-	const {source, target, dryRun} = cli.flags;
+	const {source, target, dryRun, from, to} = cli.flags;
 
 	// Type guards to ensure required flags are strings
 	if (typeof source !== 'string' || typeof target !== 'string') {
@@ -280,11 +289,32 @@ async function handleWorklogTransfer() {
 		process.exit(1);
 	}
 
+	// Validate date formats if provided
+	if (from && typeof from === 'string') {
+		try {
+			LocalDate.fromString(from);
+		} catch {
+			console.error('Error: --from date must be in YYYY-MM-DD format');
+			process.exit(1);
+		}
+	}
+
+	if (to && typeof to === 'string') {
+		try {
+			LocalDate.fromString(to);
+		} catch {
+			console.error('Error: --to date must be in YYYY-MM-DD format');
+			process.exit(1);
+		}
+	}
+
 	const parameters: TransferWorklogsParameters = {
 		sourceIssue: source,
 		targetIssue: target,
 		dryRun: Boolean(dryRun),
 		currentUserOnly: true,
+		fromDate: from && typeof from === 'string' ? from : undefined,
+		toDate: to && typeof to === 'string' ? to : undefined,
 	};
 
 	try {
