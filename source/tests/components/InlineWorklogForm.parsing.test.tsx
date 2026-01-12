@@ -44,61 +44,82 @@ test('InlineWorklogForm extracts issue key from pasted URL', async t => {
 });
 
 test('InlineWorklogForm extracts issue key from URL upon submission', async t => {
+	// EXPLICIT TEST DATA
+	const inputUrl = 'https://jira.convista.com/browse/FZSUITE-758';
+	const expectedIssueKey = 'FZSUITE-758';
+	const expectedDate = '2025-07-10';
+	const expectedTime = '1h';
+
 	let submittedData: any = null;
 
-	const props = {
+	const testProps = {
 		...mockProps,
 		onSubmit(data: any) {
 			submittedData = data;
 		},
 	};
 
-	const {stdin} = render(React.createElement(InlineWorklogForm, props));
+	// OPERATIONS
+	const {stdin, lastFrame} = render(
+		React.createElement(InlineWorklogForm, testProps),
+	);
 
-	const url = 'https://jira.convista.com/browse/FZSUITE-758';
-
-	// Type the URL
-	stdin.write(url);
-	// Enter to confirm IssueKey -> moves to Date
-	stdin.write('\r');
+	// Type the URL and navigate through form
+	stdin.write(inputUrl);
+	stdin.write('\r'); // Confirm issue key
 
 	await new Promise(resolve => {
-		setTimeout(resolve, 50);
+		setTimeout(resolve, 100);
 	});
 
-	// Enter to confirm Date -> moves to Time
-	stdin.write('\r');
+	stdin.write('\r'); // Confirm date
+
 	await new Promise(resolve => {
-		setTimeout(resolve, 50);
+		setTimeout(resolve, 100);
 	});
 
-	// Enter to confirm Time -> moves to Comment
-	stdin.write('\r');
+	stdin.write('\r'); // Confirm time
+
 	await new Promise(resolve => {
-		setTimeout(resolve, 50);
+		setTimeout(resolve, 100);
 	});
 
-	// Enter to confirm Comment -> moves to Submit button? Or submits?
-	// Comment field usually submits on Enter if not multiline?
-	// Let's check InlineWorklogForm:
-	// TextInput for comment: onSubmit={handleSubmit}
+	stdin.write('\r'); // Confirm comment/submit
 
-	stdin.write('\r');
 	await new Promise(resolve => {
-		setTimeout(resolve, 50);
+		setTimeout(resolve, 100);
 	});
 
-	// Submit button might need another enter if focus moved there?
-	// Logic:
-	// comment -> submit (focus)
-	// submit -> handleSubmit
+	// Additional submit if needed
+	if (submittedData === null) {
+		stdin.write('\r');
+		await new Promise(resolve => {
+			setTimeout(resolve, 100);
+		});
+	}
 
-	// So we might need one more Enter.
-	stdin.write('\r');
-	await new Promise(resolve => {
-		setTimeout(resolve, 50);
-	});
+	// SPECIFIC VALUE COMPARISONS
+	t.truthy(submittedData, 'Should have submitted form data');
+	t.is(
+		submittedData?.issueKey?.toString(),
+		expectedIssueKey,
+		'Should extract correct issue key from URL',
+	);
+	t.is(
+		submittedData?.date?.toISOString(),
+		expectedDate,
+		'Should use default date',
+	);
+	t.is(
+		submittedData?.timeSpent?.toString(),
+		expectedTime,
+		'Should use default time',
+	);
 
-	t.truthy(submittedData, 'Should have submitted data');
-	t.is(submittedData?.issueKey?.toString(), 'FZSUITE-758');
+	// Verify form actually displayed the extracted issue key
+	const finalOutput = lastFrame();
+	t.false(
+		finalOutput?.includes('https://'),
+		'Should not display full URL in form',
+	);
 });

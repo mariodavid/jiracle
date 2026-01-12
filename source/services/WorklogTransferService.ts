@@ -2,6 +2,7 @@ import type {JiraClient} from '../jira/client.js';
 import {WorklogEntry} from '../domain/WorklogEntry.js';
 import {IssueKey} from '../domain/IssueKey.js';
 import type {LocalDate} from '../domain/LocalDate.js';
+import {Duration} from '../domain/Duration.js';
 
 export type TransferOptions = {
 	/**
@@ -27,9 +28,9 @@ export type TransferOptions = {
 
 export type TransferredWorklog = {
 	originalId: string;
-	issueKey: string;
-	date: string;
-	duration: string;
+	issueKey: IssueKey;
+	date: LocalDate;
+	duration: Duration;
 	comment: string;
 	action: 'transferred' | 'deleted' | 'skipped' | 'error';
 	reason?: string;
@@ -82,8 +83,8 @@ export class WorklogTransferService {
 			const targetKey = IssueKey.fromString(targetIssueKey);
 
 			// Verify both issues exist
-			await this.verifyIssueExists(sourceKey.toString(), 'Source');
-			await this.verifyIssueExists(targetKey.toString(), 'Target');
+			await this.verifyIssueExists(sourceKey, 'Source');
+			await this.verifyIssueExists(targetKey, 'Target');
 
 			// Fetch source worklogs
 			const sourceWorklogs = await this.fetchSourceWorklogs(
@@ -125,15 +126,15 @@ export class WorklogTransferService {
 	}
 
 	private async verifyIssueExists(
-		issueKey: string,
+		issueKey: IssueKey,
 		type: string,
 	): Promise<void> {
 		try {
-			await this.jiraClient.fetchIssue(IssueKey.fromString(issueKey));
+			await this.jiraClient.fetchIssue(issueKey);
 		} catch (error: unknown) {
 			const message = error instanceof Error ? error.message : String(error);
 			throw new Error(
-				`${type} issue ${issueKey} not found or not accessible: ${message}`,
+				`${type} issue ${issueKey.toString()} not found or not accessible: ${message}`,
 			);
 		}
 	}
@@ -233,9 +234,9 @@ export class WorklogTransferService {
 
 		const transferredWorklog: TransferredWorklog = {
 			originalId: worklog.id,
-			issueKey: targetIssueKey,
-			date: worklog.date.toISOString(),
-			duration: this.formatDuration(worklog.duration),
+			issueKey: IssueKey.fromString(targetIssueKey),
+			date: worklog.date,
+			duration: Duration.fromSeconds(worklog.duration),
 			comment: worklog.comment,
 			action: 'error',
 		};
@@ -262,9 +263,9 @@ export class WorklogTransferService {
 			transferredWorklog.action = 'error';
 			transferredWorklog.reason = errorMessage;
 			stats.errors.push(
-				`Failed to transfer worklog ${worklog.id} (${this.formatDuration(
+				`Failed to transfer worklog ${worklog.id} (${Duration.fromSeconds(
 					worklog.duration,
-				)} on ${worklog.date.toISOString()}): ${errorMessage}`,
+				).toString()} on ${worklog.date.toISOString()}): ${errorMessage}`,
 			);
 		}
 
@@ -294,24 +295,5 @@ export class WorklogTransferService {
 			const message = error instanceof Error ? error.message : String(error);
 			throw new Error(`Failed to delete worklog from source issue: ${message}`);
 		}
-	}
-
-	private formatDuration(seconds: number): string {
-		const hours = Math.floor(seconds / 3600);
-		const minutes = Math.floor((seconds % 3600) / 60);
-
-		if (hours > 0 && minutes > 0) {
-			return `${hours}h${minutes}m`;
-		}
-
-		if (hours > 0) {
-			return `${hours}h`;
-		}
-
-		if (minutes > 0) {
-			return `${minutes}m`;
-		}
-
-		return '1m'; // Minimum display
 	}
 }

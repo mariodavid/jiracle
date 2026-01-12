@@ -124,7 +124,7 @@ test('WorklogTransferService - successful transfer with single worklog', async t
 	t.is(result.transferredWorklogs.length, 1);
 	t.is(result.transferredWorklogs[0]?.action, 'deleted');
 	t.is(result.transferredWorklogs[0]?.comment, 'Test worklog for transfer');
-	t.is(result.transferredWorklogs[0]?.duration, '2h');
+	t.is(result.transferredWorklogs[0]?.duration.toString(), '2h');
 
 	// Verify API calls
 	const createdWorklogs = mockClient.getCreatedWorklogs();
@@ -442,7 +442,9 @@ test('WorklogTransferService - filters worklogs by from date', async t => {
 	t.is(result.transferredWorklogs.length, 2);
 
 	// Verify the correct worklogs were transferred
-	const transferredDates = result.transferredWorklogs.map(w => w.date).sort();
+	const transferredDates = result.transferredWorklogs
+		.map(w => w.date.toISOString())
+		.sort((a, b) => a.localeCompare(b));
 	t.deepEqual(transferredDates, ['2026-01-09', '2026-01-10']);
 });
 
@@ -513,7 +515,9 @@ test('WorklogTransferService - filters worklogs by to date', async t => {
 	t.is(result.transferredWorklogs.length, 2);
 
 	// Verify the correct worklogs were transferred
-	const transferredDates = result.transferredWorklogs.map(w => w.date).sort();
+	const transferredDates = result.transferredWorklogs
+		.map(w => w.date.toISOString())
+		.sort((a, b) => a.localeCompare(b));
 	t.deepEqual(transferredDates, ['2026-01-08', '2026-01-09']);
 });
 
@@ -608,6 +612,8 @@ test('WorklogTransferService - filters worklogs by from and to date range', asyn
 	t.is(result.transferredWorklogs.length, 3);
 
 	// Verify the correct worklogs were transferred
-	const transferredDates = result.transferredWorklogs.map(w => w.date).sort();
+	const transferredDates = result.transferredWorklogs
+		.map(w => w.date.toISOString())
+		.sort((a, b) => a.localeCompare(b));
 	t.deepEqual(transferredDates, ['2026-01-08', '2026-01-09', '2026-01-10']);
 });

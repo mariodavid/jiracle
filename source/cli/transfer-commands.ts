@@ -75,11 +75,11 @@ export async function executeTransferWorklogs(
 		const {stats, transferredWorklogs} = transferResult;
 
 		// Build result message
-		let message = '';
-		message = dryRun
+		let message = dryRun
 			? `🔍 DRY RUN: Transfer preview for ${sourceIssue} → ${targetIssue}\n`
 			: `✅ Transfer completed: ${sourceIssue} → ${targetIssue}\n`;
 
+		// Add summary section
 		message += `\n📊 Summary:\n`;
 		message += `  • Source worklogs found: ${stats.sourceWorklogsFound}\n`;
 		message += `  • Worklogs to transfer: ${stats.worklogsToTransfer}\n`;
@@ -93,7 +93,7 @@ export async function executeTransferWorklogs(
 			message += `  • Errors: ${stats.errors.length}\n`;
 		}
 
-		// Show details
+		// Add details section
 		if (transferredWorklogs.length > 0) {
 			message += `\n📝 Details:\n`;
 			for (const worklog of transferredWorklogs) {
@@ -104,12 +104,12 @@ export async function executeTransferWorklogs(
 						skipped: '⏭️',
 						error: '❌',
 					}[worklog.action] || '❓';
+				const truncatedComment =
+					worklog.comment.length > 50
+						? worklog.comment.slice(0, 50) + '...'
+						: worklog.comment;
 
-				message += `  ${statusIcon} ${worklog.date} - ${
-					worklog.duration
-				} - ${worklog.comment.slice(0, 50)}${
-					worklog.comment.length > 50 ? '...' : ''
-				}\n`;
+				message += `  ${statusIcon} ${worklog.date.toISOString()} - ${worklog.duration.toString()} - ${truncatedComment}\n`;
 
 				if (worklog.reason) {
 					message += `     Reason: ${worklog.reason}\n`;
@@ -117,7 +117,7 @@ export async function executeTransferWorklogs(
 			}
 		}
 
-		// Show errors if any
+		// Add errors section
 		if (stats.errors.length > 0) {
 			message += `\n❌ Errors:\n`;
 			for (const error of stats.errors) {

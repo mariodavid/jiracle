@@ -20,29 +20,124 @@ test('executeTransferWorklogs - rejects same source and target issue', async t =
 	t.is(result.summary, undefined);
 });
 
-test('executeTransferWorklogs - validates issue key format', async t => {
+test('executeTransferWorklogs - rejects invalid issue key without dash', async t => {
 	// EXPLICIT TEST DATA
-	const invalidIssueKeys = [
-		'invalid',
-		'PROJ',
-		'123',
-		'PROJ-',
-		'-123',
-		'proj-123', // Lowercase
-	];
-
+	const invalidSourceIssue = 'invalid';
 	const validTargetIssue = 'PROJ-456';
+	const expectedFailureIndicator = 'failed';
 
-	// OPERATIONS & SPECIFIC VALUE COMPARISONS
-	for (const invalidKey of invalidIssueKeys) {
-		const result = await executeTransferWorklogs({
-			sourceIssue: invalidKey,
-			targetIssue: validTargetIssue,
-		});
+	// OPERATIONS
+	const result = await executeTransferWorklogs({
+		sourceIssue: invalidSourceIssue,
+		targetIssue: validTargetIssue,
+	});
 
-		t.false(result.success);
-		t.true(result.message.includes('failed'));
-	}
+	// SPECIFIC VALUE COMPARISONS
+	t.false(result.success, 'Should reject issue key without dash separator');
+	t.true(
+		result.message.includes(expectedFailureIndicator),
+		'Should indicate validation failure',
+	);
+});
+
+test('executeTransferWorklogs - rejects issue key without number', async t => {
+	// EXPLICIT TEST DATA
+	const invalidSourceIssue = 'PROJ';
+	const validTargetIssue = 'PROJ-456';
+	const expectedFailureIndicator = 'failed';
+
+	// OPERATIONS
+	const result = await executeTransferWorklogs({
+		sourceIssue: invalidSourceIssue,
+		targetIssue: validTargetIssue,
+	});
+
+	// SPECIFIC VALUE COMPARISONS
+	t.false(result.success, 'Should reject issue key without number part');
+	t.true(
+		result.message.includes(expectedFailureIndicator),
+		'Should indicate validation failure',
+	);
+});
+
+test('executeTransferWorklogs - rejects numeric-only issue key', async t => {
+	// EXPLICIT TEST DATA
+	const invalidSourceIssue = '123';
+	const validTargetIssue = 'PROJ-456';
+	const expectedFailureIndicator = 'failed';
+
+	// OPERATIONS
+	const result = await executeTransferWorklogs({
+		sourceIssue: invalidSourceIssue,
+		targetIssue: validTargetIssue,
+	});
+
+	// SPECIFIC VALUE COMPARISONS
+	t.false(result.success, 'Should reject numeric-only issue key');
+	t.true(
+		result.message.includes(expectedFailureIndicator),
+		'Should indicate validation failure',
+	);
+});
+
+test('executeTransferWorklogs - rejects issue key ending with dash', async t => {
+	// EXPLICIT TEST DATA
+	const invalidSourceIssue = 'PROJ-';
+	const validTargetIssue = 'PROJ-456';
+	const expectedFailureIndicator = 'failed';
+
+	// OPERATIONS
+	const result = await executeTransferWorklogs({
+		sourceIssue: invalidSourceIssue,
+		targetIssue: validTargetIssue,
+	});
+
+	// SPECIFIC VALUE COMPARISONS
+	t.false(result.success, 'Should reject issue key ending with dash');
+	t.true(
+		result.message.includes(expectedFailureIndicator),
+		'Should indicate validation failure',
+	);
+});
+
+test('executeTransferWorklogs - rejects issue key starting with dash', async t => {
+	// EXPLICIT TEST DATA
+	const invalidSourceIssue = '-123';
+	const validTargetIssue = 'PROJ-456';
+	const expectedFailureIndicator = 'failed';
+
+	// OPERATIONS
+	const result = await executeTransferWorklogs({
+		sourceIssue: invalidSourceIssue,
+		targetIssue: validTargetIssue,
+	});
+
+	// SPECIFIC VALUE COMPARISONS
+	t.false(result.success, 'Should reject issue key starting with dash');
+	t.true(
+		result.message.includes(expectedFailureIndicator),
+		'Should indicate validation failure',
+	);
+});
+
+test('executeTransferWorklogs - rejects lowercase issue key', async t => {
+	// EXPLICIT TEST DATA
+	const invalidSourceIssue = 'proj-123';
+	const validTargetIssue = 'PROJ-456';
+	const expectedFailureIndicator = 'failed';
+
+	// OPERATIONS
+	const result = await executeTransferWorklogs({
+		sourceIssue: invalidSourceIssue,
+		targetIssue: validTargetIssue,
+	});
+
+	// SPECIFIC VALUE COMPARISONS
+	t.false(result.success, 'Should reject lowercase issue key');
+	t.true(
+		result.message.includes(expectedFailureIndicator),
+		'Should indicate validation failure',
+	);
 });
 
 test('executeTransferWorklogs - handles configuration loading errors', async t => {
@@ -85,19 +180,29 @@ test('executeTransferWorklogs - parameter type handling', async t => {
 	const result2 = await executeTransferWorklogs(parametersWithFalseFlags);
 
 	// SPECIFIC VALUE COMPARISONS
-	// Both should handle the parameters without type errors
-	t.is(typeof result1.success, 'boolean');
-	t.is(typeof result1.message, 'string');
-	t.is(typeof result2.success, 'boolean');
-	t.is(typeof result2.message, 'string');
-
-	// Dry run should be reflected in message
-	if (
+	// Verify dry run mode affects message content
+	t.true(
 		result1.message.includes('preview') ||
-		result1.message.includes('DRY RUN')
-	) {
-		t.true(validParameters.dryRun);
-	}
+			result1.message.includes('DRY RUN') ||
+			result1.message.includes('would'),
+		'Dry run should be indicated in message',
+	);
+
+	// Verify actual execution mode does not contain dry run indicators
+	t.false(
+		result2.message.includes('preview') ||
+			result2.message.includes('DRY RUN') ||
+			result2.message.includes('would'),
+		'Non-dry run should not contain preview indicators',
+	);
+
+	// Both should handle the parameters and return proper result structure
+	t.false(
+		result1.success || result2.success,
+		'Should fail due to missing config/connectivity',
+	);
+	t.true(result1.message.length > 0, 'Should provide meaningful error message');
+	t.true(result2.message.length > 0, 'Should provide meaningful error message');
 });
 
 test('executeTransferWorklogs - handles undefined optional parameters', async t => {
@@ -112,10 +217,18 @@ test('executeTransferWorklogs - handles undefined optional parameters', async t 
 	const result = await executeTransferWorklogs(minimalParameters);
 
 	// SPECIFIC VALUE COMPARISONS
-	// Should handle undefined optional parameters gracefully
-	t.is(typeof result.success, 'boolean');
-	t.is(typeof result.message, 'string');
-	t.true(result.message.length > 0);
+	// Should handle undefined optional parameters gracefully and fail due to missing config
+	t.false(result.success, 'Should fail due to missing config/connectivity');
+	t.true(result.message.length > 0, 'Should provide meaningful error message');
+	t.true(result.message.includes('failed'), 'Should indicate failure reason');
+
+	// Should not contain dry run indicators when flags are undefined
+	t.false(
+		result.message.includes('preview') ||
+			result.message.includes('DRY RUN') ||
+			result.message.includes('would'),
+		'Should not contain dry run indicators when flags are undefined',
+	);
 });
 
 test('executeTransferWorklogs - error handling returns proper structure', async t => {
