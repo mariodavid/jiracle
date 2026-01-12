@@ -11,6 +11,7 @@ Terminal-based Jira time tracking with a keyboard-driven weekly timetable interf
 - **Weekly grid view** of Jira issues × days
 - **Keyboard navigation** with arrow keys and shortcuts
 - **Quick time entry** directly in grid cells
+- **Worklog transfer** between issues with validation and safety checks
 - **Attendance tracking** with check-in/check-out
 - **Holiday import** from German public holiday API
 - **Bonus progress tracking** with financial projections
@@ -175,6 +176,11 @@ Get API token: [Atlassian Account Settings](https://id.atlassian.com/manage-prof
 # Launch the interactive UI
 jiracle
 
+# Worklog management
+jiracle worklog add --issue PROJ-123 --date 2025-01-09 --time 4h --comment "Development work"
+jiracle worklog transfer --source PROJ-123 --target PROJ-456 --dry-run  # Preview worklog transfer
+jiracle worklog transfer --source PROJ-123 --target PROJ-456            # Transfer all worklogs
+
 # Attendance tracking
 jiracle checkin          # Check in for work
 jiracle checkout         # Check out from work
@@ -206,6 +212,60 @@ jiracle --version
 ### Time Entry
 
 Enter time in formats like: `2h`, `30m`, `1h 30m`, `1.5`, `90`
+
+### Worklog Transfer
+
+Transfer all your worklogs from one Jira issue to another with validation and safety checks:
+
+```bash
+# Preview what would be transferred (recommended first step)
+jiracle worklog transfer --source GVV-5757 --target GVV-5746 --dry-run
+
+# Execute the actual transfer
+jiracle worklog transfer --source GVV-5757 --target GVV-5746
+```
+
+#### What the Transfer Does
+
+1. **Fetches all worklogs** from the source issue
+2. **Validates permissions** - only transfers worklogs you own
+3. **Creates identical copies** on the target issue (same dates, times, comments)
+4. **Deletes original worklogs** from the source issue after successful transfer
+5. **Provides detailed reporting** with transfer status for each worklog
+
+#### Safety Features
+
+- **Dry-run mode**: Preview transfers without making changes
+- **User filtering**: Only transfers worklogs created by you
+- **Atomic operations**: Each worklog is transferred individually with error handling
+- **Validation**: Verifies both source and target issues exist and are accessible
+- **Detailed feedback**: Shows exact status for each worklog (transferred, deleted, errors)
+
+#### Example Output
+
+```
+✅ Transfer completed: GVV-5757 → GVV-5746
+
+📊 Summary:
+  • Source worklogs found: 25
+  • Worklogs to transfer: 25
+  • Successfully transferred: 25
+  • Successfully deleted: 25
+
+📝 Details:
+  🗑️ 2025-10-07 - 8h30m - Konfiguration SAP Adapter für Direkt Hausrat
+  🗑️ 2025-10-08 - 8h - Konfiguration SAP Adapter für Direkt Hausrat
+  🗑️ 2025-10-09 - 2h - Konfiguration SAP Adapter für Direkt Hausrat
+  ...
+
+🎉 All worklogs successfully transferred and deleted from source!
+```
+
+#### Common Use Cases
+
+- **Issue migration**: Moving work from estimate tickets to implementation tickets
+- **Project reorganization**: Consolidating work under correct issue numbers
+- **Error correction**: Fixing accidentally logged time on wrong issues
 
 ### CSV Import
 
