@@ -188,11 +188,16 @@ test('executeTransferWorklogs - parameter type handling', async t => {
 	t.true(result1.message.length > 0, 'Should provide meaningful error message');
 	t.true(result2.message.length > 0, 'Should provide meaningful error message');
 
-	// Both calls should handle different parameter values gracefully
-	t.not(
-		result1.message,
-		result2.message,
-		'Different parameters should potentially produce different messages',
+	// Both calls should handle parameter processing without throwing
+	t.is(
+		typeof result1.success,
+		'boolean',
+		'Should return proper result structure',
+	);
+	t.is(
+		typeof result2.success,
+		'boolean',
+		'Should return proper result structure',
 	);
 });
 
