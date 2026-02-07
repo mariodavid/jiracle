@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useRef} from 'react';
 import {Box, Text, useInput} from 'ink';
 import {Select} from '@inkjs/ui';
 
@@ -53,6 +53,15 @@ export function MonthYearSelector({
 		initialSelection?.month ?? currentDate.getMonth() + 1,
 	);
 	const [focusField, setFocusField] = useState<'year' | 'month'>('year');
+	const selectedYearRef = useRef(selectedYear);
+	const selectedMonthRef = useRef(selectedMonth);
+	const pendingSubmitRef = useRef(false);
+	const submitTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(
+		undefined,
+	);
+
+	selectedYearRef.current = selectedYear;
+	selectedMonthRef.current = selectedMonth;
 
 	const years = generateYears(currentDate.getFullYear());
 
@@ -63,12 +72,31 @@ export function MonthYearSelector({
 		}
 
 		if (key.return) {
-			onSelect({year: selectedYear, month: selectedMonth});
+			pendingSubmitRef.current = true;
+			if (submitTimeoutRef.current) {
+				clearTimeout(submitTimeoutRef.current);
+			}
+
+			submitTimeoutRef.current = setTimeout(() => {
+				if (!pendingSubmitRef.current) {
+					return;
+				}
+
+				pendingSubmitRef.current = false;
+				onSelect({
+					year: selectedYearRef.current,
+					month: selectedMonthRef.current,
+				});
+			}, 10);
 			return;
 		}
 
 		if (key.tab) {
 			setFocusField(focusField === 'year' ? 'month' : 'year');
+			pendingSubmitRef.current = false;
+			if (submitTimeoutRef.current) {
+				clearTimeout(submitTimeoutRef.current);
+			}
 		}
 	});
 
@@ -90,7 +118,18 @@ export function MonthYearSelector({
 									options={years}
 									defaultValue={selectedYear.toString()}
 									onChange={value => {
-										setSelectedYear(Number.parseInt(value, 10));
+										const nextYear = Number.parseInt(value, 10);
+										setSelectedYear(nextYear);
+										if (pendingSubmitRef.current) {
+											pendingSubmitRef.current = false;
+											if (submitTimeoutRef.current) {
+												clearTimeout(submitTimeoutRef.current);
+											}
+											onSelect({
+												year: nextYear,
+												month: selectedMonthRef.current,
+											});
+										}
 									}}
 								/>
 							) : (
@@ -109,7 +148,18 @@ export function MonthYearSelector({
 									options={MONTHS}
 									defaultValue={selectedMonth.toString()}
 									onChange={value => {
-										setSelectedMonth(Number.parseInt(value, 10));
+										const nextMonth = Number.parseInt(value, 10);
+										setSelectedMonth(nextMonth);
+										if (pendingSubmitRef.current) {
+											pendingSubmitRef.current = false;
+											if (submitTimeoutRef.current) {
+												clearTimeout(submitTimeoutRef.current);
+											}
+											onSelect({
+												year: selectedYearRef.current,
+												month: nextMonth,
+											});
+										}
 									}}
 								/>
 							) : (

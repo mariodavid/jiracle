@@ -8,6 +8,32 @@ import {InkTestHelpers} from '../utils/ink-test-helpers.js';
 
 // Mock setup for fetch
 const originalFetch = global.fetch;
+const originalDate = Date;
+
+function mockDate(isoDate: string) {
+	const fixedDate = new originalDate(isoDate);
+
+	class MockDate extends originalDate {
+		constructor(...args: unknown[]) {
+			if (args.length === 0) {
+				super(fixedDate);
+				return;
+			}
+
+			super(...(args as ConstructorParameters<typeof originalDate>));
+		}
+
+		static override now() {
+			return fixedDate.getTime();
+		}
+	}
+
+	global.Date = MockDate as DateConstructor;
+
+	return () => {
+		global.Date = originalDate;
+	};
+}
 
 function setupSuccessfulSAPMock() {
 	global.fetch = async (): Promise<Response> =>
@@ -133,6 +159,49 @@ test.serial(
 
 		// Cleanup
 		teardownMockFetch();
+	},
+);
+
+test.serial(
+	'Integration: SAP Export navigation - month selection updates confirmation',
+	async t => {
+		const restoreDate = mockDate('2026-02-06T12:00:00.000Z');
+		const mockConfig = createValidSAPConfig();
+
+		await TestPatterns.withTempFiles(async () => {
+			const {lastFrame, stdin} = render(
+				React.createElement(WeeklyTimetableView, {
+					config: mockConfig,
+					userEmail: 'test@example.com',
+					onBack() {},
+				}),
+			);
+
+			stdin.write('e');
+			await InkTestHelpers.delay(100);
+
+			// Move focus to month selector
+			stdin.write('\t');
+			await InkTestHelpers.delay(100);
+
+			// Move from February to January and confirm
+			stdin.write('\u001B[A'); // Up arrow
+			await InkTestHelpers.delay(100);
+			stdin.write('\r');
+			await InkTestHelpers.delay(150);
+			const confirmationOutput = lastFrame()!;
+
+			t.true(
+				confirmationOutput.includes('Month: January 2026'),
+				'Should show newly selected month in confirmation',
+			);
+			t.false(
+				confirmationOutput.includes('Month: February 2026'),
+				'Should not show previous default month in confirmation',
+			);
+		});
+
+		restoreDate();
 	},
 );
 

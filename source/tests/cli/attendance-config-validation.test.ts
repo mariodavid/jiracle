@@ -14,8 +14,9 @@ test.serial('should handle missing attendance config', async t => {
 		const configPath = manager.writeConfig(
 			ConfigFactory.createDisabledConfig(),
 		);
+		const csvPath = manager.createTempCSVPath();
 		const parameters: CheckInParameters = {date: '2025-07-11'};
-		const result = await executeCheckIn(parameters, configPath);
+		const result = await executeCheckIn(parameters, configPath, csvPath);
 
 		AssertionHelpers.assertFailure(
 			result,
@@ -31,8 +32,9 @@ test.serial('should handle malformed JSON config', async t => {
 		// Write malformed JSON directly
 		const fs = await import('node:fs');
 		fs.writeFileSync(configPath, '{ "jiraUrl": "invalid json');
+		const csvPath = manager.createTempCSVPath();
 		const parameters: CheckInParameters = {date: '2025-07-11'};
-		const result = await executeCheckIn(parameters, configPath);
+		const result = await executeCheckIn(parameters, configPath, csvPath);
 
 		AssertionHelpers.assertErrorContains(
 			result,
@@ -53,8 +55,9 @@ test.serial('should handle invalid working hours - negative', async t => {
 			defaultBreakMinutes: 30,
 		});
 		const configPath = manager.writeConfig(config);
+		const csvPath = manager.createTempCSVPath();
 		const parameters: CheckInParameters = {date: '2025-07-11'};
-		const result = await executeCheckIn(parameters, configPath);
+		const result = await executeCheckIn(parameters, configPath, csvPath);
 
 		// Currently implementation might not validate this, but test documents expected behavior
 		t.true(result.success ?? result.message.includes('working hours'));
@@ -72,8 +75,9 @@ test.serial('should handle invalid working hours - zero', async t => {
 			defaultBreakMinutes: 30,
 		});
 		const configPath = manager.writeConfig(config);
+		const csvPath = manager.createTempCSVPath();
 		const parameters: CheckInParameters = {date: '2025-07-11'};
-		const result = await executeCheckIn(parameters, configPath);
+		const result = await executeCheckIn(parameters, configPath, csvPath);
 
 		// Currently implementation might not validate this, but test documents expected behavior
 		t.true(result.success ?? result.message.includes('working hours'));
@@ -91,8 +95,9 @@ test.serial('should handle invalid working hours - over 24', async t => {
 			defaultBreakMinutes: 30,
 		});
 		const configPath = manager.writeConfig(config);
+		const csvPath = manager.createTempCSVPath();
 		const parameters: CheckInParameters = {date: '2025-07-11'};
-		const result = await executeCheckIn(parameters, configPath);
+		const result = await executeCheckIn(parameters, configPath, csvPath);
 
 		// Currently implementation might not validate this, but test documents expected behavior
 		t.true(result.success ?? result.message.includes('working hours'));
@@ -110,8 +115,9 @@ test.serial('should handle invalid break minutes - negative', async t => {
 			defaultBreakMinutes: -10,
 		});
 		const configPath = manager.writeConfig(config);
+		const csvPath = manager.createTempCSVPath();
 		const parameters: CheckInParameters = {date: '2025-07-11'};
-		const result = await executeCheckIn(parameters, configPath);
+		const result = await executeCheckIn(parameters, configPath, csvPath);
 
 		// Currently implementation might not validate this, but test documents expected behavior
 		t.true(result.success ?? result.message.includes('break'));
@@ -131,8 +137,9 @@ test.serial(
 				defaultBreakMinutes: 600,
 			});
 			const configPath = manager.writeConfig(config);
+			const csvPath = manager.createTempCSVPath();
 			const parameters: CheckInParameters = {date: '2025-07-11'};
-			const result = await executeCheckIn(parameters, configPath);
+			const result = await executeCheckIn(parameters, configPath, csvPath);
 
 			// Currently implementation might not validate this, but test documents expected behavior
 			t.true(result.success ?? result.message.includes('break'));
@@ -153,8 +160,9 @@ test.serial(
 				defaultBreakMinutes: 30,
 			});
 			const configPath = manager.writeConfig(config);
+			const csvPath = manager.createTempCSVPath();
 			const parameters: CheckInParameters = {date: '2025-07-11'}; // Don't specify time, so it should use defaultCheckIn
-			const result = await executeCheckIn(parameters, configPath);
+			const result = await executeCheckIn(parameters, configPath, csvPath);
 
 			// Currently implementation might not validate default times in config
 			t.true(result.success ?? result.message.includes('time format'));
@@ -175,8 +183,9 @@ test.serial(
 				defaultBreakMinutes: 30,
 			});
 			const configPath = manager.writeConfig(config);
+			const csvPath = manager.createTempCSVPath();
 			const parameters: CheckInParameters = {date: '2025-07-11', time: '08:00'};
-			const result = await executeCheckIn(parameters, configPath);
+			const result = await executeCheckIn(parameters, configPath, csvPath);
 
 			// This should succeed since we're only checking in
 			AssertionHelpers.assertSuccess(result, t);
@@ -193,8 +202,9 @@ test.serial(
 				// Missing workingHours, breakMinutes, etc.
 			});
 			const configPath = manager.writeConfig(config);
+			const csvPath = manager.createTempCSVPath();
 			const parameters: CheckInParameters = {date: '2025-07-11', time: '08:00'};
-			const result = await executeCheckIn(parameters, configPath);
+			const result = await executeCheckIn(parameters, configPath, csvPath);
 
 			// Should still work with defaults
 			AssertionHelpers.assertSuccess(result, t);
