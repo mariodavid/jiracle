@@ -1,12 +1,24 @@
 import {execFileSync} from 'node:child_process';
 import {join} from 'node:path';
-import {writeFileSync, readFileSync, existsSync, unlinkSync} from 'node:fs';
-import {homedir} from 'node:os';
+import {
+	writeFileSync,
+	readFileSync,
+	existsSync,
+	unlinkSync,
+	mkdirSync,
+} from 'node:fs';
 import process from 'node:process';
 import test from 'ava';
 
 const cliPath = join(process.cwd(), 'dist', 'cli.js');
-const originalConfigPath = join(homedir(), '.config', 'jiracle.json');
+const devConfigDir = join(process.cwd(), '.dev');
+const originalConfigPath = join(devConfigDir, 'config.json');
+
+function ensureDevConfigDir() {
+	if (!existsSync(devConfigDir)) {
+		mkdirSync(devConfigDir, {recursive: true});
+	}
+}
 
 // Integration tests for CLI worklog functionality
 
@@ -21,6 +33,7 @@ test('worklog add - invalid Jira URL shows connection error', t => {
 		apiToken: 'test-token',
 	};
 
+	ensureDevConfigDir();
 	writeFileSync(originalConfigPath, JSON.stringify(invalidConfig, null, 2));
 
 	try {
@@ -43,6 +56,10 @@ test('worklog add - invalid Jira URL shows connection error', t => {
 				encoding: 'utf8',
 				stdio: ['pipe', 'pipe', 'pipe'],
 				timeout: 10_000, // 10 second timeout
+				env: {
+					...process.env,
+					JIRACLE_DEV_MODE: 'true',
+				},
 			},
 		);
 
@@ -65,6 +82,7 @@ test('worklog add - malformed JSON config shows error', t => {
 		? readFileSync(originalConfigPath, 'utf8')
 		: null;
 
+	ensureDevConfigDir();
 	writeFileSync(originalConfigPath, 'invalid json {');
 
 	try {
@@ -86,6 +104,10 @@ test('worklog add - malformed JSON config shows error', t => {
 			{
 				encoding: 'utf8',
 				stdio: ['pipe', 'pipe', 'pipe'],
+				env: {
+					...process.env,
+					JIRACLE_DEV_MODE: 'true',
+				},
 			},
 		);
 
@@ -113,6 +135,7 @@ test('worklog add - incomplete config shows error', t => {
 		// Missing username and apiToken
 	};
 
+	ensureDevConfigDir();
 	writeFileSync(originalConfigPath, JSON.stringify(incompleteConfig, null, 2));
 
 	try {
@@ -134,6 +157,10 @@ test('worklog add - incomplete config shows error', t => {
 			{
 				encoding: 'utf8',
 				stdio: ['pipe', 'pipe', 'pipe'],
+				env: {
+					...process.env,
+					JIRACLE_DEV_MODE: 'true',
+				},
 			},
 		);
 
@@ -165,6 +192,7 @@ test.serial('worklog add - end to end successful flow structure', t => {
 		apiToken: 'invalid-token-for-testing',
 	};
 
+	ensureDevConfigDir();
 	writeFileSync(originalConfigPath, JSON.stringify(testConfig, null, 2));
 
 	try {
@@ -187,6 +215,10 @@ test.serial('worklog add - end to end successful flow structure', t => {
 				encoding: 'utf8',
 				stdio: ['pipe', 'pipe', 'pipe'],
 				timeout: 5000, // 5 second timeout to prevent hanging
+				env: {
+					...process.env,
+					JIRACLE_DEV_MODE: 'true',
+				},
 			},
 		);
 

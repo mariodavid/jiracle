@@ -5,7 +5,11 @@ import test from 'ava';
 import {IssueKey} from '../../domain/IssueKey.js';
 import {loadJiraConfig} from '../../utils/config-loader.js';
 
-const temporaryConfigDirectory = join(homedir(), '.config-test-temp');
+const temporaryConfigDirectory = join(
+	process.cwd(),
+	'.tmp',
+	'config-test-temp',
+);
 const temporaryConfigPath = join(temporaryConfigDirectory, 'jiracle.json');
 
 test.beforeEach(() => {
