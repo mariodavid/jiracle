@@ -120,15 +120,10 @@ export function MonthYearSelector({
 									onChange={value => {
 										const nextYear = Number.parseInt(value, 10);
 										setSelectedYear(nextYear);
-										if (pendingSubmitRef.current) {
-											pendingSubmitRef.current = false;
-											if (submitTimeoutRef.current) {
-												clearTimeout(submitTimeoutRef.current);
-											}
-											onSelect({
-												year: nextYear,
-												month: selectedMonthRef.current,
-											});
+										// Cancel any pending submit when year changes
+										pendingSubmitRef.current = false;
+										if (submitTimeoutRef.current) {
+											clearTimeout(submitTimeoutRef.current);
 										}
 									}}
 								/>
@@ -150,15 +145,10 @@ export function MonthYearSelector({
 									onChange={value => {
 										const nextMonth = Number.parseInt(value, 10);
 										setSelectedMonth(nextMonth);
-										if (pendingSubmitRef.current) {
-											pendingSubmitRef.current = false;
-											if (submitTimeoutRef.current) {
-												clearTimeout(submitTimeoutRef.current);
-											}
-											onSelect({
-												year: selectedYearRef.current,
-												month: nextMonth,
-											});
+										// Cancel any pending submit when month changes
+										pendingSubmitRef.current = false;
+										if (submitTimeoutRef.current) {
+											clearTimeout(submitTimeoutRef.current);
 										}
 									}}
 								/>
@@ -173,6 +163,12 @@ export function MonthYearSelector({
 							)}
 						</Box>
 					</Box>
+				</Box>
+
+				<Box marginTop={1} justifyContent="center">
+					<Text dimColor>
+						Tab: Switch fields • Enter: Confirm • q/Esc: Cancel
+					</Text>
 				</Box>
 			</Box>
 		</Box>
