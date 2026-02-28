@@ -77,6 +77,7 @@ export type JiraConfig = {
 	username: string;
 	apiToken: string;
 	favorites?: FavoriteIssue[];
+	aliases?: Record<string, string>;
 	projects?: ProjectDefaults[];
 	groups?: Group[];
 	defaultComment?: string;
