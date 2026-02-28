@@ -1,12 +1,28 @@
 import {execFileSync} from 'node:child_process';
 import {join} from 'node:path';
-import {readFileSync, writeFileSync, existsSync, unlinkSync} from 'node:fs';
-import {homedir} from 'node:os';
+import {
+	readFileSync,
+	writeFileSync,
+	existsSync,
+	unlinkSync,
+	mkdirSync,
+} from 'node:fs';
 import process from 'node:process';
 import test from 'ava';
 
 const cliPath = join(process.cwd(), 'dist', 'cli.js');
-const originalConfigPath = join(homedir(), '.config', 'jiracle.json');
+const devConfigDir = join(process.cwd(), '.dev');
+const originalConfigPath = join(devConfigDir, 'config.json');
+
+function ensureDevConfigDir() {
+	if (!existsSync(devConfigDir)) {
+		mkdirSync(devConfigDir, {recursive: true});
+	}
+}
+
+test.beforeEach(t => {
+	t.timeout(30_000);
+});
 
 function runCli(args: string[]): {
 	stdout: string;
@@ -17,6 +33,12 @@ function runCli(args: string[]): {
 		const stdout = execFileSync('node', [cliPath, ...args], {
 			encoding: 'utf8',
 			stdio: ['pipe', 'pipe', 'pipe'],
+			env: {
+				...process.env,
+				JIRACLE_DEV_MODE: 'true',
+				JIRACLE_API_TOKEN: '',
+				JIRACLE_JIRA_URL: '',
+			},
 		});
 		return {stdout, stderr: '', exitCode: 0};
 	} catch (error: unknown) {
@@ -189,6 +211,8 @@ test('worklog add - missing config file shows error', t => {
 		? readFileSync(originalConfigPath, 'utf8')
 		: null;
 
+	ensureDevConfigDir();
+
 	if (existsSync(originalConfigPath)) {
 		unlinkSync(originalConfigPath);
 	}
@@ -268,6 +292,8 @@ test('worklog add - clean error messages for non-existent issue', t => {
 	const backup = existsSync(originalConfigPath)
 		? readFileSync(originalConfigPath, 'utf8')
 		: null;
+
+	ensureDevConfigDir();
 
 	const testConfig = {
 		jiraUrl: 'https://test.atlassian.net/',

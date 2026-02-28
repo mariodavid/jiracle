@@ -14,8 +14,20 @@ export class AttendanceManager {
 	private readonly storage: AttendanceCSVStorage;
 
 	constructor(private config: AttendanceConfig, csvPath?: string) {
+		this.config = {
+			...config,
+			workingHours: config.workingHours ?? 8,
+			breakMinutes: config.breakMinutes ?? 30,
+			defaultCheckIn: config.defaultCheckIn ?? '08:00',
+			defaultCheckOut: config.defaultCheckOut ?? '17:00',
+			defaultBreakMinutes:
+				config.defaultBreakMinutes ?? config.breakMinutes ?? 30,
+		};
+
 		const finalCsvPath =
-			csvPath ?? config.csvPath ?? process.env['JIRACLE_ATTENDANCE_CSV_PATH'];
+			csvPath ??
+			this.config.csvPath ??
+			process.env['JIRACLE_ATTENDANCE_CSV_PATH'];
 		this.storage = new AttendanceCSVStorage(finalCsvPath);
 	}
 
