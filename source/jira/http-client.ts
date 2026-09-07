@@ -1,5 +1,6 @@
 import type winston from 'winston';
 import type {JiraConfig} from './types.js';
+import {getBasicAuthHeader} from './utils.js';
 
 // Generic request/response types for better type safety
 export type HttpRequestData = Record<string, unknown>;
@@ -7,6 +8,8 @@ export type HttpResponse<T = unknown> = T;
 
 export class JiraHttpClient {
 	private readonly baseUrl: string;
+	private readonly searchUrl: string;
+	private readonly username: string;
 	private readonly apiToken: string;
 	private readonly logger: winston.Logger;
 
@@ -15,6 +18,10 @@ export class JiraHttpClient {
 			? config.jiraUrl
 			: `${config.jiraUrl}/`;
 		this.baseUrl = `${normalizedJiraUrl}rest/api/2`;
+		// The legacy /rest/api/2/search (and /3/search) endpoints were removed by Atlassian;
+		// JQL search now lives at this dedicated v3 endpoint (see changelog CHANGE-2046).
+		this.searchUrl = `${normalizedJiraUrl}rest/api/3/search/jql`;
+		this.username = config.username;
 		this.apiToken = config.apiToken;
 		this.logger = logger;
 	}
@@ -56,6 +63,26 @@ export class JiraHttpClient {
 			return await this.handleResponse<T>(response, url);
 		} catch (error: unknown) {
 			this.logger.error(`POST request failed for ${url}:`, error);
+			throw error;
+		}
+	}
+
+	async search<T = HttpResponse, D = HttpRequestData>(data: D): Promise<T> {
+		this.logger.info(`POST request to ${this.searchUrl}`);
+
+		try {
+			const response = await fetch(this.searchUrl, {
+				method: 'POST',
+				headers: {
+					...this.getHeaders(),
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify(data),
+			});
+
+			return await this.handleResponse<T>(response, this.searchUrl);
+		} catch (error: unknown) {
+			this.logger.error(`POST request failed for ${this.searchUrl}:`, error);
 			throw error;
 		}
 	}
@@ -103,7 +130,7 @@ export class JiraHttpClient {
 
 	private getHeaders(): Record<string, string> {
 		return {
-			Authorization: `Bearer ${this.apiToken}`,
+			Authorization: getBasicAuthHeader(this.username, this.apiToken),
 			Accept: 'application/json',
 		};
 	}

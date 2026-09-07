@@ -13,25 +13,28 @@ import type {
 	WorklogRequest,
 	WorklogResponse,
 } from './types.js';
-import {getFavoriteKeys} from './utils.js';
+import {getBasicAuthHeader, getFavoriteKeys} from './utils.js';
 import {JiraHttpClient} from './http-client.js';
 import {createJiraLogger} from './logger.js';
 import {validateConfiguration} from './validation.js';
 
 export class JiraClient {
 	readonly jiraUrl: string;
+	readonly username: string;
 	readonly apiToken: string;
 	private readonly logger: winston.Logger;
 	private readonly httpClient: JiraHttpClient;
 
 	constructor(config: JiraConfig, customLogger?: winston.Logger) {
 		this.jiraUrl = process.env['JIRACLE_JIRA_URL'] ?? config.jiraUrl;
+		this.username = process.env['JIRACLE_USERNAME'] ?? config.username;
 		this.apiToken = process.env['JIRACLE_API_TOKEN'] ?? config.apiToken;
 		this.logger = customLogger ?? createJiraLogger();
 		this.httpClient = new JiraHttpClient(
 			{
 				...config,
 				jiraUrl: this.jiraUrl,
+				username: this.username,
 				apiToken: this.apiToken,
 			},
 			this.logger,
@@ -43,6 +46,14 @@ export class JiraClient {
 			? this.jiraUrl
 			: `${this.jiraUrl}/`;
 		return `${normalizedJiraUrl}rest/api/2`;
+	}
+
+	get searchUrl(): string {
+		const normalizedJiraUrl = this.jiraUrl.endsWith('/')
+			? this.jiraUrl
+			: `${this.jiraUrl}/`;
+		// The legacy /rest/api/2/search endpoint was removed by Atlassian (see changelog CHANGE-2046).
+		return `${normalizedJiraUrl}rest/api/3/search/jql`;
 	}
 
 	validateConfiguration(): {isValid: boolean; errors: string[]} {
@@ -67,6 +78,10 @@ export class JiraClient {
 			}
 		} else {
 			errors.push('Jira URL is not configured');
+		}
+
+		if (!this.username) {
+			errors.push('Username is not configured');
 		}
 
 		if (!this.apiToken) {
@@ -96,10 +111,10 @@ export class JiraClient {
 			],
 		};
 
-		const rawData = await this.httpClient.post<
+		const rawData = await this.httpClient.search<
 			JiraSearchRawResponse,
 			JiraSearchRequest
-		>('/search', requestData);
+		>(requestData);
 
 		// Transform the raw API response to use IssueKey objects
 		const transformedIssues: JiraIssue[] = rawData.issues.map(issue => ({
@@ -133,10 +148,10 @@ export class JiraClient {
 			],
 		};
 
-		const rawData = await this.httpClient.post<
+		const rawData = await this.httpClient.search<
 			JiraSearchRawResponse,
 			JiraSearchRequest
-		>('/search', requestData);
+		>(requestData);
 
 		// Transform the raw API response to use IssueKey objects
 		const transformedIssues: JiraIssue[] = rawData.issues.map(issue => ({
@@ -171,7 +186,7 @@ export class JiraClient {
 		const validation = validateConfiguration({
 			jiraUrl: this.jiraUrl,
 			apiToken: this.apiToken,
-			username: '',
+			username: this.username,
 		});
 		if (!validation.isValid) {
 			throw new Error(`Configuration errors: ${validation.errors.join(', ')}`);
@@ -202,7 +217,7 @@ export class JiraClient {
 		try {
 			const response = await fetch(worklogUrl, {
 				headers: {
-					Authorization: `Bearer ${this.apiToken}`,
+					Authorization: getBasicAuthHeader(this.username, this.apiToken),
 					Accept: 'application/json',
 				},
 			});
@@ -258,7 +273,7 @@ export class JiraClient {
 			const response = await fetch(deleteUrl, {
 				method: 'DELETE',
 				headers: {
-					Authorization: `Bearer ${this.apiToken}`,
+					Authorization: getBasicAuthHeader(this.username, this.apiToken),
 					Accept: 'application/json',
 				},
 			});
@@ -303,7 +318,7 @@ export class JiraClient {
 		const validation = validateConfiguration({
 			jiraUrl: this.jiraUrl,
 			apiToken: this.apiToken,
-			username: '',
+			username: this.username,
 		});
 		if (!validation.isValid) {
 			throw new Error(`Configuration errors: ${validation.errors.join(', ')}`);
@@ -331,7 +346,7 @@ export class JiraClient {
 		jql: string,
 		additionalFields?: string[],
 	): Promise<JiraSearchResponse> {
-		const searchUrl = `${this.baseUrl}/search`;
+		const {searchUrl} = this;
 		const baseFields = ['id', 'key', 'summary'];
 		const fields = additionalFields
 			? [...baseFields, ...additionalFields]
@@ -353,7 +368,7 @@ export class JiraClient {
 			const response = await fetch(searchUrl, {
 				method: 'POST',
 				headers: {
-					Authorization: `Bearer ${this.apiToken}`,
+					Authorization: getBasicAuthHeader(this.username, this.apiToken),
 					Accept: 'application/json',
 					'Content-Type': 'application/json',
 				},
@@ -414,7 +429,7 @@ export class JiraClient {
 		try {
 			const response = await fetch(myselfUrl, {
 				headers: {
-					Authorization: `Bearer ${this.apiToken}`,
+					Authorization: getBasicAuthHeader(this.username, this.apiToken),
 					Accept: 'application/json',
 				},
 			});
@@ -463,12 +478,12 @@ export class JiraClient {
 
 		try {
 			const searchResult = await this.searchIssuesWithWorklogs(jql);
-			const hasWorklogs = searchResult.total > 0;
+			const hasWorklogs = searchResult.issues.length > 0;
 
 			this.logger.info('Worklog check completed', {
 				date: todayFormatted,
 				hasWorklogs,
-				total: searchResult.total,
+				issueCount: searchResult.issues.length,
 			});
 
 			return hasWorklogs;

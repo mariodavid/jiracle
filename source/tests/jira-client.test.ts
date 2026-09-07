@@ -1,3 +1,4 @@
+import {Buffer} from 'node:buffer';
 import test from 'ava';
 import {
 	JiraClient,
@@ -39,11 +40,19 @@ test('fetchAssignedIssues builds correct request', async t => {
 		await client.fetchAssignedIssues();
 
 		t.truthy(capturedRequest);
-		t.is(capturedRequest!.url, 'https://jira.example.com/rest/api/2/search');
+		t.is(
+			capturedRequest!.url,
+			'https://jira.example.com/rest/api/3/search/jql',
+		);
 		t.is(capturedRequest!.options.method, 'POST');
 
 		const headers = capturedRequest!.options.headers as Record<string, string>;
-		t.is(headers['Authorization'], 'Bearer test-token-123');
+		t.is(
+			headers['Authorization'],
+			`Basic ${Buffer.from('test@example.com:test-token-123').toString(
+				'base64',
+			)}`,
+		);
 		t.is(headers['Content-Type'], 'application/json');
 
 		const body = JSON.parse(capturedRequest!.options.body as string);
@@ -110,7 +119,12 @@ test('fetchIssue builds correct request', async t => {
 		);
 
 		const headers = capturedRequest!.options.headers as Record<string, string>;
-		t.is(headers['Authorization'], 'Bearer test-token-123');
+		t.is(
+			headers['Authorization'],
+			`Basic ${Buffer.from('test@example.com:test-token-123').toString(
+				'base64',
+			)}`,
+		);
 		t.is(headers['Accept'], 'application/json');
 	} finally {
 		global.fetch = originalFetch;

@@ -28,6 +28,10 @@ export function validateConfiguration(config: JiraConfig): {
 		errors.push('Jira URL is not configured');
 	}
 
+	if (!config.username) {
+		errors.push('Username is not configured');
+	}
+
 	if (!config.apiToken) {
 		errors.push('API token is not configured');
 	}

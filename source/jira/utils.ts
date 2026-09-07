@@ -1,4 +1,5 @@
 import process from 'node:process';
+import {Buffer} from 'node:buffer';
 import {Duration} from '../domain/Duration.js';
 import {LocalDate} from '../domain/LocalDate.js';
 import type {IssueKey} from '../domain/IssueKey.js';
@@ -58,6 +59,11 @@ export function normalizeTimeFormat(timeString: string): string {
 	} catch {
 		return '';
 	}
+}
+
+export function getBasicAuthHeader(username: string, apiToken: string): string {
+	const encoded = Buffer.from(`${username}:${apiToken}`).toString('base64');
+	return `Basic ${encoded}`;
 }
 
 export function getFavoriteKeys(favorites: FavoriteIssue[]): string[] {
