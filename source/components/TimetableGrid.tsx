@@ -167,9 +167,15 @@ export function TimetableGrid({
 
 	// Helper function to format issue key with alias support, favorite marker and fixed width
 	const formatIssueKey = (issueKey: IssueKey): string => {
-		// Check if this issue has an alias configured
+		// Check aliases first (global aliases section)
+		const globalAlias = config?.aliases?.[issueKey.toString()];
+
+		// Fallback to favorite alias if no global alias exists
 		const favoriteIssue = favoriteIssues.find(fav => fav.key.equals(issueKey));
-		const displayText = favoriteIssue?.alias ?? issueKey.toString();
+		const favoriteAlias = favoriteIssue?.alias;
+
+		// Priority: global aliases > favorite aliases > issue key
+		const displayText = globalAlias ?? favoriteAlias ?? issueKey.toString();
 
 		// Pad the display text to a fixed width (e.g. 12 characters for consistency)
 		const paddedDisplayText = displayText.padEnd(12, ' ');
