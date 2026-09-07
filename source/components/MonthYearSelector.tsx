@@ -1,6 +1,5 @@
-import React, {useState, useRef} from 'react';
+import React, {useState, useRef, useCallback} from 'react';
 import {Box, Text, useInput} from 'ink';
-import {Select} from '@inkjs/ui';
 
 export type MonthYearSelection = {
 	year: number;
@@ -65,6 +64,44 @@ export function MonthYearSelector({
 
 	const years = generateYears(currentDate.getFullYear());
 
+	const handleYearChange = useCallback(
+		(delta: number) => {
+			const currentIndex = years.findIndex(
+				y => y.value === selectedYear.toString(),
+			);
+			const newIndex = Math.max(
+				0,
+				Math.min(years.length - 1, currentIndex + delta),
+			);
+			setSelectedYear(Number.parseInt(years[newIndex]!.value, 10));
+			pendingSubmitRef.current = false;
+			if (submitTimeoutRef.current) {
+				clearTimeout(submitTimeoutRef.current);
+			}
+		},
+		[years, selectedYear],
+	);
+
+	const handleMonthChange = useCallback(
+		(delta: number) => {
+			let newMonth = selectedMonth + delta;
+			if (newMonth < 1) {
+				newMonth = 12;
+				setSelectedYear(selectedYear - 1);
+			} else if (newMonth > 12) {
+				newMonth = 1;
+				setSelectedYear(selectedYear + 1);
+			} else {
+				setSelectedMonth(newMonth);
+			}
+			pendingSubmitRef.current = false;
+			if (submitTimeoutRef.current) {
+				clearTimeout(submitTimeoutRef.current);
+			}
+		},
+		[selectedMonth, selectedYear],
+	);
+
 	useInput((input, key) => {
 		if (input === 'q' || key.escape) {
 			onCancel();
@@ -87,7 +124,7 @@ export function MonthYearSelector({
 					year: selectedYearRef.current,
 					month: selectedMonthRef.current,
 				});
-			}, 10);
+			}, 50);
 			return;
 		}
 
@@ -96,6 +133,21 @@ export function MonthYearSelector({
 			pendingSubmitRef.current = false;
 			if (submitTimeoutRef.current) {
 				clearTimeout(submitTimeoutRef.current);
+			}
+		}
+
+		// Handle arrow keys for year/month navigation when focused
+		if (focusField === 'year') {
+			if (key.upArrow) {
+				handleYearChange(-1);
+			} else if (key.downArrow) {
+				handleYearChange(1);
+			}
+		} else if (focusField === 'month') {
+			if (key.upArrow) {
+				handleMonthChange(-1);
+			} else if (key.downArrow) {
+				handleMonthChange(1);
 			}
 		}
 	});
@@ -114,19 +166,11 @@ export function MonthYearSelector({
 						</Box>
 						<Box width={10}>
 							{focusField === 'year' ? (
-								<Select
-									options={years}
-									defaultValue={selectedYear.toString()}
-									onChange={value => {
-										const nextYear = Number.parseInt(value, 10);
-										setSelectedYear(nextYear);
-										// Cancel any pending submit when year changes
-										pendingSubmitRef.current = false;
-										if (submitTimeoutRef.current) {
-											clearTimeout(submitTimeoutRef.current);
-										}
-									}}
-								/>
+								<Box flexDirection="row" alignItems="center" gap={1}>
+									<Text bold>{'◀'}</Text>
+									<Text bold>{selectedYear}</Text>
+									<Text bold>{'▶'}</Text>
+								</Box>
 							) : (
 								<Text>{selectedYear}</Text>
 							)}
@@ -139,19 +183,17 @@ export function MonthYearSelector({
 						</Box>
 						<Box width={18}>
 							{focusField === 'month' ? (
-								<Select
-									options={MONTHS}
-									defaultValue={selectedMonth.toString()}
-									onChange={value => {
-										const nextMonth = Number.parseInt(value, 10);
-										setSelectedMonth(nextMonth);
-										// Cancel any pending submit when month changes
-										pendingSubmitRef.current = false;
-										if (submitTimeoutRef.current) {
-											clearTimeout(submitTimeoutRef.current);
+								<Box flexDirection="row" alignItems="center" gap={1}>
+									<Text bold>{'◀'}</Text>
+									<Text bold>
+										{
+											MONTHS.find(
+												m => Number.parseInt(m.value, 10) === selectedMonth,
+											)?.label
 										}
-									}}
-								/>
+									</Text>
+									<Text bold>{'▶'}</Text>
+								</Box>
 							) : (
 								<Text>
 									{
@@ -167,7 +209,8 @@ export function MonthYearSelector({
 
 				<Box marginTop={1} justifyContent="center">
 					<Text dimColor>
-						Tab: Switch fields • Enter: Confirm • q/Esc: Cancel
+						↑↓: Change value • Tab: Switch fields • Enter: Confirm • q/Esc:
+						Cancel
 					</Text>
 				</Box>
 			</Box>
