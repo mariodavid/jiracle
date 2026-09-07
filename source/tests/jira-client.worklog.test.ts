@@ -1,3 +1,4 @@
+import {Buffer} from 'node:buffer';
 import test from 'ava';
 import {JiraClient} from '../jira-client.js';
 import type {JiraConfig} from '../jira-client.js';
@@ -55,7 +56,12 @@ test('getIssueWorklogs builds correct request', async t => {
 		t.is(capturedRequest!.options.method, undefined); // GET is default
 
 		const headers = capturedRequest!.options.headers as Record<string, string>;
-		t.is(headers['Authorization'], 'Bearer test-token-123');
+		t.is(
+			headers['Authorization'],
+			`Basic ${Buffer.from('test@example.com:test-token-123').toString(
+				'base64',
+			)}`,
+		);
 		t.is(headers['Accept'], 'application/json');
 
 		t.deepEqual(result, mockWorklogResponse);
@@ -130,11 +136,19 @@ test('searchIssuesWithWorklogs builds correct request', async t => {
 		const result = await client.searchIssuesWithWorklogs(jql);
 
 		t.truthy(capturedRequest);
-		t.is(capturedRequest!.url, 'https://jira.example.com/rest/api/2/search');
+		t.is(
+			capturedRequest!.url,
+			'https://jira.example.com/rest/api/3/search/jql',
+		);
 		t.is(capturedRequest!.options.method, 'POST');
 
 		const headers = capturedRequest!.options.headers as Record<string, string>;
-		t.is(headers['Authorization'], 'Bearer test-token-123');
+		t.is(
+			headers['Authorization'],
+			`Basic ${Buffer.from('test@example.com:test-token-123').toString(
+				'base64',
+			)}`,
+		);
 		t.is(headers['Content-Type'], 'application/json');
 
 		const body = JSON.parse(capturedRequest!.options.body as string);
@@ -203,7 +217,12 @@ test('getCurrentUser builds correct request', async t => {
 		t.is(capturedRequest!.options.method, undefined); // GET is default
 
 		const headers = capturedRequest!.options.headers as Record<string, string>;
-		t.is(headers['Authorization'], 'Bearer test-token-123');
+		t.is(
+			headers['Authorization'],
+			`Basic ${Buffer.from('test@example.com:test-token-123').toString(
+				'base64',
+			)}`,
+		);
 		t.is(headers['Accept'], 'application/json');
 
 		t.deepEqual(result, mockUserResponse);
@@ -392,7 +411,12 @@ test('updateWorklog builds correct request', async t => {
 		t.is(capturedRequest!.options.method, 'PUT');
 
 		const headers = capturedRequest!.options.headers as Record<string, string>;
-		t.is(headers['Authorization'], 'Bearer test-token-123');
+		t.is(
+			headers['Authorization'],
+			`Basic ${Buffer.from('test@example.com:test-token-123').toString(
+				'base64',
+			)}`,
+		);
 		t.is(headers['Accept'], 'application/json');
 		t.is(headers['Content-Type'], 'application/json');
 

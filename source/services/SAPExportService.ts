@@ -1,3 +1,4 @@
+import {getBasicAuthHeader} from '../jira/utils.js';
 import type {JiraConfig} from '../jira/types.js';
 import {MonthYear} from '../domain/MonthYear.js';
 import {PersonnelNumber} from '../domain/PersonnelNumber.js';
@@ -60,7 +61,10 @@ export class SAPExportService {
 					method: 'POST',
 					headers: {
 						'Content-Type': 'application/x-www-form-urlencoded',
-						Authorization: `Bearer ${this.config.apiToken}`,
+						Authorization: getBasicAuthHeader(
+							this.config.username,
+							this.config.apiToken,
+						),
 					},
 					body: formData,
 				},

@@ -124,9 +124,11 @@ export type JiraIssue = {
 
 export type JiraSearchResponse = {
 	issues: JiraIssue[];
-	startAt: number;
-	maxResults: number;
-	total: number;
+	startAt?: number;
+	maxResults?: number;
+	total?: number;
+	nextPageToken?: string;
+	isLast?: boolean;
 };
 
 export type WorklogRequest = {
@@ -177,9 +179,11 @@ export type JiraSearchRawResponse = {
 		id: string;
 		fields: JiraIssueField;
 	}>;
-	startAt: number;
-	maxResults: number;
-	total: number;
+	startAt?: number;
+	maxResults?: number;
+	total?: number;
+	nextPageToken?: string;
+	isLast?: boolean;
 };
 
 export type JiraIssueRawResponse = {
